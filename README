@@ -1,0 +1,30 @@
+libpion: a C++ framework for building lightweight HTTP interfaces
+
+Copyright (C) 2007 Atomic Labs, Inc.
+
+Home page: http://www.atomiclabs.com/libpion
+
+See COPYING for licensing information.
+
+Build and installation summary:
+
+# ./autogen.sh
+# ./configure --with-boost=/path/to/boost [--with-log4cxx=/path/to/log4cxx]
+# make all
+# [su root]
+# make install
+
+See INSTALL or run "./configure --help" for more detailed instructions.
+
+libpion REQUIRES the Boost C++ libraries (version 1.33 or greater),
+including the Boost ASIO library.  Boost ASIO has been accepted into Boost
+but is not yet included in the distribution.  Boost ASIO additionally
+requires OpenSSL for SSL/TLS support and zlib for compression.  To enable
+logging support, libpion must also be built with the Apache log4cxx library.
+You can download these libraries from the following locations:
+
+http://www.boost.org
+http://asio.sourceforge.net
+http://www.openssl.org
+http://www.zlib.net
+http://logging.apache.org/log4cxx
