@@ -1,5 +1,5 @@
-# -----------------------------------
-# libpion automake configuration file
-# -----------------------------------
+# ------------------------------------
+# pion-net automake configuration file
+# ------------------------------------
 
-SUBDIRS = libpion
+SUBDIRS = pion
