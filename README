@@ -1,8 +1,8 @@
-libpion: a C++ framework for building lightweight HTTP interfaces
+Pion Network Library: a C++ framework for building lightweight HTTP interfaces
 
 Copyright (C) 2007 Atomic Labs, Inc.
 
-Home page: http://www.atomiclabs.com/libpion
+Home page: http://www.atomiclabs.com/pion/net
 
 See COPYING for licensing information.
 
@@ -15,10 +15,10 @@ Build and installation summary:
 See INSTALL or run "./configure --help" for more detailed instructions.
 
 Detailed build instructions are available for all of the platforms supported
-by libpion within the "doc" subdirectory (README.platform).  Please read these
-instructions first.
+by the Pion Network Library ("pion-net") within the "doc" subdirectory
+(README.platform).  Please read these instructions first.
 
-Starting with 0.2.0, libpion REQUIRES the Boost C++ libraries (version
+Starting with 0.2.0, pion-net REQUIRES the Boost C++ libraries (version
 1.34.0 or greater), and the Boost ASIO library (version 0.38 or
 greater). Please see the README.boost file within the "doc" subdirectory
 for instructions on how to download, build and install these libraries.
@@ -29,7 +29,7 @@ compression.  You can download these libraries from the following locations:
 http://www.openssl.org
 http://www.zlib.net
 
-For logging, libpion may be configured to:
+For logging, pion-net may be configured to:
 
 a) disable logging entirely (the default configuration)
 b) use std::cout and std::cerr for logging (configure --with-ostream-logging)

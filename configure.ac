@@ -1,12 +1,12 @@
-# -----------------------------------
-# libpion autoconf configuration file
-# -----------------------------------
+# ------------------------------------------------
+# Pion Network Library autoconf configuration file
+# ------------------------------------------------
 
 # Set Pion version information
-AC_INIT([libpion], [0.3.3], [support@atomiclabs.com])
+AC_INIT([pion-net], [0.3.3], [support@atomiclabs.com])
 PION_LIBRARY_VERSION=$PACKAGE_VERSION
 AC_SUBST(PION_LIBRARY_VERSION)
-AC_DEFINE_UNQUOTED([PION_VERSION],["$PACKAGE_VERSION"],[Define to the version number of libpion.])
+AC_DEFINE_UNQUOTED([PION_VERSION],["$PACKAGE_VERSION"],[Define to the version number of pion-net.])
 
 # Initialize some other things
 AC_PREREQ([2.59])
@@ -14,7 +14,7 @@ AC_CONFIG_AUX_DIR(build)
 AC_CONFIG_SRCDIR(src/PionEngine.cpp)
 
 # Note: AM_CONFIG_HEADER is deprecated
-AC_CONFIG_HEADERS([include/libpion/PionConfig.hpp])
+AC_CONFIG_HEADERS([include/pion/PionConfig.hpp])
 
 # DO NOT USE autoheader (the .hpp.in file is not automanaged)
 AUTOHEADER="echo autoheader ignored"
@@ -24,7 +24,7 @@ AM_INIT_AUTOMAKE
 
 # Define CXXFLAGS before AC_PROG_CXX to suppress the default autoconf
 # compiler options
-CXXFLAGS="-DLIBPION"
+CXXFLAGS="-DPION_NETWORK_LIBRARY"
 
 # Setup libtool
 AC_LIBTOOL_WIN32_DLL
@@ -112,9 +112,9 @@ AC_ARG_WITH([modules],
     [with_modules=no])
 if test "$with_modules" = "no"; then
 	if test "x$prefix" = "xNONE"; then
-		PION_MODULES_DIRECTORY=/usr/local/lib/libpion/modules
+		PION_MODULES_DIRECTORY=/usr/local/lib/pion/modules
 	else
-		PION_MODULES_DIRECTORY=${prefix}/lib/libpion/modules
+		PION_MODULES_DIRECTORY=${prefix}/lib/pion/modules
 	fi
 else
 	PION_MODULES_DIRECTORY=$with_modules
@@ -379,5 +379,5 @@ AC_SUBST(PION_LOG_LIB)
 
 
 # Output Makefiles
-AC_OUTPUT(libpion.pc Makefile include/Makefile include/libpion/Makefile 
+AC_OUTPUT(pion-net.pc Makefile include/Makefile include/pion/Makefile
 	src/Makefile modules/Makefile tests/Makefile)
