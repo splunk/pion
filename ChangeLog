@@ -1,0 +1,80 @@
+Version 0.3.2 (2007-09-14)
+==========================
+
+* Added support for MSVC compiler (see builds/VC/libpion.vcproj file)
+* Added support for HTTP/1.1 pipelining (multiple requests in single packet)
+* Added support for linking static HTTP module libraries into programs
+* Added accessor functions for client IP address in HTTPRequest/TCPConnection
+* Moved more I/O logic into TCPConnection to cleanup SSL checks
+* Changed start() to startup() and stop() to shutdown() in PionEngine
+
+
+Version 0.2.4 (2007-09-05)
+==========================
+
+* Fixed a bug in HTTPServer that caused it to not find some modules correctly   
+* Removed writeNoCopy(const T& data) function since only strings make sense
+* Updated cookie parser to ignore garbage after quoted values
+* Updated build scripts so that they find Boost libs build with GCC 4.1
+* Updated cygwin patches for Boost 1.34.1
+
+
+Version 0.2.2 (2007-06-26)
+==========================
+
+* Accept errors caused servers to stop listening for new connections
+
+
+Version 0.2.0 (2007-06-19)
+==========================
+
+* Boost 1.34.0 and ASIO 0.3.8 are now REQUIRED; see README.boost
+* Lots of platform testing and better platform-specific documentation
+* Added support to FileModule for the "cache" and "scan" options
+* Added Last-Modified HTTP header to FileModule and support for client cache
+* Changed HTTPServer error handlers to use functions rather than modules
+* Re-worked PionPlugin library so that it handles reference counting internally
+* Added start() and stop() virtual functions to HTTPModule
+* Added beforeStarting() and afterStopping() virtual functions to TCPServer
+* Added PionHashMap.hpp for setting-up unordered map types
+* Added work-around for bug that causes Windows to crash @ shutdown
+
+
+Version 0.1.6 (2007-06-01)
+==========================
+
+* Added support for HTTP module configuration files (see testmodules.conf)
+* Added support for parsing & setting cookies (Version 1, RFC 2109)
+* Added a CookieModule that displays and lets you add/delete cookies
+* Added LogModule that displays events when an external log library is used
+* Added support to FileModule for cygwin paths and "file" option
+* Added support for SSL/TLS using OpenSSL (must use --with-openssl)
+* Plug-ins now use pion_create_PLUGINNAME and pion_destroy_PLUGINNAME
+* Fixed bugs related to the parsing of request (POST) content
+
+
+Version 0.1.4 (2007-05-25)
+==========================
+
+* Fixed miscellaneous bugs with the HTTPResponse class
+* Added support for parsing POST content, and GET and POST query parameters
+* Added support for passing configuration options to HTTP modules
+* Added EchoModule and FileModule, and stubs for LogModule
+* Added support for HTTP modules to be dynamically-loadable libraries
+* Added support for pkg-config (http://pkg-config.freedesktop.org/wiki/)
+* Moved around some of the source directories & renamed test programs
+* Added build support & documentation for FreeBSD, Solaris and Windows
+* Added Xcode project file for Mac OS X (you must still use "configure")
+
+
+Version 0.1.2 (2007-05-01)
+==========================
+
+* Added support for log4cplus, log4cpp and std::ostream logging
+* Added more detailed build information for Linux and Mac OS X
+
+
+Version 0.1.0 (2007-04-30)
+==========================
+
+* First alpha release with very basic functionality

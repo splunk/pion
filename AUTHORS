@@ -1,0 +1,11 @@
+Authors of libpion:
+===================
+
+Michael Dickey <mike at atomiclabs dot com>
+Mignon Belongie <mignon at atomiclabs dot com>
+Stas Khirman <stas at khirman dot com>
+
+Parts of libpion were derived from or inspired by the HTTP Server example
+in the asio documentation.  Many thanks to Christopher M. Kohlhoff and all
+the contributors of Boost and asio, without which libpion would not have
+been possible.
