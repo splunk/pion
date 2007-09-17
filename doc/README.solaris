@@ -4,7 +4,7 @@ Solaris Build Instructions
 Preparing the Build Environment:
 --------------------------------
 
-libpion currently only supports the GCC (g++) compiler when building under
+pion-net currently only supports the GCC (g++) compiler when building under
 Solaris.  We plan to add support for the Sun Studio C++ compiler in the near
 future, after support for it is added to the ASIO library.
 
@@ -60,7 +60,7 @@ Logging frameworks:
 Note that the use of a logging framework is entirely optional, so you may
 skip this step if you like.
 
-If you wish to use one of the supported logging frameworks with libpion,
+If you wish to use one of the supported logging frameworks with pion-net,
 you will need to download and install it from source, since none of them
 are currently available pre-built for Solaris.  The current releases of
 the log4cpp and log4cplus libraries do not seem to build correctly under
@@ -73,13 +73,13 @@ Please see the log4cxx documentation for more information on how to build
 and install this library.
 
 
-Building and installing libpion:
---------------------------------
+Building and installing pion-net:
+---------------------------------
 
-Now you should be able to build and install libpion:
+Now you should be able to build and install pion-net:
 
-tar xvfz libpion-VERSION.tar.gz
-cd libpion-VERSION
+tar xvfz pion-net-VERSION.tar.gz
+cd pion-net-VERSION
 ./configure --with-boost=/usr/local \
 	[--with-openssl=/usr/local/ssl] [--with-log4cxx=/usr/local]
 make ; sudo make install

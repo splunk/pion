@@ -41,13 +41,13 @@ Note that the log4cplus library does not build properly under OS X, so you
 will need to use log4cxx or log4cpp instead.
 
 
-Building and installing libpion:
---------------------------------
+Building and installing pion-net:
+---------------------------------
 
-Now you should be able to build and install libpion:
+Now you should be able to build and install pion-net:
 
-tar xvfz libpion-VERSION.tar.gz
-cd libpion-VERSION
+tar xvfz pion-net-VERSION.tar.gz
+cd pion-net-VERSION
 ./configure --with-boost=/usr/local
 	[--with-openssl] [--with-log4cpp=/opt/local]
 make ; sudo make install

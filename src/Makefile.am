@@ -1,13 +1,13 @@
-# -----------------------------------
-# libpion automake configuration file 
-# -----------------------------------
+# ------------------------------------
+# pion-net automake configuration file 
+# ------------------------------------
 
 AM_CPPFLAGS = -I../include
 
-lib_LTLIBRARIES = libpion.la
+lib_LTLIBRARIES = pion-net.la
 
-libpion_la_SOURCES = PionPlugin.cpp PionEngine.cpp TCPServer.cpp \
+pion-net_la_SOURCES = PionPlugin.cpp PionEngine.cpp TCPServer.cpp \
 	HTTPTypes.cpp HTTPResponse.cpp HTTPRequestParser.cpp HTTPServer.cpp
 
-libpion_la_LDFLAGS = -no-undefined -release $(PION_LIBRARY_VERSION)
-libpion_la_LIBADD = @BOOST_THREAD_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @PION_SSL_LIB@ @PION_LOG_LIB@
+pion-net_la_LDFLAGS = -no-undefined -release $(PION_LIBRARY_VERSION)
+pion-net_la_LIBADD = @BOOST_THREAD_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @PION_SSL_LIB@ @PION_LOG_LIB@

@@ -42,7 +42,7 @@ bjam --toolset=msvc --with-thread --with-system --with-filesystem \
 You may leave out the --with-... options if you wish to build everything.  Note
 that the "regex" and "date_time" libraries are required only to avoid errors
 when building with MSVC due to problems involving Boost's "auto-linking"
-feature.  These libraries are not actually required by libpion or linked into
+feature.  These libraries are not actually required by pion-net or linked into
 your program (unless you use them elsewhere).
 
 We recommend that you create a C:\Boost directory with C:\Boost\Lib and
@@ -77,14 +77,14 @@ http://log4cpp.sourceforge.net
 http://log4cplus.sourceforge.net
 
 
-Building and installing libpion:
---------------------------------
+Building and installing pion-net:
+---------------------------------
 
 Update the Visual C++ Directories in the Projects and Solutions section in the 
 Options dialog box.  For Include files add "C:\Boost\Include", and for Library
 files add "C:\Boost\Lib".
 
-Now you should be able to build the solution file in build/VC/libpion_vc.sln.
+Now you should be able to build the solution file in build/VC/pion_net_vc.sln.
 
 
 Running the test programs:

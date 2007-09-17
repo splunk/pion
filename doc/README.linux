@@ -48,13 +48,13 @@ http://log4cpp.sourceforge.net
 http://log4cplus.sourceforge.net
 
 
-Building and installing libpion:
---------------------------------
+Building and installing pion-net:
+---------------------------------
 
-Now you should be able to build and install libpion:
+Now you should be able to build and install pion-net:
 
-tar xvfz libpion-VERSION.tar.gz
-cd libpion-VERSION
+tar xvfz pion-net-VERSION.tar.gz
+cd pion-net-VERSION
 ./configure --with-boost=/usr/local [--with-openssl] [--with-log4cpp]
 make ; sudo make install
 
