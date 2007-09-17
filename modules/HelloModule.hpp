@@ -17,13 +17,13 @@
 /// HelloModule: module that responds with "Hello World"
 /// 
 class HelloModule :
-	public pion::HTTPModule
+	public pion::net::HTTPModule
 {
 public:
 	HelloModule(void) {}
 	virtual ~HelloModule() {}
-	virtual bool handleRequest(pion::HTTPRequestPtr& request,
-							   pion::TCPConnectionPtr& tcp_conn);
+	virtual bool handleRequest(pion::net::HTTPRequestPtr& request,
+							   pion::net::TCPConnectionPtr& tcp_conn);
 };
 
 #endif

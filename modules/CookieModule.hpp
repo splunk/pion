@@ -17,13 +17,13 @@
 /// CookieModule: module that displays and updates cookies
 /// 
 class CookieModule :
-	public pion::HTTPModule
+	public pion::net::HTTPModule
 {
 public:
 	CookieModule(void) {}
 	virtual ~CookieModule() {}
-	virtual bool handleRequest(pion::HTTPRequestPtr& request,
-							   pion::TCPConnectionPtr& tcp_conn);
+	virtual bool handleRequest(pion::net::HTTPRequestPtr& request,
+							   pion::net::TCPConnectionPtr& tcp_conn);
 };
 
 #endif

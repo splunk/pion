@@ -14,7 +14,7 @@ AC_CONFIG_AUX_DIR(build)
 AC_CONFIG_SRCDIR(src/PionEngine.cpp)
 
 # Note: AM_CONFIG_HEADER is deprecated
-AC_CONFIG_HEADERS([include/pion/PionConfig.hpp])
+AC_CONFIG_HEADERS([include/pion/net/PionConfig.hpp])
 
 # DO NOT USE autoheader (the .hpp.in file is not automanaged)
 AUTOHEADER="echo autoheader ignored"
@@ -380,4 +380,4 @@ AC_SUBST(PION_LOG_LIB)
 
 # Output Makefiles
 AC_OUTPUT(pion-net.pc Makefile include/Makefile include/pion/Makefile
-	src/Makefile modules/Makefile tests/Makefile)
+	include/pion/net/Makefile src/Makefile modules/Makefile tests/Makefile)

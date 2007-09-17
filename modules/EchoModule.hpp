@@ -17,13 +17,13 @@
 /// EchoModule: module that echos back requests (to test request parsing)
 /// 
 class EchoModule :
-	public pion::HTTPModule
+	public pion::net::HTTPModule
 {
 public:
 	EchoModule(void) {}
 	virtual ~EchoModule() {}
-	virtual bool handleRequest(pion::HTTPRequestPtr& request,
-							   pion::TCPConnectionPtr& tcp_conn);
+	virtual bool handleRequest(pion::net::HTTPRequestPtr& request,
+							   pion::net::TCPConnectionPtr& tcp_conn);
 };
 
 #endif

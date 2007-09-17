@@ -52,7 +52,7 @@ public:
 	void addLogString(const std::string& log_string);
 
 	/// writes the events cached in memory to a response stream
-	void writeLogEvents(pion::HTTPResponsePtr& response);
+	void writeLogEvents(pion::net::HTTPResponsePtr& response);
 
 private:
 	/// default maximum number of events cached in memory
@@ -108,7 +108,7 @@ private:
 /// LogModule: module that displays log messages
 /// 
 class LogModule :
-	public pion::HTTPModule
+	public pion::net::HTTPModule
 {
 public:
 	// default constructor and destructor
@@ -116,8 +116,8 @@ public:
 	virtual ~LogModule();
 	
 	/// handles a new HTTP request
-	virtual bool handleRequest(pion::HTTPRequestPtr& request,
-							   pion::TCPConnectionPtr& tcp_conn);
+	virtual bool handleRequest(pion::net::HTTPRequestPtr& request,
+							   pion::net::TCPConnectionPtr& tcp_conn);
 
 	/// returns the log appender used by LogModule
 	inline LogModuleAppender& getLogAppender(void) { return *m_log_appender_ptr; }

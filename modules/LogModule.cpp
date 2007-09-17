@@ -93,7 +93,7 @@ void LogModuleAppender::addLogString(const std::string& log_string)
 	}
 }
 
-void LogModuleAppender::writeLogEvents(pion::HTTPResponsePtr& response)
+void LogModuleAppender::writeLogEvents(pion::net::HTTPResponsePtr& response)
 {
 #if defined(PION_HAVE_LOG4CXX) || defined(PION_HAVE_LOG4CPLUS) || defined(PION_HAVE_LOG4CPP)
 	boost::mutex::scoped_lock log_lock(m_log_mutex);
