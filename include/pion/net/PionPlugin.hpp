@@ -402,14 +402,14 @@ public:
 	class plugin_name;						\
 	extern "C" plugin_name *pion_create_##plugin_name(void); \
 	extern "C" void pion_destroy_##plugin_name(plugin_name *plugin_ptr); \
-	static pion::StaticEntryPointHelper helper_##plugin_name(#plugin_name, pion_create_##plugin_name, pion_destroy_##plugin_name);
+	static pion::net::StaticEntryPointHelper helper_##plugin_name(#plugin_name, pion_create_##plugin_name, pion_destroy_##plugin_name);
 
 /// used by PION_DECLARE_PLUGIN to add an entry point for static-linked plugins
 class StaticEntryPointHelper {
 public:
 	StaticEntryPointHelper(const std::string& name, void *create, void *destroy)
 	{
-		pion::PionPlugin::addStaticEntryPoint(name, create, destroy);
+		pion::net::PionPlugin::addStaticEntryPoint(name, create, destroy);
 	}
 };
 

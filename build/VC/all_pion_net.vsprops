@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="all_libpion"
+	Name="all_pion_net"
 	OutputDirectory="$(SolutionDir)bin\$(ConfigurationName)"
 	>
 	<Tool

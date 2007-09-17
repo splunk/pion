@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="Debug_static_libpion"
-	InheritedPropertySheets=".\all_libpion.vsprops"
+	InheritedPropertySheets=".\all_pion_net.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -12,8 +12,5 @@
 		BasicRuntimeChecks="3"
 		RuntimeLibrary="1"
 		DebugInformationFormat="4"
-	/>
-	<Tool
-		Name="VCLibrarianTool"
 	/>
 </VisualStudioPropertySheet>

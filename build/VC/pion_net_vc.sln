@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual C++ Express 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpion", "libpion.vcproj", "{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pion_net", "pion_net.vcproj", "{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PionServerTest", "PionServerTest\PionServerTest.vcproj", "{49714B23-3394-43CE-BF84-290EB1A50715}"
 	ProjectSection(ProjectDependencies) = postProject

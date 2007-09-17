@@ -19,7 +19,7 @@
 			Name="Debug_DLL|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\all_libpion.vsprops;..\depth_3.vsprops"
+			InheritedPropertySheets="..\all_pion_net.vsprops;..\depth_3.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -55,7 +55,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_system-vc80-mt-gd-1_34_1.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -89,7 +88,7 @@
 			Name="Debug_static|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\all_libpion.vsprops;..\depth_3.vsprops"
+			InheritedPropertySheets="..\all_pion_net.vsprops;..\depth_3.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -110,6 +109,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				PreprocessorDefinitions="_DEBUG;PION_STATIC_LINKING;_CONSOLE"
+				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				DebugInformationFormat="4"
 			/>
@@ -157,7 +157,7 @@
 			Name="Release_DLL|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\all_libpion.vsprops;..\depth_3.vsprops"
+			InheritedPropertySheets="..\all_pion_net.vsprops;..\depth_3.vsprops"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -192,12 +192,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_system-vc80-mt-1_34_1.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -228,7 +225,7 @@
 			Name="Release_static|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\all_libpion.vsprops;..\depth_3.vsprops"
+			InheritedPropertySheets="..\all_pion_net.vsprops;..\depth_3.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

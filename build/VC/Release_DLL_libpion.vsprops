@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="Release_DLL_libpion"
-	InheritedPropertySheets=".\all_libpion.vsprops"
+	InheritedPropertySheets=".\all_pion_net.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"

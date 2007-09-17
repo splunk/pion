@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="libpion"
+	Name="pion_net"
 	ProjectGUID="{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}"
-	RootNamespace="libpion"
+	RootNamespace="pion_net"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug_DLL|Win32"
-			IntermediateDirectory="libpion\$(ConfigurationName)"
+			IntermediateDirectory="pion_net\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets=".\Debug_DLL_libpion.vsprops;.\depth_2.vsprops"
 			>
@@ -79,7 +79,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_static|Win32"
-			IntermediateDirectory="libpion\$(ConfigurationName)"
+			IntermediateDirectory="pion_net\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets=".\Debug_static_libpion.vsprops;.\depth_2.vsprops"
 			>
@@ -131,7 +131,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release_DLL|Win32"
-			IntermediateDirectory="libpion\$(ConfigurationName)"
+			IntermediateDirectory="pion_net\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets=".\Release_DLL_libpion.vsprops;.\depth_2.vsprops"
 			>
@@ -193,7 +193,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release_static|Win32"
-			IntermediateDirectory="libpion\$(ConfigurationName)"
+			IntermediateDirectory="pion_net\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets=".\Release_static_libpion.vsprops;.\depth_2.vsprops"
 			>
@@ -287,39 +287,39 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\include\libpion\HTTPModule.hpp"
+				RelativePath="..\..\include\pion\net\HTTPModule.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\HTTPRequest.hpp"
+				RelativePath="..\..\include\pion\net\HTTPRequest.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\HTTPRequestParser.hpp"
+				RelativePath="..\..\include\pion\net\HTTPRequestParser.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\HTTPResponse.hpp"
+				RelativePath="..\..\include\pion\net\HTTPResponse.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\HTTPServer.hpp"
+				RelativePath="..\..\include\pion\net\HTTPServer.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\HTTPTypes.hpp"
+				RelativePath="..\..\include\pion\net\HTTPTypes.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\Pion.hpp"
+				RelativePath="..\..\include\pion\net\Pion.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\PionConfig.hpp"
+				RelativePath="..\..\include\pion\net\PionConfig.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\PionConfig.hpp.win"
+				RelativePath="..\..\include\pion\net\PionConfig.hpp.win"
 				>
 				<FileConfiguration
 					Name="Debug_DLL|Win32"
@@ -363,31 +363,31 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\PionEngine.hpp"
+				RelativePath="..\..\include\pion\net\PionEngine.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\PionException.hpp"
+				RelativePath="..\..\include\pion\net\PionException.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\PionHashMap.hpp"
+				RelativePath="..\..\include\pion\net\PionHashMap.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\PionLogger.hpp"
+				RelativePath="..\..\include\pion\net\PionLogger.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\PionPlugin.hpp"
+				RelativePath="..\..\include\pion\net\PionPlugin.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\TCPConnection.hpp"
+				RelativePath="..\..\include\pion\net\TCPConnection.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\libpion\TCPServer.hpp"
+				RelativePath="..\..\include\pion\net\TCPServer.hpp"
 				>
 			</File>
 		</Filter>
