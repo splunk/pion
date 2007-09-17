@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------
-// libpion: a C++ framework for building lightweight HTTP interfaces
-// -----------------------------------------------------------------
+// ------------------------------------------------------------------
+// pion-net: a C++ framework for building lightweight HTTP interfaces
+// ------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -8,13 +8,14 @@
 //
 
 #include <boost/bind.hpp>
-#include <libpion/TCPServer.hpp>
-#include <libpion/PionEngine.hpp>
+#include <pion/net/TCPServer.hpp>
+#include <pion/net/PionEngine.hpp>
 
 using boost::asio::ip::tcp;
 
 
 namespace pion {	// begin namespace pion
+namespace net {		// begin namespace net (Pion Network Library)
 
 // TCPServer member functions
 
@@ -168,4 +169,5 @@ void TCPServer::finishConnection(TCPConnectionPtr& tcp_conn)
 	}
 }
 
+}	// end namespace net
 }	// end namespace pion

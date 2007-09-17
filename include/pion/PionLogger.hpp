@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------
-// libpion: a C++ framework for building lightweight HTTP interfaces
-// -----------------------------------------------------------------
+// ------------------------------------------------------------------
+// pion-net: a C++ framework for building lightweight HTTP interfaces
+// ------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -10,7 +10,7 @@
 #ifndef __PION_PIONLOGGER_HEADER__
 #define __PION_PIONLOGGER_HEADER__
 
-#include <libpion/PionConfig.hpp>
+#include <pion/net/PionConfig.hpp>
 
 
 #if defined(PION_HAVE_LOG4CXX)

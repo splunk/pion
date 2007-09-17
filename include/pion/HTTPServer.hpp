@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------
-// libpion: a C++ framework for building lightweight HTTP interfaces
-// -----------------------------------------------------------------
+// ------------------------------------------------------------------
+// pion-net: a C++ framework for building lightweight HTTP interfaces
+// ------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -12,17 +12,18 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-#include <libpion/PionConfig.hpp>
-#include <libpion/PionException.hpp>
-#include <libpion/PionPlugin.hpp>
-#include <libpion/TCPServer.hpp>
-#include <libpion/TCPConnection.hpp>
-#include <libpion/HTTPModule.hpp>
+#include <pion/net/PionConfig.hpp>
+#include <pion/net/PionException.hpp>
+#include <pion/net/PionPlugin.hpp>
+#include <pion/net/TCPServer.hpp>
+#include <pion/net/TCPConnection.hpp>
+#include <pion/net/HTTPModule.hpp>
 #include <string>
 #include <map>
 
 
 namespace pion {	// begin namespace pion
+namespace net {		// begin namespace net (Pion Network Library)
 
 ///
 /// HTTPServer: a server that handles HTTP connections
@@ -238,6 +239,7 @@ private:
 typedef boost::shared_ptr<HTTPServer>		HTTPServerPtr;
 
 
+}	// end namespace net
 }	// end namespace pion
 
 #endif

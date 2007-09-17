@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------
-// libpion: a C++ framework for building lightweight HTTP interfaces
-// -----------------------------------------------------------------
+// ------------------------------------------------------------------
+// pion-net: a C++ framework for building lightweight HTTP interfaces
+// ------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -10,12 +10,13 @@
 #ifndef __PION_PION_HEADER__
 #define __PION_PION_HEADER__
 
-#include <libpion/PionConfig.hpp>
-#include <libpion/PionEngine.hpp>
-#include <libpion/PionPlugin.hpp>
+#include <pion/net/PionConfig.hpp>
+#include <pion/net/PionEngine.hpp>
+#include <pion/net/PionPlugin.hpp>
 
 
 namespace pion {	// begin namespace pion
+namespace net {		// begin namespace net (Pion Network Library)
 
 ///
 /// Pion: library wrapper for the PionEngine singleton
@@ -101,6 +102,7 @@ struct Pion {
 	}
 };
 
+}	// end namespace net
 }	// end namespace pion
 
 #endif

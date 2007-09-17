@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------
-// libpion: a C++ framework for building lightweight HTTP interfaces
-// -----------------------------------------------------------------
+// ------------------------------------------------------------------
+// pion-net: a C++ framework for building lightweight HTTP interfaces
+// ------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -10,12 +10,13 @@
 #ifndef __PION_HTTPTYPES_HEADER__
 #define __PION_HTTPTYPES_HEADER__
 
-#include <libpion/PionConfig.hpp>
-#include <libpion/PionHashMap.hpp>
+#include <pion/net/PionConfig.hpp>
+#include <pion/net/PionHashMap.hpp>
 #include <string>
 
 
 namespace pion {	// begin namespace pion
+namespace net {		// begin namespace net (Pion Network Library)
 
 ///
 /// HTTPTypes: common data types used by HTTP
@@ -85,6 +86,7 @@ struct PION_LIBRARY_API HTTPTypes
 	static std::string get_date_string(const time_t t);
 };
 
+}	// end namespace net
 }	// end namespace pion
 
 #endif

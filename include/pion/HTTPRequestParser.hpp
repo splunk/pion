@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------
-// libpion: a C++ framework for building lightweight HTTP interfaces
-// -----------------------------------------------------------------
+// ------------------------------------------------------------------
+// pion-net: a C++ framework for building lightweight HTTP interfaces
+// ------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -15,14 +15,15 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/logic/tribool.hpp>
-#include <libpion/PionConfig.hpp>
-#include <libpion/PionLogger.hpp>
-#include <libpion/HTTPRequest.hpp>
-#include <libpion/TCPConnection.hpp>
+#include <pion/net/PionConfig.hpp>
+#include <pion/net/PionLogger.hpp>
+#include <pion/net/HTTPRequest.hpp>
+#include <pion/net/TCPConnection.hpp>
 #include <string>
 
 
 namespace pion {	// begin namespace pion
+namespace net {		// begin namespace net (Pion Network Library)
 
 ///
 /// HTTPRequestParser: parses HTTP Requests
@@ -276,6 +277,7 @@ inline bool HTTPRequestParser::isDigit(int c)
 	return(c >= '0' && c <= '9');
 }
 
+}	// end namespace net
 }	// end namespace pion
 
 #endif

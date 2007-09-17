@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------
-// libpion: a C++ framework for building lightweight HTTP interfaces
-// -----------------------------------------------------------------
+// ------------------------------------------------------------------
+// pion-net: a C++ framework for building lightweight HTTP interfaces
+// ------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -8,10 +8,11 @@
 //
 
 #include <boost/bind.hpp>
-#include <libpion/HTTPResponse.hpp>
+#include <pion/net/HTTPResponse.hpp>
 
 
 namespace pion {	// begin namespace pion
+namespace net {		// begin namespace net (Pion Network Library)
 
 	
 // HTTPResponse member functions
@@ -106,5 +107,6 @@ std::string HTTPResponse::makeSetCookieHeader(const std::string& name,
 	return set_cookie_header;
 }
 
+}	// end namespace net
 }	// end namespace pion
 

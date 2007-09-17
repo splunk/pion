@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------
-// libpion: a C++ framework for building lightweight HTTP interfaces
-// -----------------------------------------------------------------
+// ------------------------------------------------------------------
+// pion-net: a C++ framework for building lightweight HTTP interfaces
+// ------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -8,7 +8,7 @@
 //
 
 #include <boost/bind.hpp>
-#include <libpion/Pion.hpp>
+#include <pion/net/Pion.hpp>
 #include <iostream>
 #include <vector>
 #ifndef PION_WIN32
@@ -25,6 +25,7 @@ PION_DECLARE_PLUGIN(CookieModule)
 
 using namespace std;
 using namespace pion;
+using namespace pion::net;
 
 /// stops Pion when it receives signals
 #ifdef PION_WIN32
@@ -163,7 +164,7 @@ int main (int argc, char *argv[])
 			ssl_context.use_private_key_file(ssl_pem_file, boost::asio::ssl::context::pem);
 			PION_LOG_INFO(main_log, "SSL support enabled using key file: " << ssl_pem_file);
 #else
-			PION_LOG_ERROR(main_log, "SSL support is not enabled in libpion");
+			PION_LOG_ERROR(main_log, "SSL support is not enabled");
 #endif
 		}
 		

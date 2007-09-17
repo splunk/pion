@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------
-// libpion: a C++ framework for building lightweight HTTP interfaces
-// -----------------------------------------------------------------
+// ------------------------------------------------------------------
+// pion-net: a C++ framework for building lightweight HTTP interfaces
+// ------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -8,7 +8,7 @@
 //
 
 #include <boost/bind.hpp>
-#include <libpion/Pion.hpp>
+#include <pion/net/Pion.hpp>
 #include <iostream>
 #ifndef PION_WIN32
 	#include <signal.h>
@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace pion;
+using namespace pion::net;
 
 
 /// stops Pion when it receives signals
