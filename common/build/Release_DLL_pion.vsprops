@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="Release_DLL_pion"
+	InheritedPropertySheets=".\pion.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalOptions="/GL"
+		PreprocessorDefinitions="BOOST_ALL_DYN_LINK;NDEBUG;_USRDLL"
+		RuntimeLibrary="2"
+		DebugInformationFormat="3"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		LinkIncremental="1"
+		GenerateDebugInformation="true"
+		LinkTimeCodeGeneration="1"
+	/>
+</VisualStudioPropertySheet>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="Debug_static_pion"
+	InheritedPropertySheets=".\pion.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		Optimization="0"
+		PreprocessorDefinitions="PION_STATIC_LINKING;_DEBUG;_LIB"
+		BasicRuntimeChecks="3"
+		RuntimeLibrary="1"
+		DebugInformationFormat="4"
+	/>
+</VisualStudioPropertySheet>
