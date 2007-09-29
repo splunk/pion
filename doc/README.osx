@@ -1,0 +1,53 @@
+Mac OS X Build Instructions
+===========================
+
+Building Boost with ASIO:
+-------------------------
+
+Please see the README.boost file for instructions.
+There are no known problems on OS X.
+
+
+Installing zlib & openssl:
+--------------------------
+
+ASIO requires zlib and openssl for compression and SSL/TLS encryption
+support, respectively.  These libraries are pre-installed on OS X.
+However, you may instead choose to download and install the latest
+versions from the following sites:
+
+http://www.zlib.net
+http://www.openssl.org
+
+
+Logging frameworks:
+-------------------
+
+Note that the use of a logging framework is entirely optional, so you may
+skip this step if you like.
+
+If you have MacPorts (http://www.macports.org) already installed, it is easy
+to use it to install the log4cpp library:
+
+sudo port install log4cpp
+
+If you do not have MacPorts or prefer to compile the logging framework from
+source, you can download the tarballs from the following sites:
+
+http://logging.apache.org/log4cxx
+http://log4cpp.sourceforge.net
+
+Note that the log4cplus library does not build properly under OS X, so you
+will need to use log4cxx or log4cpp instead.
+
+
+Building and installing pion-net:
+---------------------------------
+
+Now you should be able to build and install pion-net:
+
+tar xvfz pion-net-VERSION.tar.gz
+cd pion-net-VERSION
+./configure --with-boost=/usr/local
+	[--with-openssl] [--with-log4cpp=/opt/local]
+make ; sudo make install

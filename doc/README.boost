@@ -1,0 +1,85 @@
+Installing Boost with ASIO
+==========================
+
+Starting with 0.2.0, pion-net requires Boost 1.34.0 with ASIO 0.3.8rc3 (or
+later).  Since these are both fairly recent releases, none of our supported
+platforms currently have pre-built versions available of these libraries. 
+Therefore, you will likely need to download, compile and install Boost and ASIO
+using the source tarballs.
+
+Note that although the ASIO library is not currently included in the Boost
+distribution, it has been accepted into the library and will be included
+in a future release (most likely 1.35.0).  You can use it with the current
+Boost release by just copying ASIO's files into the Boost source tree.
+
+First, download the latest tarballs from SourceForge.net:
+
+wget http://downloads.sourceforge.net/boost/boost_1_34_1.tar.bz2
+wget http://downloads.sourceforge.net/asio/boost_asio_0_3_8rc3.tar.bz2
+
+Next, uncompress the tarballs and copy the ASIO files into the Boost
+directory:
+
+bzip2 -dc boost_1_34_1.tar.bz2 | tar xvf -
+bzip2 -dc boost_asio_0_3_8rc3.tar.bz2 | tar xvf -
+tar cvf - -C boost_asio_0_3_8rc3 boost libs | tar xf - -C boost_1_34_1
+
+(If you are using a graphical tool, make sure that you copy all of the ASIO
+files into the same directory that you extracted Boost into -- select
+"Yes to All" for replacing existing files).
+
+Finally, configure, build and install the Boost libraries (now with ASIO).
+You have two options:
+
+
+Build using the configure script:
+---------------------------------
+
+The configure script provides the easiest way to build and install Boost.
+However, with the configure script you cannot specify alternative compilers
+(this is auto-detected) and you also must build all of the Boost libraries,
+which can be very time-consuming (note that only three of them are required by
+pion-net).  Building with the configure script also requires that you have a
+UNIX shell interpreter (/bin/sh) and the make utility installed on your system.
+
+cd boost_1_34_1
+./configure --prefix=/usr/local   (set prefix to your install directory)
+make all install
+
+
+Build using the bjam utility:
+-----------------------------
+
+bjam (http://www.boost.org/tools/build/v2/index.html) is a tool you can use to
+build Boost that allows you to configure many different options for your build.
+For a description of options available when building Boost with bjam, please see
+the Getting Started Guide at http://www.boost.org/more/getting_started/. You can
+download pre-compiled bjam executables from:
+
+http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=72941
+
+You only need to build three of the Boost libraries for pion-net: thread, system
+and filesystem.  If you wish to only build these three libraries (this will
+save you a lot of time), include the following options when running bjam:
+"--with-thread --with-system --with-filesystem"
+
+For example (when using Microsoft Visual C++):
+
+bjam --toolset=msvc --with-thread --with-system --with-filesystem \
+	debug release threading=multi stage
+
+This will build the three libraries required by pion-net and place the files
+within the stage/ subdirectory of your build directory.
+
+To install, you can now just copy the files in stage/lib into your library
+include path, and copy the boost/ directory into your header include path.
+
+
+Note: Some platforms require additional steps for building Boost & ASIO. 
+Please see the appropriate README.platform file for more information.
+
+
+That's it!  You're now ready to build pion-net by configuring it with your
+Boost installation directory (/usr/local or C:\Boost above).  Just use the
+same path you used for "--prefix" above for pion-net's "--with-boost" option
+(i.e. "./configure --with-boost=/usr/local")

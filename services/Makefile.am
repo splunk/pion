@@ -1,0 +1,34 @@
+# ------------------------------------
+# pion-net automake configuration file 
+# ------------------------------------
+
+AM_CPPFLAGS = -I@PION_COMMON_HOME@/include -I../include
+
+pion_pluginsdir = @PION_PLUGINS_DIRECTORY@
+pion_plugins_LTLIBRARIES = HelloService.la EchoService.la \
+	CookieService.la LogService.la FileService.la
+
+HelloService_la_SOURCES = HelloService.hpp HelloService.cpp
+HelloService_la_LDFLAGS = -no-undefined -module -avoid-version
+HelloService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @BOOST_THREAD_LIB@ @BOOST_SYSTEM_LIB@ @PION_SSL_LIB@ @PION_LOG_LIB@
+HelloService_la_DEPENDENCIES = ../src/libpion-net.la
+
+EchoService_la_SOURCES = EchoService.hpp EchoService.cpp
+EchoService_la_LDFLAGS = -no-undefined -module -avoid-version
+EchoService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @BOOST_THREAD_LIB@ @BOOST_SYSTEM_LIB@ @PION_SSL_LIB@ @PION_LOG_LIB@
+EchoService_la_DEPENDENCIES = ../src/libpion-net.la
+
+CookieService_la_SOURCES = CookieService.hpp CookieService.cpp
+CookieService_la_LDFLAGS = -no-undefined -module -avoid-version
+CookieService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @BOOST_THREAD_LIB@ @BOOST_SYSTEM_LIB@ @PION_SSL_LIB@ @PION_LOG_LIB@
+CookieService_la_DEPENDENCIES = ../src/libpion-net.la
+
+LogService_la_SOURCES = LogService.hpp LogService.cpp
+LogService_la_LDFLAGS = -no-undefined -module -avoid-version
+LogService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @BOOST_THREAD_LIB@ @BOOST_SYSTEM_LIB@ @PION_SSL_LIB@ @PION_LOG_LIB@
+LogService_la_DEPENDENCIES = ../src/libpion-net.la
+
+FileService_la_SOURCES = FileService.hpp FileService.cpp
+FileService_la_LDFLAGS = -no-undefined -module -avoid-version
+FileService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @BOOST_THREAD_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @PION_SSL_LIB@ @PION_LOG_LIB@
+FileService_la_DEPENDENCIES = ../src/libpion-net.la

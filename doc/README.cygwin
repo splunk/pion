@@ -1,0 +1,128 @@
+Cygwin/GNU C++ Build Instructions
+=================================
+
+For building under Windows, only the Cygwin/GNU C++ compiler (g++) and
+Microsoft's Visual C++ 2005 compiler are currently supported. We plan to add
+support for the MinGW compiler in the near future. Please see README.msvc for
+instructions on using Microsoft's Visual C++ compiler.
+
+
+Installing Cygwin Packages:
+---------------------------
+
+In order to configure pion-net, you will need to install the bash shell and
+GNU make programs.  We recommend that you download and install the programs
+included with Cygwin from http://www.cygwin.com/.  The bash shell is included
+by default; however, you will need to add the make package (it is located
+within the "Devel" group).  For a complete development environment, we
+recommend also installing the following Cygwin packages:
+
+Archive: unzip zip
+Devel: binutils autoconf automake gcc-g++ gdb libtool make openssl-devel 
+       subversion
+Editors: nano
+Net: openssh
+Perl: perl
+Utils: patch
+Web: wget
+
+
+Building Boost with ASIO:
+-------------------------
+
+Please see the README.boost file for instructions.
+
+Boost 1.34.0 has several bugs that prevent it from installing correctly
+under Cygwin.  There is a patch that fixes all of these bugs called
+"cygwin_boost_1_34_0.patch" within pion-net's doc subdirectory.  If you
+are using Boost 1.34.0, make sure that you apply this patch after
+uncompressing the Boost source code tarball:
+
+patch -p0 < PION_NET_HOME/doc/cygwin_boost_1_34_0.patch
+
+This file includes fixes for the following tickets in Boost's Trac
+database: 966, 1025, and 1062.  The patches for 966 and 1025 were
+included in the 1.34.0 release, however 1062 was not.  So, if you are
+using Boost 1.34.1, apply the "cygwin_boost_1_34_1.patch" instead:
+
+patch -p0 < PION_NET_HOME/doc/cygwin_boost_1_34_1.patch
+
+There's one more bug in 1.34.0 AND 1.34.1 that you need to fix after
+building and installing the Boost libraries (see Boost Trac ticket
+1058).  Boost names the "import" libraries using a format that is
+incompatable with GNU's libtool (they use the format "boost_*.dll.a"
+instead of "libboost_*.dll.a").  You can fix this by creating symbolic
+links for the libraries needed by pion-net:
+
+cd BOOST_INSTALL_DIR/lib
+ln -s boost_thread-gcc34-mt.dll.a libboost_thread-gcc34-mt.dll.a
+ln -s boost_system-gcc34-mt.dll.a libboost_system-gcc34-mt.dll.a
+ln -s boost_filesystem-gcc34-mt.dll.a libboost_filesystem-gcc34-mt.dll.a
+
+These patches may be unnecessary for Boost 1.34.2 and later releases.
+
+
+Installing zlib & openssl:
+--------------------------
+
+ASIO requires zlib and openssl for compression and SSL/TLS encryption
+support, respectively.  On Windows, we recommend that you use Cygwin to
+install these libraries. However, you may instead choose to download and
+install the latest versions from the following sites:
+
+http://www.zlib.net
+http://www.openssl.org
+
+
+Logging frameworks:
+-------------------
+
+Note that the use of a logging framework is entirely optional, so you may
+skip this step if you like.
+
+At this time, none of the supported logging libraries build correctly
+under Windows.  If you'd like to help add support for these, you can
+download the current source code from the following sites:
+
+http://logging.apache.org/log4cxx
+http://log4cpp.sourceforge.net
+http://log4cplus.sourceforge.net
+
+
+Building and installing pion-net:
+---------------------------------
+
+Now you should be able to build and install pion-net:
+(the "-D_WIN32_WINNT=0x500" eliminates warnings in ASIO)
+
+tar xvfz pion-net-VERSION.tar.gz
+cd pion-net-VERSION
+CPPFLAGS="-D_WIN32_WINNT=0x500" \
+	./configure --with-boost=/usr/local [--with-openssl]
+make ; make install
+
+
+Known Problems:
+---------------
+
+The POSIX path emulation layer provided by cygwin sometimes confused the
+boost::filesystem library.  pion-net includes some extra code for cygwin to
+try to find the path you actually want.  If you are using pion-net in a
+cygwin environment, you may need to configure your cygwin installation
+directory using the parameter "--with-cygwin=[directory]" (the default is
+"c:/cygwin").  Please see the boost::filesystem documenation for more
+information: http://www.boost.org/libs/filesystem/doc/index.htm
+
+If Windows cannot find all the shared libraries used by your program, it will
+simply exit immediately without printing any messages.  To see what shared
+libraries (or DLLs) a program uses, you can use the following command:
+
+objdump -p <PROGRAM> | grep "DLL Name"
+
+You may want to make sure that your executables can find the Boost DLLs
+located in "lib" subdirectory of your installation path by adding the
+directory to your PATH:
+
+export PATH=/usr/local/lib:$PATH
+
+(assuming that you are using the default prefix of /usr/local/lib)
