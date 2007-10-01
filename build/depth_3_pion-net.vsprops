@@ -7,7 +7,7 @@
 	>
 	<UserMacro
 		Name="PION_COMMON_HOME"
-		Value="..\..\common"
+		Value="..\..\..\common"
 	/>
 	<UserMacro
 		Name="PION_NET_HOME"

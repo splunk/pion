@@ -19,7 +19,7 @@
 			Name="Debug_DLL|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\vsprops\shared\pion.vsprops;..\vsprops\depth_2_pion-net.vsprops"
+			InheritedPropertySheets="..\..\common\build\pion.vsprops;..\build\depth_2_pion-net.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -90,7 +90,7 @@
 			Name="Debug_static|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\vsprops\shared\pion.vsprops;..\vsprops\depth_2_pion-net.vsprops"
+			InheritedPropertySheets="..\..\common\build\pion.vsprops;..\build\depth_2_pion-net.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -159,7 +159,7 @@
 			Name="Release_DLL|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\vsprops\shared\pion.vsprops;..\vsprops\depth_2_pion-net.vsprops"
+			InheritedPropertySheets="..\..\common\build\pion.vsprops;..\build\depth_2_pion-net.vsprops"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -229,7 +229,7 @@
 			Name="Release_static|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\vsprops\shared\pion.vsprops;..\vsprops\depth_2_pion-net.vsprops"
+			InheritedPropertySheets="..\..\common\build\pion.vsprops;..\build\depth_2_pion-net.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
