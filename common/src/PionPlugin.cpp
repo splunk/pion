@@ -51,21 +51,12 @@ void PionPlugin::checkCygwinPath(boost::filesystem::path& final_path,
 
 void PionPlugin::addPluginDirectory(const std::string& dir)
 {
-#ifdef PION_WIN32
-	// work around bug in boost::filesystem on Windows -> do not plugin directories
-	// basically, if you create a path object on Windows, then convert it to
-	// directory_string() or file_string(), then try to construct
-	// a new path object based on the string, it throws an exception (ugh!!!)
-	boost::mutex::scoped_lock plugin_lock(m_plugin_mutex);
-	m_plugin_dirs.push_back(dir);
-#else
 	boost::filesystem::path plugin_path(dir);
 	checkCygwinPath(plugin_path, dir);
 	if (! boost::filesystem::exists(plugin_path) )
 		throw DirectoryNotFoundException(dir);
 	boost::mutex::scoped_lock plugin_lock(m_plugin_mutex);
 	m_plugin_dirs.push_back(plugin_path.directory_string());
-#endif
 }
 
 void PionPlugin::resetPluginDirectories(void)
