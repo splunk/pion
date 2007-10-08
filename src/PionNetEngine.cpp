@@ -9,8 +9,8 @@
 
 #include <boost/bind.hpp>
 #include <pion/net/PionNetEngine.hpp>
-#ifdef PION_WIN32
-	// for Windows shutdown crash work-around
+#ifdef PION_CYGWIN_DIRECTORY
+	// for Cygwin shutdown crash work-around
 	#include <boost/thread/xtime.hpp>
 #endif
 
@@ -95,8 +95,8 @@ void PionNetEngine::shutdown(void)
 		// Reset all of the registered servers
 		m_servers.clear();
 
-#ifdef PION_WIN32
-		// pause for 1 extra second to work-around shutdown crash on Windows
+#ifdef PION_CYGWIN_DIRECTORY
+		// pause for 1 extra second to work-around shutdown crash on Cygwin
 		// which seems related to static objects used in the ASIO library
 		boost::xtime stop_time;
 		boost::xtime_get(&stop_time, boost::TIME_UTC);
