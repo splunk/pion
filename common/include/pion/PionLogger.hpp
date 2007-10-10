@@ -45,11 +45,11 @@
 	#define PION_LOG_CONFIG_BASIC	log4cxx::BasicConfigurator::configure();
 	#define PION_GET_LOGGER(NAME)	log4cxx::Logger::getLogger(NAME)
 
-	#define PION_LOG_SETLEVEL_DEBUG(LOG)	LOG->setLevel(log4cxx::Level::DEBUG);
-	#define PION_LOG_SETLEVEL_INFO(LOG)		LOG->setLevel(log4cxx::Level::INFO);
-	#define PION_LOG_SETLEVEL_WARN(LOG)		LOG->setLevel(log4cxx::Level::WARN);
-	#define PION_LOG_SETLEVEL_ERROR(LOG)	LOG->setLevel(log4cxx::Level::ERROR);
-	#define PION_LOG_SETLEVEL_FATAL(LOG)	LOG->setLevel(log4cxx::Level::FATAL);
+	#define PION_LOG_SETLEVEL_DEBUG(LOG)	LOG->setLevel(log4cxx::Level::toLevel(log4cxx::Level::DEBUG_INT));
+	#define PION_LOG_SETLEVEL_INFO(LOG)		LOG->setLevel(log4cxx::Level::toLevel(log4cxx::Level::INFO_INT));
+	#define PION_LOG_SETLEVEL_WARN(LOG)		LOG->setLevel(log4cxx::Level::toLevel(log4cxx::Level::WARN_INT));
+	#define PION_LOG_SETLEVEL_ERROR(LOG)	LOG->setLevel(log4cxx::Level::toLevel(log4cxx::Level::ERROR_INT));
+	#define PION_LOG_SETLEVEL_FATAL(LOG)	LOG->setLevel(log4cxx::Level::toLevel(log4cxx::Level::FATAL_INT));
 
 	#define PION_LOG_DEBUG	LOG4CXX_DEBUG
 	#define PION_LOG_INFO	LOG4CXX_INFO
