@@ -20,6 +20,16 @@
 
 #if defined(PION_HAVE_LOG4CXX)
 	#include <log4cxx/appenderskeleton.h>
+	// version 0.10.x introduces a new data type that is declared in a
+	// pool.h header file.  If we're using 0.9.x, just declare the type
+	// as an int since it is not being used at all
+	#ifndef _LOG4CXX_HELPERS_POOL_H
+		namespace log4cxx {
+			namespace helpers {
+				typedef int Pool;
+			}
+		}
+	#endif
 #elif defined(PION_HAVE_LOG4CPLUS)
 	#include <log4cplus/appender.h>
 	#include <log4cplus/loglevel.h>
@@ -78,6 +88,12 @@ private:
 	protected:
 		/// adds log event to the memory cache
 		virtual void append(const log4cxx::spi::LoggingEventPtr& event);
+		// version 0.10.x adds a second "pool" argument -> just ignore it
+		virtual void append(const log4cxx::spi::LoggingEventPtr& event,
+							log4cxx::helpers::Pool& pool)
+		{
+			append(event);
+		}
 #elif defined(PION_HAVE_LOG4CPLUS)
 	public:
 		// member functions inherited from the Appender interface class
