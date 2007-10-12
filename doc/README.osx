@@ -51,3 +51,17 @@ cd pion-net-VERSION
 ./configure --with-boost=/usr/local
 	[--with-openssl] [--with-log4cpp=/opt/local]
 make ; sudo make install
+
+
+Building with XCode:
+--------------------
+
+There is an XCode project included within the distribution called
+pion-net.xcodeproj.  To run PionServiceTest from within XCode, you first
+need to configure the executable's command arguments by right-clicking
+on PionServiceTest under the "Executables" group in the left menu and
+selecting "Get Info."  Set the working directory to "Project directory." 
+Under the "Arguments" tab, add the following argument: "-c
+net/tests/xcodeservices.conf" Next, set PionServiceTest as the "Active
+Target" and click on the "Build and Go" button. Building PionServiceTest
+will also build all of the service plug-ins.

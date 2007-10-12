@@ -32,3 +32,5 @@ FileService_la_SOURCES = FileService.hpp FileService.cpp
 FileService_la_LDFLAGS = -no-undefined -module -avoid-version
 FileService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @BOOST_THREAD_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @PION_SSL_LIB@ @PION_LOG_LIB@
 FileService_la_DEPENDENCIES = ../src/libpion-net.la
+
+EXTRA_DIST = *.vcproj
