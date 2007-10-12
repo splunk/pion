@@ -84,7 +84,7 @@ public:
 	inline bool is_open(void) const {
 #ifdef PION_HAVE_SSL
 		if (getSSLFlag())
-			return m_ssl_socket.lowest_layer().is_open();
+			return const_cast<SSLSocket&>(m_ssl_socket).lowest_layer().is_open();
 		else 
 #endif
 			return m_tcp_socket.is_open();
