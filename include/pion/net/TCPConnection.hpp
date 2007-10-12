@@ -80,9 +80,16 @@ public:
 																  ssl_flag, finished_handler));
 	}
 
-	/// virtual destructor
-	virtual ~TCPConnection() { close(); }
-
+	/// returns true if the connection is currently open
+	inline bool is_open(void) const {
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			return m_ssl_socket.lowest_layer().is_open();
+		else 
+#endif
+			return m_tcp_socket.is_open();
+	}
+	
 	/// closes the tcp socket
 	inline void close(void) {
 #ifdef PION_HAVE_SSL
@@ -92,6 +99,9 @@ public:
 #endif
 			m_tcp_socket.close();
 	}
+
+	/// virtual destructor
+	virtual ~TCPConnection() { close(); }
 
 	/**
 	 * accepts a new tcp connection

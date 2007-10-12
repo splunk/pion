@@ -32,6 +32,7 @@ const std::string	HTTPTypes::HEADER_CONTENT_LENGTH("Content-Length");
 const std::string	HTTPTypes::HEADER_CONTENT_LOCATION("Content-Location");
 const std::string	HTTPTypes::HEADER_LAST_MODIFIED("Last-Modified");
 const std::string	HTTPTypes::HEADER_IF_MODIFIED_SINCE("If-Modified-Since");
+const std::string	HTTPTypes::HEADER_TRANSFER_ENCODING("Transfer-Encoding");
 
 // common HTTP content types
 const std::string	HTTPTypes::CONTENT_TYPE_HTML("text/html");

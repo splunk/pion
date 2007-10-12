@@ -40,6 +40,7 @@ struct PION_NET_API HTTPTypes
 	static const std::string	HEADER_CONTENT_LOCATION;
 	static const std::string	HEADER_LAST_MODIFIED;
 	static const std::string	HEADER_IF_MODIFIED_SINCE;
+    static const std::string	HEADER_TRANSFER_ENCODING;
 
 	// common HTTP content types
 	static const std::string	CONTENT_TYPE_HTML;

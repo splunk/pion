@@ -16,12 +16,15 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionLogger.hpp>
 #include <pion/net/TCPConnection.hpp>
 #include <pion/net/HTTPTypes.hpp>
+#include <pion/net/HTTPRequest.hpp>
 #include <vector>
 #include <string>
+#include <exception>
 
 
 namespace pion {	// begin namespace pion
@@ -35,15 +38,92 @@ class PION_NET_API HTTPResponse :
 	private boost::noncopyable
 {
 	
+protected:
+	
+	/// data type for I/O write buffers (these wrap existing data to be sent)
+	typedef std::vector<boost::asio::const_buffer>	WriteBuffers;
+	
+	
+	/**
+	 * protected constructor restricts creation of objects (use create())
+     * 
+     * @param http_request the request to which we are responding
+	 * @param tcp_conn TCP connection used to send the response
+	 */
+	HTTPResponse(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn)
+		: m_logger(PION_GET_LOGGER("Pion.HTTPResponse")),
+		m_tcp_conn(tcp_conn),
+		m_stream_is_empty(true), 
+		m_response_message(HTTPTypes::RESPONSE_MESSAGE_OK),
+		m_content_type(HTTPTypes::CONTENT_TYPE_HTML),
+		m_content_length(0),
+		m_client_supports_chunks(http_request->getVersionMajor() == 1
+								 && http_request->getVersionMinor() >= 1),
+		m_sending_chunks(false), m_sent_headers(false)
+	{
+		// set default response code of "200 OK"
+		setResponseCode(HTTPTypes::RESPONSE_CODE_OK);
+	}
+
+	/**
+	 * sends all of the buffered data to the client
+	 *
+	 * @param send_final_chunk true if the final 0-byte chunk should be included
+	 * @param send_handler function called after the data has been sent
+	 */
+	template <typename SendHandler>
+	inline void sendMoreData(const bool send_final_chunk, SendHandler send_handler)
+	{
+		// make sure that we did not loose the TCP connection
+		if (! m_tcp_conn->is_open()) throw LostConnectionException();
+		// make sure that the content-length is up-to-date
+		flushContentStream();
+		// prepare the write buffers to be sent
+		WriteBuffers write_buffers;
+		prepareWriteBuffers(write_buffers, send_final_chunk);
+		// send data in the write buffers
+		m_tcp_conn->async_write(write_buffers, send_handler);
+	}
+	
+
 public:
 
-	/// creates new HTTPResponse objects
-	static inline boost::shared_ptr<HTTPResponse> create(void) {
-		return boost::shared_ptr<HTTPResponse>(new HTTPResponse);
+	/// exception thrown if the TCP connection is dropped while/before sending
+	class LostConnectionException : public std::exception {
+	public:
+		virtual const char* what() const throw() {
+			return "Lost TCP connection while or before sending an HTTP response";
+		}
+	};
+	
+
+	/**
+     * creates new HTTPResponse objects
+     * 
+     * @param http_request the request to which we are responding
+	 * @param tcp_conn TCP connection used to send the response
+	 * 
+     * @return boost::shared_ptr<HTTPResponse> shared pointer to the
+     *         new response object that was created
+	 */
+	static inline boost::shared_ptr<HTTPResponse> create(HTTPRequestPtr& http_request,
+														 TCPConnectionPtr& tcp_conn)
+	{
+		return boost::shared_ptr<HTTPResponse>(new HTTPResponse(http_request, tcp_conn));
 	}
 	
 	/// default destructor
 	virtual ~HTTPResponse() {}
+
+	/// clears out all of the memory buffers used to cache response data
+	inline void clear(void) {
+		m_content_buffers.clear();
+		m_binary_cache.clear();
+		m_text_cache.clear();
+		m_content_stream.str("");
+		m_stream_is_empty = true;
+		m_content_length = 0;
+	}
 
 	/**
 	 * write text (non-binary) response content
@@ -70,7 +150,6 @@ public:
 		}
 	}
 	
-
 	/**
 	 * write text (non-binary) response content; the data written is not
 	 * copied, and therefore must persist until the response has finished
@@ -101,6 +180,84 @@ public:
 		}
 	}
 
+	
+	/**
+	 * Sends all data buffered as a single HTTP response (without chunking).
+	 * Following a call to this function, it is not thread safe to use your
+	 * reference to the HTTPResponse object.
+	 */
+	inline void send(void) {
+		sendMoreData(false, boost::bind(&HTTPResponse::handleWrite,
+										shared_from_this(),
+										boost::asio::placeholders::error,
+										boost::asio::placeholders::bytes_transferred) );
+	}
+	
+	/**
+	 * Sends all data buffered as a single HTTP response (without chunking).
+	 * Following a call to this function, it is not thread safe to use your
+	 * reference to the HTTPResponse object until the send_handler has been called.
+	 *
+	 * @param send_handler function that is called after the response has been
+	 *                     sent to the client.  Your callback function must end
+	 *                     the connection by calling TCPConnection::finish().
+	 */
+	template <typename SendHandler>
+	inline void send(SendHandler send_handler) {
+		sendMoreData(false, send_handler);
+	}
+	
+	/**
+	 * Sends all data buffered as a single HTTP chunk.  Following a call to this
+	 * function, it is not thread safe to use your reference to the HTTPResponse
+	 * object until the send_handler has been called.
+	 * 
+	 * @param send_handler function that is called after the chunk has been sent
+	 *                     to the client.  Your callback function must end by
+	 *                     calling one of sendChunk() or sendFinalChunk().  Also,
+	 *                     be sure to clear() the response before writing to it.
+	 */
+	template <typename SendHandler>
+	inline void sendChunk(SendHandler send_handler) {
+		m_sending_chunks = true;
+		if (!supportsChunkedResponses()) {
+			// sending data in chunks, but the client does not support chunking;
+			// make sure that the connection will be closed when we are all done
+			m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);
+		}
+		// send more data
+		sendMoreData(false, send_handler);
+	}
+	
+	/**
+	 * Sends all data buffered (if any) and also sends the final HTTP chunk.
+	 * This function must be called following any calls to sendChunk().
+	 * Following a call to this function, it is not thread safe to use your
+	 * reference to the HTTPResponse object until the send_handler has been called.
+	 *
+	 * @param send_handler function that is called after the response has been
+	 *                     sent to the client.  Your callback function must end
+	 *                     the connection by calling TCPConnection::finish().
+	 */ 
+	template <typename SendHandler>
+	inline void sendFinalChunk(SendHandler send_handler) {
+		sendMoreData(true, send_handler);
+	}
+	
+	/**
+	 * Sends all data buffered (if any) and also sends the final HTTP chunk.
+	 * This function must be called following any calls to sendChunk().
+	 * Following a call to this function, it is not thread safe to use your
+	 * reference to the HTTPResponse object.
+	 */ 
+	inline void sendFinalChunk(void) {
+		sendMoreData(true, boost::bind(&HTTPResponse::handleWrite,
+									   shared_from_this(),
+									   boost::asio::placeholders::error,
+									   boost::asio::placeholders::bytes_transferred) );
+	}
+	
+		
 	/// adds an HTTP response header
 	inline void addHeader(const std::string& key, const std::string& value) {
 		m_response_headers.insert(std::make_pair(key, value));
@@ -198,28 +355,36 @@ public:
 	
 	/// returns the logger currently in use
 	inline PionLogger getLogger(void) { return m_logger; }
+	
+	/// returns a shared pointer to the response's TCP connection
+	inline TCPConnectionPtr& getTCPConnection(void) { return m_tcp_conn; }
 
+	/// returns true if the client supports chunked responses
+	inline bool supportsChunkedResponses() const { return m_client_supports_chunks; }
+
+	/// returns true if we are sending a chunked response to the client
+	inline bool sendingChunkedResponse() const { return m_sending_chunks; }
+	
+	
+private:
 	
 	/**
-	 * sends the response
+	 * prepares write_buffers for next send operation
 	 *
-	 * @param tcp_conn TCP connection used to send the response
+	 * @param write_buffers buffers to which data will be appended
+	 * @param send_final_chunk true if the final 0-byte chunk should be included
 	 */
-	void send(TCPConnectionPtr& tcp_conn);
-
+	void prepareWriteBuffers(WriteBuffers &write_buffers,
+							 const bool send_final_chunk);
 	
-protected:
-		
-	/// protected constructor restricts creation of objects (use create())
-	HTTPResponse(void)
-		: m_logger(PION_GET_LOGGER("Pion.HTTPResponse")),
-		m_stream_is_empty(true), 
-		m_response_message(HTTPTypes::RESPONSE_MESSAGE_OK),
-		m_content_type(HTTPTypes::CONTENT_TYPE_HTML),
-		m_content_length(0)
-	{
-			setResponseCode(HTTPTypes::RESPONSE_CODE_OK);
-	}
+	/**
+	 * called after the response is sent
+	 * 
+	 * @param write_error error status from the last write operation
+	 * @param bytes_written number of bytes sent by the last write operation
+	 */
+	void handleWrite(const boost::system::error_code& write_error,
+					 std::size_t bytes_written);
 
 	/**
 	 * creates a "Set-Cookie" header
@@ -232,23 +397,10 @@ protected:
 	 *
 	 * @return the new "Set-Cookie" header
 	 */
-	 std::string makeSetCookieHeader(const std::string& name, const std::string& value,
-									 const std::string& path, const bool has_max_age = false,
-									 const unsigned long max_age = 0);
+	std::string makeSetCookieHeader(const std::string& name, const std::string& value,
+									const std::string& path, const bool has_max_age = false,
+									const unsigned long max_age = 0);	
 	
-private:
-	
-	/**
-	 * called after the response is sent
-	 * 
-	 * @param tcp_conn TCP connection used to send the response
-	 * @param write_error error status from the last write operation
-	 * @param bytes_written number of bytes sent by the last write operation
-	 */
-	void handleWrite(TCPConnectionPtr tcp_conn,
-					 const boost::system::error_code& write_error,
-					 std::size_t bytes_written);
-
 	/// flushes any text data in the content stream after caching it in the TextCache
 	inline void flushContentStream(void) {
 		if (! m_stream_is_empty) {
@@ -262,6 +414,7 @@ private:
 			m_stream_is_empty = true;
 		}
 	}
+	
 	
 	/// used to cache binary data included within the response
 	class BinaryCache : public std::vector<std::pair<const char *, size_t> > {
@@ -282,13 +435,13 @@ private:
 	/// used to cache text (non-binary) data included within the response
 	typedef std::vector<std::string>				TextCache;
 
-	/// data type for I/O write buffers (these wrap existing data to be sent)
-	typedef std::vector<boost::asio::const_buffer>	WriteBuffers;
-	
 	
 	/// primary logging interface used by this class
 	PionLogger								m_logger;
 
+	/// The HTTP connection that we are writing the response to
+	TCPConnectionPtr						m_tcp_conn;
+	
 	/// I/O write buffers that wrap the response content to be written
 	WriteBuffers							m_content_buffers;
 	
@@ -318,6 +471,15 @@ private:
 	
 	/// The length (in bytes) of the response content to be sent (Content-Length)
 	size_t									m_content_length;
+
+	/// true if the HTTP client supports chunked transfer encodings
+	bool									m_client_supports_chunks;
+	
+	/// true if data is being sent to the client using multiple chunks
+	bool									m_sending_chunks;
+	
+	/// true if the HTTP response headers have already been sent
+	bool									m_sent_headers;
 };
 
 

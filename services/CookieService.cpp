@@ -24,7 +24,7 @@ bool CookieService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp
 	static const std::string FOOTER_HTML = "\n</body>\n</html>\n";
 
 	// Set Content-type for HTML and write the header
-	HTTPResponsePtr response(HTTPResponse::create());
+	HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
 	response->setContentType(HTTPTypes::CONTENT_TYPE_HTML);
 	response->writeNoCopy(HEADER_HTML);
 
@@ -99,7 +99,7 @@ bool CookieService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp
 	response->writeNoCopy(FOOTER_HTML);
 	
 	// send the response
-	response->send(tcp_conn);
+	response->send();
 	return true;
 }
 

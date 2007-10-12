@@ -84,6 +84,13 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 				// try to handle the request with the web service
 				try {
 					request_was_handled = i->second.first->handleRequest(http_request, tcp_conn);
+				} catch (HTTPResponse::LostConnectionException& e) {
+					// the connection was lost while or before sending the response
+					PION_LOG_WARN(m_logger, "Web service (" << resource << "): " << e.what());
+					tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+					tcp_conn->finish();
+					request_was_handled = true;
+					break;
 				} catch (std::bad_alloc&) {
 					// propagate memory errors (FATAL)
 					throw;
@@ -338,11 +345,11 @@ void HTTPServer::handleBadRequest(HTTPRequestPtr& http_request,
 		"<h1>Bad Request</h1>\n"
 		"<p>Your browser sent a request that this server could not understand.</p>\n"
 		"</body></html>\n";
-	HTTPResponsePtr response(HTTPResponse::create());
+	HTTPResponsePtr response(HTTPResponse::create(http_request, tcp_conn));
 	response->setResponseCode(HTTPTypes::RESPONSE_CODE_BAD_REQUEST);
 	response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_BAD_REQUEST);
 	response->writeNoCopy(BAD_REQUEST_HTML);
-	response->send(tcp_conn);
+	response->send();
 }
 
 void HTTPServer::handleNotFoundRequest(HTTPRequestPtr& http_request,
@@ -357,13 +364,13 @@ void HTTPServer::handleNotFoundRequest(HTTPRequestPtr& http_request,
 	static const std::string NOT_FOUND_HTML_FINISH =
 		" was not found on this server.</p>\n"
 		"</body></html>\n";
-	HTTPResponsePtr response(HTTPResponse::create());
+	HTTPResponsePtr response(HTTPResponse::create(http_request, tcp_conn));
 	response->setResponseCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
 	response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
 	response->writeNoCopy(NOT_FOUND_HTML_START);
 	response << http_request->getResource();
 	response->writeNoCopy(NOT_FOUND_HTML_FINISH);
-	response->send(tcp_conn);
+	response->send();
 }
 
 void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
@@ -379,13 +386,13 @@ void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
 	static const std::string SERVER_ERROR_HTML_FINISH =
 		"</strong></p>\n"
 		"</body></html>\n";
-	HTTPResponsePtr response(HTTPResponse::create());
+	HTTPResponsePtr response(HTTPResponse::create(http_request, tcp_conn));
 	response->setResponseCode(HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
 	response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR);
 	response->writeNoCopy(SERVER_ERROR_HTML_START);
 	response << error_msg;
 	response->writeNoCopy(SERVER_ERROR_HTML_FINISH);
-	response->send(tcp_conn);
+	response->send();
 }
 
 

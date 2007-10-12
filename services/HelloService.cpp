@@ -20,9 +20,9 @@ using namespace pion::net;
 bool HelloService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	static const std::string HELLO_HTML = "<html><body>Hello World!</body></html>\r\n\r\n";
-	HTTPResponsePtr response(HTTPResponse::create());
+	HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
 	response->writeNoCopy(HELLO_HTML);
-	response->send(tcp_conn);
+	response->send();
 	return true;
 }
 

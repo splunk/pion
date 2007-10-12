@@ -8,6 +8,7 @@
 //
 
 #include <boost/scoped_array.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <algorithm>
@@ -25,6 +26,8 @@ using namespace pion::net;
 const std::string			FileService::DEFAULT_MIME_TYPE("application/octet-stream");
 const unsigned int			FileService::DEFAULT_CACHE_SETTING = 1;
 const unsigned int			FileService::DEFAULT_SCAN_SETTING = 0;
+const unsigned long			FileService::DEFAULT_MAX_CACHE_SIZE = 0;	/* 0=disabled */
+const unsigned long			FileService::DEFAULT_MAX_CHUNK_SIZE = 0;	/* 0=disabled */
 boost::once_flag			FileService::m_mime_types_init_flag = BOOST_ONCE_INIT;
 FileService::MIMETypeMap	*FileService::m_mime_types_ptr = NULL;
 
@@ -34,7 +37,9 @@ FileService::MIMETypeMap	*FileService::m_mime_types_ptr = NULL;
 FileService::FileService(void)
 	: m_logger(PION_GET_LOGGER("FileService")),
 	m_cache_setting(DEFAULT_CACHE_SETTING),
-	m_scan_setting(DEFAULT_SCAN_SETTING)
+	m_scan_setting(DEFAULT_SCAN_SETTING),
+	m_max_cache_size(DEFAULT_MAX_CACHE_SIZE),
+	m_max_chunk_size(DEFAULT_MAX_CHUNK_SIZE)
 {
 	PION_LOG_SETLEVEL_WARN(m_logger);
 }
@@ -79,6 +84,8 @@ void FileService::setOption(const std::string& name, const std::string& value)
 		} else {
 			throw InvalidScanException(value);
 		}
+	} else if (name == "max_chunk_size") {
+		m_max_chunk_size = boost::lexical_cast<unsigned long>(value);
 	} else {
 		throw UnknownOptionException(name);
 	}
@@ -136,14 +143,14 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 				// cache is disabled
 
 				// copy & re-use file_path and mime_type
-				response_file.file_path = cache_itr->second.file_path;
-				response_file.mime_type = cache_itr->second.mime_type;
+				response_file.setFilePath(cache_itr->second.getFilePath());
+				response_file.setMimeType(cache_itr->second.getMimeType());
 				
 				// get the file_size and last_modified timestamp
 				response_file.update();
 
 				// just compare strings for simplicity (parsing this date format sucks!)
-				if (response_file.last_modified_string == if_modified_since) {
+				if (response_file.getLastModifiedString() == if_modified_since) {
 					// no need to read the file; the modified times match!
 					response_type = RESPONSE_NOT_MODIFIED;
 				} else {
@@ -151,10 +158,6 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 						response_type = RESPONSE_HEAD_OK;
 					} else {
 						response_type = RESPONSE_OK;
-
-						// read the file (may throw exception)
-						response_file.read();
-
 						PION_LOG_DEBUG(m_logger, "Cache disabled, reading file ("
 									   << getResource() << "): " << relative_path);
 					}
@@ -166,13 +169,17 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 				// true if the entry was updated (used for log message)
 				bool cache_was_updated = false;
 
-				if (cache_itr->second.last_modified == 0) {
+				if (cache_itr->second.getLastModified() == 0) {
 
 					// cache file for the first time
 					cache_was_updated = true;
 					cache_itr->second.update();
-					// read the file (may throw exception)
-					cache_itr->second.read();
+					if (m_max_cache_size==0 || cache_itr->second.getFileSize() <= m_max_cache_size) {
+						// read the file (may throw exception)
+						cache_itr->second.read();
+					} else {
+						cache_itr->second.resetFileContent();
+					}
 					
 				} else if (m_cache_setting == 1) {
 
@@ -182,7 +189,7 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 				} // else cache_setting == 2 (use existing values)
 
 				// get the response type
-				if (cache_itr->second.last_modified_string == if_modified_since) {
+				if (cache_itr->second.getLastModifiedString() == if_modified_since) {
 					response_type = RESPONSE_NOT_MODIFIED;
 				} else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD) {
 					response_type = RESPONSE_HEAD_OK;
@@ -215,31 +222,31 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 			}
 			
 			// use file to service directory request
-			response_file.file_path = m_file;
+			response_file.setFilePath(m_file);
 
 		} else if (! m_directory.empty()) {
 			// request does not match resource, and a directory is defined
 
 			// calculate the location of the file being requested
-			response_file.file_path = m_directory;
-			response_file.file_path /= relative_path;
+			response_file.setFilePath(m_directory);
+			response_file.appendFilePath(relative_path);
 
 			// make sure that the file exists
-			if (! boost::filesystem::exists(response_file.file_path) ) {
+			if (! boost::filesystem::exists(response_file.getFilePath()) ) {
 				PION_LOG_WARN(m_logger, "File not found ("
 							  << getResource() << "): " << relative_path);
 				return false;
 			}
 			
 			// make sure that it is not a directory
-			if ( boost::filesystem::is_directory(response_file.file_path) ) {
+			if ( boost::filesystem::is_directory(response_file.getFilePath()) ) {
 				PION_LOG_WARN(m_logger, "Request for directory ("
 							  << getResource() << "): " << relative_path);
 				return false;
 			}
 			
 			// make sure that the file is within the configured directory
-			std::string file_string = response_file.file_path.file_string();
+			std::string file_string = response_file.getFilePath().file_string();
 			if (file_string.find(m_directory.directory_string()) != 0) {
 				PION_LOG_WARN(m_logger, "Request for file outside of directory ("
 							  << getResource() << "): " << relative_path);
@@ -255,22 +262,24 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 					   << getResource() << "): " << relative_path);
 
 		// determine the MIME type
-		response_file.mime_type = findMIMEType( response_file.file_path.leaf() );
+		response_file.setMimeType(findMIMEType( response_file.getFilePath().leaf() ));
 
 		// get the file_size and last_modified timestamp
 		response_file.update();
 
 		// just compare strings for simplicity (parsing this date format sucks!)
-		if (response_file.last_modified_string == if_modified_since) {
+		if (response_file.getLastModifiedString() == if_modified_since) {
 			// no need to read the file; the modified times match!
 			response_type = RESPONSE_NOT_MODIFIED;
 		} else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD) {
 			response_type = RESPONSE_HEAD_OK;
 		} else {
 			response_type = RESPONSE_OK;
-			// read the file (may throw exception)
-			response_file.read();
 			if (m_cache_setting != 0) {
+				if (m_max_cache_size==0 || response_file.getFileSize() <= m_max_cache_size) {
+					// read the file (may throw exception)
+					response_file.read();
+				}
 				// add new entry to the cache
 				PION_LOG_DEBUG(m_logger, "Adding cache entry for request ("
 							   << getResource() << "): " << relative_path);
@@ -279,38 +288,45 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 			}
 		}
 	}
+	
+	if (response_type == RESPONSE_OK) {
+		// use DiskFileSender to send a file
+		DiskFileSenderPtr sender_ptr(DiskFileSender::create(response_file,
+															request, tcp_conn,
+															m_max_chunk_size));
+		sender_ptr->send();
+	} else {
+		// sending headers only -> use our own response object
 		
-	// prepare a response and set the Content-Type
-	HTTPResponsePtr response(HTTPResponse::create());
-	response->setContentType(response_file.mime_type);
-	
-	// set Last-Modified header to enable client-side caching
-	response->addHeader(HTTPTypes::HEADER_LAST_MODIFIED, response_file.last_modified_string);
+		// prepare a response and set the Content-Type
+		HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
+		response->setContentType(response_file.getMimeType());
+		
+		// set Last-Modified header to enable client-side caching
+		response->addHeader(HTTPTypes::HEADER_LAST_MODIFIED,
+							response_file.getLastModifiedString());
 
-	switch(response_type) {
-		case RESPONSE_UNDEFINED:
-			// this should never happen
-			throw UndefinedResponseException(request->getResource());
-			break;
-		case RESPONSE_NOT_MODIFIED:
-			// set "Not Modified" response
-			response->setResponseCode(HTTPTypes::RESPONSE_CODE_NOT_MODIFIED);
-			response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_MODIFIED);
-			break;
-		case RESPONSE_OK:
-			// write the file's contents to the response stream
-			if (response_file.file_size != 0)
-				response->write(response_file.file_content.get(), response_file.file_size);
-			// fall through to RESPONSE_HEAD_OK
-		case RESPONSE_HEAD_OK:
-			// set "OK" response (not really necessary since this is the default)
-			response->setResponseCode(HTTPTypes::RESPONSE_CODE_OK);
-			response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_OK);
-			break;
+		switch(response_type) {
+			case RESPONSE_UNDEFINED:
+			case RESPONSE_OK:
+				// this should never happen
+				throw UndefinedResponseException(request->getResource());
+				break;
+			case RESPONSE_NOT_MODIFIED:
+				// set "Not Modified" response
+				response->setResponseCode(HTTPTypes::RESPONSE_CODE_NOT_MODIFIED);
+				response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_MODIFIED);
+				break;
+			case RESPONSE_HEAD_OK:
+				// set "OK" response (not really necessary since this is the default)
+				response->setResponseCode(HTTPTypes::RESPONSE_CODE_OK);
+				response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_OK);
+				break;
+		}
+		
+		// send the response
+		response->send();
 	}
-	
-	// send the response
-	response->send(tcp_conn);
 
 	return true;
 }
@@ -385,11 +401,14 @@ FileService::addCacheEntry(const std::string& relative_path,
 	DiskFile cache_entry(file_path, NULL, 0, 0, findMIMEType(file_path.leaf()));
 	if (! placeholder) {
 		cache_entry.update();
-		try { cache_entry.read(); }
-		catch (std::exception&) {
-			PION_LOG_ERROR(m_logger, "Unable to add file to cache: "
-						   << file_path.file_string());
-			return std::make_pair(m_cache_map.end(), false);
+		// only read the file if its size is <= max_cache_size
+		if (m_max_cache_size==0 || cache_entry.getFileSize() <= m_max_cache_size) {
+			try { cache_entry.read(); }
+			catch (std::exception&) {
+				PION_LOG_ERROR(m_logger, "Unable to add file to cache: "
+							   << file_path.file_string());
+				return std::make_pair(m_cache_map.end(), false);
+			}
 		}
 	}
 	
@@ -444,51 +463,199 @@ void FileService::createMIMETypes(void) {
 }
 
 
-// FileService::DiskFile member functions
+// DiskFile member functions
 
-void FileService::DiskFile::update(void)
+void DiskFile::update(void)
 {
 	// set file_size and last_modified
-	file_size = boost::filesystem::file_size( file_path );
-	last_modified = boost::filesystem::last_write_time( file_path );
-	last_modified_string = HTTPTypes::get_date_string( last_modified );
+	m_file_size = boost::filesystem::file_size( m_file_path );
+	m_last_modified = boost::filesystem::last_write_time( m_file_path );
+	m_last_modified_string = HTTPTypes::get_date_string( m_last_modified );
 }
 
-void FileService::DiskFile::read(void)
+void DiskFile::read(void)
 {
 	// re-allocate storage buffer for the file's content
-	file_content.reset(new char[file_size]);
+	m_file_content.reset(new char[m_file_size]);
 	
 	// open the file for reading
 	boost::filesystem::ifstream file_stream;
-	file_stream.open(file_path, std::ios::in | std::ios::binary);
+	file_stream.open(m_file_path, std::ios::in | std::ios::binary);
 
 	// read the file into memory
-	if (!file_stream.is_open() || !file_stream.read(file_content.get(), file_size))
-		throw FileService::FileReadException(file_path.file_string());
+	if (!file_stream.is_open() || !file_stream.read(m_file_content.get(), m_file_size))
+		throw FileService::FileReadException(m_file_path.file_string());
 }
 
-bool FileService::DiskFile::checkUpdated(void)
+bool DiskFile::checkUpdated(void)
 {
 	// get current values
-	unsigned long cur_size = boost::filesystem::file_size( file_path );
-	time_t cur_modified = boost::filesystem::last_write_time( file_path );
+	unsigned long cur_size = boost::filesystem::file_size( m_file_path );
+	time_t cur_modified = boost::filesystem::last_write_time( m_file_path );
 
 	// check if file has not been updated
-	if (cur_modified == last_modified && cur_size == file_size)
+	if (cur_modified == m_last_modified && cur_size == m_file_size)
 		return false;
 
 	// file has been updated
 		
 	// update file_size and last_modified timestamp
-	file_size = cur_size;
-	last_modified = cur_modified;
-	last_modified_string = HTTPTypes::get_date_string( last_modified );
+	m_file_size = cur_size;
+	m_last_modified = cur_modified;
+	m_last_modified_string = HTTPTypes::get_date_string( m_last_modified );
 
 	// read new contents
 	read();
 	
 	return true;
+}
+
+
+// DiskFileSender member functions
+
+DiskFileSender::DiskFileSender(DiskFile& file, pion::net::HTTPRequestPtr& request,
+							   pion::net::TCPConnectionPtr& tcp_conn,
+							   unsigned long max_chunk_size)
+	: m_logger(PION_GET_LOGGER("DiskFileSender")), m_disk_file(file),
+	m_response(pion::net::HTTPResponse::create(request, tcp_conn)),
+	m_max_chunk_size(max_chunk_size), m_file_bytes_to_send(0), m_bytes_sent(0)
+{
+	PION_LOG_DEBUG(m_logger, "Preparing to send file"
+				   << (m_disk_file.hasFileContent() ? " (cached): " : ": ")
+				   << m_disk_file.getFilePath().file_string());
+	
+		// set the Content-Type HTTP header using the file's MIME type
+	m_response->setContentType(m_disk_file.getMimeType());
+	
+	// set Last-Modified header to enable client-side caching
+	m_response->addHeader(HTTPTypes::HEADER_LAST_MODIFIED,
+						  m_disk_file.getLastModifiedString());
+
+	// use "200 OK" HTTP response
+	m_response->setResponseCode(HTTPTypes::RESPONSE_CODE_OK);
+	m_response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_OK);
+}
+
+void DiskFileSender::send(void)
+{
+	// check if we have nothing to send (send 0 byte response content)
+	if (m_disk_file.getFileSize() <= m_bytes_sent) {
+		m_response->send();
+		return;
+	}
+	
+	// calculate the number of bytes to send (m_file_bytes_to_send)
+	m_file_bytes_to_send = m_disk_file.getFileSize() - m_bytes_sent;
+	if (m_max_chunk_size > 0 && m_file_bytes_to_send > m_max_chunk_size)
+		m_file_bytes_to_send = m_max_chunk_size;
+
+	// get the content to send (file_content_ptr)
+	char *file_content_ptr;
+	
+	if (m_disk_file.hasFileContent()) {
+
+		// the entire file IS cached in memory (m_disk_file.file_content)
+		file_content_ptr = m_disk_file.getFileContent() + m_bytes_sent;
+
+	} else {
+		// the file is not cached in memory
+
+		// check if the file has been opened yet
+		if (! m_file_stream.is_open()) {
+			// open the file for reading
+			m_file_stream.open(m_disk_file.getFilePath(), std::ios::in | std::ios::binary);
+			if (! m_file_stream.is_open()) {
+				PION_LOG_ERROR(m_logger, "Unable to open file: "
+							   << m_disk_file.getFilePath().file_string());
+				return;
+			}
+		}
+
+		// check if the content buffer was initialized yet
+		if (! m_content_buf) {
+			// allocate memory for the new content buffer
+			m_content_buf.reset(new char[m_file_bytes_to_send]);
+		}
+		file_content_ptr = m_content_buf.get();
+		
+		// read a block of data from the file into the content buffer
+		if (! m_file_stream.read(m_content_buf.get(), m_file_bytes_to_send)) {
+			if (m_file_stream.gcount() > 0) {
+				PION_LOG_ERROR(m_logger, "File size inconsistency: "
+							   << m_disk_file.getFilePath().file_string());
+			} else {
+				PION_LOG_ERROR(m_logger, "Unable to read file: "
+							   << m_disk_file.getFilePath().file_string());
+			}
+			return;
+		}
+	}
+
+	// send the content
+	m_response->writeNoCopy(file_content_ptr, m_file_bytes_to_send);
+	
+	if (m_bytes_sent + m_file_bytes_to_send >= m_disk_file.getFileSize()) {
+		// this is the last piece of data to send
+		if (m_bytes_sent > 0) {
+			// send last chunk in a series
+			m_response->sendFinalChunk(boost::bind(&DiskFileSender::handleWrite,
+												   shared_from_this(),
+												   boost::asio::placeholders::error,
+												   boost::asio::placeholders::bytes_transferred));
+		} else {
+			// sending entire file at once
+			m_response->send(boost::bind(&DiskFileSender::handleWrite,
+										 shared_from_this(),
+										 boost::asio::placeholders::error,
+										 boost::asio::placeholders::bytes_transferred));
+		}
+	} else {
+		// there will be more data -> send a chunk
+		m_response->sendChunk(boost::bind(&DiskFileSender::handleWrite,
+										  shared_from_this(),
+										  boost::asio::placeholders::error,
+										  boost::asio::placeholders::bytes_transferred));
+	}
+}
+
+void DiskFileSender::handleWrite(const boost::system::error_code& write_error,
+								 std::size_t bytes_written)
+{
+	bool finished_sending = true;
+
+	if (write_error) {
+		// encountered error sending response data
+		m_response->getTCPConnection()->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+		PION_LOG_WARN(m_logger, "Error sending file (" << write_error.message() << ')');
+	} else {
+		// response data sent OK
+		
+		// use m_file_bytes_to_send instead of bytes_written; bytes_written
+		// includes bytes for HTTP headers and chunking headers
+		m_bytes_sent += m_file_bytes_to_send;
+
+		if (m_bytes_sent >= m_disk_file.getFileSize()) {
+			// finished sending
+			PION_LOG_DEBUG(m_logger, "Sent "
+						   << (m_file_bytes_to_send < m_disk_file.getFileSize() ? "file chunk" : "complete file")
+						   << " of " << m_file_bytes_to_send << " bytes (finished"
+						   << (m_response->getTCPConnection()->getKeepAlive() ? ", keeping alive)" : ", closing)") );
+		} else {
+			// NOT finished sending
+			PION_LOG_DEBUG(m_logger, "Sent file chunk of " << m_file_bytes_to_send << " bytes");
+			finished_sending = false;
+			m_response->clear();
+		}
+	}
+
+	if (finished_sending) {
+		// TCPConnection::finish() calls TCPServer::finishConnection, which will either:
+		// a) call HTTPServer::handleConnection again if keep-alive is true; or,
+		// b) close the socket and remove it from the server's connection pool
+		m_response->getTCPConnection()->finish();
+	} else {
+		send();
+	}
 }
 
 

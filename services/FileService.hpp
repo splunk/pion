@@ -19,8 +19,207 @@
 #include <pion/PionException.hpp>
 #include <pion/PionHashMap.hpp>
 #include <pion/net/WebService.hpp>
+#include <pion/net/HTTPResponse.hpp>
 #include <string>
 #include <map>
+
+
+///
+/// DiskFile: class used to represent files stored on disk
+/// 
+class DiskFile {
+public:
+	/// default constructor
+	DiskFile(void)
+		: m_file_size(0), m_last_modified(0) {}
+	
+	/// used to construct new disk file objects
+	DiskFile(const boost::filesystem::path& path,
+			 char *content, unsigned long size,
+			 std::time_t modified, const std::string& mime)
+		: m_file_path(path), m_file_content(content), m_file_size(size),
+		m_last_modified(modified), m_mime_type(mime)
+	{}
+	
+	/// copy constructor
+	DiskFile(const DiskFile& f)
+		: m_file_path(f.m_file_path), m_file_content(f.m_file_content),
+		m_file_size(f.m_file_size), m_last_modified(f.m_last_modified),
+		m_last_modified_string(f.m_last_modified_string), m_mime_type(f.m_mime_type)
+	{}
+	
+	/// updates the file_size and last_modified timestamp to disk
+	void update(void);
+	
+	/// reads content from disk into file_content buffer (may throw)
+	void read(void);
+	
+	/**
+	 * checks if the file has been updated and updates vars if it has (may throw)
+	 *
+	 * @return true if the file was updated
+	 */
+	bool checkUpdated(void);
+	
+	/// return path to the cached file
+	inline const boost::filesystem::path& getFilePath(void) const { return m_file_path; }
+	
+	/// returns content of the cached file
+	inline char *getFileContent(void) { return m_file_content.get(); }
+	
+	/// returns true if there is cached file content
+	inline bool hasFileContent(void) const { return m_file_content; }
+	
+	/// returns size of the file's content
+	inline unsigned long getFileSize(void) const { return m_file_size; }
+	
+	/// returns timestamp that the cached file was last modified (0 = cache disabled)
+	inline std::time_t getLastModified(void) const { return m_last_modified; }
+	
+	/// returns timestamp that the cached file was last modified (string format)
+	inline const std::string& getLastModifiedString(void) const { return m_last_modified_string; }
+	
+	/// returns mime type for the cached file
+	inline const std::string& getMimeType(void) const { return m_mime_type; }
+	
+	/// sets the path to the cached file
+	inline void setFilePath(const boost::filesystem::path& p) { m_file_path = p; }
+	
+	/// appends to the path of the cached file
+	inline void appendFilePath(const std::string& p) { m_file_path /= p; }
+
+	/// sets the mime type for the cached file
+	inline void setMimeType(const std::string& t) { m_mime_type = t; }
+	
+	/// resets the size of the file content buffer
+	inline void resetFileContent(unsigned long n = 0) {
+		if (n == 0) m_file_content.reset();
+		else m_file_content.reset(new char[n]);
+	}
+	
+	
+protected:
+		
+	/// path to the cached file
+	boost::filesystem::path		m_file_path;
+	
+	/// content of the cached file
+	boost::shared_array<char>	m_file_content;
+	
+	/// size of the file's content
+	unsigned long				m_file_size;
+	
+	/// timestamp that the cached file was last modified (0 = cache disabled)
+	std::time_t					m_last_modified;
+	
+	/// timestamp that the cached file was last modified (string format)
+	std::string					m_last_modified_string;
+	
+	/// mime type for the cached file
+	std::string					m_mime_type;
+};
+
+
+///
+/// DiskFileSender: class used to send files to clients using HTTP responses
+/// 
+class DiskFileSender : 
+	public boost::enable_shared_from_this<DiskFileSender>,
+	private boost::noncopyable
+{
+public:
+	/**
+	 * creates new DiskFileSender objects
+	 *
+	 * @param file disk file object that should be sent
+	 * @param request HTTP request that we are responding to
+	 * @param tcp_conn TCP connection used to send the file
+	 * @param max_chunk_size sets the maximum chunk size (default=0, unlimited)
+	 */
+	static inline boost::shared_ptr<DiskFileSender>
+		create(DiskFile& file,
+			   pion::net::HTTPRequestPtr& request,
+			   pion::net::TCPConnectionPtr& tcp_conn,
+			   unsigned long max_chunk_size = 0) 
+	{
+		return boost::shared_ptr<DiskFileSender>(new DiskFileSender(file, request,
+																	tcp_conn, max_chunk_size));
+	}
+	
+	/// default virtual destructor 
+	virtual ~DiskFileSender() {}
+	
+	/// Begins sending the file to the client.  Following a call to this
+	/// function, it is not thread safe to use your reference to the
+	/// DiskFileSender object.
+	void send(void);
+
+	/// sets the logger to be used
+	inline void setLogger(pion::PionLogger log_ptr) { m_logger = log_ptr; }
+	
+	/// returns the logger currently in use
+	inline pion::PionLogger getLogger(void) { return m_logger; }
+	
+		
+protected:
+	
+	/**
+	 * protected constructor restricts creation of objects (use create())
+	 * 
+	 * @param file disk file object that should be sent
+	 * @param request HTTP request that we are responding to
+	 * @param tcp_conn TCP connection used to send the file
+	 * @param max_chunk_size sets the maximum chunk size
+	 */
+	DiskFileSender(DiskFile& file,
+				   pion::net::HTTPRequestPtr& request,
+				   pion::net::TCPConnectionPtr& tcp_conn,
+				   unsigned long max_chunk_size);
+	
+	/**
+	 * handler called after a send operation has completed
+	 *
+	 * @param write_error error status from the last write operation
+	 * @param bytes_written number of bytes sent by the last write operation
+	 */
+	void handleWrite(const boost::system::error_code& write_error,
+					 std::size_t bytes_written);
+	
+	
+	/// primary logging interface used by this class
+	pion::PionLogger				m_logger;
+	
+	
+private:
+
+	/// the disk file we are sending
+	DiskFile						m_disk_file;
+	
+	/// the HTTP response we are sending
+	pion::net::HTTPResponsePtr		m_response;
+
+	/// used to read the file from disk if it is not already cached in memory
+	boost::filesystem::ifstream		m_file_stream;
+	
+	/// buffer used to send file content
+	boost::shared_array<char>		m_content_buf;
+	
+	/**
+	 * maximum chunk size (in bytes): files larger than this size will be
+	 * delivered to clients using HTTP chunked responses.  A value of
+	 * zero means that the size is unlimited (chunking is disabled).
+	 */
+	unsigned long					m_max_chunk_size;
+
+	/// the number of file bytes send in the last operation
+	unsigned long					m_file_bytes_to_send;
+	
+	/// the number of bytes we have sent so far
+	unsigned long					m_bytes_sent;
+};
+
+/// data type for a DiskFileSender pointer
+typedef boost::shared_ptr<DiskFileSender>		DiskFileSenderPtr;
 
 
 ///
@@ -118,40 +317,6 @@ public:
 	
 protected:
 
-	/// data type representing files on disk
-	struct DiskFile {
-		/// constructors for convenience
-		DiskFile(void)
-			: file_size(0), last_modified(0) {}
-		DiskFile(const boost::filesystem::path& path,
-				 char *content, unsigned long size,
-				 std::time_t modified, const std::string& mime)
-			: file_path(path), file_content(content), file_size(size),
-			last_modified(modified), mime_type(mime) {}
-		/// updates the file_size and last_modified timestamp to disk
-		void update(void);
-		/// reads content from disk into file_content buffer
-		void read(void);
-		/**
-			* checks if the file has been updated and updates vars if it has
-		 *
-		 * @return true if the file was updated
-		 */
-		bool checkUpdated(void);
-		/// path to the cached file
-		boost::filesystem::path		file_path;
-		/// content of the cached file
-		boost::shared_array<char>	file_content;
-		/// size of the file's content
-		unsigned long				file_size;
-		/// timestamp that the cached file was last modified (0 = cache disabled)
-		std::time_t					last_modified;
-		/// timestamp that the cached file was last modified (string format)
-		std::string					last_modified_string;
-		/// mime type for the cached file
-		std::string					mime_type;
-	};
-	
 	/// data type for map of file names to cache entries
 	typedef PION_HASH_MAP<std::string, DiskFile, PION_HASH_STRING >		CacheMap;
 	
@@ -207,7 +372,13 @@ private:
 
 	/// default setting for scan configuration option
 	static const unsigned int	DEFAULT_SCAN_SETTING;
-
+	
+	/// default setting for the maximum cache size option
+	static const unsigned long	DEFAULT_MAX_CACHE_SIZE;
+	
+	/// default setting for the maximum chunk size option
+	static const unsigned long	DEFAULT_MAX_CHUNK_SIZE;
+	
 	/// flag used to make sure that createMIMETypes() is called only once
 	static boost::once_flag		m_mime_types_init_flag;
 	
@@ -243,6 +414,20 @@ private:
 	 * 3 = scan directory and pre-populate cache; ignore new files
 	 */
 	unsigned int				m_scan_setting;
+	
+	/**
+	 * maximum cache size (in bytes): files larger than this size will never be
+	 * cached in memory.  A value of zero means that the size is unlimited.
+	 */
+	unsigned long				m_max_cache_size;
+	
+	/**
+	 * maximum chunk size (in bytes): files larger than this size will be
+	 * delivered to clients using HTTP chunked responses.  A value of
+	 * zero means that the size is unlimited (chunking is disabled).
+	 */
+	unsigned long				m_max_chunk_size;
 };
+
 
 #endif

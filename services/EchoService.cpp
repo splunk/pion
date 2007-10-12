@@ -41,7 +41,7 @@ bool EchoService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 	static const std::string POST_CONTENT_TEXT("[POST Content]");
 	
 	// Set Content-type to "text/plain" (plain ascii text)
-	HTTPResponsePtr response(HTTPResponse::create());
+	HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
 	response->setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
 	
 	// write request information
@@ -101,7 +101,7 @@ bool EchoService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 	}
 	
 	// send the response
-	response->send(tcp_conn);
+	response->send();
 	return true;
 }
 

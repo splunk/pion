@@ -144,10 +144,10 @@ LogService::~LogService()
 bool LogService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	// Set Content-type to "text/plain" (plain ascii text)
-	HTTPResponsePtr response(HTTPResponse::create());
+	HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
 	response->setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
 	getLogAppender().writeLogEvents(response);
-	response->send(tcp_conn);
+	response->send();
 	return true;
 }
 
