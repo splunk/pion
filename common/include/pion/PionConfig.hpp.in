@@ -21,6 +21,9 @@
 /* Define to 1 if you have the `OpenSSL' library. */
 #undef PION_HAVE_SSL
 
+/* Define to 1 if you have the `Apache Portable Runtime' library. */
+#undef PION_HAVE_APR
+
 /* Define to 1 if you have the `log4cplus' library (-llog4cplus). */
 #undef PION_HAVE_LOG4CPLUS
 

@@ -267,6 +267,36 @@ fi
 AC_SUBST(PION_SSL_LIB)
 
 
+# Check for Apache Portable Runtime (APR) library
+AC_ARG_WITH([apr],
+    AC_HELP_STRING([--with-aprl@<:@=DIR@:>@],[location of Apache Portable Runtime library]),
+    [ apr_location=$withval ], [ without_apr=true ])
+# Check if APR location is specified
+if test "$without_apr" != "true"; then
+	# Check for apr headers
+	if test "x$apr_location" != "xyes"; then
+		CPPFLAGS="$CPPFLAGS -I$apr_location/include"
+		LDFLAGS="$LDFLAGS -L$apr_location/lib"
+	fi
+	AC_CHECK_HEADERS([apr-1/apr_atomic.h],,AC_MSG_ERROR([Unable to find the APR headers]))
+	# Check for APR library
+	LIBS_SAVED="$LIBS"
+	LIBS="$LIBS_SAVED -lapr-1"
+	AC_TRY_LINK([#include <apr-1/apr_atomic.h>],[ apr_uint32_t n; apr_atomic_set32(&n, 0); return(0); ],
+		AC_MSG_NOTICE(Linking with APR works),
+		AC_MSG_ERROR(Unable to link with the APR library))
+	LIBS="$LIBS_SAVED"
+	PION_APR_LIB="-lapr-1"
+	# Found the APR library
+	AC_MSG_NOTICE([Building Pion with support for the Apache Portable Runtime (APR)])
+	AC_DEFINE([PION_HAVE_APR],[1],[Define to 1 if you have the `Apache Portable Runtime' library.])
+else
+	# Display notice if APR is disabled
+	AC_MSG_NOTICE([Building Pion without the Apache Portable Runtime (APR)])
+fi
+AC_SUBST(PION_APR_LIB)
+
+
 # Check for logging support
 AC_ARG_WITH([log4cplus],
     AC_HELP_STRING([--with-log4cplus@<:@=DIR@:>@],[location of log4cplus library (enables logging)]),
