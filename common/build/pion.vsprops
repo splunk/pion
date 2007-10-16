@@ -7,7 +7,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="$(PION_COMMON_HOME)\include"
+		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;;&quot;$(LOG4CXX_HOME)\src\main\include&quot;"
 		PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_UNICODE;UNICODE;_WIN32_WINNT=0x0500"
 		MinimalRebuild="true"
 		UsePrecompiledHeader="0"
@@ -18,5 +18,9 @@
 		Name="VCLinkerTool"
 		SubSystem="2"
 		TargetMachine="1"
+	/>
+	<UserMacro
+		Name="LOG4CXX_HOME"
+		Value="C:\log4cxx"
 	/>
 </VisualStudioPropertySheet>

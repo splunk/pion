@@ -16,6 +16,7 @@
 	<Tool
 		Name="VCLinkerTool"
 		LinkIncremental="2"
+		AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin"
 		GenerateDebugInformation="true"
 	/>
 </VisualStudioPropertySheet>

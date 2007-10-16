@@ -15,6 +15,7 @@
 	<Tool
 		Name="VCLinkerTool"
 		LinkIncremental="1"
+		AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin"
 		GenerateDebugInformation="true"
 		LinkTimeCodeGeneration="1"
 	/>
