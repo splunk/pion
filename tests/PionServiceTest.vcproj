@@ -56,9 +56,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalDependencies="$(OutDir)/pion-common.lib $(OutDir)/pion-net.lib"
-				AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin"
+				AdditionalDependencies="&quot;$(OutDir)/pion-common.lib&quot; &quot;$(OutDir)/pion-net.lib&quot;"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>
@@ -197,9 +197,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalDependencies="$(OutDir)/pion-common.lib $(OutDir)/pion-net.lib"
-				AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin"
+				AdditionalDependencies="&quot;$(OutDir)/pion-common.lib&quot; &quot;$(OutDir)/pion-net.lib&quot;"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>
