@@ -57,6 +57,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalDependencies="$(OutDir)/pion-common.lib $(OutDir)/pion-net.lib"
+				AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -110,7 +111,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;PION_STATIC_LINKING;_CONSOLE"
+				PreprocessorDefinitions="_DEBUG;PION_STATIC_LINKING;LOG4CXX_STATIC;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				DebugInformationFormat="4"
@@ -127,6 +128,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin\static"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>
@@ -196,6 +198,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalDependencies="$(OutDir)/pion-common.lib $(OutDir)/pion-net.lib"
+				AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -248,7 +251,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="PION_STATIC_LINKING;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="PION_STATIC_LINKING;LOG4CXX_STATIC;NDEBUG;_CONSOLE"
 				RuntimeLibrary="0"
 				DebugInformationFormat="3"
 			/>
@@ -264,6 +267,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin\static"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>

@@ -70,13 +70,24 @@ Logging frameworks:
 Note that the use of a logging framework is entirely optional, so you
 may skip this step if you like.
 
-At this time, none of the supported logging libraries build correctly
-under Windows.  If you'd like to help add support for these, you can
-download the current source code from the following sites:
+At this time, log4cxx (http://logging.apache.org/log4cxx) is the only 
+supported logging library that builds correctly under Windows.
 
-http://logging.apache.org/log4cxx
-http://log4cpp.sourceforge.net
-http://log4cplus.sourceforge.net
+A binary distribution is available at http://www.atomiclabs.com.
+Install it in C:\log4cxx, or change LOG4CXX_HOME accordingly (see below).
+
+You can also download the current source code from 
+http://svn.apache.org/repos/asf/logging/log4cxx/trunk
+Check out to C:\log4cxx, or change LOG4CXX_HOME accordingly (see below).
+Open log4cxx.sln and build everything (or just the configurations you're 
+interested in).
+
+Macro LOG4CXX_HOME in pion.vsprops is set to C:\log4cxx.  If you installed 
+log4cxx somewhere other than C:\log4cxx, change LOG4CXX_HOME accordingly.
+
+Add <LOG4CXX_HOME>\bin to your path.
+
+In PionConfig.hpp.win, define PION_HAVE_LOG4CXX to 1.
 
 
 Building and installing pion-net:
@@ -93,6 +104,10 @@ Running the test programs:
 --------------------------
 
 Make sure "C:\Boost\Lib" is on your path.
+
+If you got the source code from the Subversion repository and haven't yet run
+Doxygen, then run Doxygen from <PION_NET_HOME>\docs.  (The documentation is
+used as part of the test.)
 
 To test PionServiceTest, try running it from <PION_NET_HOME>\tests\ with
 the following command line args: -c vcservices.conf
