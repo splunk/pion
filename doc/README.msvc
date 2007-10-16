@@ -77,7 +77,7 @@ A binary distribution is available at http://www.atomiclabs.com.
 Install it in C:\log4cxx, or change LOG4CXX_HOME accordingly (see below).
 
 You can also download the current source code from 
-http://svn.apache.org/repos/asf/logging/log4cxx/trunk
+http://svn.atomiclabs.com/log4cxx/trunk
 Check out to C:\log4cxx, or change LOG4CXX_HOME accordingly (see below).
 Open log4cxx.sln and build everything (or just the configurations you're 
 interested in).
