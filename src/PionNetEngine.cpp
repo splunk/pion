@@ -41,7 +41,7 @@ void PionNetEngine::startup(void)
 	// lock mutex for thread safety
 	boost::mutex::scoped_lock engine_lock(m_mutex);
 
-	PION_LOG_INFO(m_logger, "Starting up");
+	PION_LOG_INFO(m_logger, "Starting up network engine");
 
 	// schedule async tasks to listen for each server
 	for (TCPServerMap::iterator i = m_servers.begin(); i!=m_servers.end(); ++i) {
@@ -64,7 +64,7 @@ void PionNetEngine::shutdown(void)
 
 	if (m_is_running) {
 
-		PION_LOG_INFO(m_logger, "Shutting down");
+		PION_LOG_INFO(m_logger, "Shutting down network engine");
 
 		// stop listening for new connections
 		for (TCPServerMap::iterator i = m_servers.begin(); i!=m_servers.end(); ++i) {
@@ -82,7 +82,7 @@ void PionNetEngine::shutdown(void)
 			// make sure we do not call join() for the current thread,
 			// since this may yield "undefined behavior"
 			boost::thread current_thread;
-			for (PionThreadPool::iterator i = m_thread_pool.begin();
+			for (ThreadPool::iterator i = m_thread_pool.begin();
 				i != m_thread_pool.end(); ++i)
 			{
 				if (**i != current_thread) (*i)->join();
@@ -104,7 +104,7 @@ void PionNetEngine::shutdown(void)
 		boost::thread::sleep(stop_time);
 #endif
 
-		PION_LOG_INFO(m_logger, "Pion has shutdown");
+		PION_LOG_INFO(m_logger, "Pion network engine has shutdown");
 
 		m_is_running = false;
 		m_engine_has_stopped.notify_all();

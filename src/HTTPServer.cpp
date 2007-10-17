@@ -178,10 +178,10 @@ void HTTPServer::loadService(const std::string& resource, const std::string& ser
 									 std::make_pair(service_ptr, plugin_ptr)));
 	services_lock.unlock();
 
-	if (is_static){
+	if (is_static) {
 		PION_LOG_INFO(m_logger, "Loaded static web service for resource (" << resource << "): " << service_name);
 	} else {
-		PION_LOG_INFO(m_logger, "Loaded web service for resource (" << resource << "): " << service_name);
+		PION_LOG_INFO(m_logger, "Loaded web service plug-in for resource (" << resource << "): " << service_name);
 	}
 }
 

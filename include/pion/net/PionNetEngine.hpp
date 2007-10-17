@@ -36,17 +36,17 @@ class PION_NET_API PionNetEngine :
 {
 public:
 
-	/// exception thrown if start() is called after Pion is running
+	/// exception thrown if start() is called after PionNetEngine is running
 	class AlreadyStartedException : public std::exception {
 		virtual const char* what() const throw() {
-			return "Pion has already started";
+			return "PionNetEngine has already started";
 		}
 	};
 
 	/// exception thrown if start() is called before any servers are defined
 	class NoServersException : public std::exception {
 		virtual const char* what() const throw() {
-			return "Pion cannot start until servers are defined";
+			return "PionNetEngine cannot start until servers are defined";
 		}
 	};
 
@@ -120,7 +120,7 @@ private:
 
 	/// private constructor for singleton pattern
 	PionNetEngine(void)
-		: m_logger(PION_GET_LOGGER("Pion")),
+		: m_logger(PION_GET_LOGGER("pion.net.PionNetEngine")),
 		m_is_running(false), m_num_threads(DEFAULT_NUM_THREADS) {}
 
 	/// creates the singleton instance, protected by boost::call_once
@@ -134,7 +134,7 @@ private:
 	typedef std::map<unsigned int, TCPServerPtr>			TCPServerMap;
 	
 	/// typedef for a group of server threads
-	typedef std::list<boost::shared_ptr<boost::thread> >	PionThreadPool;
+	typedef std::list<boost::shared_ptr<boost::thread> >	ThreadPool;
 
 	/// default number of threads initialized for the thread pool
 	static const unsigned int		DEFAULT_NUM_THREADS;
@@ -152,7 +152,7 @@ private:
 	TCPServerMap					m_servers;
 	
 	/// pool of threads used to receive and process requests
-	PionThreadPool					m_thread_pool;
+	ThreadPool						m_thread_pool;
 	
 	/// manages async I/O events
 	boost::asio::io_service			m_asio_service;
@@ -163,7 +163,7 @@ private:
 	/// condition triggered when the engine has stopped
 	boost::condition				m_engine_has_stopped;
 
-	/// true if pion is running
+	/// true if the network engine is running
 	bool							m_is_running;
 
 	/// number of threads in the pool

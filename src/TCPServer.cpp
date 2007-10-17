@@ -20,7 +20,7 @@ namespace net {		// begin namespace net (Pion Network Library)
 // TCPServer member functions
 
 TCPServer::TCPServer(const unsigned int tcp_port)
-	: m_logger(PION_GET_LOGGER("Pion.TCPServer")),
+	: m_logger(PION_GET_LOGGER("pion.net.TCPServer")),
 	m_tcp_acceptor(PionNetEngine::getInstance().getIOService()),
 #ifdef PION_HAVE_SSL
 	m_ssl_context(PionNetEngine::getInstance().getIOService(), boost::asio::ssl::context::sslv23),

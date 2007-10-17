@@ -148,7 +148,7 @@ protected:
 		m_not_found_handler(HTTPServer::handleNotFoundRequest),
 		m_server_error_handler(HTTPServer::handleServerError)
 	{ 
-		setLogger(PION_GET_LOGGER("Pion.HTTPServer"));
+		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
 	
 	/**

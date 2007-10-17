@@ -51,7 +51,7 @@ protected:
 	 * @param tcp_conn TCP connection used to send the response
 	 */
 	HTTPResponse(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn)
-		: m_logger(PION_GET_LOGGER("Pion.HTTPResponse")),
+		: m_logger(PION_GET_LOGGER("pion.net.HTTPResponse")),
 		m_tcp_conn(tcp_conn),
 		m_stream_is_empty(true), 
 		m_response_message(HTTPTypes::RESPONSE_MESSAGE_OK),
