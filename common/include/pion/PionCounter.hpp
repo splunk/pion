@@ -36,7 +36,7 @@ namespace pion {	// begin namespace pion
 ///
 /// PionCounter: thread-safe 32-bit counter that is faster if APR is available
 ///
-class PionCounter {
+class PION_COMMON_API PionCounter {
 protected:
 	
 	/// increments the value of the counter
