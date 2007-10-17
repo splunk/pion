@@ -12,8 +12,19 @@
 
 #include <pion/PionConfig.hpp>
 #ifdef PION_HAVE_APR
-	#include <apr-1/apr_atomic.h>
+	#ifdef _MSC_VER
+		#include <apr_atomic.h>
+	#else
+		#include <apr-1/apr_atomic.h>
+	#endif
 	#include <boost/thread/once.hpp>
+	#if defined _MSC_VER
+		#if defined _DEBUG
+			#pragma comment(lib, "aprd")
+		#else
+			#pragma comment(lib, "apr")
+		#endif
+	#endif 
 #else
 	#include <boost/thread/mutex.hpp>
 #endif

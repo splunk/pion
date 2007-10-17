@@ -253,6 +253,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\PionCounter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="PionPlugin.cpp"
 				>
 			</File>
@@ -311,6 +315,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\include\pion\PionCounter.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\include\pion\PionException.hpp"
 				>
 			</File>
@@ -333,6 +341,10 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath="..\doc\README.msvc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
