@@ -269,7 +269,7 @@ AC_SUBST(PION_SSL_LIB)
 
 # Check for Apache Portable Runtime (APR) library
 AC_ARG_WITH([apr],
-    AC_HELP_STRING([--with-aprl@<:@=DIR@:>@],[location of Apache Portable Runtime library]),
+    AC_HELP_STRING([--with-apr@<:@=DIR@:>@],[location of Apache Portable Runtime library]),
     [ apr_location=$withval ], [ without_apr=true ])
 # Check if APR location is specified
 if test "$without_apr" != "true"; then
@@ -298,6 +298,9 @@ AC_SUBST(PION_APR_LIB)
 
 
 # Check for logging support
+AC_ARG_ENABLE([logging],
+    AC_HELP_STRING([--disable-logging],[disable all logging support (including ostream)]),
+    [enable_logging=$enableval], [enable_logging=false])
 AC_ARG_WITH([log4cplus],
     AC_HELP_STRING([--with-log4cplus@<:@=DIR@:>@],[location of log4cplus library (enables logging)]),
     [ log4cplus_location=$withval ], [ without_log4cplus=true ])
@@ -307,11 +310,10 @@ AC_ARG_WITH([log4cxx],
 AC_ARG_WITH([log4cpp],
     AC_HELP_STRING([--with-log4cpp@<:@=DIR@:>@],[location of log4cpp library (enables logging)]),
     [ log4cpp_location=$withval ], [ without_log4cpp=true ])
-AC_ARG_WITH([ostream-logging],
-    AC_HELP_STRING([--with-ostream-logging],[use std::cout and std::cerr for logging]),
-    [with_ostream_logging=true], [with_ostream_logging=false])
-
-if test "$without_log4cplus" != "true"; then
+if test "x$enable_logging" == "xno"; then
+	# Display notice if no logging found
+	AC_MSG_NOTICE([Logging is disabled])
+elif test "$without_log4cplus" != "true"; then
 	# Check if log4cplus location is specified
 	if test "x$log4cplus_location" != "xyes"
 	then
@@ -380,11 +382,8 @@ elif test "$without_log4cpp" != "true"; then
 	# Found the log4cpp library
 	AC_MSG_NOTICE(Using the log4cpp library for logging)
 	AC_DEFINE([PION_HAVE_LOG4CPP],[1],[Define to 1 if you have the `log4cpp' library (-llog4cpp).])
-elif test "$with_ostream_logging" = "true"; then
+else
 	AC_MSG_NOTICE(Using std::cout and std::cerr for logging)
 	AC_DEFINE([PION_HAVE_OSTREAM_LOGGING],[1],[Define to 1 to use std::cout and std::cerr for logging.])
-else
-	# Display notice if no logging found
-	AC_MSG_NOTICE([Logging is disabled])
 fi
 AC_SUBST(PION_LOG_LIB)
