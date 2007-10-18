@@ -51,7 +51,7 @@ void PionPlugin::checkCygwinPath(boost::filesystem::path& final_path,
 
 void PionPlugin::addPluginDirectory(const std::string& dir)
 {
-	boost::filesystem::path plugin_path(dir);
+	boost::filesystem::path plugin_path = boost::filesystem::system_complete(dir);
 	checkCygwinPath(plugin_path, dir);
 	if (! boost::filesystem::exists(plugin_path) )
 		throw DirectoryNotFoundException(dir);
@@ -128,10 +128,6 @@ void PionPlugin::releaseData(void)
 		boost::mutex::scoped_lock plugin_lock(m_plugin_mutex);
 		// double-check after locking mutex
 		if (m_plugin_data != NULL && --m_plugin_data->m_references == 0) {
-
-// The handling of dynamic libraries on Windows is EXTREMELY buggy, so if
-// we are running on Windows, never release the shared libraries
-#ifndef PION_WIN32
 			// no more references to the plug-in library
 			
 			// release the shared object
@@ -145,8 +141,6 @@ void PionPlugin::releaseData(void)
 			
 			// release the heap object
 			delete m_plugin_data;
-#endif
-			
 		}
 		m_plugin_data = NULL;
 	}
