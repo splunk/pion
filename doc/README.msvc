@@ -109,7 +109,7 @@ If you got the source code from the Subversion repository and haven't yet run
 Doxygen, then run Doxygen from <PION_NET_HOME>\docs.  (The documentation is
 used as part of the test.)
 
-To test PionServiceTest, try running it from <PION_NET_HOME>\tests\ with
+To test PionServiceTest, try running it from <PION_NET_HOME>\utils\ with
 the following command line args: -c vcservices.conf
 
 To run from within the IDE, go to PionServiceTest Property Pages ->

@@ -62,7 +62,7 @@ make ; sudo make install
 Known Problems
 --------------
 
-The "tests" executables may complain about loading shared libraries if the
+The "utils" executables may complain about loading shared libraries if the
 Boost and/or logging libraries are not in your search path.  Try this:
 
 export LD_LIBRARY_PATH=/usr/local/lib

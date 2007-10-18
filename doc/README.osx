@@ -57,11 +57,17 @@ Building with XCode:
 --------------------
 
 There is an XCode project included within the distribution called
-pion-net.xcodeproj.  To run PionServiceTest from within XCode, you first
-need to configure the executable's command arguments by right-clicking
-on PionServiceTest under the "Executables" group in the left menu and
-selecting "Get Info."  Set the working directory to "Project directory." 
-Under the "Arguments" tab, add the following argument: "-c
-net/tests/xcodeservices.conf" Next, set PionServiceTest as the "Active
-Target" and click on the "Build and Go" button. Building PionServiceTest
-will also build all of the service plug-ins.
+pion-net.xcodeproj.  You must run the "configure" script before building
+anything within XCode.  If you configure pion-net to use any of the optional
+libraries (for example, log4cxx) then you must add the library's headers to
+the project's include path, and also also add the library to the link
+parameters.
+
+To run PionServiceTest from within XCode, you first need to configure
+the executable's command arguments by right-clicking on PionServiceTest
+under the "Executables" group in the left menu and selecting "Get Info." 
+Set the working directory to "Project directory."  Under the "Arguments"
+tab, add the following argument: "-c net/utils/xcodeservices.conf" Next,
+set PionServiceTest as the "Active Target" and click on the "Build and
+Go" button. Building PionServiceTest will also build all of the service
+plug-ins.
