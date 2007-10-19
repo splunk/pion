@@ -13,10 +13,10 @@
 #include <pion/PionPlugin.hpp>
 #include <boost/filesystem.hpp>
 
-using namespace pion;
-
-#define BOOST_TEST_MAIN
+#define BOOST_TEST_MODULE pion-common-unit-tests
 #include <boost/test/unit_test.hpp>
+
+using namespace pion;
 
 static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests";
 static const std::string realPluginForTests = "HelloService";
@@ -64,9 +64,11 @@ BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonExistentPlugin) {
 	BOOST_CHECK_THROW(open("NoSuchPlugin"), PluginNotFoundException);
 }
 
+#ifndef PION_STATIC_LINKING
 BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonPluginDll) {
 	BOOST_CHECK_THROW(open("pion-net"), PluginMissingCreateException);
 }
+#endif // PION_STATIC_LINKING
 
 // This would require building a DLL with a create function, but no destroy function.
 //BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForPluginWithoutDestroy) {
@@ -81,9 +83,11 @@ BOOST_AUTO_TEST_CASE(checkPluginUsedForTestsExists) {
 	BOOST_REQUIRE(boost::filesystem::exists(realPluginForTestsWithExtension));
 }
 
+#ifndef PION_STATIC_LINKING
 BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
 	BOOST_CHECK_NO_THROW(open(realPluginForTests));
 }
+#endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -129,12 +133,15 @@ BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
 	BOOST_CHECK_EQUAL(m_pluginPtr.getPluginName(), "");
 }
 
+#ifndef PION_STATIC_LINKING
 BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
 	BOOST_CHECK_NO_THROW(m_pluginPtr.open(realPluginForTests));
 }
+#endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_SUITE_END()
 
+#ifndef PION_STATIC_LINKING
 struct PluginPtrWithPluginLoaded_F : EmptyPluginPtr_F {
 	PluginPtrWithPluginLoaded_F() { 
 		open(realPluginForTests);
@@ -164,6 +171,8 @@ BOOST_AUTO_TEST_CASE(checkDestroyDoesntThrowExceptionAfterCreate) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+#endif // PION_STATIC_LINKING
+
 #ifdef PION_WIN32
 	static const std::string fakePluginInSandboxWithExt = "sandbox\\fakePlugin.dll";
 #else
@@ -185,6 +194,7 @@ public:
 	public:
 		Sandbox() {
 			m_cwd = boost::filesystem::current_path().directory_string();
+			boost::filesystem::remove_all("sandbox");
 			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox"));
 			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1"));
 			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1/dir1A"));
