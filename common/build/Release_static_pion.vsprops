@@ -11,4 +11,9 @@
 		RuntimeLibrary="0"
 		DebugInformationFormat="3"
 	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin\static"
+		GenerateDebugInformation="true"
+	/>
 </VisualStudioPropertySheet>
