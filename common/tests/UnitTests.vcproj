@@ -19,7 +19,7 @@
 			Name="Debug_DLL|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\build\pion.vsprops;..\build\depth_2_pion-common.vsprops"
+			InheritedPropertySheets="..\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-common.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -38,11 +38,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				PreprocessorDefinitions="BOOST_ALL_DYN_LINK;_DEBUG;_CONSOLE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				DebugInformationFormat="4"
+				PreprocessorDefinitions="_CONSOLE"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -55,10 +51,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
-				AdditionalDependencies="$(OutDir)/pion-common.lib"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>
 			<Tool
@@ -92,7 +84,7 @@
 			Name="Debug_static|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\build\pion.vsprops;..\build\depth_2_pion-common.vsprops"
+			InheritedPropertySheets="..\build\Debug_static_pion.vsprops;..\build\depth_2_pion-common.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -111,11 +103,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;PION_STATIC_LINKING;_CONSOLE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				DebugInformationFormat="4"
+				PreprocessorDefinitions="_CONSOLE"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -128,8 +116,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>
 			<Tool
@@ -163,7 +149,7 @@
 			Name="Release_DLL|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\build\pion.vsprops;..\build\depth_2_pion-common.vsprops"
+			InheritedPropertySheets="..\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-common.vsprops"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -183,9 +169,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="BOOST_ALL_DYN_LINK;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
-				DebugInformationFormat="3"
+				PreprocessorDefinitions="_CONSOLE"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -198,10 +182,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
-				AdditionalDependencies="$(OutDir)/pion-common.lib"
-				LinkIncremental="1"
-				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>
 			<Tool
@@ -235,7 +215,7 @@
 			Name="Release_static|Win32"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\build\pion.vsprops;..\build\depth_2_pion-common.vsprops"
+			InheritedPropertySheets="..\build\Release_static_pion.vsprops;..\build\depth_2_pion-common.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -254,9 +234,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="PION_STATIC_LINKING;NDEBUG;_CONSOLE"
-				RuntimeLibrary="0"
-				DebugInformationFormat="3"
+				PreprocessorDefinitions="_CONSOLE"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -269,8 +247,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>
 			<Tool

@@ -8,7 +8,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalOptions="/GL"
-		PreprocessorDefinitions="BOOST_ALL_DYN_LINK;NDEBUG;_USRDLL"
+		PreprocessorDefinitions="BOOST_ALL_DYN_LINK;NDEBUG"
 		RuntimeLibrary="2"
 		DebugInformationFormat="3"
 	/>
