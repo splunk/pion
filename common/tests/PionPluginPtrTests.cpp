@@ -10,7 +10,7 @@
 #ifdef WIN32
 	#include <direct.h>
 	#define CHANGE_DIRECTORY _chdir
-	#define GET_CURRENT_DIRECTORY _getcwd
+	#define GET_DIRECTORY _getcwd
 #else
 	#include <unistd.h>
 	#define CHANGE_DIRECTORY chdir
@@ -27,13 +27,12 @@
 
 using namespace pion;
 
-static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests";
-static const std::string realPluginForTests = "HelloService";
+static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests\\bin";
 
 #ifdef PION_WIN32
-	static const std::string realPluginForTestsWithExtension = realPluginForTests + ".dll";
+	static const std::string sharedLibExt = ".dll";
 #else
-	static const std::string realPluginForTestsWithExtension = realPluginForTests + ".so";
+	static const std::string sharedLibExt = ".so";
 #endif
 
 class InterfaceStub {
@@ -70,31 +69,28 @@ BOOST_AUTO_TEST_CASE(checkDestroyThrowsException) {
 }
 
 BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonExistentPlugin) {
+	BOOST_REQUIRE(!boost::filesystem::exists("NoSuchPlugin" + sharedLibExt));
 	BOOST_CHECK_THROW(open("NoSuchPlugin"), PluginNotFoundException);
 }
-
-#ifndef PION_STATIC_LINKING
-BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonPluginDll) {
-	BOOST_CHECK_THROW(open("pion-net"), PluginMissingCreateException);
-}
-#endif // PION_STATIC_LINKING
-
-// This would require building a DLL with a create function, but no destroy function.
-//BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForPluginWithoutDestroy) {
-//	BOOST_CHECK_THROW(open("hasCreateButNoDestroy"), PluginMissingDestroyException);
-//}
 
 BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
 	BOOST_CHECK_EQUAL(getPluginName(), "");
 }
 
-BOOST_AUTO_TEST_CASE(checkPluginUsedForTestsExists) {
-	BOOST_REQUIRE(boost::filesystem::exists(realPluginForTestsWithExtension));
+#ifndef PION_STATIC_LINKING
+BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonPluginDll) {
+	BOOST_REQUIRE(boost::filesystem::exists("hasNoCreate" + sharedLibExt));
+	BOOST_CHECK_THROW(open("hasNoCreate"), PluginMissingCreateException);
 }
 
-#ifndef PION_STATIC_LINKING
+BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForPluginWithoutDestroy) {
+	BOOST_REQUIRE(boost::filesystem::exists("hasCreateButNoDestroy" + sharedLibExt));
+	BOOST_CHECK_THROW(open("hasCreateButNoDestroy"), PluginMissingDestroyException);
+}
+
 BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
-	BOOST_CHECK_NO_THROW(open(realPluginForTests));
+	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
+	BOOST_CHECK_NO_THROW(open("hasCreateAndDestroy"));
 }
 #endif // PION_STATIC_LINKING
 
@@ -144,38 +140,45 @@ BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
 
 #ifndef PION_STATIC_LINKING
 BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
-	BOOST_CHECK_NO_THROW(m_pluginPtr.open(realPluginForTests));
+	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
+	BOOST_CHECK_NO_THROW(m_pluginPtr.open("hasCreateAndDestroy"));
 }
 #endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_SUITE_END()
 
 #ifndef PION_STATIC_LINKING
+
 struct PluginPtrWithPluginLoaded_F : EmptyPluginPtr_F {
 	PluginPtrWithPluginLoaded_F() { 
-		open(realPluginForTests);
+		s = NULL;
+		open("hasCreateAndDestroy");
 	}
 	~PluginPtrWithPluginLoaded_F() {
+		if (s) destroy(s);
 	}
+
+	InterfaceStub* s;
 };
 
-BOOST_FIXTURE_TEST_SUITE(PluginPtrWithPluginLoaded_, PluginPtrWithPluginLoaded_F)
+BOOST_FIXTURE_TEST_SUITE(PluginPtrWithPluginLoaded_S, PluginPtrWithPluginLoaded_F)
 
 BOOST_AUTO_TEST_CASE(checkIsOpenReturnsTrue) {
 	BOOST_CHECK(is_open());
 }
 
 BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsPluginName) {
-	BOOST_CHECK_EQUAL(getPluginName(), realPluginForTests);
+	BOOST_CHECK_EQUAL(getPluginName(), "hasCreateAndDestroy");
 }
 
 BOOST_AUTO_TEST_CASE(checkCreateReturnsSomething) {
-	BOOST_CHECK(create() != NULL);
+	BOOST_CHECK((s = create()) != NULL);
 }
 
 BOOST_AUTO_TEST_CASE(checkDestroyDoesntThrowExceptionAfterCreate) {
-	InterfaceStub* s = create();
+	s = create();
 	BOOST_CHECK_NO_THROW(destroy(s));
+	s = NULL;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

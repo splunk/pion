@@ -1,1 +1,0 @@
-pion-common.dll is not here, because it must already be loaded when the tests start.
