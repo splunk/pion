@@ -1,17 +1,26 @@
-// ------------------------------------------------------------------
-// pion-net: a C++ framework for building lightweight HTTP interfaces
-// ------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// pion-common: a collection of common libraries used by the Pion Platform
+// -----------------------------------------------------------------------
 // Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <direct.h>
+#ifdef WIN32
+	#include <direct.h>
+	#define CHANGE_DIRECTORY _chdir
+	#define GET_CURRENT_DIRECTORY _getcwd
+#else
+	#include <unistd.h>
+	#define CHANGE_DIRECTORY chdir
+	#define GET_DIRECTORY getcwd
+#endif
+#include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionPlugin.hpp>
-#include <boost/filesystem.hpp>
 
 #define BOOST_TEST_MODULE pion-common-unit-tests
 #include <boost/test/unit_test.hpp>
@@ -33,11 +42,11 @@ class InterfaceStub {
 class EmptyPluginPtr_F : public PionPluginPtr<InterfaceStub> {
 public:
 	EmptyPluginPtr_F() { 
-		BOOST_REQUIRE((m_old_cwd = _getcwd(NULL, 0)) != NULL);
-		BOOST_REQUIRE(_chdir(directoryOfPluginsForTests.c_str()) == 0);
+		BOOST_REQUIRE((m_old_cwd = GET_DIRECTORY(NULL, 0)) != NULL);
+		BOOST_REQUIRE(CHANGE_DIRECTORY(directoryOfPluginsForTests.c_str()) == 0);
 	}
 	~EmptyPluginPtr_F() {
-		BOOST_CHECK(_chdir(m_old_cwd) == 0);
+		BOOST_CHECK(CHANGE_DIRECTORY(m_old_cwd) == 0);
 		free(m_old_cwd);
 	}
 
@@ -98,11 +107,11 @@ These tests are a subset of those in the previous suite, for comparison purposes
 */
 struct EmptyPluginPtr2_F {
 	EmptyPluginPtr2_F() : m_pluginPtr() { 
-		BOOST_REQUIRE((m_old_cwd = _getcwd(NULL, 0)) != NULL);
-		BOOST_REQUIRE(_chdir(directoryOfPluginsForTests.c_str()) == 0);
+		BOOST_REQUIRE((m_old_cwd = GET_DIRECTORY(NULL, 0)) != NULL);
+		BOOST_REQUIRE(CHANGE_DIRECTORY(directoryOfPluginsForTests.c_str()) == 0);
 	}
 	~EmptyPluginPtr2_F() {
-		BOOST_CHECK(_chdir(m_old_cwd) == 0);
+		BOOST_CHECK(CHANGE_DIRECTORY(m_old_cwd) == 0);
 		free(m_old_cwd);
 	}
 
@@ -186,7 +195,7 @@ public:
 		m_path_to_file = "arbitraryString";
 	}
 	~Sandbox_F() {
-		_chdir(m_cwd.c_str());
+		CHANGE_DIRECTORY(m_cwd.c_str());
 	}
 	std::string m_path_to_file;
    
@@ -199,11 +208,11 @@ public:
 			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1"));
 			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1/dir1A"));
 			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir2"));
-			std::ofstream emptyFile(fakePluginInSandboxWithExt.c_str());
+			boost::filesystem::ofstream emptyFile(fakePluginInSandboxWithExt.c_str());
 			emptyFile.close();
 		}
 		~Sandbox() {
-			_chdir(m_cwd.c_str());
+			CHANGE_DIRECTORY(m_cwd.c_str());
 			boost::filesystem::remove_all("sandbox");
 		}
 
@@ -255,7 +264,7 @@ BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithExistingDirectory) {
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryOneLevelUp) {
-	BOOST_REQUIRE(_chdir("sandbox/dir1") == 0);
+	BOOST_REQUIRE(CHANGE_DIRECTORY("sandbox/dir1") == 0);
 	BOOST_CHECK_NO_THROW(PionPlugin::addPluginDirectory(".."));
 }
 
@@ -264,7 +273,7 @@ BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithBackslashes) {
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithUpAndDownPath) {
-	BOOST_REQUIRE(_chdir("sandbox/dir1/dir1A") == 0);
+	BOOST_REQUIRE(CHANGE_DIRECTORY("sandbox/dir1/dir1A") == 0);
 	BOOST_CHECK_NO_THROW(PionPlugin::addPluginDirectory("../../dir2"));
 }
 
@@ -295,7 +304,7 @@ BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsTrueForPluginOnSearchPath) {
 }
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsTrueAfterChangingDirectory) {
-	BOOST_REQUIRE(_chdir("sandbox/dir1") == 0);
+	BOOST_REQUIRE(CHANGE_DIRECTORY("sandbox/dir1") == 0);
 	BOOST_CHECK(PionPlugin::findPluginFile(m_path_to_file, "fakePlugin"));
 }
 
