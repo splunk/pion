@@ -21,8 +21,6 @@
 #include <boost/filesystem/fstream.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionPlugin.hpp>
-
-#define BOOST_TEST_MODULE pion-common-unit-tests
 #include <boost/test/unit_test.hpp>
 
 using namespace pion;
