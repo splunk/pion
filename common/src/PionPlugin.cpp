@@ -17,7 +17,6 @@
 	#include <dlfcn.h>
 #endif
 
-#include <iostream>
 
 namespace pion {	// begin namespace pion
 	
@@ -286,7 +285,6 @@ void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
 		return LoadLibrary(plugin_file.c_str());
 	#endif
 #else
-	std::cout << "trying to open " << plugin_file << std::endl;
 	return dlopen(plugin_file.c_str(), RTLD_LAZY);
 #endif
 }
