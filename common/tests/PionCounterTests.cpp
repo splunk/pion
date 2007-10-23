@@ -26,22 +26,22 @@ private:
 BOOST_FIXTURE_TEST_SUITE(NewPionCounter_S, NewPionCounter_F)
 
 BOOST_AUTO_TEST_CASE(checkGetValueReturnsZero) {
-	BOOST_CHECK_EQUAL(getValue(), 0);
+	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long>(0));
 }
 
 BOOST_AUTO_TEST_CASE(checkGetValueAfterIncrement) {
 	increment();
-	BOOST_CHECK_EQUAL(getValue(), 1);
+	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long>(1));
 }
 
 BOOST_AUTO_TEST_CASE(checkGetValueAfterDecrement) {
 	decrement();
-	BOOST_CHECK_EQUAL(getValue(), -1);
+	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long>(-1));
 }
 
 BOOST_AUTO_TEST_CASE(checkGetValueAfterReset) {
 	reset();
-	BOOST_CHECK_EQUAL(getValue(), 0);
+	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long>(0));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -60,22 +60,22 @@ private:
 BOOST_FIXTURE_TEST_SUITE(PionCounterSetTo5_S, PionCounterSetTo5_F)
 
 BOOST_AUTO_TEST_CASE(checkGetValueReturns5) {
-	BOOST_CHECK_EQUAL(getValue(), 5);
+	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long>(5));
 }
 
 BOOST_AUTO_TEST_CASE(checkGetValueAfterIncrement) {
 	increment();
-	BOOST_CHECK_EQUAL(getValue(), 6);
+	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long>(6));
 }
 
 BOOST_AUTO_TEST_CASE(checkGetValueAfterDecrement) {
 	decrement();
-	BOOST_CHECK_EQUAL(getValue(), 4);
+	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long>(4));
 }
 
 BOOST_AUTO_TEST_CASE(checkGetValueAfterReset) {
 	reset();
-	BOOST_CHECK_EQUAL(getValue(), 0);
+	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long>(0));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

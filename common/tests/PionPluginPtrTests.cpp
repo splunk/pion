@@ -34,7 +34,11 @@ using namespace pion;
 	#endif
 	static const std::string sharedLibExt = ".dll";
 #else
-	static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests/.libs";
+	#if defined(PION_XCODE)
+		static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests";
+	#else
+		static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests/.libs";
+	#endif
 	static const std::string sharedLibExt = ".so";
 #endif
 
