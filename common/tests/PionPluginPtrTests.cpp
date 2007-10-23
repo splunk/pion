@@ -240,40 +240,24 @@ class Sandbox_F {
 public:
 	Sandbox_F() {
 		m_cwd = boost::filesystem::current_path().directory_string();
+		boost::filesystem::remove_all("sandbox");
+		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox"));
+		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1"));
+		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1/dir1A"));
+		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir2"));
+		boost::filesystem::ofstream emptyFile(fakePluginInSandboxWithExt.c_str());
+		emptyFile.close();
 		m_path_to_file = "arbitraryString";
 	}
 	~Sandbox_F() {
 		CHANGE_DIRECTORY(m_cwd.c_str());
+		boost::filesystem::remove_all("sandbox");
 	}
 	std::string m_path_to_file;
-   
-	class Sandbox {
-	public:
-		Sandbox() {
-			m_cwd = boost::filesystem::current_path().directory_string();
-			boost::filesystem::remove_all("sandbox");
-			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox"));
-			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1"));
-			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1/dir1A"));
-			BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir2"));
-			boost::filesystem::ofstream emptyFile(fakePluginInSandboxWithExt.c_str());
-			emptyFile.close();
-		}
-		~Sandbox() {
-			CHANGE_DIRECTORY(m_cwd.c_str());
-			boost::filesystem::remove_all("sandbox");
-		}
-
-	private:
-		std::string m_cwd;
-	};
 
 private:
-	static Sandbox s_sandbox;
 	std::string m_cwd;
 };
-
-Sandbox_F::Sandbox s_sandbox;
 
 BOOST_FIXTURE_TEST_SUITE(Sandbox_S, Sandbox_F)
 
