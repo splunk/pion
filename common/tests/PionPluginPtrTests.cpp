@@ -84,6 +84,7 @@ BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
 }
 
 #ifndef PION_STATIC_LINKING
+
 BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonPluginDll) {
 	BOOST_REQUIRE(boost::filesystem::exists("hasNoCreate" + sharedLibExt));
 	BOOST_CHECK_THROW(open("hasNoCreate"), PluginMissingCreateException);
@@ -98,7 +99,47 @@ BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
 	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
 	BOOST_CHECK_NO_THROW(open("hasCreateAndDestroy"));
 }
+
+BOOST_AUTO_TEST_CASE(checkOpenFileDoesntThrowExceptionForValidPlugin) {
+	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
+	BOOST_CHECK_NO_THROW(openFile("hasCreateAndDestroy" + sharedLibExt));
+}
+
 #endif // PION_STATIC_LINKING
+
+BOOST_AUTO_TEST_SUITE_END()
+
+class EmptyPluginPtrWithPluginInSubdirectory_F : public EmptyPluginPtr_F {
+public:
+	EmptyPluginPtrWithPluginInSubdirectory_F() { 
+		boost::filesystem::remove_all("dir1");
+		boost::filesystem::create_directory("dir1");
+		boost::filesystem::create_directory("dir1/dir2");
+		boost::filesystem::rename("hasCreateAndDestroy" + sharedLibExt, "dir1/dir2/hasCreateAndDestroy" + sharedLibExt);
+	}
+	~EmptyPluginPtrWithPluginInSubdirectory_F() {
+		boost::filesystem::rename("dir1/dir2/hasCreateAndDestroy" + sharedLibExt, "hasCreateAndDestroy" + sharedLibExt);
+		boost::filesystem::remove_all("dir1");
+	}
+};
+
+BOOST_FIXTURE_TEST_SUITE(EmptyPluginPtrWithPluginInSubdirectory_S, EmptyPluginPtrWithPluginInSubdirectory_F)
+
+BOOST_AUTO_TEST_CASE(checkOpenFileWithPathWithForwardSlashes) {
+	BOOST_CHECK_NO_THROW(openFile("dir1/dir2/hasCreateAndDestroy" + sharedLibExt));
+}
+
+#ifdef PION_WIN32
+BOOST_AUTO_TEST_CASE(checkOpenFileWithPathWithBackslashes) {
+	BOOST_CHECK_NO_THROW(openFile("dir1\\dir2\\hasCreateAndDestroy" + sharedLibExt));
+}
+#endif
+
+#ifdef PION_WIN32
+BOOST_AUTO_TEST_CASE(checkOpenFileWithPathWithMixedSlashes) {
+	BOOST_CHECK_NO_THROW(openFile("dir1\\dir2/hasCreateAndDestroy" + sharedLibExt));
+}
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
 

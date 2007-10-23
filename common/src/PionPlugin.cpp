@@ -261,7 +261,7 @@ std::string PionPlugin::getPluginName(const std::string& plugin_file)
 {
 	// strip path
 #ifdef PION_WIN32
-	std::string::size_type pos = plugin_file.find_last_of('\\');
+	std::string::size_type pos = plugin_file.find_last_of("\\/");
 #else
 	std::string::size_type pos = plugin_file.find_last_of('/');
 #endif
