@@ -9,7 +9,7 @@
 
 #include <boost/bind.hpp>
 #include <pion/net/PionNetEngine.hpp>
-#ifdef PION_CYGWIN_DIRECTORY
+#if defined(PION_WIN32) && defined(PION_CYGWIN_DIRECTORY)
 	// for Cygwin shutdown crash work-around
 	#include <boost/thread/xtime.hpp>
 #endif
@@ -95,7 +95,7 @@ void PionNetEngine::shutdown(void)
 		// Reset all of the registered servers
 		m_servers.clear();
 
-#ifdef PION_CYGWIN_DIRECTORY
+#if defined(PION_WIN32) && defined(PION_CYGWIN_DIRECTORY)
 		// pause for 1 extra second to work-around shutdown crash on Cygwin
 		// which seems related to static objects used in the ASIO library
 		boost::xtime stop_time;

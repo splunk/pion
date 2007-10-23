@@ -151,21 +151,16 @@ void HTTPServer::loadService(const std::string& resource, const std::string& ser
 	bool is_static;
 	void *create_func;
 	void *destroy_func;
-	std::string plugin_file;
 	
 	// check if service is statically linked, and if not, try to resolve for dynamic
 	is_static = PionPlugin::findStaticEntryPoint(service_name, &create_func, &destroy_func);
-	if (!is_static) {
-		if (!PionPlugin::findPluginFile(plugin_file, service_name))
-			throw PionPlugin::PluginNotFoundException(service_name);
-	}
 
 	// open up the plug-in's shared object library
 	PionPluginPtr<WebService> plugin_ptr;
 	if (is_static) {
 		plugin_ptr.openStaticLinked(service_name, create_func, destroy_func);	// may throw
 	} else {
-		plugin_ptr.open(plugin_file);	// may throw
+		plugin_ptr.open(service_name);	// may throw
 	}
 
 	// create a new web service using the plug-in library
