@@ -24,6 +24,7 @@
 		#else
 			#pragma comment(lib, "apr")
 		#endif
+		#pragma comment(lib, "ws2_32")
 	#endif 
 #else
 	#include <boost/thread/mutex.hpp>
@@ -104,7 +105,11 @@ public:
 	}
 
 	/// virtual destructor: class may be extended
-	virtual ~PionCounter() {}
+	virtual ~PionCounter() {
+		#ifdef PION_HAVE_APR
+			atomicTerminate();
+		#endif
+	}
 
 	/// copy constructor
 	PionCounter(const PionCounter& c) : m_counter(c.getValue()) {}
@@ -148,6 +153,8 @@ private:
 	/// initializes APR atomic operations library
 	static void atomicInit(void);
 	
+	/// terminates APR atomic operations library
+	static void atomicTerminate(void);
 
 #ifdef PION_HAVE_APR
 

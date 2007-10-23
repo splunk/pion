@@ -7,7 +7,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		PreprocessorDefinitions="PION_STATIC_LINKING;NDEBUG;LOG4CXX_STATIC"
+		PreprocessorDefinitions="PION_STATIC_LINKING;NDEBUG;LOG4CXX_STATIC;APR_DECLARE_STATIC"
 		RuntimeLibrary="0"
 		DebugInformationFormat="3"
 	/>

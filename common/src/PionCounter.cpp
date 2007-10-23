@@ -33,4 +33,11 @@ void PionCounter::atomicInit(void)
 #endif
 }
 
+void PionCounter::atomicTerminate(void)
+{
+#ifdef PION_HAVE_APR
+	apr_terminate();
+#endif
+}
+
 }	// end namespace pion
