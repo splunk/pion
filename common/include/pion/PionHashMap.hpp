@@ -32,7 +32,7 @@
 	#define PION_HASH_STRING boost::hash<std::string>
 #elif defined(PION_HAVE_HASH_MAP)
 	#include <hash_map>
-	#ifdef BOOST_MSVC
+	#ifdef _MSC_VER
 		#define PION_HASH_MAP stdext::hash_map
 		#define PION_HASH_MULTIMAP stdext::hash_multimap
 		#define PION_HASH_STRING stdext::hash_compare<std::string, std::less<std::string> >

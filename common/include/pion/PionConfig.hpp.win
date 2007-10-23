@@ -68,7 +68,7 @@
 
 #include <boost/config.hpp>
 
-#ifdef BOOST_MSVC
+#ifdef _MSC_VER
 	#pragma warning(disable: 4251)
 	#pragma warning(disable: 4275)
 
@@ -103,6 +103,6 @@
 		#endif
 	#endif
 
-#endif // BOOST_MSVC
+#endif // _MSC_VER
 
 #endif //__PION_PIONCONFIG_HEADER__

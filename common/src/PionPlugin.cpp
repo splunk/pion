@@ -279,7 +279,7 @@ std::string PionPlugin::getPluginName(const std::string& plugin_file)
 void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
 {
 #ifdef PION_WIN32
-	#ifdef BOOST_MSVC
+	#ifdef _MSC_VER
 		return LoadLibraryA(plugin_file.c_str());
 	#else
 		return LoadLibrary(plugin_file.c_str());
