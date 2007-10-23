@@ -17,6 +17,7 @@
 	#include <dlfcn.h>
 #endif
 
+#include <iostream>
 
 namespace pion {	// begin namespace pion
 	
@@ -65,7 +66,17 @@ void PionPlugin::resetPluginDirectories(void)
 	m_plugin_dirs.clear();
 }
 
-void PionPlugin::open(const std::string& plugin_file)
+void PionPlugin::open(const std::string& plugin_name)
+{
+	std::string plugin_file;
+
+	if (!findPluginFile(plugin_file, plugin_name))
+		throw PluginNotFoundException(plugin_name);
+		
+	openFile(plugin_file);
+}
+
+void PionPlugin::openFile(const std::string& plugin_file)
 {
 	releaseData();	// make sure we're not already pointing to something
 	
@@ -275,6 +286,7 @@ void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
 		return LoadLibrary(plugin_file.c_str());
 	#endif
 #else
+	std::cout << "trying to open " << plugin_file << std::endl;
 	return dlopen(plugin_file.c_str(), RTLD_LAZY);
 #endif
 }

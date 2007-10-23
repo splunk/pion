@@ -108,7 +108,7 @@ AC_SUBST(PION_PLUGINS_DIRECTORY)
 
 # Check for --with-cygwin
 AC_ARG_WITH([cygwin],
-    AC_HELP_STRING([--with-cygwin@<:@=DIR@:>@],[directory where cygwin is installed]),
+    AC_HELP_STRING([--with-cygwin@<:@=DIR@:>@],[directory where cygwin is installed (Windows only)]),
     [with_cygwin=$withval],
     [with_cygwin=maybe])
 if test "$with_cygwin" = "maybe"; then
@@ -237,6 +237,47 @@ LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_FILESYSTEM_LIB)
 
 
+# Check for Boost Unit Test Framework
+AC_ARG_ENABLE([tests],
+    AC_HELP_STRING([--disable-tests],[do not build and run the unit tests]),
+    [enable_tests=$enableval], [enable_tests=yes])
+if test "x$enable_tests" == "xno"; then
+	# Display notice if unit tests are disabled
+	AC_MSG_NOTICE([Unit tests are disabled])
+else
+	AC_CHECK_HEADERS([boost/test/unit_test.hpp],,AC_MSG_ERROR(Unable to find the boost::unit_test headers))
+	LIBS_SAVED="$LIBS"
+	BOOST_LIB=boost_unit_test_framework
+	for ax_lib in $BOOST_LIB-$CC-mt $BOOST_LIB-mt lib$BOOST_LIB-$CC-mt \
+		lib$BOOST_LIB-mt $BOOST_LIB-$CC $BOOST_LIB lib$BOOST_LIB-$CC \
+		lib$BOOST_LIB \
+		$BOOST_LIB-${CC}34-mt lib$BOOST_LIB-${CC}34-mt \
+		$BOOST_LIB-${CC}34 lib$BOOST_LIB-${CC}34 \
+		$BOOST_LIB-${CC}41-mt lib$BOOST_LIB-${CC}41-mt \
+		$BOOST_LIB-${CC}41 lib$BOOST_LIB-${CC}41;
+	do
+		LIBS="$LIBS_SAVED -l$ax_lib"
+		AC_MSG_NOTICE(Checking for -l$ax_lib)
+		AC_TRY_LINK([#include <boost/test/unit_test.hpp>
+			using namespace boost::unit_test;
+			test_suite* init_unit_test_suite( int argc, char* argv[] )
+			{ return BOOST_TEST_SUITE("Master test suite"); }],
+			[],
+			[BOOST_TEST_LIB="-l$ax_lib"; break],
+			[BOOST_TEST_LIB=""])
+	done
+	if test "x$BOOST_TEST_LIB" == "x"; then
+		AC_MSG_ERROR(Unable to link with the boost::unit_test library)
+	else
+		AC_MSG_NOTICE(Linking with boost::unit_test works)
+	fi
+	LIBS="$LIBS_SAVED"
+	PION_TESTS_MAKEDIRS="tests"
+fi
+AC_SUBST(BOOST_TEST_LIB)
+AC_SUBST(PION_TESTS_MAKEDIRS)
+
+
 # Check for OpenSSL
 AC_ARG_WITH([openssl],
     AC_HELP_STRING([--with-openssl@<:@=DIR@:>@],[location of OpenSSL library (enables SSL support)]),
@@ -300,42 +341,19 @@ AC_SUBST(PION_APR_LIB)
 # Check for logging support
 AC_ARG_ENABLE([logging],
     AC_HELP_STRING([--disable-logging],[disable all logging support (including ostream)]),
-    [enable_logging=$enableval], [enable_logging=false])
-AC_ARG_WITH([log4cplus],
-    AC_HELP_STRING([--with-log4cplus@<:@=DIR@:>@],[location of log4cplus library (enables logging)]),
-    [ log4cplus_location=$withval ], [ without_log4cplus=true ])
+    [enable_logging=$enableval], [enable_logging=yes])
 AC_ARG_WITH([log4cxx],
-    AC_HELP_STRING([--with-log4cxx@<:@=DIR@:>@],[location of log4cxx library (enables logging)]),
+    AC_HELP_STRING([--with-log4cxx@<:@=DIR@:>@],[location of log4cxx library (recommended)]),
     [ log4cxx_location=$withval ], [ without_log4cxx=true ])
+AC_ARG_WITH([log4cplus],
+    AC_HELP_STRING([--with-log4cplus@<:@=DIR@:>@],[location of log4cplus library]),
+    [ log4cplus_location=$withval ], [ without_log4cplus=true ])
 AC_ARG_WITH([log4cpp],
-    AC_HELP_STRING([--with-log4cpp@<:@=DIR@:>@],[location of log4cpp library (enables logging)]),
+    AC_HELP_STRING([--with-log4cpp@<:@=DIR@:>@],[location of log4cpp library]),
     [ log4cpp_location=$withval ], [ without_log4cpp=true ])
 if test "x$enable_logging" == "xno"; then
 	# Display notice if no logging found
 	AC_MSG_NOTICE([Logging is disabled])
-elif test "$without_log4cplus" != "true"; then
-	# Check if log4cplus location is specified
-	if test "x$log4cplus_location" != "xyes"
-	then
-		CPPFLAGS="$CPPFLAGS -I$log4cplus_location/include"
-		LDFLAGS="$LDFLAGS -L$log4cplus_location/lib"
-	fi
-
-	# Check for log4cplus headers
-	AC_CHECK_HEADERS([log4cplus/logger.h],,AC_MSG_ERROR([Unable to find the log4cplus headers]))
-	
-	# Check for log4cplus library
-	LIBS_SAVED="$LIBS"
-	LIBS="$LIBS_SAVED -llog4cplus"
-	AC_TRY_LINK([#include <log4cplus/logger.h>],[ log4cplus::Logger::getRoot(); return 0; ],
-		AC_MSG_NOTICE(Linking with log4cplus works),
-		AC_MSG_ERROR(Unable to link with the log4cplus library))
-	LIBS="$LIBS_SAVED"
-	PION_LOG_LIB="-llog4cplus"
-
-	# Found the log4cplus library
-	AC_MSG_NOTICE(Using the log4cplus library for logging)
-	AC_DEFINE([PION_HAVE_LOG4CPLUS],[1],[Define to 1 if you have the `log4cplus' library (-llog4cplus).])
 elif test "$without_log4cxx" != "true"; then
 	# Check if log4cxx location is specified
 	if test "x$log4cxx_location" != "xyes"
@@ -359,6 +377,29 @@ elif test "$without_log4cxx" != "true"; then
 	# Found the log4cxx library
 	AC_MSG_NOTICE(Using the log4cxx library for logging)
 	AC_DEFINE([PION_HAVE_LOG4CXX],[1],[Define to 1 if you have the `log4cxx' library (-llog4cxx).])
+elif test "$without_log4cplus" != "true"; then
+	# Check if log4cplus location is specified
+	if test "x$log4cplus_location" != "xyes"
+	then
+		CPPFLAGS="$CPPFLAGS -I$log4cplus_location/include"
+		LDFLAGS="$LDFLAGS -L$log4cplus_location/lib"
+	fi
+
+	# Check for log4cplus headers
+	AC_CHECK_HEADERS([log4cplus/logger.h],,AC_MSG_ERROR([Unable to find the log4cplus headers]))
+	
+	# Check for log4cplus library
+	LIBS_SAVED="$LIBS"
+	LIBS="$LIBS_SAVED -llog4cplus"
+	AC_TRY_LINK([#include <log4cplus/logger.h>],[ log4cplus::Logger::getRoot(); return 0; ],
+		AC_MSG_NOTICE(Linking with log4cplus works),
+		AC_MSG_ERROR(Unable to link with the log4cplus library))
+	LIBS="$LIBS_SAVED"
+	PION_LOG_LIB="-llog4cplus"
+
+	# Found the log4cplus library
+	AC_MSG_NOTICE(Using the log4cplus library for logging)
+	AC_DEFINE([PION_HAVE_LOG4CPLUS],[1],[Define to 1 if you have the `log4cplus' library (-llog4cplus).])
 elif test "$without_log4cpp" != "true"; then
 	# Check if log4cpp location is specified
 	if test "x$log4cpp_location" != "xyes"
@@ -387,3 +428,8 @@ else
 	AC_DEFINE([PION_HAVE_OSTREAM_LOGGING],[1],[Define to 1 to use std::cout and std::cerr for logging.])
 fi
 AC_SUBST(PION_LOG_LIB)
+
+
+# Set external library dependencies
+PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $PION_SSL_LIB $PION_APR_LIB $PION_LOG_LIB"
+AC_SUBST(PION_EXTERNAL_LIBS)

@@ -151,9 +151,23 @@ public:
 	 * an existing plug-in of a different base class, the resulting behavior is
 	 * undefined (it will probably crash your program).
 	 * 
+	 * @param plugin_name name of the plug-in library to open (without extension, etc.)
+	 */
+	void open(const std::string& plugin_name);
+
+	/**
+	 * opens plug-in library within a shared object file.  If the library is
+	 * already being used by another PionPlugin object, then the existing
+	 * code will be re-used and the reference count will be increased.  Beware
+	 * that this does NOT check the plug-in's base class (InterfaceClassType),
+	 * so you must be careful to ensure that the namespace is unique between
+	 * plug-ins that have different base classes.  If the plug-in's name matches
+	 * an existing plug-in of a different base class, the resulting behavior is
+	 * undefined (it will probably crash your program).
+	 * 
 	 * @param plugin_file shared object file containing the plugin code
 	 */
-	void open(const std::string& plugin_file);
+	void openFile(const std::string& plugin_file);
 
 	/**
 	* opens plug-in library that is statically linked into the program

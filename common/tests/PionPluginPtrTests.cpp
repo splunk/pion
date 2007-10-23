@@ -27,13 +27,19 @@
 
 using namespace pion;
 
-static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests\\bin";
 
-#ifdef PION_WIN32
+#if defined(PION_WIN32)
+	#if defined(_MSC_VER)
+		static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests\\bin";
+	#else
+		static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests/.libs";
+	#endif
 	static const std::string sharedLibExt = ".dll";
 #else
+	static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests/.libs";
 	static const std::string sharedLibExt = ".so";
 #endif
+
 
 class InterfaceStub {
 };
@@ -188,7 +194,7 @@ BOOST_AUTO_TEST_SUITE_END()
 #ifdef PION_WIN32
 	static const std::string fakePluginInSandboxWithExt = "sandbox\\fakePlugin.dll";
 #else
-	static const std::string fakePluginInSandboxWithExt = "sandbox\\fakePlugin.so";
+	static const std::string fakePluginInSandboxWithExt = "sandbox/fakePlugin.so";
 #endif
 
 class Sandbox_F {
@@ -271,9 +277,12 @@ BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryOneLevelUp) {
 	BOOST_CHECK_NO_THROW(PionPlugin::addPluginDirectory(".."));
 }
 
+// this test only works in Windows
+#ifdef PION_WIN32
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithBackslashes) {
 	BOOST_CHECK_NO_THROW(PionPlugin::addPluginDirectory("sandbox\\dir1\\dir1A"));
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithUpAndDownPath) {
 	BOOST_REQUIRE(CHANGE_DIRECTORY("sandbox/dir1/dir1A") == 0);
