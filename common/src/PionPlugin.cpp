@@ -7,7 +7,7 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionPlugin.hpp>
 
@@ -259,21 +259,7 @@ void PionPlugin::openPlugin(const std::string& plugin_file,
 
 std::string PionPlugin::getPluginName(const std::string& plugin_file)
 {
-	// strip path
-#ifdef PION_WIN32
-	std::string::size_type pos = plugin_file.find_last_of("\\/");
-#else
-	std::string::size_type pos = plugin_file.find_last_of('/');
-#endif
-	std::string plugin_name = (pos == std::string::npos ?
-							   plugin_file : plugin_file.substr(pos+1));
-	pos = plugin_name.find('.');
-
-	// truncate extension
-	if (pos != std::string::npos)
-		plugin_name.resize(pos);
-							
-	return plugin_name;						
+	return boost::filesystem::basename(boost::filesystem::path(plugin_file));
 }
 
 void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
