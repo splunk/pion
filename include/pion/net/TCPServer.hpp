@@ -39,6 +39,9 @@ public:
 
 	/// stops listening for new connections
 	void stop(void);
+	
+	/// returns the number of active tcp connections
+	unsigned long getConnections(void) const;
 
 	/// returns true if the server uses SSL to encrypt connections
 	inline bool getSSLFlag(void) const { return m_ssl_flag; }
@@ -49,9 +52,12 @@ public:
 	/// returns the SSL context for configuration
 	inline TCPConnection::SSLContext& getSSLContext(void) { return m_ssl_context; }
 	
+	/// returns true if the server is listening for connections
+	inline bool isListening(void) const { return m_is_listening; }
+
 	/// returns tcp port number server listens for connections on
 	inline unsigned int getPort(void) const { return m_tcp_port; }
-
+	
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
 	
@@ -128,7 +134,7 @@ private:
 	typedef std::set<TCPConnectionPtr>		ConnectionPool;
 
 	/// mutex to make class thread-safe
-	boost::mutex							m_mutex;
+	mutable boost::mutex					m_mutex;
 
 	/// manages async TCP connections
 	boost::asio::ip::tcp::acceptor			m_tcp_acceptor;

@@ -169,5 +169,12 @@ void TCPServer::finishConnection(TCPConnectionPtr& tcp_conn)
 	}
 }
 
+unsigned long TCPServer::getConnections(void) const
+{
+	boost::mutex::scoped_lock server_lock(m_mutex);
+	return (m_is_listening ? (m_conn_pool.size() - 1) : m_conn_pool.size());
+}
+
+
 }	// end namespace net
 }	// end namespace pion
