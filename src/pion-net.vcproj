@@ -271,10 +271,6 @@
 				>
 			</File>
 			<File
-				RelativePath="PionNetEngine.cpp"
-				>
-			</File>
-			<File
 				RelativePath="TCPServer.cpp"
 				>
 			</File>
@@ -302,14 +298,6 @@
 			</File>
 			<File
 				RelativePath="..\include\pion\net\HTTPTypes.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\include\pion\net\PionNet.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\include\pion\net\PionNetEngine.hpp"
 				>
 			</File>
 			<File

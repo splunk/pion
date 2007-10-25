@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="PionServiceTest"
+	Name="PionWebServer"
 	ProjectGUID="{2CC83526-B419-45E1-A692-6DEA0CD56292}"
-	RootNamespace="PionServiceTest"
+	RootNamespace="PionWebServer"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -282,7 +282,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="PionServiceTest.cpp"
+				RelativePath="PionWebServer.cpp"
 				>
 			</File>
 		</Filter>
