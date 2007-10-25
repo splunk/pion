@@ -19,7 +19,15 @@ using namespace pion;
 using namespace pion::net;
 using boost::asio::ip::tcp;
 
-#if defined(PION_WIN32) && defined(_MSC_VER)
+#if defined(_MSC_VER)
+	#if defined(_DEBUG)
+		static const std::string PATH_TO_PLUGINS("../../bin/Debug_DLL");
+	#else
+		static const std::string PATH_TO_PLUGINS("../../bin/Release_DLL");
+	#endif
+	static const std::string SSL_PEM_FILE("../utils/sslkey.pem");
+	static const std::string SERVICES_CONFIG_FILE("../utils/vcservices.conf");
+#elif defined(PION_WIN32)
 	static const std::string PATH_TO_PLUGINS(".");	// ??
 	static const std::string SSL_PEM_FILE(".");	// ??
 	static const std::string SERVICES_CONFIG_FILE(".");	// ??
