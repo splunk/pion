@@ -114,8 +114,9 @@ BOOST_AUTO_TEST_CASE(checkTCPServerIsListening) {
 BOOST_AUTO_TEST_CASE(checkNumberOfActiveServerConnections) {
 	// there should be no connections to start
 	// sleep first just in case other tests ran before this one, which are still
-	// in the process of closing down their connection(s)
-	sleep_briefly();
+	do {
+		sleep_briefly();
+	} while (PionScheduler::getInstance().getRunningThreads() == 0);	
 	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(0));
 
 	// open a connection

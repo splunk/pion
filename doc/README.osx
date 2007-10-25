@@ -63,11 +63,10 @@ libraries (for example, log4cxx) then you must add the library's headers to
 the project's include path, and also also add the library to the link
 parameters.
 
-To run PionServiceTest from within XCode, you first need to configure
-the executable's command arguments by right-clicking on PionServiceTest
+To run PionWebServer from within XCode, you first need to configure
+the executable's command arguments by right-clicking on PionWebServer
 under the "Executables" group in the left menu and selecting "Get Info." 
-Set the working directory to "Project directory."  Under the "Arguments"
-tab, add the following argument: "-c net/utils/xcodeservices.conf" Next,
-set PionServiceTest as the "Active Target" and click on the "Build and
-Go" button. Building PionServiceTest will also build all of the service
-plug-ins.
+Under the "Arguments" tab, add the following argument:
+"-c ../../net/utils/xcodeservices.conf" Next, set PionWebServer as the
+"Active Target" and click on the "Build and Go" button.  Building
+PionWebServer will also build all of the service plug-ins.

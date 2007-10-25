@@ -69,12 +69,9 @@ void TCPServer::stop(void)
 		// this terminates any pending connections
 		m_tcp_acceptor.close();
 	
-		// close all of the TCP connections managed by this server instance
-		std::for_each(m_conn_pool.begin(), m_conn_pool.end(),
-					  boost::bind(&TCPConnection::close, _1));
-
-		// clear the TCP connection management pool
-		m_conn_pool.clear();
+		// wait for all pending connections to complete
+		if (! m_conn_pool.empty() && PionScheduler::getInstance().isRunning())
+			m_no_more_connections.wait(server_lock);
 		
 		afterStopping();
 	}
@@ -100,9 +97,6 @@ void TCPServer::listen(void)
 									 boost::bind(&TCPServer::handleAccept,
 												 this, new_connection,
 												 boost::asio::placeholders::error));
-
-		// startup the thread scheduler (in case it is not running)
-		PionScheduler::getInstance().startup();
 	}
 }
 
@@ -114,9 +108,9 @@ void TCPServer::handleAccept(TCPConnectionPtr& tcp_conn,
 		// this happens when the server is being shut down
 		if (m_is_listening) {
 			listen();	// schedule acceptance of another connection
-			finishConnection(tcp_conn);
 			PION_LOG_WARN(m_logger, "Accept error on port " << getPort() << ": " << accept_error.message());
 		}
+		finishConnection(tcp_conn);
 	} else {
 		// got a new TCP connection
 		PION_LOG_INFO(m_logger, "New" << (tcp_conn->getSSLFlag() ? " SSL " : " ")
@@ -168,7 +162,10 @@ void TCPServer::finishConnection(TCPConnectionPtr& tcp_conn)
 		ConnectionPool::iterator conn_itr = m_conn_pool.find(tcp_conn);
 		if (conn_itr != m_conn_pool.end())
 			m_conn_pool.erase(conn_itr);
-		server_lock.unlock();
+
+		// trigger the no more connections condition if we're waiting to stop
+		if (!m_is_listening && m_conn_pool.empty())
+			m_no_more_connections.notify_all();
 	}
 }
 

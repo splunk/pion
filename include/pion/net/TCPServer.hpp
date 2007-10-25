@@ -13,6 +13,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 #include <boost/asio.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionLogger.hpp>
@@ -128,7 +129,7 @@ private:
 	/// it will call handleConnection(); otherwise, it will close the
 	/// connection and remove it from the server's management pool
 	void finishConnection(TCPConnectionPtr& tcp_conn);
-
+	
 	
 	/// data type for a pool of TCP connections
 	typedef std::set<TCPConnectionPtr>		ConnectionPool;
@@ -142,6 +143,9 @@ private:
 	/// context used for SSL configuration
 	TCPConnection::SSLContext				m_ssl_context;
 		
+	/// condition triggered when the connection pool is empty
+	boost::condition						m_no_more_connections;
+
 	/// pool of active connections associated with this server 
 	ConnectionPool							m_conn_pool;
 
