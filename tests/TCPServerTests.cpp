@@ -85,7 +85,7 @@ public:
 	 *
 	 * @param nsec number of nanoseconds (10^-9) to sleep for (default = 0.01 seconds)
 	 */
-	inline void sleep_briefly(unsigned long nsec = 10000000)
+	inline void sleep_briefly(unsigned long nsec = 50000000)
 	{
 		boost::xtime stop_time;
 		boost::xtime_get(&stop_time, boost::TIME_UTC);
