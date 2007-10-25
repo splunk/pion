@@ -11,7 +11,6 @@
 #include <boost/test/unit_test.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionPlugin.hpp>
-#include <pion/PionScheduler.hpp>
 #include <pion/net/HTTPServer.hpp>
 
 using namespace std;
@@ -86,7 +85,6 @@ public:
 #ifdef PION_HAVE_SSL
 		https_server_ptr->stop();
 #endif
-		PionScheduler::getInstance().shutdown();
 	}	
 	inline HTTPServerPtr& getHTTPServerPtr(void) { return http_server_ptr; }
 	inline HTTPServerPtr& getHTTPSServerPtr(void) { return https_server_ptr; }

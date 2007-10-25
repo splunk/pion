@@ -77,7 +77,6 @@ public:
 	}
 	~HelloServerTests_F() {
 		hello_server_ptr->stop();
-		PionScheduler::getInstance().shutdown();
 	}
 	inline TCPServerPtr& getServerPtr(void) { return hello_server_ptr; }
 
