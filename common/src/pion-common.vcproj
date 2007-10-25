@@ -386,6 +386,10 @@
 				RelativePath="PionPlugin.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\PionScheduler.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -478,6 +482,10 @@
 			</File>
 			<File
 				RelativePath="..\include\pion\PionPlugin.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\PionScheduler.hpp"
 				>
 			</File>
 		</Filter>
