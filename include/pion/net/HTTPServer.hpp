@@ -55,6 +55,13 @@ public:
 			: PionException("Unable to parse configuration file: ", file) {}
 	};
 
+	/// exception used to propagate exceptions thrown by web services
+	class WebServiceException : public PionException {
+	public:
+		WebServiceException(const std::string& file)
+			: PionException("WebService exception: ", file) {}
+	};
+	
 	/// handler for requests that result in "400 Bad Request"
 	typedef boost::function2<void, HTTPRequestPtr&,
 		TCPConnectionPtr&>	BadRequestHandler;

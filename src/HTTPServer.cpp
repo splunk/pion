@@ -124,16 +124,28 @@ void HTTPServer::beforeStarting(void)
 {
 	// call the start() method for each web service associated with this server
 	boost::mutex::scoped_lock services_lock(m_mutex);
-	for (WebServiceMap::iterator i = m_services.begin(); i != m_services.end(); ++i)
-		i->second.first->start();
+	for (WebServiceMap::iterator i = m_services.begin(); i != m_services.end(); ++i) {
+		// catch exceptions thrown by services since their exceptions may be free'd
+		// from memory before they are caught
+		try { i->second.first->start(); }
+		catch (std::exception& e) {
+			throw WebServiceException(e.what());
+		}
+	}
 }
 
 void HTTPServer::afterStopping(void)
 {
 	// call the stop() method for each web service associated with this server
 	boost::mutex::scoped_lock services_lock(m_mutex);
-	for (WebServiceMap::iterator i = m_services.begin(); i != m_services.end(); ++i)
-		i->second.first->stop();
+	for (WebServiceMap::iterator i = m_services.begin(); i != m_services.end(); ++i) {
+		// catch exceptions thrown by services since their exceptions may be free'd
+		// from memory before they are caught
+		try { i->second.first->stop(); }
+		catch (std::exception& e) {
+			throw WebServiceException(e.what());
+		}
+	}
 }
 
 void HTTPServer::addService(const std::string& resource, WebService *service_ptr)
@@ -190,7 +202,14 @@ void HTTPServer::setServiceOption(const std::string& resource,
 	WebServiceMap::iterator i = (resource == "/" ? m_services.find("") : m_services.find(resource));
 	if (i == m_services.end())
 		throw ServiceNotFoundException(resource);
-	i->second.first->setOption(name, value);
+
+	// catch exceptions thrown by services since their exceptions may be free'd
+	// from memory before they are caught
+	try {
+		i->second.first->setOption(name, value);
+	} catch (std::exception& e) {
+		throw WebServiceException(e.what());
+	}
 
 	services_lock.unlock();
 	PION_LOG_INFO(m_logger, "Set web service option for resource ("
