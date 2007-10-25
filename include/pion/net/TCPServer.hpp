@@ -44,6 +44,24 @@ public:
 	/// returns the number of active tcp connections
 	unsigned long getConnections(void) const;
 
+	/// returns tcp port number that the server listens for connections on
+	inline unsigned int getPort(void) const { return m_endpoint.port(); }
+	
+	/// sets tcp port number that the server listens for connections on
+	inline void setPort(unsigned int p) { m_endpoint.port(p); }
+	
+	/// returns IP address that the server listens for connections on
+	inline boost::asio::ip::address getAddress(void) const { return m_endpoint.address(); }
+	
+	/// sets IP address that the server listens for connections on
+	inline void setAddress(const boost::asio::ip::address& addr) { m_endpoint.address(addr); }
+	
+	/// returns tcp endpoint that the server listens for connections on
+	inline const boost::asio::ip::tcp::endpoint& getEndpoint(void) const { return m_endpoint; }
+	
+	/// sets tcp endpoint that the server listens for connections on
+	inline void setEndpoint(const boost::asio::ip::tcp::endpoint& ep) { m_endpoint = ep; }
+
 	/// returns true if the server uses SSL to encrypt connections
 	inline bool getSSLFlag(void) const { return m_ssl_flag; }
 	
@@ -56,9 +74,6 @@ public:
 	/// returns true if the server is listening for connections
 	inline bool isListening(void) const { return m_is_listening; }
 
-	/// returns tcp port number server listens for connections on
-	inline unsigned int getPort(void) const { return m_tcp_port; }
-	
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
 	
@@ -69,13 +84,19 @@ public:
 protected:
 		
 	/**
-	 * protect constructor so that only derived objects may be created
+	 * protected constructor so that only derived objects may be created
 	 * 
-	 * @param tcp_port port number used to listen for new connections
-	 * @param ssl_flag if true, the server will use SSL to encrypt connections
+	 * @param tcp_port port number used to listen for new connections (IPv4)
 	 */
-	explicit TCPServer(const unsigned int tcp_port);
+	explicit TCPServer(const unsigned int tcp_port = 0);
 	
+	/**
+	 * protected constructor so that only derived objects may be created
+	 * 
+	 * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
+	 */
+	explicit TCPServer(const boost::asio::ip::tcp::endpoint& endpoint);
+
 	/**
 	 * handles a new TCP connection; derived classes SHOULD override this
 	 * since the default behavior does nothing
@@ -149,8 +170,8 @@ private:
 	/// pool of active connections associated with this server 
 	ConnectionPool							m_conn_pool;
 
-	/// tcp port number server listens for connections on
-	const unsigned int						m_tcp_port;
+	/// tcp endpoint used to listen for new connections
+	boost::asio::ip::tcp::endpoint			m_endpoint;
 
 	/// true if the server uses SSL to encrypt connections
 	bool									m_ssl_flag;

@@ -57,7 +57,7 @@ void argument_error(void)
 {
 	std::cerr << "usage:   PionWebServer [OPTIONS] RESOURCE WEBSERVICE" << std::endl
 		      << "         PionWebServer [OPTIONS] -c SERVICE_CONFIG_FILE" << std::endl
-			  << "options: [-ssl PEM_FILE] [-p PORT] [-d SERVICE_PLUGINS_DIR] [-o OPTION=VALUE]" << std::endl;
+			  << "options: [-ssl PEM_FILE] [-i IP] [-p PORT] [-d PLUGINS_DIR] [-o OPTION=VALUE]" << std::endl;
 }
 
 
@@ -71,7 +71,7 @@ int main (int argc, char *argv[])
 	ServiceOptionsType service_options;
 	
 	// parse command line: determine port number, RESOURCE and WEBSERVICE
-	unsigned int port = DEFAULT_PORT;
+	boost::asio::ip::tcp::endpoint cfg_endpoint(boost::asio::ip::tcp::v4(), DEFAULT_PORT);
 	std::string service_config_file;
 	std::string resource_name;
 	std::string service_name;
@@ -81,9 +81,13 @@ int main (int argc, char *argv[])
 	for (int argnum=1; argnum < argc; ++argnum) {
 		if (argv[argnum][0] == '-') {
 			if (argv[argnum][1] == 'p' && argv[argnum][2] == '\0' && argnum+1 < argc) {
+				// set port number
 				++argnum;
-				port = strtoul(argv[argnum], 0, 10);
-				if (port == 0) port = DEFAULT_PORT;
+				cfg_endpoint.port(strtoul(argv[argnum], 0, 10));
+				if (cfg_endpoint.port() == 0) cfg_endpoint.port(DEFAULT_PORT);
+			} else if (argv[argnum][1] == 'i' && argv[argnum][2] == '\0' && argnum+1 < argc) {
+				// set ip address
+				cfg_endpoint.address(boost::asio::ip::address::from_string(argv[++argnum]));
 			} else if (argv[argnum][1] == 'c' && argv[argnum][2] == '\0' && argnum+1 < argc) {
 				service_config_file = argv[++argnum];
 			} else if (argv[argnum][1] == 'd' && argv[argnum][2] == '\0' && argnum+1 < argc) {
@@ -159,7 +163,7 @@ int main (int argc, char *argv[])
 		}
 
 		// create a server for HTTP & add the Hello Service
-		HTTPServerPtr http_server(HTTPServer::create(port));
+		HTTPServerPtr http_server(HTTPServer::create(cfg_endpoint));
 
 		if (ssl_flag) {
 #ifdef PION_HAVE_SSL

@@ -80,15 +80,25 @@ public:
 	/**
 	 * creates new HTTPServer objects
 	 *
-	 * @param tcp_port port number used to listen for new connections
+	 * @param tcp_port port number used to listen for new connections (IPv4)
 	 */
-	static inline boost::shared_ptr<HTTPServer> create(const unsigned int tcp_port)
+	static inline boost::shared_ptr<HTTPServer> create(const unsigned int tcp_port = 0)
 	{
 		return boost::shared_ptr<HTTPServer>(new HTTPServer(tcp_port));
 	}
 
+	/**
+	 * creates new HTTPServer objects
+	 *
+	 * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
+	 */
+	static inline boost::shared_ptr<HTTPServer> create(const boost::asio::ip::tcp::endpoint& endpoint)
+	{
+		return boost::shared_ptr<HTTPServer>(new HTTPServer(endpoint));
+	}
+	
 	/// default destructor
-	virtual ~HTTPServer() {}
+	virtual ~HTTPServer() { if (isListening()) stop(); clearServices(); }
 	
 	/**
 	 * adds a new web service to the HTTP server
@@ -149,9 +159,9 @@ protected:
 	/**
 	 * protected constructor restricts creation of objects (use create())
 	 * 
-	 * @param tcp_port port number used to listen for new connections
+	 * @param tcp_port port number used to listen for new connections (IPv4)
 	 */
-	explicit HTTPServer(const unsigned int tcp_port)
+	explicit HTTPServer(const unsigned int tcp_port = 0)
 		: TCPServer(tcp_port),
 		m_bad_request_handler(HTTPServer::handleBadRequest),
 		m_not_found_handler(HTTPServer::handleNotFoundRequest),
@@ -160,6 +170,20 @@ protected:
 		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
 	
+	/**
+	 * protected constructor restricts creation of objects (use create())
+	 * 
+	 * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
+	 */
+	explicit HTTPServer(const boost::asio::ip::tcp::endpoint& endpoint)
+		: TCPServer(endpoint),
+		m_bad_request_handler(HTTPServer::handleBadRequest),
+		m_not_found_handler(HTTPServer::handleNotFoundRequest),
+		m_server_error_handler(HTTPServer::handleServerError)
+	{ 
+		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
+	}
+
 	/**
 	 * handles a new TCP connection
 	 * 

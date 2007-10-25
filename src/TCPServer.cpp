@@ -27,9 +27,20 @@ TCPServer::TCPServer(const unsigned int tcp_port)
 #else
 	m_ssl_context(0),
 #endif
-	m_tcp_port(tcp_port), m_ssl_flag(false), m_is_listening(false)
+	m_endpoint(tcp::v4(), tcp_port), m_ssl_flag(false), m_is_listening(false)
 {}
 
+TCPServer::TCPServer(const tcp::endpoint& endpoint)
+	: m_logger(PION_GET_LOGGER("pion.net.TCPServer")),
+	m_tcp_acceptor(PionScheduler::getInstance().getIOService()),
+#ifdef PION_HAVE_SSL
+	m_ssl_context(PionScheduler::getInstance().getIOService(), boost::asio::ssl::context::sslv23),
+#else
+	m_ssl_context(0),
+#endif
+	m_endpoint(endpoint), m_ssl_flag(false), m_is_listening(false)
+{}
+	
 void TCPServer::start(void)
 {
 	// lock mutex for thread safety
@@ -41,11 +52,10 @@ void TCPServer::start(void)
 		beforeStarting();
 
 		// configure the acceptor service
-		tcp::endpoint endpoint(tcp::v4(), m_tcp_port);
-		m_tcp_acceptor.open(endpoint.protocol());
+		m_tcp_acceptor.open(m_endpoint.protocol());
 		// allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
 		m_tcp_acceptor.set_option(tcp::acceptor::reuse_address(true));
-		m_tcp_acceptor.bind(endpoint);
+		m_tcp_acceptor.bind(m_endpoint);
 		m_tcp_acceptor.listen();
 
 		m_is_listening = true;
