@@ -38,7 +38,6 @@ void PionScheduler::startup(void)
 	if (! m_is_running) {
 		PION_LOG_INFO(m_logger, "Starting thread scheduler");
 		m_is_running = true;
-		m_asio_service.reset();
 
 		// start multiple threads to handle async tasks
 		for (unsigned int n = 0; n < m_num_threads; ++n) {
@@ -89,6 +88,7 @@ void PionScheduler::shutdown(void)
 #endif
 
 		PION_LOG_INFO(m_logger, "Pion thread scheduler has shutdown");
+		m_scheduler_has_stopped.notify_all();
 
 	} else {
 	
@@ -97,28 +97,44 @@ void PionScheduler::shutdown(void)
 		
 		// Make sure that the thread pool is empty
 		m_thread_pool.clear();
+
+		// Make sure anyone waiting on shutdown gets notified
+		// even if the scheduler did not startup successfully
+		m_scheduler_has_stopped.notify_all();
+	}
+}
+
+void PionScheduler::join(void)
+{
+	boost::mutex::scoped_lock scheduler_lock(m_mutex);
+	if (m_is_running) {
+		// sleep until scheduler_has_stopped condition is signaled
+		m_scheduler_has_stopped.wait(scheduler_lock);
 	}
 }
 
 void PionScheduler::run(void)
 {
-	boost::xtime stop_time;
+	boost::xtime wakeup_time;
 	do {
 		// handle I/O events managed by the service
+		++m_running_threads;
 		try {
 			m_asio_service.run();
 		} catch (std::exception& e) {
 			PION_LOG_FATAL(m_logger, "Caught exception in pool thread: " << e.what());
 		}
+		if (--m_running_threads == static_cast<unsigned long>(0)) {
+			m_asio_service.reset();
+		}
 		if (m_is_running) {
-			PION_LOG_DEBUG(m_logger, "Sleeping thread (no work available)");
-			boost::xtime_get(&stop_time, boost::TIME_UTC);
-			stop_time.nsec += SLEEP_WHEN_NO_WORK_NSEC;
-			if (static_cast<unsigned long>(stop_time.nsec) >= NSEC_IN_SECOND) {
-				stop_time.sec++;
-				stop_time.nsec -= NSEC_IN_SECOND;
+			boost::xtime_get(&wakeup_time, boost::TIME_UTC);
+			wakeup_time.nsec += SLEEP_WHEN_NO_WORK_NSEC;
+			if (static_cast<unsigned long>(wakeup_time.nsec) >= NSEC_IN_SECOND) {
+				wakeup_time.sec++;
+				wakeup_time.nsec -= NSEC_IN_SECOND;
 			}
-			boost::thread::sleep(stop_time);
+			boost::thread::sleep(wakeup_time);
 		}
 	} while (m_is_running);
 }

@@ -96,12 +96,12 @@ protected:
 
 public:
 
-	/// default constructor initializes counter to zero (0)
-	PionCounter(void) {
+	/// default constructor initializes counter
+	explicit PionCounter(unsigned long n = 0) {
 		#ifdef PION_HAVE_APR
 			boost::call_once(PionCounter::atomicInit, m_init_flag);
 		#endif
-		assign(0);
+		assign(n);
 	}
 
 	/// virtual destructor: class may be extended
@@ -135,6 +135,26 @@ public:
 	template <typename IntegerType>
 	inline const PionCounter& operator=(const IntegerType& n) { assign(n); return *this; }
 
+	/// compares an integer value to the counter
+	template <typename IntegerType>
+	inline bool operator==(const IntegerType& n) const { return getValue() == n; }
+	
+	/// compares an integer value to the counter
+	template <typename IntegerType>
+	inline bool operator>(const IntegerType& n) const { return getValue() > n; }
+	
+	/// compares an integer value to the counter
+	template <typename IntegerType>
+	inline bool operator<(const IntegerType& n) const { return getValue() < n; }
+	
+	/// compares an integer value to the counter
+	template <typename IntegerType>
+	inline bool operator>=(const IntegerType& n) const { return getValue() >= n; }
+	
+	/// compares an integer value to the counter
+	template <typename IntegerType>
+	inline bool operator<=(const IntegerType& n) const { return getValue() <= n; }
+	
 	/// resets the counter to zero
 	inline void reset(void) { assign(0); }
 

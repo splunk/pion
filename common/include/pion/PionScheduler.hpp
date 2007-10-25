@@ -18,6 +18,7 @@
 #include <boost/thread/mutex.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionLogger.hpp>
+#include <pion/PionCounter.hpp>
 
 
 namespace pion {	// begin namespace pion
@@ -44,7 +45,10 @@ public:
 	}
 
 	/// returns the async I/O service used by the engine
-	inline boost::asio::io_service& getIOService(void) { return m_asio_service; }
+	inline boost::asio::io_service& getIOService(void) {
+		if (!isRunning()) startup();
+		return m_asio_service;
+	}
 	
 	/// Starts the thread scheduler (this is called automatically when necessary)
 	void startup(void);
@@ -53,13 +57,19 @@ public:
 	void shutdown(void);
 
 	/// the calling thread will sleep until the engine has stopped
-	inline void join(void) { run(); }
+	void join(void);
+	
+	/// returns true if the scheduler is running
+	inline bool isRunning(void) const { return m_is_running; }
 	
 	/// sets the number of threads to be used (these are shared by all servers)
 	inline void setNumThreads(const unsigned int n) { m_num_threads = n; }
 	
 	/// returns the number of threads currently in use
 	inline unsigned int getNumThreads(void) const { return m_num_threads; }
+
+	/// returns the number of threads that are currently running
+	inline unsigned long getRunningThreads(void) const { return m_running_threads.getValue(); }
 
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
@@ -73,7 +83,8 @@ private:
 	/// private constructor for singleton pattern
 	PionScheduler(void)
 		: m_logger(PION_GET_LOGGER("pion.PionScheduler")),
-		m_is_running(false), m_num_threads(DEFAULT_NUM_THREADS) {}
+		m_is_running(false), m_num_threads(DEFAULT_NUM_THREADS),
+		m_running_threads(0) {}
 
 	/// creates the singleton instance, protected by boost::call_once
 	static void createInstance(void);
@@ -113,11 +124,17 @@ private:
 	/// mutex to make class thread-safe
 	boost::mutex					m_mutex;
 
+	/// condition triggered when the scheduler has stopped
+	boost::condition				m_scheduler_has_stopped;
+
 	/// true if the thread scheduler is running
 	bool							m_is_running;
 	
 	/// number of threads in the pool
 	unsigned int					m_num_threads;
+
+	/// number of threads that are currently running
+	PionCounter						m_running_threads;
 };
 
 }	// end namespace pion
