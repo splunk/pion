@@ -239,6 +239,7 @@ BOOST_AUTO_TEST_SUITE_END()
 #else
 	static const std::string fakePluginInSandboxWithExt = "sandbox/fakePlugin.so";
 #endif
+	static const std::string fakeConfigFileInSandboxWithExt = "sandbox/fakeConfigFile.conf";
 
 class Sandbox_F {
 public:
@@ -251,6 +252,8 @@ public:
 		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir2"));
 		boost::filesystem::ofstream emptyFile(fakePluginInSandboxWithExt.c_str());
 		emptyFile.close();
+		boost::filesystem::ofstream emptyFile2(fakeConfigFileInSandboxWithExt.c_str());
+		emptyFile2.close();
 		m_path_to_file = "arbitraryString";
 	}
 	~Sandbox_F() {
@@ -269,6 +272,10 @@ BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsFalseForNonexistentPlugin) {
 	BOOST_CHECK(!PionPlugin::findPluginFile(m_path_to_file, "nonexistentPlugin"));
 }
 
+BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsFalseForExistingDirectory) {
+	BOOST_CHECK(!PionPlugin::findPluginFile(m_path_to_file, "sandbox"));
+}
+
 BOOST_AUTO_TEST_CASE(checkFindPluginFileLeavesPathUnchangedForNonexistentPlugin) {
 	BOOST_CHECK(!PionPlugin::findPluginFile(m_path_to_file, "nonexistentPlugin"));
 	BOOST_CHECK_EQUAL(m_path_to_file, "arbitraryString");
@@ -285,6 +292,23 @@ BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsCorrectPathForExistingPlugin) {
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsFalseForPluginNotOnSearchPath) {
 	BOOST_CHECK(!PionPlugin::findPluginFile(m_path_to_file, "fakePlugin"));
+}
+
+BOOST_AUTO_TEST_CASE(checkFindConfigFileReturnsFalseForNonexistentConfigFile) {
+	BOOST_CHECK(!PionPlugin::findConfigFile(m_path_to_file, "nonexistentConfigFile"));
+}
+
+BOOST_AUTO_TEST_CASE(checkFindConfigFileReturnsFalseForExistingDirectory) {
+	BOOST_CHECK(!PionPlugin::findConfigFile(m_path_to_file, "sandbox"));
+}
+
+BOOST_AUTO_TEST_CASE(checkFindConfigFileReturnsTrueForExistingConfigFile) {
+	BOOST_CHECK(PionPlugin::findConfigFile(m_path_to_file, "sandbox/fakeConfigFile"));
+}
+
+BOOST_AUTO_TEST_CASE(checkFindConfigFileReturnsCorrectPathForExistingConfigFile) {
+	BOOST_CHECK(PionPlugin::findConfigFile(m_path_to_file, "sandbox/fakeConfigFile"));
+	BOOST_CHECK(boost::filesystem::equivalent(m_path_to_file, fakeConfigFileInSandboxWithExt));
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryThrowsExceptionForNonexistentDirectory) {
