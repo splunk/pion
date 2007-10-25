@@ -6,7 +6,7 @@ AM_CPPFLAGS = -I@PION_COMMON_HOME@/include -I../include
 
 lib_LTLIBRARIES = libpion-net.la
 
-libpion_net_la_SOURCES = PionNetEngine.cpp TCPServer.cpp \
+libpion_net_la_SOURCES = TCPServer.cpp \
 	HTTPTypes.cpp HTTPResponse.cpp HTTPRequestParser.cpp HTTPServer.cpp
 
 libpion_net_la_LDFLAGS = -no-undefined -release $(PION_LIBRARY_VERSION)

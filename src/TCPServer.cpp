@@ -8,8 +8,8 @@
 //
 
 #include <boost/bind.hpp>
+#include <pion/PionScheduler.hpp>
 #include <pion/net/TCPServer.hpp>
-#include <pion/net/PionNetEngine.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -21,9 +21,9 @@ namespace net {		// begin namespace net (Pion Network Library)
 
 TCPServer::TCPServer(const unsigned int tcp_port)
 	: m_logger(PION_GET_LOGGER("pion.net.TCPServer")),
-	m_tcp_acceptor(PionNetEngine::getInstance().getIOService()),
+	m_tcp_acceptor(PionScheduler::getInstance().getIOService()),
 #ifdef PION_HAVE_SSL
-	m_ssl_context(PionNetEngine::getInstance().getIOService(), boost::asio::ssl::context::sslv23),
+	m_ssl_context(PionScheduler::getInstance().getIOService(), boost::asio::ssl::context::sslv23),
 #else
 	m_ssl_context(0),
 #endif
@@ -87,7 +87,7 @@ void TCPServer::listen(void)
 	
 	if (m_is_listening) {
 		// create a new TCP connection object
-		TCPConnectionPtr new_connection(TCPConnection::create(m_tcp_acceptor.io_service(),
+		TCPConnectionPtr new_connection(TCPConnection::create(PionScheduler::getInstance().getIOService(),
 															  m_ssl_context, m_ssl_flag,
 															  boost::bind(&TCPServer::finishConnection,
 																		  this, _1)));
@@ -100,6 +100,9 @@ void TCPServer::listen(void)
 									 boost::bind(&TCPServer::handleAccept,
 												 this, new_connection,
 												 boost::asio::placeholders::error));
+
+		// startup the thread scheduler (in case it is not running)
+		PionScheduler::getInstance().startup();
 	}
 }
 

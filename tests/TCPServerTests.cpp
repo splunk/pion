@@ -9,9 +9,11 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread/xtime.hpp>
+#include <boost/thread/thread.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/PionConfig.hpp>
-#include <pion/net/PionNet.hpp>
+#include <pion/PionScheduler.hpp>
+#include <pion/net/TCPServer.hpp>
 
 using namespace std;
 using namespace pion;
@@ -68,52 +70,37 @@ private:
 /// 
 class HelloServerTests_F {
 public:
-	HelloServerTests_F() {}
-	~HelloServerTests_F() {}	
-	inline TCPServerPtr& getServerPtr(void) { return m_engine_mgr.hello_server_ptr; }
-
-private:
-	/// class used as static object to initialize the pion network engine
-	class PionNetEngineManager
+	HelloServerTests_F()
+		: hello_server_ptr(new HelloServer(8080))
 	{
-	public:
-		PionNetEngineManager() {
-			// register a server with the network engine
-			hello_server_ptr.reset(new HelloServer(8080));
-			BOOST_CHECK(hello_server_ptr);	// shared pointer should not be null
-			BOOST_CHECK(PionNet::addServer(hello_server_ptr));
-		
-			// startup pion
-			PionNet::startup();
-		}
-		~PionNetEngineManager() {
-			PionNet::shutdown();
-		}	
-		TCPServerPtr	hello_server_ptr;
-	};
-	static PionNetEngineManager	m_engine_mgr;
-};
-
-/// static object used to initialize the pion network engine
-HelloServerTests_F::PionNetEngineManager	HelloServerTests_F::m_engine_mgr;
-
-
-/**
- * put the current thread to sleep for an amount of time
- *
- * @param nsec number of nanoseconds (10^-9) to sleep for (default = 0.01 seconds)
- */
-void sleep_briefly(unsigned long nsec = 10000000)
-{
-	boost::xtime stop_time;
-	boost::xtime_get(&stop_time, boost::TIME_UTC);
-	stop_time.nsec += nsec;
-	if (stop_time.nsec >= 1000000000) {
-		stop_time.sec++;
-		stop_time.nsec -= 1000000000;
+		hello_server_ptr->start();
 	}
-	boost::thread::sleep(stop_time);
-}
+	~HelloServerTests_F() {
+		hello_server_ptr->stop();
+		PionScheduler::getInstance().shutdown();
+	}
+	inline TCPServerPtr& getServerPtr(void) { return hello_server_ptr; }
+
+	/**
+	 * put the current thread to sleep for an amount of time
+	 *
+	 * @param nsec number of nanoseconds (10^-9) to sleep for (default = 0.01 seconds)
+	 */
+	inline void sleep_briefly(unsigned long nsec = 10000000)
+	{
+		boost::xtime stop_time;
+		boost::xtime_get(&stop_time, boost::TIME_UTC);
+		stop_time.nsec += nsec;
+		if (stop_time.nsec >= 1000000000) {
+			stop_time.sec++;
+			stop_time.nsec -= 1000000000;
+		}
+		boost::thread::sleep(stop_time);
+	}
+	
+private:
+	TCPServerPtr	hello_server_ptr;
+};
 
 
 // HelloServer Test Cases

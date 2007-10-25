@@ -8,7 +8,8 @@
 //
 
 #include <boost/bind.hpp>
-#include <pion/net/PionNet.hpp>
+#include <pion/PionScheduler.hpp>
+#include <pion/net/TCPServer.hpp>
 #include <iostream>
 #ifndef PION_WIN32
 	#include <signal.h>
@@ -28,7 +29,7 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
 		case CTRL_BREAK_EVENT:
 		case CTRL_CLOSE_EVENT:
 		case CTRL_SHUTDOWN_EVENT:
-			PionNet::shutdown();
+			PionScheduler::getInstance().shutdown();
 			return TRUE;
 		default:
 			return FALSE;
@@ -37,7 +38,7 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
 #else
 void handle_signal(int sig)
 {
-	PionNet::shutdown();
+	PionScheduler::getInstance().shutdown();
 }
 #endif
 
@@ -69,7 +70,7 @@ int main (int argc, char *argv[])
 		port = strtoul(argv[1], 0, 10);
 		if (port == 0) port = DEFAULT_PORT;
 	} else if (argc != 1) {
-		std::cerr << "usage: PionServerTest [port]" << std::endl;
+		std::cerr << "usage: PionHelloServer [port]" << std::endl;
 		return 1;
 	}
 
@@ -81,8 +82,8 @@ int main (int argc, char *argv[])
 #endif
 
 	// initialize log system (use simple configuration)
-	PionLogger main_log(PION_GET_LOGGER("PionServerTest"));
-	PionLogger pion_log(PION_GET_LOGGER("Pion"));
+	PionLogger main_log(PION_GET_LOGGER("PionHelloServer"));
+	PionLogger pion_log(PION_GET_LOGGER("pion"));
 	PION_LOG_SETLEVEL_DEBUG(main_log);
 	PION_LOG_SETLEVEL_DEBUG(pion_log);
 	PION_LOG_CONFIG_BASIC;
@@ -91,16 +92,8 @@ int main (int argc, char *argv[])
 		
 		// create a new server to handle the Hello TCP protocol
 		TCPServerPtr hello_server(new HelloServer(port));
-		if (! PionNet::addServer(hello_server)) {
-			PION_LOG_FATAL(main_log, "Failed to add HelloServer on port " << port);
-			return 1;
-		}
-	
-		// startup pion
-		PionNet::startup();
-		
-		// run until stopped
-		PionNet::join();
+		hello_server->start();
+		PionScheduler::getInstance().join();
 
 	} catch (std::exception& e) {
 		PION_LOG_FATAL(main_log, e.what());

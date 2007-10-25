@@ -4,14 +4,14 @@
 
 AM_CPPFLAGS = -I@PION_COMMON_HOME@/include -I../include
 
-bin_PROGRAMS = PionServerTest PionServiceTest
+bin_PROGRAMS = PionHelloServer PionWebServer
 
-PionServerTest_SOURCES = PionServerTest.cpp
-PionServerTest_LDADD = ../src/libpion-net.la @PION_COMMON_LIB@ @PION_EXTERNAL_LIBS@
-PionServerTest_DEPENDENCIES = ../src/libpion-net.la
+PionHelloServer_SOURCES = PionHelloServer.cpp
+PionHelloServer_LDADD = ../src/libpion-net.la @PION_COMMON_LIB@ @PION_EXTERNAL_LIBS@
+PionHelloServer_DEPENDENCIES = ../src/libpion-net.la
 
-PionServiceTest_SOURCES = PionServiceTest.cpp
-PionServiceTest_LDADD = ../src/libpion-net.la @PION_COMMON_LIB@ @PION_EXTERNAL_LIBS@
-PionServiceTest_DEPENDENCIES = ../src/libpion-net.la
+PionWebServer_SOURCES = PionWebServer.cpp
+PionWebServer_LDADD = ../src/libpion-net.la @PION_COMMON_LIB@ @PION_EXTERNAL_LIBS@
+PionWebServer_DEPENDENCIES = ../src/libpion-net.la
 
 EXTRA_DIST = sslkey.pem testservices.html *.conf *.vcproj
