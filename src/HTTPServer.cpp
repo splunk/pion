@@ -413,15 +413,16 @@ void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
 // HTTPServer::WebServiceMap member functions
 
 void HTTPServer::WebServiceMap::clear(void) {
-	for (iterator i = begin(); i != end(); ++i) {
-		if (i->second.second.is_open()) {
-			i->second.second.destroy(i->second.first);
-			i->second.second.close();
-		} else {
-			delete i->second.first;
+	if (! empty()) {
+		for (iterator i = begin(); i != end(); ++i) {
+			if (i->second.second.is_open()) {
+				i->second.second.destroy(i->second.first);
+			} else {
+				delete i->second.first;
+			}
 		}
+		erase(begin(), end());
 	}
-	std::map<std::string, PluginPair>::clear();
 }
 
 }	// end namespace net
