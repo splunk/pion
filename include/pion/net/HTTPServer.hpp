@@ -58,8 +58,10 @@ public:
 	/// exception used to propagate exceptions thrown by web services
 	class WebServiceException : public PionException {
 	public:
-		WebServiceException(const std::string& file)
-			: PionException("WebService exception: ", file) {}
+		WebServiceException(const std::string& resource, const std::string& file)
+			: PionException(std::string("WebService (") + resource,
+							std::string("): ") + file)
+		{}
 	};
 	
 	/// handler for requests that result in "400 Bad Request"

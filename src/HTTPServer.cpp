@@ -96,7 +96,7 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 					throw;
 				} catch (std::exception& e) {
 					// recover gracefully from other exceptions thrown by services
-					PION_LOG_ERROR(m_logger, "Web service (" << resource << ") exception: " << e.what());
+					PION_LOG_ERROR(m_logger, "WebService (" << resource << "): " << e.what());
 					m_server_error_handler(http_request, tcp_conn, e.what());
 					request_was_handled = true;
 					break;
@@ -129,7 +129,7 @@ void HTTPServer::beforeStarting(void)
 		// from memory before they are caught
 		try { i->second.first->start(); }
 		catch (std::exception& e) {
-			throw WebServiceException(e.what());
+			throw WebServiceException(i->first, e.what());
 		}
 	}
 }
@@ -143,7 +143,7 @@ void HTTPServer::afterStopping(void)
 		// from memory before they are caught
 		try { i->second.first->stop(); }
 		catch (std::exception& e) {
-			throw WebServiceException(e.what());
+			throw WebServiceException(i->first, e.what());
 		}
 	}
 }
@@ -208,7 +208,7 @@ void HTTPServer::setServiceOption(const std::string& resource,
 	try {
 		i->second.first->setOption(name, value);
 	} catch (std::exception& e) {
-		throw WebServiceException(e.what());
+		throw WebServiceException(i->first, e.what());
 	}
 
 	services_lock.unlock();
