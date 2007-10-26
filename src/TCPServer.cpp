@@ -63,10 +63,13 @@ void TCPServer::start(void)
 		// unlock the mutex since listen() requires its own lock
 		server_lock.unlock();
 		listen();
+		
+		// notify the thread scheduler that we need it now
+		PionScheduler::getInstance().addActiveUser();
 	}
 }
 
-void TCPServer::stop(void)
+void TCPServer::stop(bool wait_until_finished)
 {
 	// lock mutex for thread safety
 	boost::mutex::scoped_lock server_lock(m_mutex);
@@ -76,14 +79,34 @@ void TCPServer::stop(void)
 	
 		m_is_listening = false;
 
-		// this terminates any pending connections
+		// this terminates any connections waiting to be accepted
 		m_tcp_acceptor.close();
+		
+		if (! wait_until_finished) {
+			// this terminates any other open connections
+			std::for_each(m_conn_pool.begin(), m_conn_pool.end(),
+						  boost::bind(&TCPConnection::close, _1));
+		}
 	
 		// wait for all pending connections to complete
-		if (! m_conn_pool.empty() && PionScheduler::getInstance().isRunning())
+		while (! m_conn_pool.empty())
 			m_no_more_connections.wait(server_lock);
 		
+		// notify the thread scheduler that we no longer need it
+		PionScheduler::getInstance().removeActiveUser();
+		
+		// all done!
 		afterStopping();
+		m_server_has_stopped.notify_all();
+	}
+}
+
+void TCPServer::join(void)
+{
+	boost::mutex::scoped_lock server_lock(m_mutex);
+	while (m_is_listening) {
+		// sleep until server_has_stopped condition is signaled
+		m_server_has_stopped.wait(server_lock);
 	}
 }
 

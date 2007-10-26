@@ -33,14 +33,21 @@ class PION_NET_API TCPServer :
 public:
 
 	/// default destructor
-	virtual ~TCPServer() { if (m_is_listening) stop(); }
+	virtual ~TCPServer() { if (m_is_listening) stop(false); }
 	
 	/// starts listening for new connections
 	void start(void);
 
-	/// stops listening for new connections
-	void stop(void);
+	/**
+	 * stops listening for new connections
+	 *
+	 * @param wait_until_finished if true, blocks until all pending connections have closed
+	 */
+	void stop(bool wait_until_finished = false);
 	
+	/// the calling thread will sleep until the server has stopped listening for connections
+	void join(void);
+
 	/// returns the number of active tcp connections
 	unsigned long getConnections(void) const;
 
@@ -164,6 +171,9 @@ private:
 	/// context used for SSL configuration
 	TCPConnection::SSLContext				m_ssl_context;
 		
+	/// condition triggered when the server has stopped listening for connections
+	boost::condition						m_server_has_stopped;
+
 	/// condition triggered when the connection pool is empty
 	boost::condition						m_no_more_connections;
 

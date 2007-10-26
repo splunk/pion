@@ -7,40 +7,14 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/bind.hpp>
-#include <pion/PionScheduler.hpp>
-#include <pion/net/TCPServer.hpp>
 #include <iostream>
-#ifndef PION_WIN32
-	#include <signal.h>
-#endif
+#include <boost/bind.hpp>
+#include <pion/net/TCPServer.hpp>
+#include "ShutdownManager.hpp"
 
 using namespace std;
 using namespace pion;
 using namespace pion::net;
-
-
-/// stops Pion when it receives signals
-#ifdef PION_WIN32
-BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
-{
-	switch(ctrl_type) {
-		case CTRL_C_EVENT:
-		case CTRL_BREAK_EVENT:
-		case CTRL_CLOSE_EVENT:
-		case CTRL_SHUTDOWN_EVENT:
-			PionScheduler::getInstance().shutdown();
-			return TRUE;
-		default:
-			return FALSE;
-	}
-}
-#else
-void handle_signal(int sig)
-{
-	PionScheduler::getInstance().shutdown();
-}
-#endif
 
 
 /// simple TCP server that just sends "Hello there!" to each connection
@@ -93,7 +67,7 @@ int main (int argc, char *argv[])
 		// create a new server to handle the Hello TCP protocol
 		TCPServerPtr hello_server(new HelloServer(port));
 		hello_server->start();
-		PionScheduler::getInstance().join();
+		main_shutdown_manager.wait();
 
 	} catch (std::exception& e) {
 		PION_LOG_FATAL(main_log, e.what());

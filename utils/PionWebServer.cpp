@@ -7,15 +7,11 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/bind.hpp>
-#include <pion/PionPlugin.hpp>
-#include <pion/PionScheduler.hpp>
-#include <pion/net/HTTPServer.hpp>
-#include <iostream>
 #include <vector>
-#ifndef PION_WIN32
-	#include <signal.h>
-#endif
+#include <iostream>
+#include <pion/PionPlugin.hpp>
+#include <pion/net/HTTPServer.hpp>
+#include "ShutdownManager.hpp"
 
 // these are used only when linking to static web service libraries
 // #ifdef PION_STATIC_LINKING
@@ -28,28 +24,6 @@ PION_DECLARE_PLUGIN(CookieService)
 using namespace std;
 using namespace pion;
 using namespace pion::net;
-
-/// stops Pion when it receives signals
-#ifdef PION_WIN32
-BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
-{
-	switch(ctrl_type) {
-		case CTRL_C_EVENT:
-		case CTRL_BREAK_EVENT:
-		case CTRL_CLOSE_EVENT:
-		case CTRL_SHUTDOWN_EVENT:
-			PionScheduler::getInstance().shutdown();
-			return TRUE;
-		default:
-			return FALSE;
-	}
-}
-#else
-void handle_signal(int sig)
-{
-	PionScheduler::getInstance().shutdown();
-}
-#endif
 
 
 /// displays an error message if the arguments are invalid
@@ -198,7 +172,7 @@ int main (int argc, char *argv[])
 
 		// startup the server
 		http_server->start();
-		PionScheduler::getInstance().join();
+		main_shutdown_manager.wait();
 		
 	} catch (std::exception& e) {
 		PION_LOG_FATAL(main_log, e.what());
