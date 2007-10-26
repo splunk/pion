@@ -45,12 +45,6 @@ public:
 		return *m_instance_ptr;
 	}
 
-	/// returns the async I/O service used by the engine
-	inline boost::asio::io_service& getIOService(void) {
-		if (!isRunning()) startup();
-		return m_asio_service;
-	}
-	
 	/// Starts the thread scheduler (this is called automatically when necessary)
 	void startup(void);
 	
@@ -60,6 +54,15 @@ public:
 	/// the calling thread will sleep until the engine has stopped
 	void join(void);
 	
+	/// registers an active user with the thread scheduler
+	void addActiveUser(void);
+
+	/// registers an active user with the thread scheduler
+	void removeActiveUser(void);
+	
+	/// returns the async I/O service used by the engine
+	inline boost::asio::io_service& getIOService(void) { return m_asio_service; }
+
 	/// returns true if the scheduler is running
 	inline bool isRunning(void) const { return m_is_running; }
 	
@@ -85,7 +88,7 @@ private:
 	PionScheduler(void)
 		: m_logger(PION_GET_LOGGER("pion.PionScheduler")),
 		m_is_running(false), m_num_threads(DEFAULT_NUM_THREADS),
-		m_running_threads(0) {}
+		m_active_users(0), m_running_threads(0) {}
 
 	/// creates the singleton instance, protected by boost::call_once
 	static void createInstance(void);
@@ -125,6 +128,9 @@ private:
 	/// mutex to make class thread-safe
 	boost::mutex					m_mutex;
 
+	/// condition triggered when there are no more active users
+	boost::condition				m_no_more_active_users;
+
 	/// condition triggered when the scheduler has stopped
 	boost::condition				m_scheduler_has_stopped;
 
@@ -133,6 +139,9 @@ private:
 	
 	/// number of threads in the pool
 	unsigned int					m_num_threads;
+
+	/// the scheduler will not shutdown until there are no more active users
+	unsigned int					m_active_users;
 
 	/// number of threads that are currently running
 	PionCounter						m_running_threads;

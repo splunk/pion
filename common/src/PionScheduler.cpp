@@ -54,7 +54,13 @@ void PionScheduler::shutdown(void)
 
 	if (m_is_running) {
 
-		PION_LOG_INFO(m_logger, "Shutting down thread scheduler");
+		PION_LOG_INFO(m_logger, "Shutting down the thread scheduler");
+		
+		while (m_active_users > 0) {
+			// first, wait for any active users to exit
+			PION_LOG_INFO(m_logger, "Waiting for " << m_active_users << " scheduler users to finish");
+			m_no_more_active_users.wait(scheduler_lock);
+		}
 
 		// Stop the service to make sure no more events are pending
 		m_asio_service.stop();
@@ -87,7 +93,7 @@ void PionScheduler::shutdown(void)
 		boost::thread::sleep(stop_time);
 #endif
 
-		PION_LOG_INFO(m_logger, "Pion thread scheduler has shutdown");
+		PION_LOG_INFO(m_logger, "The thread scheduler has shutdown");
 		m_scheduler_has_stopped.notify_all();
 
 	} else {
@@ -107,10 +113,24 @@ void PionScheduler::shutdown(void)
 void PionScheduler::join(void)
 {
 	boost::mutex::scoped_lock scheduler_lock(m_mutex);
-	if (m_is_running) {
+	while (m_is_running) {
 		// sleep until scheduler_has_stopped condition is signaled
 		m_scheduler_has_stopped.wait(scheduler_lock);
 	}
+}
+
+void PionScheduler::addActiveUser(void)
+{
+	if (!m_is_running) startup();
+	boost::mutex::scoped_lock scheduler_lock(m_mutex);
+	++m_active_users;
+}
+
+void PionScheduler::removeActiveUser(void)
+{
+	boost::mutex::scoped_lock scheduler_lock(m_mutex);
+	if (--m_active_users == 0)
+		m_no_more_active_users.notify_all();
 }
 
 void PionScheduler::run(void)
