@@ -128,35 +128,38 @@
 
 	// Logging uses std::cout and std::cerr
 	#include <iostream>
+	#include <string>
 	#include <ctime>
 
 	namespace pion {
-		enum PionPriorityType {
-			PION_PRIORITY_DEBUG, PION_PRIORITY_INFO, PION_PRIORITY_WARN,
-			PION_PRIORITY_ERROR, PION_PRIORITY_FATAL
-		};
 		struct PionLogger {
-			PionLogger(const std::string& name)
-				: m_name(name), m_priority(PION_PRIORITY_DEBUG) {}
-			std::string			m_name;
-			PionPriorityType	m_priority;
+			enum PionPriorityType {
+				LOG_LEVEL_DEBUG, LOG_LEVEL_INFO, LOG_LEVEL_WARN,
+				LOG_LEVEL_ERROR, LOG_LEVEL_FATAL
+			};
+			~PionLogger() {}
+			PionLogger(void) : m_name("pion") {}
+			PionLogger(const std::string& name) : m_name(name) {}
+			PionLogger(const PionLogger& p) : m_name(p.m_name) {}
+			std::string					m_name;
+			static PionPriorityType		m_priority;
 		};
 	}
 
 	#define PION_LOG_CONFIG_BASIC	{}
 	#define PION_GET_LOGGER(NAME)	pion::PionLogger(NAME)
 
-	#define PION_LOG_SETLEVEL_DEBUG(LOG)	{ LOG.m_priority = PION_PRIORITY_DEBUG; }
-	#define PION_LOG_SETLEVEL_INFO(LOG)		{ LOG.m_priority = PION_PRIORITY_INFO; }
-	#define PION_LOG_SETLEVEL_WARN(LOG)		{ LOG.m_priority = PION_PRIORITY_WARN; }
-	#define PION_LOG_SETLEVEL_ERROR(LOG)	{ LOG.m_priority = PION_PRIORITY_ERROR; }
-	#define PION_LOG_SETLEVEL_FATAL(LOG)	{ LOG.m_priority = PION_PRIORITY_FATAL; }
+	#define PION_LOG_SETLEVEL_DEBUG(LOG)	{ LOG.m_priority = PionLogger::LOG_LEVEL_DEBUG; }
+	#define PION_LOG_SETLEVEL_INFO(LOG)		{ LOG.m_priority = PionLogger::LOG_LEVEL_INFO; }
+	#define PION_LOG_SETLEVEL_WARN(LOG)		{ LOG.m_priority = PionLogger::LOG_LEVEL_WARN; }
+	#define PION_LOG_SETLEVEL_ERROR(LOG)	{ LOG.m_priority = PionLogger::LOG_LEVEL_ERROR; }
+	#define PION_LOG_SETLEVEL_FATAL(LOG)	{ LOG.m_priority = PionLogger::LOG_LEVEL_FATAL; }
 
-	#define PION_LOG_DEBUG(LOG, MSG)	if (LOG.m_priority <= PION_PRIORITY_DEBUG) { std::cout << time(NULL) << " DEBUG " << LOG.m_name << ' ' << MSG << std::endl; }
-	#define PION_LOG_INFO(LOG, MSG)		if (LOG.m_priority <= PION_PRIORITY_INFO) { std::cout << time(NULL) << " INFO " << LOG.m_name << ' ' << MSG << std::endl; }
-	#define PION_LOG_WARN(LOG, MSG)		if (LOG.m_priority <= PION_PRIORITY_WARN) { std::cerr << time(NULL) << " WARN " << LOG.m_name << ' ' << MSG << std::endl; }
-	#define PION_LOG_ERROR(LOG, MSG)	if (LOG.m_priority <= PION_PRIORITY_ERROR) { std::cerr << time(NULL) << " ERROR " << LOG.m_name << ' ' << MSG << std::endl; }
-	#define PION_LOG_FATAL(LOG, MSG)	if (LOG.m_priority <= PION_PRIORITY_FATAL) { std::cerr << time(NULL) << " FATAL " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_DEBUG(LOG, MSG)	if (LOG.m_priority <= PionLogger::LOG_LEVEL_DEBUG) { std::cout << time(NULL) << " DEBUG " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_INFO(LOG, MSG)		if (LOG.m_priority <= PionLogger::LOG_LEVEL_INFO) { std::cout << time(NULL) << " INFO " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_WARN(LOG, MSG)		if (LOG.m_priority <= PionLogger::LOG_LEVEL_WARN) { std::cerr << time(NULL) << " WARN " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_ERROR(LOG, MSG)	if (LOG.m_priority <= PionLogger::LOG_LEVEL_ERROR) { std::cerr << time(NULL) << " ERROR " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_FATAL(LOG, MSG)	if (LOG.m_priority <= PionLogger::LOG_LEVEL_FATAL) { std::cerr << time(NULL) << " FATAL " << LOG.m_name << ' ' << MSG << std::endl; }
 
 
 #else
