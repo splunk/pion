@@ -237,6 +237,34 @@ LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_FILESYSTEM_LIB)
 
 
+# Check for Boost Regex library
+AC_CHECK_HEADERS([boost/regex.hpp],,AC_MSG_ERROR(Unable to find the boost::regex headers))
+LIBS_SAVED="$LIBS"
+BOOST_LIB=boost_regex
+for ax_lib in $BOOST_LIB-$CC-mt $BOOST_LIB-mt lib$BOOST_LIB-$CC-mt \
+	lib$BOOST_LIB-mt $BOOST_LIB-$CC $BOOST_LIB lib$BOOST_LIB-$CC \
+	lib$BOOST_LIB \
+	$BOOST_LIB-${CC}34-mt lib$BOOST_LIB-${CC}34-mt \
+	$BOOST_LIB-${CC}34 lib$BOOST_LIB-${CC}34 \
+	$BOOST_LIB-${CC}41-mt lib$BOOST_LIB-${CC}41-mt \
+	$BOOST_LIB-${CC}41 lib$BOOST_LIB-${CC}41;
+do
+	LIBS="$LIBS_SAVED -l$ax_lib"
+	AC_MSG_NOTICE(Checking for -l$ax_lib)
+	AC_TRY_LINK([#include <boost/regex.hpp>],
+		[ boost::regex exp(".*"); return 0; ],
+		[BOOST_REGEX_LIB="-l$ax_lib"; break],
+		[BOOST_REGEX_LIB=""])
+done
+if test "x$BOOST_REGEX_LIB" = "x"; then
+	AC_MSG_ERROR(Unable to link with the boost::regex library)
+else
+	AC_MSG_NOTICE(Linking with boost::regex works)
+fi
+LIBS="$LIBS_SAVED"
+AC_SUBST(BOOST_REGEX_LIB)
+
+
 # Check for Boost Unit Test Framework
 AC_ARG_ENABLE([tests],
     AC_HELP_STRING([--disable-tests],[do not build and run the unit tests]),
@@ -431,5 +459,5 @@ AC_SUBST(PION_LOG_LIB)
 
 
 # Set external library dependencies
-PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $PION_SSL_LIB $PION_APR_LIB $PION_LOG_LIB"
+PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $PION_SSL_LIB $PION_APR_LIB $PION_LOG_LIB"
 AC_SUBST(PION_EXTERNAL_LIBS)

@@ -149,17 +149,17 @@
 	#define PION_LOG_CONFIG_BASIC	{}
 	#define PION_GET_LOGGER(NAME)	pion::PionLogger(NAME)
 
-	#define PION_LOG_SETLEVEL_DEBUG(LOG)	{ LOG.m_priority = PionLogger::LOG_LEVEL_DEBUG; }
-	#define PION_LOG_SETLEVEL_INFO(LOG)		{ LOG.m_priority = PionLogger::LOG_LEVEL_INFO; }
-	#define PION_LOG_SETLEVEL_WARN(LOG)		{ LOG.m_priority = PionLogger::LOG_LEVEL_WARN; }
-	#define PION_LOG_SETLEVEL_ERROR(LOG)	{ LOG.m_priority = PionLogger::LOG_LEVEL_ERROR; }
-	#define PION_LOG_SETLEVEL_FATAL(LOG)	{ LOG.m_priority = PionLogger::LOG_LEVEL_FATAL; }
+	#define PION_LOG_SETLEVEL_DEBUG(LOG)	{ LOG.m_priority = pion::PionLogger::LOG_LEVEL_DEBUG; }
+	#define PION_LOG_SETLEVEL_INFO(LOG)		{ LOG.m_priority = pion::PionLogger::LOG_LEVEL_INFO; }
+	#define PION_LOG_SETLEVEL_WARN(LOG)		{ LOG.m_priority = pion::PionLogger::LOG_LEVEL_WARN; }
+	#define PION_LOG_SETLEVEL_ERROR(LOG)	{ LOG.m_priority = pion::PionLogger::LOG_LEVEL_ERROR; }
+	#define PION_LOG_SETLEVEL_FATAL(LOG)	{ LOG.m_priority = pion::PionLogger::LOG_LEVEL_FATAL; }
 
-	#define PION_LOG_DEBUG(LOG, MSG)	if (LOG.m_priority <= PionLogger::LOG_LEVEL_DEBUG) { std::cout << time(NULL) << " DEBUG " << LOG.m_name << ' ' << MSG << std::endl; }
-	#define PION_LOG_INFO(LOG, MSG)		if (LOG.m_priority <= PionLogger::LOG_LEVEL_INFO) { std::cout << time(NULL) << " INFO " << LOG.m_name << ' ' << MSG << std::endl; }
-	#define PION_LOG_WARN(LOG, MSG)		if (LOG.m_priority <= PionLogger::LOG_LEVEL_WARN) { std::cerr << time(NULL) << " WARN " << LOG.m_name << ' ' << MSG << std::endl; }
-	#define PION_LOG_ERROR(LOG, MSG)	if (LOG.m_priority <= PionLogger::LOG_LEVEL_ERROR) { std::cerr << time(NULL) << " ERROR " << LOG.m_name << ' ' << MSG << std::endl; }
-	#define PION_LOG_FATAL(LOG, MSG)	if (LOG.m_priority <= PionLogger::LOG_LEVEL_FATAL) { std::cerr << time(NULL) << " FATAL " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_DEBUG(LOG, MSG)	if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_DEBUG) { std::cout << time(NULL) << " DEBUG " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_INFO(LOG, MSG)		if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_INFO) { std::cout << time(NULL) << " INFO " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_WARN(LOG, MSG)		if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_WARN) { std::cerr << time(NULL) << " WARN " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_ERROR(LOG, MSG)	if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_ERROR) { std::cerr << time(NULL) << " ERROR " << LOG.m_name << ' ' << MSG << std::endl; }
+	#define PION_LOG_FATAL(LOG, MSG)	if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_FATAL) { std::cerr << time(NULL) << " FATAL " << LOG.m_name << ' ' << MSG << std::endl; }
 
 
 #else
