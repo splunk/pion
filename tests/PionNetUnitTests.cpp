@@ -8,6 +8,25 @@
 //
 
 #include <pion/PionConfig.hpp>
+#include <pion/PionLogger.hpp>
 
 #define BOOST_TEST_MODULE pion-net-unit-tests
 #include <boost/test/unit_test.hpp>
+
+/// sets up logging (run once only)
+void setup_logging_for_unit_tests(void)
+{
+	static bool first_run = true;
+	if (first_run) {
+		first_run = false;
+		// configure logging
+		PION_LOG_CONFIG_BASIC;
+		pion::PionLogger log_ptr;
+		log_ptr = PION_GET_LOGGER("pion");
+		PION_LOG_SETLEVEL_INFO(log_ptr);
+		log_ptr = PION_GET_LOGGER("FileService");
+		PION_LOG_SETLEVEL_INFO(log_ptr);
+		log_ptr = PION_GET_LOGGER("DiskFileSender");
+		PION_LOG_SETLEVEL_INFO(log_ptr);
+	}
+}

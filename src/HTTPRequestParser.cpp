@@ -18,16 +18,16 @@ namespace net {		// begin namespace net (Pion Network Library)
 	
 // static members of HTTPRequestParser
 
-const unsigned int	HTTPRequestParser::METHOD_MAX = 1024;	// 1 KB
-const unsigned int	HTTPRequestParser::RESOURCE_MAX = 256 * 1024;	// 256 KB
-const unsigned int	HTTPRequestParser::QUERY_STRING_MAX = 1024 * 1024;	// 1 MB
-const unsigned int	HTTPRequestParser::HEADER_NAME_MAX = 1024;	// 1 KB
-const unsigned int	HTTPRequestParser::HEADER_VALUE_MAX = 1024 * 1024;	// 1 MB
-const unsigned int	HTTPRequestParser::QUERY_NAME_MAX = 1024;	// 1 KB
-const unsigned int	HTTPRequestParser::QUERY_VALUE_MAX = 1024 * 1024;	// 1 MB
-const unsigned int	HTTPRequestParser::COOKIE_NAME_MAX = 1024;	// 1 KB
-const unsigned int	HTTPRequestParser::COOKIE_VALUE_MAX = 1024 * 1024;	// 1 MB
-const unsigned int	HTTPRequestParser::POST_CONTENT_MAX = 1024 * 1024;	// 1 MB
+const unsigned long	HTTPRequestParser::METHOD_MAX = 1024;	// 1 KB
+const unsigned long	HTTPRequestParser::RESOURCE_MAX = 256 * 1024;	// 256 KB
+const unsigned long	HTTPRequestParser::QUERY_STRING_MAX = 1024 * 1024;	// 1 MB
+const unsigned long	HTTPRequestParser::HEADER_NAME_MAX = 1024;	// 1 KB
+const unsigned long	HTTPRequestParser::HEADER_VALUE_MAX = 1024 * 1024;	// 1 MB
+const unsigned long	HTTPRequestParser::QUERY_NAME_MAX = 1024;	// 1 KB
+const unsigned long	HTTPRequestParser::QUERY_VALUE_MAX = 1024 * 1024;	// 1 MB
+const unsigned long	HTTPRequestParser::COOKIE_NAME_MAX = 1024;	// 1 KB
+const unsigned long	HTTPRequestParser::COOKIE_VALUE_MAX = 1024 * 1024;	// 1 MB
+const unsigned long	HTTPRequestParser::POST_CONTENT_MAX = 1024 * 1024;	// 1 MB
 	
 	
 // HTTPRequestParser member functions

@@ -47,6 +47,13 @@ public:
 	
 	/// the calling thread will sleep until the server has stopped listening for connections
 	void join(void);
+	
+	/**
+	 * configures server for SSL using a PEM-encoded RSA private key file
+	 *
+	 * @param pem_key_file name of the file containing a PEM-encoded private key
+	 */
+	void setSSLKeyFile(const std::string& pem_key_file);
 
 	/// returns the number of active tcp connections
 	unsigned long getConnections(void) const;

@@ -58,8 +58,8 @@ int main (int argc, char *argv[])
 	// initialize log system (use simple configuration)
 	PionLogger main_log(PION_GET_LOGGER("PionHelloServer"));
 	PionLogger pion_log(PION_GET_LOGGER("pion"));
-	PION_LOG_SETLEVEL_DEBUG(main_log);
-	PION_LOG_SETLEVEL_DEBUG(pion_log);
+	PION_LOG_SETLEVEL_INFO(main_log);
+	PION_LOG_SETLEVEL_INFO(pion_log);
 	PION_LOG_CONFIG_BASIC;
 	
 	try {

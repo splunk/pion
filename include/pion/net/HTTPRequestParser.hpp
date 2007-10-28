@@ -175,34 +175,34 @@ private:
 	};
 
 	/// maximum length for the request method
-	static const unsigned int			METHOD_MAX;
+	static const unsigned long			METHOD_MAX;
 	
 	/// maximum length for the resource requested
-	static const unsigned int			RESOURCE_MAX;
+	static const unsigned long			RESOURCE_MAX;
 
 	/// maximum length for the query string
-	static const unsigned int			QUERY_STRING_MAX;
+	static const unsigned long			QUERY_STRING_MAX;
 	
 	/// maximum length for an HTTP header name
-	static const unsigned int			HEADER_NAME_MAX;
+	static const unsigned long			HEADER_NAME_MAX;
 
 	/// maximum length for an HTTP header value
-	static const unsigned int			HEADER_VALUE_MAX;
+	static const unsigned long			HEADER_VALUE_MAX;
 
 	/// maximum length for the name of a query string variable
-	static const unsigned int			QUERY_NAME_MAX;
+	static const unsigned long			QUERY_NAME_MAX;
 	
 	/// maximum length for the value of a query string variable
-	static const unsigned int			QUERY_VALUE_MAX;
+	static const unsigned long			QUERY_VALUE_MAX;
 	
 	/// maximum length for the name of a cookie name
-	static const unsigned int			COOKIE_NAME_MAX;
+	static const unsigned long			COOKIE_NAME_MAX;
 	
 	/// maximum length for the value of a cookie; also used for path and domain
-	static const unsigned int			COOKIE_VALUE_MAX;
+	static const unsigned long			COOKIE_VALUE_MAX;
 	
-	/// maximum length for an HTTP header name
-	static const unsigned int			POST_CONTENT_MAX;
+	/// maximum length for HTTP post content
+	static const unsigned long			POST_CONTENT_MAX;
 	
 	/// primary logging interface used by this class
 	PionLogger							m_logger;

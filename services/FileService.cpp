@@ -40,9 +40,7 @@ FileService::FileService(void)
 	m_scan_setting(DEFAULT_SCAN_SETTING),
 	m_max_cache_size(DEFAULT_MAX_CACHE_SIZE),
 	m_max_chunk_size(DEFAULT_MAX_CHUNK_SIZE)
-{
-	PION_LOG_SETLEVEL_WARN(m_logger);
-}
+{}
 
 void FileService::setOption(const std::string& name, const std::string& value)
 {

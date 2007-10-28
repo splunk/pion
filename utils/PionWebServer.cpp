@@ -117,8 +117,8 @@ int main (int argc, char *argv[])
 	// initialize log system (use simple configuration)
 	PionLogger main_log(PION_GET_LOGGER("PionWebServer"));
 	PionLogger pion_log(PION_GET_LOGGER("pion"));
-	PION_LOG_SETLEVEL_DEBUG(main_log);
-	PION_LOG_SETLEVEL_DEBUG(pion_log);
+	PION_LOG_SETLEVEL_INFO(main_log);
+	PION_LOG_SETLEVEL_INFO(pion_log);
 	PION_LOG_CONFIG_BASIC;
 	
 	try {
@@ -142,13 +142,7 @@ int main (int argc, char *argv[])
 		if (ssl_flag) {
 #ifdef PION_HAVE_SSL
 			// configure server for SSL
-			http_server->setSSLFlag(true);
-			boost::asio::ssl::context& ssl_context = http_server->getSSLContext();
-			ssl_context.set_options(boost::asio::ssl::context::default_workarounds
-									| boost::asio::ssl::context::no_sslv2
-									| boost::asio::ssl::context::single_dh_use);
-			ssl_context.use_certificate_file(ssl_pem_file, boost::asio::ssl::context::pem);
-			ssl_context.use_private_key_file(ssl_pem_file, boost::asio::ssl::context::pem);
+			http_server->setSSLKeyFile(ssl_pem_file);
 			PION_LOG_INFO(main_log, "SSL support enabled using key file: " << ssl_pem_file);
 #else
 			PION_LOG_ERROR(main_log, "SSL support is not enabled");

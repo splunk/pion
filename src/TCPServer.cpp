@@ -110,6 +110,19 @@ void TCPServer::join(void)
 	}
 }
 
+void TCPServer::setSSLKeyFile(const std::string& pem_key_file)
+{
+	// configure server for SSL
+	setSSLFlag(true);
+#ifdef PION_HAVE_SSL
+	m_ssl_context.set_options(boost::asio::ssl::context::default_workarounds
+							  | boost::asio::ssl::context::no_sslv2
+							  | boost::asio::ssl::context::single_dh_use);
+	m_ssl_context.use_certificate_file(pem_key_file, boost::asio::ssl::context::pem);
+	m_ssl_context.use_private_key_file(pem_key_file, boost::asio::ssl::context::pem);
+#endif
+}
+
 void TCPServer::listen(void)
 {
 	// lock mutex for thread safety

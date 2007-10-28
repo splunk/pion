@@ -20,6 +20,9 @@ using namespace pion;
 using namespace pion::net;
 using boost::asio::ip::tcp;
 
+/// sets up logging (run once only)
+extern void setup_logging_for_unit_tests(void);
+
 
 ///
 /// HelloServer: simple TCP server that sends "Hello there!" after receiving some data
@@ -28,8 +31,21 @@ class HelloServer
 	: public pion::net::TCPServer
 {
 public:
-	HelloServer(const unsigned int tcp_port) : pion::net::TCPServer(tcp_port) {}
+	/// default constructor
 	virtual ~HelloServer() {}
+
+	/**
+	 * creates a Hello server
+	 *
+	 * @param tcp_port port number used to listen for new connections (IPv4)
+	 */
+	HelloServer(const unsigned int tcp_port) : pion::net::TCPServer(tcp_port) {}
+	
+	/**
+	 * handles a new TCP connection
+	 * 
+	 * @param tcp_conn the new TCP connection to handle
+	 */
 	virtual void handleConnection(pion::net::TCPConnectionPtr& tcp_conn) {
 		static const std::string HELLO_MESSAGE("Hello there!\n");
 		tcp_conn->setLifecycle(pion::net::TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
@@ -38,7 +54,15 @@ public:
 										  boost::asio::placeholders::error));
 	}
 
+	
 private:
+	
+	/**
+	 * called after the initial greeting has been sent
+	 *
+     * @param tcp_conn the TCP connection to the server
+	 * @param write_error message that explains what went wrong (if anything)
+	 */
 	void handleWrite(pion::net::TCPConnectionPtr& tcp_conn,
 					 const boost::system::error_code& write_error)
 	{
@@ -50,6 +74,14 @@ private:
 												  boost::asio::placeholders::bytes_transferred));
 		}
 	}
+	
+	/**
+	 * called after the client's greeting has been received
+	 *
+     * @param tcp_conn the TCP connection to the server
+	 * @param read_error message that explains what went wrong (if anything)
+	 * @param bytes_read number of bytes read from the client
+	 */
 	void handleRead(pion::net::TCPConnectionPtr& tcp_conn,
 					const boost::system::error_code& read_error,
 					std::size_t bytes_read)
@@ -70,9 +102,12 @@ private:
 /// 
 class HelloServerTests_F {
 public:
+	// default constructor and destructor
 	HelloServerTests_F()
 		: hello_server_ptr(new HelloServer(8080))
 	{
+		setup_logging_for_unit_tests();
+		// start the HTTP server
 		hello_server_ptr->start();
 	}
 	~HelloServerTests_F() {
