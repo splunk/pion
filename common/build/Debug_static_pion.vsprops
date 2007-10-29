@@ -15,7 +15,7 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin\static"
+		AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(LOG4CXX_HOME)\bin\static&quot;"
 		GenerateDebugInformation="true"
 	/>
 </VisualStudioPropertySheet>
