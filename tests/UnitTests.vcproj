@@ -116,6 +116,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="EchoService.lib FileService.lib HelloService.lib LogService.lib CookieService.lib"
 				SubSystem="1"
 			/>
 			<Tool
@@ -247,6 +248,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="EchoService.lib FileService.lib HelloService.lib LogService.lib CookieService.lib"
 				SubSystem="1"
 			/>
 			<Tool

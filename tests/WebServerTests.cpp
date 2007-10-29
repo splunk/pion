@@ -20,6 +20,12 @@ using namespace pion;
 using namespace pion::net;
 using boost::asio::ip::tcp;
 
+PION_DECLARE_PLUGIN(EchoService)
+PION_DECLARE_PLUGIN(FileService)
+PION_DECLARE_PLUGIN(HelloService)
+PION_DECLARE_PLUGIN(LogService)
+PION_DECLARE_PLUGIN(CookieService)
+
 #if defined(_MSC_VER)
 	#if defined(_DEBUG)
 		static const std::string PATH_TO_PLUGINS("../../bin/Debug_DLL");
