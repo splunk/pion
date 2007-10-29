@@ -141,7 +141,8 @@ public:
 	/// creates a new POST content buffer of size m_content_length and returns
 	/// a pointer to the new buffer (memory is managed by HTTPRequest class)
 	inline char *createPostContentBuffer(void) {
-		m_post_content.reset(new char[m_content_length]);
+		m_post_content.reset(new char[m_content_length + 1]);
+		m_post_content[m_content_length] = 0;
 		return m_post_content.get();
 	}
 	
