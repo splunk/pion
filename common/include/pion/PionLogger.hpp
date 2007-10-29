@@ -132,7 +132,7 @@
 	#include <ctime>
 
 	namespace pion {
-		struct PionLogger {
+		struct PION_COMMON_API PionLogger {
 			enum PionPriorityType {
 				LOG_LEVEL_DEBUG, LOG_LEVEL_INFO, LOG_LEVEL_WARN,
 				LOG_LEVEL_ERROR, LOG_LEVEL_FATAL
