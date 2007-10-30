@@ -48,6 +48,7 @@ public:
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
 		m_http_server_ptr = HTTPServer::create(8080);
 		BOOST_REQUIRE(m_http_server_ptr);
+		m_content_length = 0;
 
 		boost::filesystem::remove_all("sandbox");
 		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox"));
@@ -57,6 +58,8 @@ public:
 		boost::filesystem::ofstream file2("sandbox/file2");
 		file2 << "xyz" << std::endl;
 		file2.close();
+		boost::filesystem::ofstream emptyFile("sandbox/emptyFile");
+		emptyFile.close();
 
 		getServerPtr()->loadService("/resource1", "FileService");
 		getServerPtr()->setServiceOption("/resource1", "directory", "sandbox");
@@ -78,12 +81,12 @@ public:
 	 * sends a request to the local HTTP server
 	 *
 	 * @param http_stream open stream to send the request via
+	 * @param request_method GET, POST, PUT or DELETE
 	 * @param resource name of the HTTP resource to request
-	 * @param content_length bytes available in the response, if successful
 	 */
 	inline unsigned int sendRequest(tcp::iostream& http_stream,
-									const std::string& resource,
-									unsigned long& content_length)
+									const std::string& request_method,
+									const std::string& resource)
 	{
 		const boost::regex regex_get_response_code("^HTTP/1\\.1\\s(\\d+)\\s.*");
 		const boost::regex regex_response_header("^[A-Za-z0-9_-]+:\\s.*");
@@ -91,7 +94,7 @@ public:
 		const boost::regex regex_response_end("^\\s*$");
 
 		// send HTTP request to the server
-		http_stream << "GET " << resource << " HTTP/1.1\r\n\r\n";
+		http_stream << request_method << " " << resource << " HTTP/1.1\r\n\r\n";
 		http_stream.flush();
 				
 		// receive response from the server
@@ -107,7 +110,6 @@ public:
 		BOOST_REQUIRE(response_code != 0);
 		
 		// read response headers
-		content_length = 0;
 		while (true) {
 			BOOST_REQUIRE(std::getline(http_stream, rsp_line));
 			// check for end of response headers (empty line)
@@ -118,7 +120,7 @@ public:
 			// check for content-length response header
 			if (boost::regex_match(rsp_line, rx_matches, regex_content_length_header)) {
 				if (rx_matches.size() == 2)
-					content_length = boost::lexical_cast<unsigned long>(rx_matches[1]);
+					m_content_length = boost::lexical_cast<unsigned long>(rx_matches[1]);
 			}
 		}
 		
@@ -128,30 +130,22 @@ public:
 	/**
 	 * checks response content validity for the local HTTP server
 	 *
-	 * @param http_stream open stream to send the request via
-	 * @param resource name of the HTTP resource to request
+	 * @param http_stream open stream that was sent a request
 	 * @param content_regex regex that the response content should match
 	 */
 	inline void checkWebServerResponseContent(tcp::iostream& http_stream,
-											  const std::string& resource,
 											  const boost::regex& content_regex)
 	{
-		// send valid request to the server
-		unsigned int response_code;
-		unsigned long content_length = 0;
-		response_code = sendRequest(http_stream, resource, content_length);
-		BOOST_CHECK(response_code == 200);
-		BOOST_REQUIRE(content_length > 0);
-		
 		// read in the response content
-		boost::scoped_array<char> content_buf(new char[content_length+1]);
-		BOOST_CHECK(http_stream.read(content_buf.get(), content_length));
-		content_buf[content_length] = '\0';
+		boost::scoped_array<char> content_buf(new char[m_content_length + 1]);
+		BOOST_CHECK(http_stream.read(content_buf.get(), m_content_length));
+		content_buf[m_content_length] = '\0';
 		
 		// check the response content
 		BOOST_CHECK(boost::regex_match(content_buf.get(), content_regex));
 	}
 	
+	unsigned long m_content_length;
 	tcp::iostream m_http_stream;
 
 private:
@@ -160,20 +154,52 @@ private:
 
 BOOST_FIXTURE_TEST_SUITE(FileServiceTests_S, FileServiceTests_F)
 
-BOOST_AUTO_TEST_CASE(checkFileServiceResponseContentForDefaultFile) {
-	const boost::regex file1_regex("abc\\s*");
-	checkWebServerResponseContent(m_http_stream, "/resource1" , file1_regex);
+BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForDefaultFile) {
+	unsigned int response_code = sendRequest(m_http_stream, "GET", "/resource1");
+	BOOST_CHECK(response_code == 200);
+	BOOST_REQUIRE(m_content_length > 0);
+	checkWebServerResponseContent(m_http_stream, boost::regex("abc\\s*"));
 }
 
-BOOST_AUTO_TEST_CASE(checkFileServiceResponseContentForSpecifiedFile) {
-	const boost::regex file2_regex("xyz\\s*");
-	checkWebServerResponseContent(m_http_stream, "/resource1/file2" , file2_regex);
+BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForSpecifiedFile) {
+	unsigned int response_code = sendRequest(m_http_stream, "GET", "/resource1/file2");
+	BOOST_CHECK(response_code == 200);
+	BOOST_REQUIRE(m_content_length > 0);
+	checkWebServerResponseContent(m_http_stream, boost::regex("xyz\\s*"));
 }
 
-BOOST_AUTO_TEST_CASE(checkFileServiceResponseContentForNonexistentFile) {
-	unsigned long content_length = 0;
-	unsigned int response_code = sendRequest(m_http_stream, "/resource1/file3", content_length);
+BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForEmptyFile) {
+	unsigned int response_code = sendRequest(m_http_stream, "GET", "/resource1/emptyFile");
+	BOOST_CHECK(response_code == 200);
+	BOOST_REQUIRE(m_content_length == 0);
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForNonexistentFile) {
+	unsigned int response_code = sendRequest(m_http_stream, "GET", "/resource1/file3");
 	BOOST_CHECK(response_code == 404);
+	BOOST_CHECK(m_content_length > 0);
+	checkWebServerResponseContent(m_http_stream, boost::regex(".*404\\sNot\\sFound.*"));
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToPostRequestForNonexistentFile) {
+	unsigned int response_code = sendRequest(m_http_stream, "POST", "/resource1/file3");
+	BOOST_CHECK(response_code == 404);
+	BOOST_CHECK(m_content_length > 0);
+	checkWebServerResponseContent(m_http_stream, boost::regex(".*404\\sNot\\sFound.*"));
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToPutRequestForNonexistentFile) {
+	unsigned int response_code = sendRequest(m_http_stream, "PUT", "/resource1/file3");
+	BOOST_CHECK(response_code == 404);
+	BOOST_CHECK(m_content_length > 0);
+	checkWebServerResponseContent(m_http_stream, boost::regex(".*404\\sNot\\sFound.*"));
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForNonexistentFile) {
+	unsigned int response_code = sendRequest(m_http_stream, "DELETE", "/resource1/file3");
+	BOOST_CHECK(response_code == 404);
+	BOOST_CHECK(m_content_length > 0);
+	checkWebServerResponseContent(m_http_stream, boost::regex(".*404\\sNot\\sFound.*"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

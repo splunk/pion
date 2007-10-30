@@ -162,7 +162,7 @@ public:
 	~HTTPRequestWithTextOnlyPostContent_F() {
 	}
 
-	int m_len;
+	size_t m_len;
 	char* m_post_buffer;
 };
 
