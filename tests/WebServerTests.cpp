@@ -7,13 +7,13 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <pion/PionConfig.hpp>
+#include <pion/PionPlugin.hpp>
+#include <pion/net/HTTPServer.hpp>
 #include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionPlugin.hpp>
-#include <pion/net/HTTPServer.hpp>
 
 using namespace std;
 using namespace pion;
@@ -186,7 +186,7 @@ public:
 											  const std::string& resource,
 											  const boost::regex& content_regex)
 	{
-		// load simple Hello service and start the server
+		// load specified service and start the server
 		getServerPtr()->loadService(resource, service);
 		getServerPtr()->start();
 		
@@ -244,17 +244,20 @@ BOOST_AUTO_TEST_CASE(checkEchoServiceResponseContent) {
 }
 
 BOOST_AUTO_TEST_CASE(checkLogServiceResponseContent) {
-#if defined(PION_HAVE_LOG4CXX) || defined(PION_HAVE_LOG4CPP) || defined(PION_HAVE_LOG4CPLUS)
+#if defined(PION_USE_LOG4CXX) || defined(PION_USE_LOG4CPLUS) || defined(PION_USE_LOG4CPP)
 	checkWebServerResponseContent("LogService", "/log",
 								  boost::regex(".*Loaded.*plug-in.*\\(/log\\):\\sLogService.*"));
-#else
+#elif defined(PION_DISABLE_LOGGING)
 	checkWebServerResponseContent("LogService", "/log",
 								  boost::regex(".*Logging\\sis\\sdisabled.*"));
+#else
+	checkWebServerResponseContent("LogService", "/log",
+								  boost::regex(".*Using\\sostream\\slogging.*"));
 #endif
 }
 
 BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
-	// load simple Hello service and start the server
+	// load multiple services and start the server
 	getServerPtr()->loadServiceConfig(SERVICES_CONFIG_FILE);
 	getServerPtr()->start();
 	

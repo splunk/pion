@@ -68,7 +68,10 @@ Logging frameworks:
 -------------------
 
 Note that the use of a logging framework is entirely optional, so you
-may skip this step if you like.
+may skip this step if you like.  If no logging option is defined, std::cout 
+and std::cerr will be used for logging.  To disable logging, include 
+PION_DISABLE_LOGGING in Preprocessor Definitions for the project, or in 
+PionConfig.hpp.win, uncomment '#define PION_DISABLE_LOGGING'.
 
 At this time, log4cxx (http://logging.apache.org/log4cxx) is the only 
 supported logging library that builds correctly under Windows.
@@ -87,7 +90,8 @@ log4cxx somewhere other than C:\log4cxx, change LOG4CXX_HOME accordingly.
 
 Add <LOG4CXX_HOME>\bin to your path.
 
-In PionConfig.hpp.win, define PION_HAVE_LOG4CXX to 1.
+Include PION_USE_LOG4CXX or PION_FULL in Preprocessor Definitions for the project,
+or in PionConfig.hpp.win, uncomment '#define PION_USE_LOG4CXX'.
 
 
 Building and installing pion-net:
