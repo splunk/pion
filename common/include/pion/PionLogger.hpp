@@ -13,7 +13,7 @@
 #include <pion/PionConfig.hpp>
 
 
-#if defined(PION_HAVE_LOG4CXX)
+#if defined(PION_USE_LOG4CXX)
 
 	// unfortunately, the current version of log4cxx has many problems that
 	// produce very annoying warnings
@@ -68,7 +68,7 @@
 	#define PION_LOG_ERROR	LOG4CXX_ERROR
 	#define PION_LOG_FATAL	LOG4CXX_FATAL
 
-#elif defined(PION_HAVE_LOG4CPLUS)
+#elif defined(PION_USE_LOG4CPLUS)
 
 
 	// log4cplus headers
@@ -95,7 +95,7 @@
 	#define PION_LOG_FATAL	LOG4CPLUS_FATAL
 
 
-#elif defined(PION_HAVE_LOG4CPP)
+#elif defined(PION_USE_LOG4CPP)
 
 
 	// log4cpp headers
@@ -122,10 +122,33 @@
 	#define PION_LOG_ERROR(LOG, MSG)	if (LOG->getPriority()>=log4cpp::Priority::ERROR) { LOG->errorStream() << MSG; }
 	#define PION_LOG_FATAL(LOG, MSG)	if (LOG->getPriority()>=log4cpp::Priority::FATAL) { LOG->fatalStream() << MSG; }
 
+#elif defined(PION_DISABLE_LOGGING)
 
-#elif defined(PION_HAVE_OSTREAM_LOGGING)
+	// Logging is disabled -> add do-nothing stubs for logging
+	namespace pion {
+		typedef int		PionLogger;
+	}
 
-	#define PION_USING_OSTREAM_LOGGING
+	#define PION_LOG_CONFIG_BASIC	{}
+	#define PION_GET_LOGGER(NAME)	0
+
+	// use "++LOG" to avoid warnings about LOG not being used
+	#define PION_LOG_SETLEVEL_DEBUG(LOG)	{ if (false) ++LOG; }
+	#define PION_LOG_SETLEVEL_INFO(LOG)		{ if (false) ++LOG; }
+	#define PION_LOG_SETLEVEL_WARN(LOG)		{ if (false) ++LOG; }
+	#define PION_LOG_SETLEVEL_ERROR(LOG)	{ if (false) ++LOG; }
+	#define PION_LOG_SETLEVEL_FATAL(LOG)	{ if (false) ++LOG; }
+
+	// use "++LOG" to avoid warnings about LOG not being used
+	#define PION_LOG_DEBUG(LOG, MSG)	{ if (false) ++LOG; }
+	#define PION_LOG_INFO(LOG, MSG)		{ if (false) ++LOG; }
+	#define PION_LOG_WARN(LOG, MSG)		{ if (false) ++LOG; }
+	#define PION_LOG_ERROR(LOG, MSG)	{ if (false) ++LOG; }
+	#define PION_LOG_FATAL(LOG, MSG)	{ if (false) ++LOG; }
+
+#else
+
+	#define PION_USE_OSTREAM_LOGGING
 
 	// Logging uses std::cout and std::cerr
 	#include <iostream>
@@ -161,32 +184,6 @@
 	#define PION_LOG_WARN(LOG, MSG)		if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_WARN) { std::cerr << time(NULL) << " WARN " << LOG.m_name << ' ' << MSG << std::endl; }
 	#define PION_LOG_ERROR(LOG, MSG)	if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_ERROR) { std::cerr << time(NULL) << " ERROR " << LOG.m_name << ' ' << MSG << std::endl; }
 	#define PION_LOG_FATAL(LOG, MSG)	if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_FATAL) { std::cerr << time(NULL) << " FATAL " << LOG.m_name << ' ' << MSG << std::endl; }
-
-
-#else
-
-	// Logging is disabled -> add do-nothing stubs for logging
-	namespace pion {
-		typedef int		PionLogger;
-	}
-
-	#define PION_LOG_CONFIG_BASIC	{}
-	#define PION_GET_LOGGER(NAME)	0
-
-	// use "++LOG" to avoid warnings about LOG not being used
-	#define PION_LOG_SETLEVEL_DEBUG(LOG)	{ if (false) ++LOG; }
-	#define PION_LOG_SETLEVEL_INFO(LOG)		{ if (false) ++LOG; }
-	#define PION_LOG_SETLEVEL_WARN(LOG)		{ if (false) ++LOG; }
-	#define PION_LOG_SETLEVEL_ERROR(LOG)	{ if (false) ++LOG; }
-	#define PION_LOG_SETLEVEL_FATAL(LOG)	{ if (false) ++LOG; }
-
-	// use "++LOG" to avoid warnings about LOG not being used
-	#define PION_LOG_DEBUG(LOG, MSG)	{ if (false) ++LOG; }
-	#define PION_LOG_INFO(LOG, MSG)		{ if (false) ++LOG; }
-	#define PION_LOG_WARN(LOG, MSG)		{ if (false) ++LOG; }
-	#define PION_LOG_ERROR(LOG, MSG)	{ if (false) ++LOG; }
-	#define PION_LOG_FATAL(LOG, MSG)	{ if (false) ++LOG; }
-
 
 #endif
 

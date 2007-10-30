@@ -13,7 +13,7 @@ namespace pion {	// begin namespace pion
 
 
 // static members of PionLogger
-#if defined(PION_USING_OSTREAM_LOGGING)
+#if defined(PION_USE_OSTREAM_LOGGING)
 PionLogger::PionPriorityType	PionLogger::m_priority = PionLogger::LOG_LEVEL_INFO;
 #endif
 

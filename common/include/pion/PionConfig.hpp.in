@@ -24,17 +24,25 @@
 /* Define to 1 if you have the `Apache Portable Runtime' library. */
 #undef PION_HAVE_APR
 
-/* Define to 1 if you have the `log4cplus' library (-llog4cplus). */
-#undef PION_HAVE_LOG4CPLUS
+// -----------------------------------------------------------------------
+// Logging Options
+//
+// At most one of the logging options below should be defined.  If none of 
+// them are defined, std::cout and std::cerr will be used for logging.
 
-/* Define to 1 if you have the `log4cxx' library (-llog4cxx). */
-#undef PION_HAVE_LOG4CXX
+/* Define to 1 to use the `log4cplus' library (-llog4cplus) for logging. */
+#undef PION_USE_LOG4CPLUS
 
-/* Define to 1 if you have the `log4cpp' library (-llog4cpp). */
-#undef PION_HAVE_LOG4CPP
+/* Define to 1 to use the `log4cxx' library (-llog4cxx) for logging. */
+#undef PION_USE_LOG4CXX
 
-/* Define to 1 to use std::cout and std::cerr for logging. */
-#undef PION_HAVE_OSTREAM_LOGGING
+/* Define to 1 to use the `log4cpp' library (-llog4cpp) for logging. */
+#undef PION_USE_LOG4CPP
+
+/* Define to 1 to disable logging. */
+#undef PION_DISABLE_LOGGING
+
+// -----------------------------------------------------------------------
 
 /* Define to 1 if you have the <unordered_map> header file. */
 #undef PION_HAVE_UNORDERED_MAP
