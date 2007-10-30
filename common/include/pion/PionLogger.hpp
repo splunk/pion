@@ -125,6 +125,7 @@
 
 #elif defined(PION_HAVE_OSTREAM_LOGGING)
 
+	#define PION_USING_OSTREAM_LOGGING
 
 	// Logging uses std::cout and std::cerr
 	#include <iostream>
