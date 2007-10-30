@@ -382,6 +382,7 @@ AC_ARG_WITH([log4cpp],
 if test "x$enable_logging" == "xno"; then
 	# Display notice if no logging found
 	AC_MSG_NOTICE([Logging is disabled])
+	AC_DEFINE([PION_DISABLE_LOGGING],[1],[Define to 1 to disable logging.])
 elif test "$without_log4cxx" != "true"; then
 	# Check if log4cxx location is specified
 	if test "x$log4cxx_location" != "xyes"
@@ -404,7 +405,7 @@ elif test "$without_log4cxx" != "true"; then
 
 	# Found the log4cxx library
 	AC_MSG_NOTICE(Using the log4cxx library for logging)
-	AC_DEFINE([PION_HAVE_LOG4CXX],[1],[Define to 1 if you have the `log4cxx' library (-llog4cxx).])
+	AC_DEFINE([PION_USE_LOG4CXX],[1],[Define to 1 if you have the `log4cxx' library (-llog4cxx).])
 elif test "$without_log4cplus" != "true"; then
 	# Check if log4cplus location is specified
 	if test "x$log4cplus_location" != "xyes"
@@ -427,7 +428,7 @@ elif test "$without_log4cplus" != "true"; then
 
 	# Found the log4cplus library
 	AC_MSG_NOTICE(Using the log4cplus library for logging)
-	AC_DEFINE([PION_HAVE_LOG4CPLUS],[1],[Define to 1 if you have the `log4cplus' library (-llog4cplus).])
+	AC_DEFINE([PION_USE_LOG4CPLUS],[1],[Define to 1 if you have the `log4cplus' library (-llog4cplus).])
 elif test "$without_log4cpp" != "true"; then
 	# Check if log4cpp location is specified
 	if test "x$log4cpp_location" != "xyes"
@@ -450,10 +451,10 @@ elif test "$without_log4cpp" != "true"; then
 
 	# Found the log4cpp library
 	AC_MSG_NOTICE(Using the log4cpp library for logging)
-	AC_DEFINE([PION_HAVE_LOG4CPP],[1],[Define to 1 if you have the `log4cpp' library (-llog4cpp).])
+	AC_DEFINE([PION_USE_LOG4CPP],[1],[Define to 1 if you have the `log4cpp' library (-llog4cpp).])
 else
 	AC_MSG_NOTICE(Using std::cout and std::cerr for logging)
-	AC_DEFINE([PION_HAVE_OSTREAM_LOGGING],[1],[Define to 1 to use std::cout and std::cerr for logging.])
+	AC_DEFINE([PION_USE_OSTREAM_LOGGING],[1],[Define to 1 to use std::cout and std::cerr for logging.])
 fi
 AC_SUBST(PION_LOG_LIB)
 
