@@ -5,7 +5,13 @@ Building Boost with ASIO:
 -------------------------
 
 Please see the README.boost file for instructions.
-There are no known problems on OS X.
+
+You will need to patch the ASIO headers (as of 0.3.8) if you are using Leopard
+(Mac OS X 10.5).  Make sure that you apply this patch after copying the ASIO
+source code into the boost distribution directory:
+
+patch -p0 < PION_NET_HOME/doc/leopard_asio_0_3_8.patch
+
 
 
 Installing zlib & openssl:
