@@ -1,15 +1,11 @@
-diff -r -b -u boost_1_34_1/boost/asio/detail/posix_fd_set_adapter.hpp boost_patched/boost/asio/detail/posix_fd_set_adapter.hpp
---- boost_1_34_1/boost/asio/detail/posix_fd_set_adapter.hpp	2007-10-25 03:17:16.000000000 -0700
-+++ boost_patched/boost/asio/detail/posix_fd_set_adapter.hpp	2007-10-31 16:56:01.000000000 -0700
-@@ -43,7 +43,10 @@
-     FD_SET(descriptor, &fd_set_);
-   }
+Index: /trunk/boost/asio/detail/posix_fd_set_adapter.hpp
+===================================================================
+--- /trunk/boost/asio/detail/posix_fd_set_adapter.hpp (revision 36938)
++++ /trunk/boost/asio/detail/posix_fd_set_adapter.hpp (revision 40546)
+@@ -60,5 +60,5 @@
  
--  bool is_set(socket_type descriptor) const
-+  bool is_set(socket_type descriptor)
-+#ifndef __APPLE__
-+  const
-+#endif
-   {
-     return FD_ISSET(descriptor, &fd_set_) != 0;
-   }
+ private:
+-  fd_set fd_set_;
++  mutable fd_set fd_set_;
+   socket_type max_descriptor_;
+ };
