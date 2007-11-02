@@ -157,13 +157,14 @@ public:
 	 */
 	inline void checkWebServerResponseContent(tcp::iostream& http_stream,
 											  const std::string& resource,
-											  const boost::regex& content_regex)
+											  const boost::regex& content_regex,
+											  unsigned int expectedResponseCode = 200)
 	{
 		// send valid request to the server
 		unsigned int response_code;
 		unsigned long content_length = 0;
 		response_code = sendRequest(http_stream, resource, content_length);
-		BOOST_CHECK(response_code == 200);
+		BOOST_CHECK(response_code == expectedResponseCode);
 		BOOST_REQUIRE(content_length > 0);
 		
 		// read in the response content
@@ -184,7 +185,8 @@ public:
 	 */
 	inline void checkWebServerResponseContent(const std::string& service,
 											  const std::string& resource,
-											  const boost::regex& content_regex)
+											  const boost::regex& content_regex,
+											  unsigned int expectedResponseCode = 200)
 	{
 		// load specified service and start the server
 		getServerPtr()->loadService(resource, service);
@@ -195,7 +197,7 @@ public:
 		tcp::iostream http_stream(http_endpoint);
 
 		// send request and check response
-		checkWebServerResponseContent(http_stream, resource, content_regex);
+		checkWebServerResponseContent(http_stream, resource, content_regex, expectedResponseCode);
 	}
 	
 private:
@@ -255,6 +257,15 @@ BOOST_AUTO_TEST_CASE(checkLogServiceResponseContent) {
 								  boost::regex(".*Using\\sostream\\slogging.*"));
 #endif
 }
+
+#ifndef PION_STATIC_LINKING
+BOOST_AUTO_TEST_CASE(checkAllowNothingServiceResponseContent) {
+	PionPlugin::addPluginDirectory("PluginsUsedByUnitTests/bin");
+	checkWebServerResponseContent("AllowNothingService", "/deny",
+								  boost::regex(".*No, you can't.*"),
+								  HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
+}
+#endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
 	// load multiple services and start the server
