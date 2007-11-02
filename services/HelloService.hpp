@@ -22,7 +22,7 @@ class HelloService :
 public:
 	HelloService(void) {}
 	virtual ~HelloService() {}
-	virtual bool handleRequest(pion::net::HTTPRequestPtr& request,
+	virtual void handleRequest(pion::net::HTTPRequestPtr& request,
 							   pion::net::TCPConnectionPtr& tcp_conn);
 };
 

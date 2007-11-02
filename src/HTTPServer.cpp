@@ -83,14 +83,15 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 				
 				// try to handle the request with the web service
 				try {
-					request_was_handled = i->second.first->handleRequest(http_request, tcp_conn);
+					i->second.first->handleRequest(http_request, tcp_conn);
+					PION_LOG_DEBUG(m_logger, "HTTP request handled by web service ("
+								   << i->first << "): "
+								   << http_request->getResource());
 				} catch (HTTPResponse::LostConnectionException& e) {
 					// the connection was lost while or before sending the response
 					PION_LOG_WARN(m_logger, "Web service (" << resource << "): " << e.what());
 					tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
 					tcp_conn->finish();
-					request_was_handled = true;
-					break;
 				} catch (std::bad_alloc&) {
 					// propagate memory errors (FATAL)
 					throw;
@@ -98,17 +99,10 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 					// recover gracefully from other exceptions thrown by services
 					PION_LOG_ERROR(m_logger, "WebService (" << resource << "): " << e.what());
 					m_server_error_handler(http_request, tcp_conn, e.what());
-					request_was_handled = true;
-					break;
 				}
 
-				if (request_was_handled) {
-					// the web service successfully handled the request
-					PION_LOG_DEBUG(m_logger, "HTTP request handled by web service ("
-								   << i->first << "): "
-								   << http_request->getResource());
-					break;
-				}
+				request_was_handled = true;
+				break;
 			}
 		}
 	}

@@ -74,7 +74,7 @@ protected:
 	template <typename SendHandler>
 	inline void sendMoreData(const bool send_final_chunk, SendHandler send_handler)
 	{
-		// make sure that we did not loose the TCP connection
+		// make sure that we did not lose the TCP connection
 		if (! m_tcp_conn->is_open()) throw LostConnectionException();
 		// make sure that the content-length is up-to-date
 		flushContentStream();

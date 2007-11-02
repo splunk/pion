@@ -17,6 +17,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <../services/FileService.hpp>
 
 using namespace pion;
 using namespace pion::net;
@@ -41,14 +42,54 @@ PION_DECLARE_PLUGIN(FileService)
 /// sets up logging (run once only)
 extern void setup_logging_for_unit_tests(void);
 
-class FileServiceTests_F {
-public:
-	FileServiceTests_F() {
+#include <pion/PionScheduler.hpp>
+
+#ifndef PION_STATIC_LINKING
+
+struct PluginPtrWithPluginLoaded_F : public PionPluginPtr<FileService> {
+	PluginPtrWithPluginLoaded_F() { 
 		setup_logging_for_unit_tests();
+		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+		s = NULL;
+		open("FileService");
+	}
+	~PluginPtrWithPluginLoaded_F() {
+		if (s) destroy(s);
+	}
+
+	FileService* s;
+};
+
+BOOST_FIXTURE_TEST_SUITE(PluginPtrWithPluginLoaded_S, PluginPtrWithPluginLoaded_F)
+
+BOOST_AUTO_TEST_CASE(checkIsOpenReturnsTrue) {
+	BOOST_CHECK(is_open());
+}
+
+BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsPluginName) {
+	BOOST_CHECK_EQUAL(getPluginName(), "FileService");
+}
+
+BOOST_AUTO_TEST_CASE(checkCreateReturnsSomething) {
+	BOOST_CHECK((s = create()) != NULL);
+}
+
+BOOST_AUTO_TEST_CASE(checkDestroyDoesntThrowExceptionAfterCreate) {
+	s = create();
+	BOOST_CHECK_NO_THROW(destroy(s));
+	s = NULL;
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+#endif // PION_STATIC_LINKING
+
+class NewlyLoadedFileService_F {
+public:
+	NewlyLoadedFileService_F() {
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
 		m_http_server_ptr = HTTPServer::create(8080);
 		BOOST_REQUIRE(m_http_server_ptr);
-		m_content_length = 0;
 
 		boost::filesystem::remove_all("sandbox");
 		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox"));
@@ -62,6 +103,48 @@ public:
 		emptyFile.close();
 
 		getServerPtr()->loadService("/resource1", "FileService");
+	}
+	~NewlyLoadedFileService_F() {
+		boost::filesystem::remove_all("sandbox");
+	}
+	
+	/// returns a smart pointer to the HTTP server
+	inline HTTPServerPtr& getServerPtr(void) { return m_http_server_ptr; }
+
+private:
+	HTTPServerPtr m_http_server_ptr;
+};
+
+BOOST_FIXTURE_TEST_SUITE(NewlyLoadedFileService_S, NewlyLoadedFileService_F)
+
+BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithExistingDirectoryDoesntThrow) {
+	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "directory", "sandbox"));
+}
+
+BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithNonexistentDirectoryThrows) {
+	BOOST_CHECK_THROW(getServerPtr()->setServiceOption("/resource1", "directory", "NotADirectory"), HTTPServer::WebServiceException);
+}
+
+BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithExistingFileDoesntThrow) {
+	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "file", "sandbox/file1"));
+}
+
+BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithNonexistentFileThrows) {
+	BOOST_CHECK_THROW(getServerPtr()->setServiceOption("/resource1", "file", "NotAFile"), HTTPServer::WebServiceException);
+}
+
+// Other options to test: "cache", "scan", "max_chunk_size"
+
+BOOST_AUTO_TEST_CASE(checkSetServiceOptionWithInvalidOptionNameThrows) {
+	BOOST_CHECK_THROW(getServerPtr()->setServiceOption("/resource1", "NotAnOption", "value1"), HTTPServer::WebServiceException);
+}
+
+BOOST_AUTO_TEST_SUITE_END()	
+
+class RunningFileService_F : NewlyLoadedFileService_F{
+public:
+	RunningFileService_F() {
+		m_content_length = 0;
 		getServerPtr()->setServiceOption("/resource1", "directory", "sandbox");
 		getServerPtr()->setServiceOption("/resource1", "file", "sandbox/file1");
 		getServerPtr()->start();
@@ -70,12 +153,8 @@ public:
 		tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
 		m_http_stream.connect(http_endpoint);
 	}
-	~FileServiceTests_F() {
-		boost::filesystem::remove_all("sandbox");
+	~RunningFileService_F() {
 	}
-	
-	/// returns a smart pointer to the HTTP server
-	inline HTTPServerPtr& getServerPtr(void) { return m_http_server_ptr; }
 	
 	/**
 	 * sends a request to the local HTTP server
@@ -96,7 +175,7 @@ public:
 		// send HTTP request to the server
 		http_stream << request_method << " " << resource << " HTTP/1.1\r\n\r\n";
 		http_stream.flush();
-				
+
 		// receive response from the server
 		std::string rsp_line;
 		boost::smatch rx_matches;
@@ -108,7 +187,7 @@ public:
 		// extract response status code
 		response_code = boost::lexical_cast<unsigned int>(rx_matches[1]);
 		BOOST_REQUIRE(response_code != 0);
-		
+
 		// read response headers
 		while (true) {
 			BOOST_REQUIRE(std::getline(http_stream, rsp_line));
@@ -147,18 +226,36 @@ public:
 	
 	unsigned long m_content_length;
 	tcp::iostream m_http_stream;
-
-private:
-	HTTPServerPtr m_http_server_ptr;
 };
 
-BOOST_FIXTURE_TEST_SUITE(FileServiceTests_S, FileServiceTests_F)
+BOOST_FIXTURE_TEST_SUITE(RunningFileService_S, RunningFileService_F)
 
 BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForDefaultFile) {
 	unsigned int response_code = sendRequest(m_http_stream, "GET", "/resource1");
 	BOOST_CHECK(response_code == 200);
 	BOOST_REQUIRE(m_content_length > 0);
 	checkWebServerResponseContent(m_http_stream, boost::regex("abc\\s*"));
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToHeadRequestForDefaultFile) {
+	unsigned int response_code = sendRequest(m_http_stream, "HEAD", "/resource1");
+	BOOST_CHECK(response_code == 200);
+	BOOST_CHECK(m_content_length == 0);
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForDefaultFileAfterDeletingIt) {
+	boost::filesystem::remove("sandbox/file1");
+	unsigned int response_code = sendRequest(m_http_stream, "GET", "/resource1");
+	BOOST_CHECK(response_code == 404);
+	BOOST_REQUIRE(m_content_length > 0);
+	checkWebServerResponseContent(m_http_stream, boost::regex(".*404\\sNot\\sFound.*"));
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToHeadRequestForDefaultFileAfterDeletingIt) {
+	boost::filesystem::remove("sandbox/file1");
+	unsigned int response_code = sendRequest(m_http_stream, "HEAD", "/resource1");
+	BOOST_CHECK(response_code == 404);
+	BOOST_CHECK(m_content_length == 0);
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForSpecifiedFile) {
@@ -171,35 +268,41 @@ BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForSpecifiedFile) {
 BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForEmptyFile) {
 	unsigned int response_code = sendRequest(m_http_stream, "GET", "/resource1/emptyFile");
 	BOOST_CHECK(response_code == 200);
-	BOOST_REQUIRE(m_content_length == 0);
+	BOOST_CHECK(m_content_length == 0);
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToGetRequestForNonexistentFile) {
 	unsigned int response_code = sendRequest(m_http_stream, "GET", "/resource1/file3");
 	BOOST_CHECK(response_code == 404);
-	BOOST_CHECK(m_content_length > 0);
+	BOOST_REQUIRE(m_content_length > 0);
 	checkWebServerResponseContent(m_http_stream, boost::regex(".*404\\sNot\\sFound.*"));
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToHeadRequestForNonexistentFile) {
+	unsigned int response_code = sendRequest(m_http_stream, "HEAD", "/resource1/file3");
+	BOOST_CHECK(response_code == 404);
+	BOOST_CHECK(m_content_length == 0);
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToPostRequestForNonexistentFile) {
 	unsigned int response_code = sendRequest(m_http_stream, "POST", "/resource1/file3");
-	BOOST_CHECK(response_code == 404);
+	BOOST_CHECK(response_code == 501);
 	BOOST_CHECK(m_content_length > 0);
-	checkWebServerResponseContent(m_http_stream, boost::regex(".*404\\sNot\\sFound.*"));
+	checkWebServerResponseContent(m_http_stream, boost::regex(".*501\\sNot\\sImplemented.*"));
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToPutRequestForNonexistentFile) {
 	unsigned int response_code = sendRequest(m_http_stream, "PUT", "/resource1/file3");
-	BOOST_CHECK(response_code == 404);
+	BOOST_CHECK(response_code == 501);
 	BOOST_CHECK(m_content_length > 0);
-	checkWebServerResponseContent(m_http_stream, boost::regex(".*404\\sNot\\sFound.*"));
+	checkWebServerResponseContent(m_http_stream, boost::regex(".*501\\sNot\\sImplemented.*"));
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForNonexistentFile) {
 	unsigned int response_code = sendRequest(m_http_stream, "DELETE", "/resource1/file3");
-	BOOST_CHECK(response_code == 404);
+	BOOST_CHECK(response_code == 501);
 	BOOST_CHECK(m_content_length > 0);
-	checkWebServerResponseContent(m_http_stream, boost::regex(".*404\\sNot\\sFound.*"));
+	checkWebServerResponseContent(m_http_stream, boost::regex(".*501\\sNot\\sImplemented.*"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

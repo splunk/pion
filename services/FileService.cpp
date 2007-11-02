@@ -89,13 +89,36 @@ void FileService::setOption(const std::string& name, const std::string& value)
 	}
 }
 
-bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
+	if (request->getMethod() != HTTPTypes::REQUEST_METHOD_GET 
+		&& request->getMethod() != HTTPTypes::REQUEST_METHOD_HEAD)
+	{
+		static const std::string NOT_IMPLEMENTED_HTML_START =
+			"<html><head>\n"
+			"<title>501 Not Implemented</title>\n"
+			"</head><body>\n"
+			"<h1>Not Found</h1>\n"
+			"<p>The requested method ";
+		static const std::string NOT_IMPLEMENTED_HTML_FINISH =
+			" is not implemented on this server.</p>\n"
+			"</body></html>\n";
+		HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
+		response->setResponseCode(HTTPTypes::RESPONSE_CODE_NOT_IMPLEMENTED);
+		response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_IMPLEMENTED);
+		response->writeNoCopy(NOT_IMPLEMENTED_HTML_START);
+		response << request->getMethod();
+		response->writeNoCopy(NOT_IMPLEMENTED_HTML_FINISH);
+		response->send();
+		return;
+	}
+
 	// the type of response we will send
 	enum ResponseType {
 		RESPONSE_UNDEFINED,		// initial state until we know how to respond
 		RESPONSE_OK,			// normal response that includes the file's content
 		RESPONSE_HEAD_OK,		// response to HEAD request (would send file's content)
+		RESPONSE_NOT_FOUND,		// Not Found (404)
 		RESPONSE_NOT_MODIFIED	// Not Modified (304) response to If-Modified-Since
 	} response_type = RESPONSE_UNDEFINED;
 
@@ -125,7 +148,7 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 				// since no match was found, just return file not found
 				PION_LOG_WARN(m_logger, "Request for unknown file ("
 							  << getResource() << "): " << relative_path);
-				return false;
+				response_type = RESPONSE_NOT_FOUND;
 			} else {
 				PION_LOG_DEBUG(m_logger, "No cache entry for request ("
 							   << getResource() << "): " << relative_path);
@@ -211,17 +234,22 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 		if (relative_path.empty()) {
 			// request matches resource exactly
 
-			// return false if no file defined
-			// web service's directory is not valid
 			if (m_file.empty()) {
+				// web service's directory is not valid
 				PION_LOG_WARN(m_logger, "No file option defined ("
 							  << getResource() << "): " << relative_path);
-				return false;
+				response_type = RESPONSE_NOT_FOUND;
+			} else {
+				if (boost::filesystem::exists(m_file)) {
+					// use file to service directory request
+					response_file.setFilePath(m_file);
+				} else {
+					// The file might have been deleted after the FileService file option was set.
+					PION_LOG_WARN(m_logger, "File not found ("
+								  << getResource() << "): " << relative_path);
+					response_type = RESPONSE_NOT_FOUND;
+				}
 			}
-			
-			// use file to service directory request
-			response_file.setFilePath(m_file);
-
 		} else if (! m_directory.empty()) {
 			// request does not match resource, and a directory is defined
 
@@ -233,56 +261,59 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 			if (! boost::filesystem::exists(response_file.getFilePath()) ) {
 				PION_LOG_WARN(m_logger, "File not found ("
 							  << getResource() << "): " << relative_path);
-				return false;
+				response_type = RESPONSE_NOT_FOUND;
 			}
 			
 			// make sure that it is not a directory
-			if ( boost::filesystem::is_directory(response_file.getFilePath()) ) {
+			else if ( boost::filesystem::is_directory(response_file.getFilePath()) ) {
 				PION_LOG_WARN(m_logger, "Request for directory ("
 							  << getResource() << "): " << relative_path);
-				return false;
+				response_type = RESPONSE_NOT_FOUND;
 			}
 			
 			// make sure that the file is within the configured directory
-			std::string file_string = response_file.getFilePath().file_string();
-			if (file_string.find(m_directory.directory_string()) != 0) {
-				PION_LOG_WARN(m_logger, "Request for file outside of directory ("
-							  << getResource() << "): " << relative_path);
-				return false;
-			}
-			
+			else {
+				std::string file_string = response_file.getFilePath().file_string();
+				if (file_string.find(m_directory.directory_string()) != 0) {
+					PION_LOG_WARN(m_logger, "Request for file outside of directory ("
+								  << getResource() << "): " << relative_path);
+					response_type = RESPONSE_NOT_FOUND;
+				}
+			}			
 		} else {
 			// request does not match resource, and no directory is defined
-			return false;
+			response_type = RESPONSE_NOT_FOUND;
 		}
 
-		PION_LOG_DEBUG(m_logger, "Found file for request ("
-					   << getResource() << "): " << relative_path);
+		if (response_type != RESPONSE_NOT_FOUND) {
+			PION_LOG_DEBUG(m_logger, "Found file for request ("
+						   << getResource() << "): " << relative_path);
 
-		// determine the MIME type
-		response_file.setMimeType(findMIMEType( response_file.getFilePath().leaf() ));
+			// determine the MIME type
+			response_file.setMimeType(findMIMEType( response_file.getFilePath().leaf() ));
 
-		// get the file_size and last_modified timestamp
-		response_file.update();
+			// get the file_size and last_modified timestamp
+			response_file.update();
 
-		// just compare strings for simplicity (parsing this date format sucks!)
-		if (response_file.getLastModifiedString() == if_modified_since) {
-			// no need to read the file; the modified times match!
-			response_type = RESPONSE_NOT_MODIFIED;
-		} else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD) {
-			response_type = RESPONSE_HEAD_OK;
-		} else {
-			response_type = RESPONSE_OK;
-			if (m_cache_setting != 0) {
-				if (m_max_cache_size==0 || response_file.getFileSize() <= m_max_cache_size) {
-					// read the file (may throw exception)
-					response_file.read();
+			// just compare strings for simplicity (parsing this date format sucks!)
+			if (response_file.getLastModifiedString() == if_modified_since) {
+				// no need to read the file; the modified times match!
+				response_type = RESPONSE_NOT_MODIFIED;
+			} else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD) {
+				response_type = RESPONSE_HEAD_OK;
+			} else {
+				response_type = RESPONSE_OK;
+				if (m_cache_setting != 0) {
+					if (m_max_cache_size==0 || response_file.getFileSize() <= m_max_cache_size) {
+						// read the file (may throw exception)
+						response_file.read();
+					}
+					// add new entry to the cache
+					PION_LOG_DEBUG(m_logger, "Adding cache entry for request ("
+								   << getResource() << "): " << relative_path);
+					boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+					m_cache_map.insert( std::make_pair(relative_path, response_file) );
 				}
-				// add new entry to the cache
-				PION_LOG_DEBUG(m_logger, "Adding cache entry for request ("
-							   << getResource() << "): " << relative_path);
-				boost::mutex::scoped_lock cache_lock(m_cache_mutex);
-				m_cache_map.insert( std::make_pair(relative_path, response_file) );
 			}
 		}
 	}
@@ -293,6 +324,25 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 															request, tcp_conn,
 															m_max_chunk_size));
 		sender_ptr->send();
+	} else if (response_type == RESPONSE_NOT_FOUND) {
+		static const std::string NOT_FOUND_HTML_START =
+			"<html><head>\n"
+			"<title>404 Not Found</title>\n"
+			"</head><body>\n"
+			"<h1>Not Found</h1>\n"
+			"<p>The requested URL ";
+		static const std::string NOT_FOUND_HTML_FINISH =
+			" was not found on this server.</p>\n"
+			"</body></html>\n";
+		HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
+		response->setResponseCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+		response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+		if (request->getMethod() != HTTPTypes::REQUEST_METHOD_HEAD) {
+			response->writeNoCopy(NOT_FOUND_HTML_START);
+			response << request->getResource();
+			response->writeNoCopy(NOT_FOUND_HTML_FINISH);
+		}
+		response->send();
 	} else {
 		// sending headers only -> use our own response object
 		
@@ -325,8 +375,6 @@ bool FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 		// send the response
 		response->send();
 	}
-
-	return true;
 }
 
 void FileService::start(void)
@@ -393,8 +441,8 @@ void FileService::scanDirectory(const boost::filesystem::path& dir_path)
 
 std::pair<FileService::CacheMap::iterator, bool>
 FileService::addCacheEntry(const std::string& relative_path,
-						  const boost::filesystem::path& file_path,
-						  const bool placeholder)
+						   const boost::filesystem::path& file_path,
+						   const bool placeholder)
 {
 	DiskFile cache_entry(file_path, NULL, 0, 0, findMIMEType(file_path.leaf()));
 	if (! placeholder) {

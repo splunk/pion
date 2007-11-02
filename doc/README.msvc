@@ -44,7 +44,7 @@ You may leave out the --with-... options if you wish to build
 everything.  Note that the "date_time" library is required only to avoid
 errors when building with MSVC due to problems involving Boost's
 "auto-linking" feature.  This library is not actually required by
-pion-net or linked into your program (unless you use them elsewhere).
+pion-net or linked into your program (unless you use it elsewhere).
 
 We recommend that you create a C:\Boost directory with C:\Boost\Lib and
 C:\Boost\Include subdirectories.  To install Boost into these

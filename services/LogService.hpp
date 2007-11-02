@@ -132,7 +132,7 @@ public:
 	virtual ~LogService();
 	
 	/// handles a new HTTP request
-	virtual bool handleRequest(pion::net::HTTPRequestPtr& request,
+	virtual void handleRequest(pion::net::HTTPRequestPtr& request,
 							   pion::net::TCPConnectionPtr& tcp_conn);
 
 	/// returns the log appender used by LogService

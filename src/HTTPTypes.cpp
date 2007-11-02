@@ -49,16 +49,20 @@ const std::string	HTTPTypes::REQUEST_METHOD_POST("POST");
 // common HTTP response messages
 const std::string	HTTPTypes::RESPONSE_MESSAGE_OK("OK");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND("Not Found");
+const std::string	HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED("Method Not Allowed");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_MODIFIED("Not Modified");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_BAD_REQUEST("Bad Request");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR("Server Error");
+const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_IMPLEMENTED("Not Implemented");
 
 // common HTTP response codes
 const unsigned int	HTTPTypes::RESPONSE_CODE_OK = 200;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_FOUND = 404;
+const unsigned int	HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED = 405;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_MODIFIED = 304;
 const unsigned int	HTTPTypes::RESPONSE_CODE_BAD_REQUEST = 400;
 const unsigned int	HTTPTypes::RESPONSE_CODE_SERVER_ERROR = 500;
+const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_IMPLEMENTED = 501;
 
 std::string HTTPTypes::url_decode(const std::string& str)
 {

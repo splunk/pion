@@ -22,7 +22,7 @@ class CookieService :
 public:
 	CookieService(void) {}
 	virtual ~CookieService() {}
-	virtual bool handleRequest(pion::net::HTTPRequestPtr& request,
+	virtual void handleRequest(pion::net::HTTPRequestPtr& request,
 							   pion::net::TCPConnectionPtr& tcp_conn);
 };
 

@@ -57,16 +57,20 @@ struct PION_NET_API HTTPTypes
 	// common HTTP response messages
 	static const std::string	RESPONSE_MESSAGE_OK;
 	static const std::string	RESPONSE_MESSAGE_NOT_FOUND;
+	static const std::string	RESPONSE_MESSAGE_METHOD_NOT_ALLOWED;
 	static const std::string	RESPONSE_MESSAGE_NOT_MODIFIED;
 	static const std::string	RESPONSE_MESSAGE_BAD_REQUEST;
 	static const std::string	RESPONSE_MESSAGE_SERVER_ERROR;
+	static const std::string	RESPONSE_MESSAGE_NOT_IMPLEMENTED;
 
 	// common HTTP response codes
 	static const unsigned int	RESPONSE_CODE_OK;
 	static const unsigned int	RESPONSE_CODE_NOT_FOUND;
+	static const unsigned int	RESPONSE_CODE_METHOD_NOT_ALLOWED;
 	static const unsigned int	RESPONSE_CODE_NOT_MODIFIED;
 	static const unsigned int	RESPONSE_CODE_BAD_REQUEST;
 	static const unsigned int	RESPONSE_CODE_SERVER_ERROR;
+	static const unsigned int	RESPONSE_CODE_NOT_IMPLEMENTED;
 	
 	/// data type for a dictionary of strings (used for HTTP headers)
 	typedef PION_HASH_MULTIMAP<std::string, std::string, PION_HASH_STRING >	StringDictionary;
