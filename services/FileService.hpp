@@ -19,7 +19,9 @@
 #include <pion/PionException.hpp>
 #include <pion/PionHashMap.hpp>
 #include <pion/net/WebService.hpp>
+#include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
+#include <pion/net/HTTPServer.hpp>
 #include <string>
 #include <map>
 
@@ -265,11 +267,18 @@ public:
 			: pion::PionException("FileService invalid value for cache option: ", value) {}
 	};
 
-	/// exception thrown if the cache option is set to an invalid value
+	/// exception thrown if the scan option is set to an invalid value
 	class InvalidScanException : public pion::PionException {
 	public:
 		InvalidScanException(const std::string& value)
 			: pion::PionException("FileService invalid value for scan option: ", value) {}
+	};
+
+	/// exception thrown if an option is set to an invalid value
+	class InvalidOptionValueException : public pion::PionException {
+	public:
+		InvalidOptionValueException(const std::string& option, const std::string& value)
+			: pion::PionException("FileService invalid value for " + option + " option: ", value) {}
 	};
 
 	/// exception thrown if we are unable to read a file from disk
@@ -279,7 +288,7 @@ public:
 			: pion::PionException("FileService unable to read file: ", value) {}
 	};
 
-	/// exception thrown if we do not know how to response (should never happen)
+	/// exception thrown if we do not know how to respond (should never happen)
 	class UndefinedResponseException : public pion::PionException {
 	public:
 		UndefinedResponseException(const std::string& value)
@@ -295,6 +304,11 @@ public:
 	 * configuration options supported by FileService:
 	 *
 	 * directory: all files within the directory will be made available
+	 * file:
+	 * cache:
+	 * scan:
+	 * max_chunk_size:
+	 * writable:
 	 */
 	virtual void setOption(const std::string& name, const std::string& value);
 	
@@ -353,6 +367,8 @@ protected:
 	 */
 	static std::string findMIMEType(const std::string& file_name);
 
+	void sendNotFoundResponse(pion::net::HTTPRequestPtr& http_request,
+							  pion::net::TCPConnectionPtr& tcp_conn);
 	
 	/// primary logging interface used by this class
 	pion::PionLogger			m_logger;
@@ -427,6 +443,11 @@ private:
 	 * zero means that the size is unlimited (chunking is disabled).
 	 */
 	unsigned long				m_max_chunk_size;
+
+	/**
+	 * Whether the file and/or directory served are writable.
+	 */
+	bool						m_writable;
 };
 
 

@@ -33,6 +33,7 @@ const std::string	HTTPTypes::HEADER_CONTENT_LOCATION("Content-Location");
 const std::string	HTTPTypes::HEADER_LAST_MODIFIED("Last-Modified");
 const std::string	HTTPTypes::HEADER_IF_MODIFIED_SINCE("If-Modified-Since");
 const std::string	HTTPTypes::HEADER_TRANSFER_ENCODING("Transfer-Encoding");
+const std::string	HTTPTypes::HEADER_LOCATION("Location");
 
 // common HTTP content types
 const std::string	HTTPTypes::CONTENT_TYPE_HTML("text/html");
@@ -45,9 +46,12 @@ const std::string	HTTPTypes::REQUEST_METHOD_HEAD("HEAD");
 const std::string	HTTPTypes::REQUEST_METHOD_GET("GET");
 const std::string	HTTPTypes::REQUEST_METHOD_PUT("PUT");
 const std::string	HTTPTypes::REQUEST_METHOD_POST("POST");
+const std::string	HTTPTypes::REQUEST_METHOD_DELETE("DELETE");
 
 // common HTTP response messages
 const std::string	HTTPTypes::RESPONSE_MESSAGE_OK("OK");
+const std::string	HTTPTypes::RESPONSE_MESSAGE_CREATED("Created");
+const std::string	HTTPTypes::RESPONSE_MESSAGE_NO_CONTENT("No Content");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND("Not Found");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED("Method Not Allowed");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_MODIFIED("Not Modified");
@@ -57,6 +61,8 @@ const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_IMPLEMENTED("Not Implemented")
 
 // common HTTP response codes
 const unsigned int	HTTPTypes::RESPONSE_CODE_OK = 200;
+const unsigned int	HTTPTypes::RESPONSE_CODE_CREATED = 201;
+const unsigned int	HTTPTypes::RESPONSE_CODE_NO_CONTENT = 204;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_FOUND = 404;
 const unsigned int	HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED = 405;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_MODIFIED = 304;

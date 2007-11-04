@@ -41,6 +41,7 @@ struct PION_NET_API HTTPTypes
 	static const std::string	HEADER_LAST_MODIFIED;
 	static const std::string	HEADER_IF_MODIFIED_SINCE;
     static const std::string	HEADER_TRANSFER_ENCODING;
+	static const std::string	HEADER_LOCATION;
 
 	// common HTTP content types
 	static const std::string	CONTENT_TYPE_HTML;
@@ -53,9 +54,12 @@ struct PION_NET_API HTTPTypes
 	static const std::string	REQUEST_METHOD_GET;
 	static const std::string	REQUEST_METHOD_PUT;
 	static const std::string	REQUEST_METHOD_POST;
+	static const std::string	REQUEST_METHOD_DELETE;
 	
 	// common HTTP response messages
 	static const std::string	RESPONSE_MESSAGE_OK;
+	static const std::string	RESPONSE_MESSAGE_CREATED;
+	static const std::string	RESPONSE_MESSAGE_NO_CONTENT;
 	static const std::string	RESPONSE_MESSAGE_NOT_FOUND;
 	static const std::string	RESPONSE_MESSAGE_METHOD_NOT_ALLOWED;
 	static const std::string	RESPONSE_MESSAGE_NOT_MODIFIED;
@@ -65,6 +69,8 @@ struct PION_NET_API HTTPTypes
 
 	// common HTTP response codes
 	static const unsigned int	RESPONSE_CODE_OK;
+	static const unsigned int	RESPONSE_CODE_CREATED;
+	static const unsigned int	RESPONSE_CODE_NO_CONTENT;
 	static const unsigned int	RESPONSE_CODE_NOT_FOUND;
 	static const unsigned int	RESPONSE_CODE_METHOD_NOT_ALLOWED;
 	static const unsigned int	RESPONSE_CODE_NOT_MODIFIED;
