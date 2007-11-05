@@ -59,6 +59,7 @@ ln -s boost_thread-gcc34-mt.dll.a libboost_thread-gcc34-mt.dll.a
 ln -s boost_system-gcc34-mt.dll.a libboost_system-gcc34-mt.dll.a
 ln -s boost_filesystem-gcc34-mt.dll.a libboost_filesystem-gcc34-mt.dll.a
 ln -s boost_regex-gcc34-mt.dll.a libboost_regex-gcc34-mt.dll.a
+ln -s boost_date_time-gcc34-mt.dll.a libboost_date_time-gcc34-mt.dll.a
 ln -s boost_unit_test_framekwork-gcc34-mt.dll.a libboost_unit_test_framework-gcc34-mt.dll.a
 
 These patches may be unnecessary for Boost 1.34.2 and later releases.
