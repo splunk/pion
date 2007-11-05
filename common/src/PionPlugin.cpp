@@ -278,7 +278,11 @@ void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
 void PionPlugin::closeDynamicLibrary(void *lib_handle)
 {
 #ifdef PION_WIN32
-	FreeLibrary((HINSTANCE) lib_handle);
+	// The handling of dynamic libraries in Cygwin is EXTREMELY buggy, so 
+	// if we are running in Cygwin, never free the shared libraries
+	#ifndef PION_CYGWIN_DIRECTORY
+		FreeLibrary((HINSTANCE) lib_handle);
+	#endif
 #else
 	dlclose(lib_handle);
 #endif

@@ -84,15 +84,6 @@ void PionScheduler::shutdown(void)
 			m_thread_pool.clear();
 		}
 
-#if defined(PION_WIN32) && defined(PION_CYGWIN_DIRECTORY)
-		// pause for 1 extra second to work-around shutdown crash on Cygwin
-		// which seems related to static objects used in the ASIO library
-		boost::xtime stop_time;
-		boost::xtime_get(&stop_time, boost::TIME_UTC);
-		stop_time.sec++;
-		boost::thread::sleep(stop_time);
-#endif
-
 		PION_LOG_INFO(m_logger, "The thread scheduler has shutdown");
 		m_scheduler_has_stopped.notify_all();
 
