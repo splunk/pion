@@ -52,6 +52,7 @@ const std::string	HTTPTypes::REQUEST_METHOD_DELETE("DELETE");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_OK("OK");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_CREATED("Created");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_NO_CONTENT("No Content");
+const std::string	HTTPTypes::RESPONSE_MESSAGE_FORBIDDEN("Forbidden");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND("Not Found");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED("Method Not Allowed");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_MODIFIED("Not Modified");
@@ -63,6 +64,7 @@ const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_IMPLEMENTED("Not Implemented")
 const unsigned int	HTTPTypes::RESPONSE_CODE_OK = 200;
 const unsigned int	HTTPTypes::RESPONSE_CODE_CREATED = 201;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NO_CONTENT = 204;
+const unsigned int	HTTPTypes::RESPONSE_CODE_FORBIDDEN = 403;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_FOUND = 404;
 const unsigned int	HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED = 405;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_MODIFIED = 304;

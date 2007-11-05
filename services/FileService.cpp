@@ -100,6 +100,89 @@ void FileService::setOption(const std::string& name, const std::string& value)
 
 void FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
+	// get the relative resource path for the request
+	const std::string relative_path(getRelativeResource(request->getResource()));
+
+	// determine the path of the file being requested
+	boost::filesystem::path file_path;
+	if (relative_path.empty()) {
+		// request matches resource exactly
+
+		if (m_file.empty()) {
+			// no file is specified, either in the request or in the options
+			PION_LOG_WARN(m_logger, "No file option defined ("
+						  << getResource() << ")");
+			sendNotFoundResponse(request, tcp_conn);
+			return;
+		} else {
+			file_path = m_file;
+		}
+	} else {
+		// request does not match resource
+
+		if (m_directory.empty()) {
+			// no directory is specified for the relative file
+			PION_LOG_WARN(m_logger, "No directory option defined ("
+						  << getResource() << "): " << relative_path);
+			sendNotFoundResponse(request, tcp_conn);
+			return;
+		} else {
+			file_path = m_directory / relative_path;
+		}
+	}
+	
+	// make sure that the requested file is within the configured directory
+	file_path.normalize();
+	std::string file_string = file_path.file_string();
+	if (file_string.find(m_directory.directory_string()) != 0) {
+		PION_LOG_WARN(m_logger, "Request for file outside of directory ("
+					  << getResource() << "): " << relative_path);
+		static const std::string FORBIDDEN_HTML_START =
+			"<html><head>\n"
+			"<title>403 Forbidden</title>\n"
+			"</head><body>\n"
+			"<h1>Forbidden</h1>\n"
+			"<p>The requested URL ";
+		static const std::string FORBIDDEN_HTML_FINISH =
+			" is not in the configured directory.</p>\n"
+			"</body></html>\n";
+		HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
+		response->setResponseCode(HTTPTypes::RESPONSE_CODE_FORBIDDEN);
+		response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_FORBIDDEN);
+		if (request->getMethod() != HTTPTypes::REQUEST_METHOD_HEAD) {
+			response->writeNoCopy(FORBIDDEN_HTML_START);
+			response << request->getResource();
+			response->writeNoCopy(FORBIDDEN_HTML_FINISH);
+		}
+		response->send();
+		return;
+	}
+
+	// requests specifying directories are not allowed
+	if (boost::filesystem::is_directory(file_path)) {
+		PION_LOG_WARN(m_logger, "Request for directory ("
+					  << getResource() << "): " << relative_path);
+		static const std::string FORBIDDEN_HTML_START =
+			"<html><head>\n"
+			"<title>403 Forbidden</title>\n"
+			"</head><body>\n"
+			"<h1>Forbidden</h1>\n"
+			"<p>The requested URL ";
+		static const std::string FORBIDDEN_HTML_FINISH =
+			" is a directory.</p>\n"
+			"</body></html>\n";
+		HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
+		response->setResponseCode(HTTPTypes::RESPONSE_CODE_FORBIDDEN);
+		response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_FORBIDDEN);
+		if (request->getMethod() != HTTPTypes::REQUEST_METHOD_HEAD) {
+			response->writeNoCopy(FORBIDDEN_HTML_START);
+			response << request->getResource();
+			response->writeNoCopy(FORBIDDEN_HTML_FINISH);
+		}
+		response->send();
+		return;
+	}
+				
 	if (request->getMethod() == HTTPTypes::REQUEST_METHOD_GET 
 		|| request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD)
 	{
@@ -117,9 +200,6 @@ void FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 		
 		// get the If-Modified-Since request header
 		const std::string if_modified_since(request->getHeader(HTTPTypes::HEADER_IF_MODIFIED_SINCE));
-		
-		// get the relative resource path for the request
-		const std::string relative_path(getRelativeResource(request->getResource()));
 		
 		// check the cache for a corresponding entry (if enabled)
 		// note that m_cache_setting may equal 0 if m_scan_setting == 1
@@ -219,91 +299,43 @@ void FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 		}
 		
 		if (response_type == RESPONSE_UNDEFINED) {
-			// determine the path to the file
-			
-			if (relative_path.empty()) {
-				// request matches resource exactly
-
-				if (m_file.empty()) {
-					// web service's directory is not valid
-					PION_LOG_WARN(m_logger, "No file option defined ("
-								  << getResource() << "): " << relative_path);
-					response_type = RESPONSE_NOT_FOUND;
-				} else {
-					if (boost::filesystem::exists(m_file)) {
-						// use file to service directory request
-						response_file.setFilePath(m_file);
-					} else {
-						// The file might have been deleted after the FileService file option was set.
-						PION_LOG_WARN(m_logger, "File not found ("
-									  << getResource() << "): " << relative_path);
-						response_type = RESPONSE_NOT_FOUND;
-					}
-				}
-			} else if (! m_directory.empty()) {
-				// request does not match resource, and a directory is defined
-
-				// calculate the location of the file being requested
-				response_file.setFilePath(m_directory);
-				response_file.appendFilePath(relative_path);
-
-				// make sure that the file exists
-				if (! boost::filesystem::exists(response_file.getFilePath()) ) {
-					PION_LOG_WARN(m_logger, "File not found ("
-								  << getResource() << "): " << relative_path);
-					response_type = RESPONSE_NOT_FOUND;
-				}
-				
-				// make sure that it is not a directory
-				else if ( boost::filesystem::is_directory(response_file.getFilePath()) ) {
-					PION_LOG_WARN(m_logger, "Request for directory ("
-								  << getResource() << "): " << relative_path);
-					response_type = RESPONSE_NOT_FOUND;
-				}
-				
-				// make sure that the file is within the configured directory
-				else {
-					std::string file_string = response_file.getFilePath().file_string();
-					if (file_string.find(m_directory.directory_string()) != 0) {
-						PION_LOG_WARN(m_logger, "Request for file outside of directory ("
-									  << getResource() << "): " << relative_path);
-						response_type = RESPONSE_NOT_FOUND;
-					}
-				}			
-			} else {
-				// request does not match resource, and no directory is defined
-				response_type = RESPONSE_NOT_FOUND;
+			// make sure that the file exists
+			if (! boost::filesystem::exists(file_path)) {
+				PION_LOG_WARN(m_logger, "File not found ("
+							  << getResource() << "): " << relative_path);
+				sendNotFoundResponse(request, tcp_conn);
+				return;
 			}
 
-			if (response_type != RESPONSE_NOT_FOUND) {
-				PION_LOG_DEBUG(m_logger, "Found file for request ("
-							   << getResource() << "): " << relative_path);
+			response_file.setFilePath(file_path);
 
-				// determine the MIME type
-				response_file.setMimeType(findMIMEType( response_file.getFilePath().leaf() ));
+			PION_LOG_DEBUG(m_logger, "Found file for request ("
+						   << getResource() << "): " << relative_path);
 
-				// get the file_size and last_modified timestamp
-				response_file.update();
+			// determine the MIME type
+			response_file.setMimeType(findMIMEType( response_file.getFilePath().leaf() ));
 
-				// just compare strings for simplicity (parsing this date format sucks!)
-				if (response_file.getLastModifiedString() == if_modified_since) {
-					// no need to read the file; the modified times match!
-					response_type = RESPONSE_NOT_MODIFIED;
-				} else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD) {
-					response_type = RESPONSE_HEAD_OK;
-				} else {
-					response_type = RESPONSE_OK;
-					if (m_cache_setting != 0) {
-						if (m_max_cache_size==0 || response_file.getFileSize() <= m_max_cache_size) {
-							// read the file (may throw exception)
-							response_file.read();
-						}
-						// add new entry to the cache
-						PION_LOG_DEBUG(m_logger, "Adding cache entry for request ("
-									   << getResource() << "): " << relative_path);
-						boost::mutex::scoped_lock cache_lock(m_cache_mutex);
-						m_cache_map.insert( std::make_pair(relative_path, response_file) );
+			// get the file_size and last_modified timestamp
+			response_file.update();
+
+			// just compare strings for simplicity (parsing this date format sucks!)
+			if (response_file.getLastModifiedString() == if_modified_since) {
+				// no need to read the file; the modified times match!
+				response_type = RESPONSE_NOT_MODIFIED;
+			} else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD) {
+				response_type = RESPONSE_HEAD_OK;
+			} else {
+				response_type = RESPONSE_OK;
+				if (m_cache_setting != 0) {
+					if (m_max_cache_size==0 || response_file.getFileSize() <= m_max_cache_size) {
+						// read the file (may throw exception)
+						response_file.read();
 					}
+					// add new entry to the cache
+					PION_LOG_DEBUG(m_logger, "Adding cache entry for request ("
+								   << getResource() << "): " << relative_path);
+					boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+					m_cache_map.insert( std::make_pair(relative_path, response_file) );
 				}
 			}
 		}
@@ -372,16 +404,35 @@ void FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 			response->addHeader("Allow", "GET, HEAD");
 			response->send();
 		} else {
-			const std::string relative_path(getRelativeResource(request->getResource()));
-			boost::filesystem::path path = m_directory / relative_path;
 			HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
 			if (request->getMethod() == HTTPTypes::REQUEST_METHOD_POST
 				|| request->getMethod() == HTTPTypes::REQUEST_METHOD_PUT)
 			{
-				if (boost::filesystem::exists(path)) {
+				if (boost::filesystem::exists(file_path)) {
 					response->setResponseCode(HTTPTypes::RESPONSE_CODE_NO_CONTENT);
 					response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_NO_CONTENT);
 				} else {
+					// The file doesn't exist yet, so it will be created below, unless the
+					// directory of the requested file also doesn't exist.
+					if (!boost::filesystem::exists(file_path.branch_path())) {
+						static const std::string NOT_FOUND_HTML_START =
+							"<html><head>\n"
+							"<title>404 Not Found</title>\n"
+							"</head><body>\n"
+							"<h1>Not Found</h1>\n"
+							"<p>The directory of the requested URL ";
+						static const std::string NOT_FOUND_HTML_FINISH =
+							" was not found on this server.</p>\n"
+							"</body></html>\n";
+						HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
+						response->setResponseCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+						response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+						response->writeNoCopy(NOT_FOUND_HTML_START);
+						response << request->getResource();
+						response->writeNoCopy(NOT_FOUND_HTML_FINISH);
+						response->send();
+						return;
+					}
 					static const std::string CREATED_HTML_START =
 						"<html><head>\n"
 						"<title>201 Created</title>\n"
@@ -400,10 +451,10 @@ void FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 				}
 				std::ios_base::openmode mode = request->getMethod() == HTTPTypes::REQUEST_METHOD_POST?
 											   std::ios::app : std::ios::out;
-				boost::filesystem::ofstream file_stream(path, mode);
+				boost::filesystem::ofstream file_stream(file_path, mode);
 				file_stream << request->getPostContent() << std::endl;
 				file_stream.close();
-				if (!boost::filesystem::exists(path)) {
+				if (!boost::filesystem::exists(file_path)) {
 					static const std::string PUT_FAILED_HTML_START =
 						"<html><head>\n"
 						"<title>500 Server Error</title>\n"
@@ -421,11 +472,11 @@ void FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 				}
 				response->send();
 			} else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_DELETE) {
-				if (!boost::filesystem::exists(path)) {
+				if (!boost::filesystem::exists(file_path)) {
 					sendNotFoundResponse(request, tcp_conn);
 				} else {
 					try {
-						boost::filesystem::remove(path);
+						boost::filesystem::remove(file_path);
 						response->setResponseCode(HTTPTypes::RESPONSE_CODE_NO_CONTENT);
 						response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_NO_CONTENT);
 						response->send();

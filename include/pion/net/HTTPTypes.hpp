@@ -60,6 +60,7 @@ struct PION_NET_API HTTPTypes
 	static const std::string	RESPONSE_MESSAGE_OK;
 	static const std::string	RESPONSE_MESSAGE_CREATED;
 	static const std::string	RESPONSE_MESSAGE_NO_CONTENT;
+	static const std::string	RESPONSE_MESSAGE_FORBIDDEN;
 	static const std::string	RESPONSE_MESSAGE_NOT_FOUND;
 	static const std::string	RESPONSE_MESSAGE_METHOD_NOT_ALLOWED;
 	static const std::string	RESPONSE_MESSAGE_NOT_MODIFIED;
@@ -71,6 +72,7 @@ struct PION_NET_API HTTPTypes
 	static const unsigned int	RESPONSE_CODE_OK;
 	static const unsigned int	RESPONSE_CODE_CREATED;
 	static const unsigned int	RESPONSE_CODE_NO_CONTENT;
+	static const unsigned int	RESPONSE_CODE_FORBIDDEN;
 	static const unsigned int	RESPONSE_CODE_NOT_FOUND;
 	static const unsigned int	RESPONSE_CODE_METHOD_NOT_ALLOWED;
 	static const unsigned int	RESPONSE_CODE_NOT_MODIFIED;
