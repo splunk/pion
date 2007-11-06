@@ -362,7 +362,7 @@ public:
 	 * asynchronously reads data into the connection's read buffer until
 	 * completion_condition is met
 	 *
-	 * @param completition_condition determines if the read operation is complete
+	 * @param completion_condition determines if the read operation is complete
 	 * @param handler called after the read operation has completed
 	 *
 	 * @see boost::asio::async_read()
@@ -386,7 +386,7 @@ public:
 	 * is met
 	 *
 	 * @param buffers one or more buffers into which the data will be read
-	 * @param completition_condition determines if the read operation is complete
+	 * @param completion_condition determines if the read operation is complete
 	 * @param handler called after the read operation has completed
 	 *
 	 * @see boost::asio::async_read()
@@ -410,7 +410,7 @@ public:
 	 * reads data into the connection's read buffer until completion_condition
 	 * is met (blocks until finished)
 	 *
-	 * @param completition_condition determines if the read operation is complete
+	 * @param completion_condition determines if the read operation is complete
 	 * @param ec contains error code if the read fails
 	 * @return std::size_t number of bytes read
 	 *
@@ -435,7 +435,7 @@ public:
 	 * (blocks until finished)
 	 *
 	 * @param buffers one or more buffers into which the data will be read
-	 * @param completition_condition determines if the read operation is complete
+	 * @param completion_condition determines if the read operation is complete
 	 * @param ec contains error code if the read fails
 	 * @return std::size_t number of bytes read
 	 *

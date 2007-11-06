@@ -30,9 +30,13 @@ PION_DECLARE_PLUGIN(LogService)
 PION_DECLARE_PLUGIN(CookieService)
 
 #if defined(_MSC_VER)
-	#if defined(_DEBUG)
+	#if defined(_DEBUG) && defined(PION_FULL)
+		static const std::string PATH_TO_PLUGINS("../../bin/Debug_DLL_full");
+	#elif defined(_DEBUG) && !defined(PION_FULL)
 		static const std::string PATH_TO_PLUGINS("../../bin/Debug_DLL");
-	#else
+	#elif defined(NDEBUG) && defined(PION_FULL)
+		static const std::string PATH_TO_PLUGINS("../../bin/Release_DLL_full");
+	#elif defined(NDEBUG) && !defined(PION_FULL)
 		static const std::string PATH_TO_PLUGINS("../../bin/Release_DLL");
 	#endif
 	static const std::string SSL_PEM_FILE("../utils/sslkey.pem");
@@ -61,8 +65,11 @@ public:
 	// default constructor & destructor
 	WebServerTests_F() {
 		setup_logging_for_unit_tests();
-		// add path to plug-in files
+
+		// initialize the list of directories in which to look for plug-ins
+		PionPlugin::resetPluginDirectories();
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+
 		// create an HTTP server for port 8080
 		http_server_ptr = HTTPServer::create(8080);
 		BOOST_REQUIRE(http_server_ptr);
