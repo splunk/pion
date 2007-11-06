@@ -4,7 +4,7 @@
 
 SUBDIRS = PluginsUsedByUnitTests
 
-AM_CPPFLAGS = -I../include
+AM_CPPFLAGS = -I../include $(BOOST_TEST_CPPFLAGS)
 
 check_PROGRAMS = PionCommonUnitTests
 TESTS = $(check_PROGRAMS)
