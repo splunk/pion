@@ -30,7 +30,7 @@ class TCPConnection;
 ///
 /// HTTPMessage: base container for HTTP messages
 /// 
-class HTTPMessage
+class PION_NET_API HTTPMessage
 	: public HTTPTypes
 {
 public:

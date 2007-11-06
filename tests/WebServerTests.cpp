@@ -7,11 +7,11 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <pion/PionConfig.hpp>
 #include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
-#include <pion/PionConfig.hpp>
 #include <pion/PionPlugin.hpp>
 #include <pion/net/HTTPServer.hpp>
 #include <pion/PionScheduler.hpp>

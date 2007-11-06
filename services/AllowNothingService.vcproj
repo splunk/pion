@@ -17,10 +17,9 @@
 	<Configurations>
 		<Configuration
 			Name="Debug_DLL|Win32"
-			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\..\common\build\Debug_DLL_pion.vsprops;..\..\build\depth_3_pion-net.vsprops"
+			InheritedPropertySheets="..\..\common\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops"
 			CharacterSet="0"
 			>
 			<Tool
@@ -89,15 +88,14 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy $(TargetPath) bin"
+				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy $(TargetPath) bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release_DLL|Win32"
-			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\..\common\build\Release_DLL_pion.vsprops;..\..\build\depth_3_pion-net.vsprops"
+			InheritedPropertySheets="..\..\common\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops"
 			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
@@ -166,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy $(TargetPath) bin"
+				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy $(TargetPath) bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

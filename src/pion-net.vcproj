@@ -255,11 +255,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="HTTPRequestParser.cpp"
+				RelativePath=".\HTTPMessage.cpp"
 				>
 			</File>
 			<File
-				RelativePath="HTTPResponse.cpp"
+				RelativePath=".\HTTPParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HTTPReader.cpp"
 				>
 			</File>
 			<File
@@ -268,6 +272,10 @@
 			</File>
 			<File
 				RelativePath="HTTPTypes.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HTTPWriter.cpp"
 				>
 			</File>
 			<File
@@ -281,15 +289,39 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\include\pion\net\HTTPMessage.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\net\HTTPParser.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\net\HTTPReader.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\include\pion\net\HTTPRequest.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\include\pion\net\HTTPRequestParser.hpp"
+				RelativePath="..\include\pion\net\HTTPRequestReader.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\net\HTTPRequestWriter.hpp"
 				>
 			</File>
 			<File
 				RelativePath="..\include\pion\net\HTTPResponse.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\net\HTTPResponseReader.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\net\HTTPResponseWriter.hpp"
 				>
 			</File>
 			<File
@@ -298,6 +330,10 @@
 			</File>
 			<File
 				RelativePath="..\include\pion\net\HTTPTypes.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\net\HTTPWriter.hpp"
 				>
 			</File>
 			<File
