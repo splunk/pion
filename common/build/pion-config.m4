@@ -297,23 +297,12 @@ else
 	if test "x$BOOST_TEST_LIB" == "x"; then
 		AC_MSG_ERROR(Unable to link with the boost::unit_test library)
 	else
-                
-		# Check for dynamic library & set cppflags for unit tests
-		CPPFLAGS_SAVED=$CPPFLAGS
-		CPPFLAGS="$CPPFLAGS -DBOOST_TEST_DYN_LINK"
-		AC_TRY_LINK([#define BOOST_TEST_MODULE test-if-dynamic
-			#include <boost/test/unit_test.hpp>],
-			[],
-			[BOOST_TEST_CPPFLAGS="-DBOOST_TEST_DYN_LINK"],
-			[BOOST_TEST_CPPFLAGS=""])
-		CPPFLAGS=$CPPFLAGS_SAVED
 		AC_MSG_NOTICE(Linking with boost::unit_test works)
 	fi
 	LIBS="$LIBS_SAVED"
 	PION_TESTS_MAKEDIRS="tests"
 fi
 AC_SUBST(BOOST_TEST_LIB)
-AC_SUBST(BOOST_TEST_CPPFLAGS)
 AC_SUBST(PION_TESTS_MAKEDIRS)
 
 
