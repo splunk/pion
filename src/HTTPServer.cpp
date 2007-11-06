@@ -11,8 +11,8 @@
 #include <boost/asio.hpp>
 #include <pion/net/HTTPServer.hpp>
 #include <pion/net/HTTPRequest.hpp>
-#include <pion/net/HTTPResponse.hpp>
-#include <pion/net/HTTPRequestParser.hpp>
+#include <pion/net/HTTPRequestReader.hpp>
+#include <pion/net/HTTPResponseWriter.hpp>
 #include <fstream>
 
 
@@ -23,9 +23,8 @@ namespace net {		// begin namespace net (Pion Network Library)
 
 void HTTPServer::handleConnection(TCPConnectionPtr& tcp_conn)
 {
-	HTTPRequestParserPtr request_parser(HTTPRequestParser::create(boost::bind(&HTTPServer::handleRequest,
-																			  this, _1, _2), tcp_conn));
-	request_parser->readRequest();
+	HTTPRequestReader::create(tcp_conn, boost::bind(&HTTPServer::handleRequest,
+													 this, _1, _2)) -> receive();
 }
 
 void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
@@ -87,7 +86,7 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 					PION_LOG_DEBUG(m_logger, "HTTP request handled by web service ("
 								   << i->first << "): "
 								   << http_request->getResource());
-				} catch (HTTPResponse::LostConnectionException& e) {
+				} catch (HTTPResponseWriter::LostConnectionException& e) {
 					// the connection was lost while or before sending the response
 					PION_LOG_WARN(m_logger, "Web service (" << resource << "): " << e.what());
 					tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
@@ -344,7 +343,7 @@ void HTTPServer::clearServices(void)
 }
 
 void HTTPServer::handleBadRequest(HTTPRequestPtr& http_request,
-								   TCPConnectionPtr& tcp_conn)
+								  TCPConnectionPtr& tcp_conn)
 {
 	static const std::string BAD_REQUEST_HTML =
 		"<html><head>\n"
@@ -353,11 +352,11 @@ void HTTPServer::handleBadRequest(HTTPRequestPtr& http_request,
 		"<h1>Bad Request</h1>\n"
 		"<p>Your browser sent a request that this server could not understand.</p>\n"
 		"</body></html>\n";
-	HTTPResponsePtr response(HTTPResponse::create(http_request, tcp_conn));
-	response->setResponseCode(HTTPTypes::RESPONSE_CODE_BAD_REQUEST);
-	response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_BAD_REQUEST);
-	response->writeNoCopy(BAD_REQUEST_HTML);
-	response->send();
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request));
+	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_BAD_REQUEST);
+	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_BAD_REQUEST);
+	writer->writeNoCopy(BAD_REQUEST_HTML);
+	writer->send();
 }
 
 void HTTPServer::handleNotFoundRequest(HTTPRequestPtr& http_request,
@@ -372,13 +371,13 @@ void HTTPServer::handleNotFoundRequest(HTTPRequestPtr& http_request,
 	static const std::string NOT_FOUND_HTML_FINISH =
 		" was not found on this server.</p>\n"
 		"</body></html>\n";
-	HTTPResponsePtr response(HTTPResponse::create(http_request, tcp_conn));
-	response->setResponseCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
-	response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
-	response->writeNoCopy(NOT_FOUND_HTML_START);
-	response << http_request->getResource();
-	response->writeNoCopy(NOT_FOUND_HTML_FINISH);
-	response->send();
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request));
+	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+	writer->writeNoCopy(NOT_FOUND_HTML_START);
+	writer << http_request->getResource();
+	writer->writeNoCopy(NOT_FOUND_HTML_FINISH);
+	writer->send();
 }
 
 void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
@@ -394,13 +393,13 @@ void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
 	static const std::string SERVER_ERROR_HTML_FINISH =
 		"</strong></p>\n"
 		"</body></html>\n";
-	HTTPResponsePtr response(HTTPResponse::create(http_request, tcp_conn));
-	response->setResponseCode(HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
-	response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR);
-	response->writeNoCopy(SERVER_ERROR_HTML_START);
-	response << error_msg;
-	response->writeNoCopy(SERVER_ERROR_HTML_FINISH);
-	response->send();
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request));
+	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
+	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR);
+	writer->writeNoCopy(SERVER_ERROR_HTML_START);
+	writer << error_msg;
+	writer->writeNoCopy(SERVER_ERROR_HTML_FINISH);
+	writer->send();
 }
 
 

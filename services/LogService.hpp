@@ -14,7 +14,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <pion/PionLogger.hpp>
 #include <pion/net/WebService.hpp>
-#include <pion/net/HTTPResponse.hpp>
+#include <pion/net/HTTPResponseWriter.hpp>
 #include <string>
 #include <list>
 
@@ -62,7 +62,7 @@ public:
 	void addLogString(const std::string& log_string);
 
 	/// writes the events cached in memory to a response stream
-	void writeLogEvents(pion::net::HTTPResponsePtr& response);
+	void writeLogEvents(pion::net::HTTPResponseWriterPtr& writer);
 
 private:
 	/// default maximum number of events cached in memory

@@ -8,7 +8,7 @@
 //
 
 #include "HelloService.hpp"
-#include <pion/net/HTTPResponse.hpp>
+#include <pion/net/HTTPResponseWriter.hpp>
 
 using namespace pion;
 using namespace pion::net;
@@ -20,9 +20,9 @@ using namespace pion::net;
 void HelloService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	static const std::string HELLO_HTML = "<html><body>Hello World!</body></html>\r\n\r\n";
-	HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
-	response->writeNoCopy(HELLO_HTML);
-	response->send();
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));
+	writer->writeNoCopy(HELLO_HTML);
+	writer->send();
 }
 
 

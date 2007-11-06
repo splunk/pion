@@ -7,6 +7,7 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <boost/lexical_cast.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/net/HTTPTypes.hpp>
 #include <ctime>
@@ -72,6 +73,9 @@ const unsigned int	HTTPTypes::RESPONSE_CODE_BAD_REQUEST = 400;
 const unsigned int	HTTPTypes::RESPONSE_CODE_SERVER_ERROR = 500;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_IMPLEMENTED = 501;
 
+
+// static member functions
+	
 std::string HTTPTypes::url_decode(const std::string& str)
 {
 	char decode_buf[3];
@@ -104,6 +108,40 @@ std::string HTTPTypes::url_decode(const std::string& str)
 	
 	return result;
 }
+	
+std::string HTTPTypes::url_encode(const std::string& str)
+{
+	char encode_buf[4];
+	std::string result;
+	encode_buf[0] = '%';
+	result.reserve(str.size());
+
+	// character selection for this algorithm is based on the following url:
+	// http://www.blooberry.com/indexdot/html/topics/urlencoding.htm
+	
+	for (std::string::size_type pos = 0; pos < str.size(); ++pos) {
+		switch(str[pos]) {
+		default:
+			if (str[pos] >= 32 && str[pos] < 127) {
+				// character does not need to be escaped
+				result += str[pos];
+				break;
+			}
+			// else pass through to next case
+			
+		case '$': case '&': case '+': case ',': case '/': case ':':
+		case ';': case '=': case '?': case '@': case '"': case '<':
+		case '>': case '#': case '%': case '{': case '}': case '|':
+		case '\\': case '^': case '~': case '[': case ']': case '`':
+			// the character needs to be encoded
+			sprintf(encode_buf+1, "%2X", str[pos]);
+			result += encode_buf;
+			break;
+		}
+	};
+	
+	return result;
+}	
 
 std::string HTTPTypes::get_date_string(const time_t t)
 {
@@ -121,6 +159,43 @@ std::string HTTPTypes::get_date_string(const time_t t)
 	return std::string(time_buf);
 }
 
+std::string HTTPTypes::make_query_string(const QueryParams& query_params)
+{
+	std::string query_string;
+	for (QueryParams::const_iterator i = query_params.begin(); i != query_params.end(); ++i) {
+		if (i != query_params.begin())
+			query_string += '&';
+		query_string += url_encode(i->first);
+		query_string += '=';
+		query_string += url_encode(i->second);
+	}
+	return query_string;
+}
+
+std::string HTTPTypes::make_set_cookie_header(const std::string& name,
+											  const std::string& value,
+											  const std::string& path,
+											  const bool has_max_age,
+											  const unsigned long max_age)
+{
+	std::string set_cookie_header(name);
+	set_cookie_header += "=\"";
+	set_cookie_header += value;
+	set_cookie_header += "\"; Version=\"1\"";
+	if (! path.empty()) {
+		set_cookie_header += "; Path=\"";
+		set_cookie_header += path;
+		set_cookie_header += '\"';
+	}
+	if (has_max_age) {
+		set_cookie_header += "; Max-Age=\"";
+		set_cookie_header += boost::lexical_cast<std::string>(max_age);
+		set_cookie_header += '\"';
+	}
+	return set_cookie_header;
+}
+
+	
 }	// end namespace net
 }	// end namespace pion
 

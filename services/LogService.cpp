@@ -19,7 +19,7 @@
 	#include <log4cpp/BasicLayout.hh>
 #endif
 
-#include <pion/net/HTTPResponse.hpp>
+#include <pion/net/HTTPResponseWriter.hpp>
 
 
 using namespace pion;
@@ -93,19 +93,19 @@ void LogServiceAppender::addLogString(const std::string& log_string)
 	}
 }
 
-void LogServiceAppender::writeLogEvents(pion::net::HTTPResponsePtr& response)
+void LogServiceAppender::writeLogEvents(pion::net::HTTPResponseWriterPtr& writer)
 {
 #if defined(PION_USE_LOG4CXX) || defined(PION_USE_LOG4CPLUS) || defined(PION_USE_LOG4CPP)
 	boost::mutex::scoped_lock log_lock(m_log_mutex);
 	for (std::list<std::string>::const_iterator i = m_log_events.begin();
 		 i != m_log_events.end(); ++i)
 	{
-		response << *i;
+		writer << *i;
 	}
 #elif defined(PION_DISABLE_LOGGING)
-	response << "Logging is disabled." << HTTPTypes::STRING_CRLF;
+	writer << "Logging is disabled." << HTTPTypes::STRING_CRLF;
 #else
-	response << "Using ostream logging." << HTTPTypes::STRING_CRLF;
+	writer << "Using ostream logging." << HTTPTypes::STRING_CRLF;
 #endif
 }
 
@@ -146,10 +146,10 @@ LogService::~LogService()
 void LogService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	// Set Content-type to "text/plain" (plain ascii text)
-	HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
-	response->setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
-	getLogAppender().writeLogEvents(response);
-	response->send();
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));
+	writer->getResponse().setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
+	getLogAppender().writeLogEvents(writer);
+	writer->send();
 }
 
 

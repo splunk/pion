@@ -10,33 +10,47 @@
 #ifndef __PION_HTTPREQUEST_HEADER__
 #define __PION_HTTPREQUEST_HEADER__
 
-#include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/scoped_array.hpp>
-#include <boost/asio.hpp>
 #include <pion/PionConfig.hpp>
-#include <pion/net/HTTPTypes.hpp>
-#include <string>
+#include <pion/net/HTTPMessage.hpp>
 
 
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)
 
+
 ///
 /// HTTPRequest: container for HTTP request information
 /// 
-class HTTPRequest :
-	private boost::noncopyable
+class HTTPRequest
+	: public HTTPMessage
 {
 public:
 
-	/// creates new HTTPRequest objects
-	static inline boost::shared_ptr<HTTPRequest> create(void) {
-		return boost::shared_ptr<HTTPRequest>(new HTTPRequest);
-	}
-
+	/**
+	 * constructs a new HTTPRequest object
+	 *
+	 * @param resource the HTTP resource to request
+	 */
+	HTTPRequest(const std::string& resource)
+		: m_method(REQUEST_METHOD_GET), m_resource(resource) {}
+	
+	/// constructs a new HTTPRequest object (default constructor)
+	HTTPRequest(void) : m_method(REQUEST_METHOD_GET) {}
+	
 	/// virtual destructor
 	virtual ~HTTPRequest() {}
+
+	/// clears all request data
+	virtual void clear(void) {
+		HTTPMessage::clear();
+		m_first_line.erase();
+		m_method.erase();
+		m_resource.erase();
+		m_query_string.erase();
+		m_query_params.clear();
+		m_cookie_params.clear();
+	}
 
 	
 	/// returns the request method (i.e. GET, POST, PUT)
@@ -47,24 +61,6 @@ public:
 	
 	/// returns the uri-query or query string requested
 	inline const std::string& getQueryString(void) const { return m_query_string; }
-	
-	/// returns the request's major HTTP version number
-	inline unsigned int getVersionMajor(void) const { return m_version_major; }
-	
-	/// returns the request's minor HTTP version number
-	inline unsigned int getVersionMinor(void) const { return m_version_minor; }
-	
-	/// returns the length of the POST content (in bytes)
-	inline size_t getContentLength(void) const { return m_content_length; }
-	
-	/// returns a buffer containing the POST content, or NULL if the request
-	/// has no POST content
-	inline const char *getPostContent(void) { return m_post_content.get(); }
-	
-	/// returns a value for the header if any are defined; otherwise, an empty string
-	inline const std::string& getHeader(const std::string& key) const {
-		return getValue(m_headers, key);
-	}
 	
 	/// returns a value for the query key if any are defined; otherwise, an empty string
 	inline const std::string& getQuery(const std::string& key) const {
@@ -77,31 +73,16 @@ public:
 		return getValue(m_cookie_params, key);
 	}
 	
-	/// returns the HTTP request headers
-	inline HTTPTypes::Headers& getHeaders(void) {
-		return m_headers;
-	}
-	
 	/// returns the query parameters
-	inline HTTPTypes::QueryParams& getQueryParams(void) {
+	inline QueryParams& getQueryParams(void) {
 		return m_query_params;
 	}
 	
 	/// returns the cookie parameters
-	inline HTTPTypes::CookieParams& getCookieParams(void) {
+	inline CookieParams& getCookieParams(void) {
 		return m_cookie_params;
 	}
 
-	/// returns remote requester IP address
-	inline boost::asio::ip::address& getRemoteIp(void) {
-		return m_remote_ip;
-	}
-
-	/// returns true if at least one value for the header is defined
-	inline bool hasHeader(const std::string& key) const {
-		return(m_headers.find(key) != m_headers.end());
-	}
-	
 	/// returns true if at least one value for the query key is defined
 	inline bool hasQuery(const std::string& key) const {
 		return(m_query_params.find(key) != m_query_params.end());
@@ -112,9 +93,6 @@ public:
 	inline bool hasCookie(const std::string& key) const {
 		return(m_cookie_params.find(key) != m_cookie_params.end());
 	}
-
-	/// returns true if the request is valid
-	inline bool isValid(void) const { return m_is_valid; }
 	
 	
 	/// sets the HTTP request method (i.e. GET, POST, PUT)
@@ -126,34 +104,35 @@ public:
 	/// sets the uri-query or query string requested
 	inline void setQueryString(const std::string& str) { m_query_string = str; }
 	
-	/// sets the request's major HTTP version number
-	inline void setVersionMajor(const unsigned int n) { m_version_major = n; }
-
-	/// sets the request's minor HTTP version number
-	inline void setVersionMinor(const unsigned int n) { m_version_minor = n; }
-
-	/// sets the length of the POST content (in bytes)
-	inline void setContentLength(const size_t n) { m_content_length = n; }
-	
-	/// sets requester IP address
-	inline void setRemoteIp(const boost::asio::ip::address& ip) { m_remote_ip = ip; }
-
-	/// creates a new POST content buffer of size m_content_length and returns
-	/// a pointer to the new buffer (memory is managed by HTTPRequest class)
-	inline char *createPostContentBuffer(void) {
-		m_post_content.reset(new char[m_content_length + 1]);
-		m_post_content[m_content_length] = 0;
-		return m_post_content.get();
-	}
-	
-	/// adds a value for the HTTP request header key
-	inline void addHeader(const std::string& key, const std::string& value) {
-		m_headers.insert(std::make_pair(key, value));
-	}
-	
 	/// adds a value for the query key
 	inline void addQuery(const std::string& key, const std::string& value) {
 		m_query_params.insert(std::make_pair(key, value));
+	}
+	
+	/// changes the value of a query key
+	inline void changeQuery(const std::string& key, const std::string& value) {
+		changeValue(m_query_params, key, value);
+	}
+	
+	/// removes all values for a query key
+	inline void deleteQuery(const std::string& key) {
+		deleteValue(m_query_params, key);
+	}
+	
+	/// use the query parameters to build a query string for the request
+	inline void useQueryParamsForQueryString(void) {
+		m_query_string = make_query_string(m_query_params);
+	}
+
+	/// use the query parameters to build POST content for the request
+	inline void useQueryParamsForPostContent(void) {
+		std::string post_content(make_query_string(m_query_params));
+		setContentLength(post_content.size());
+		char *ptr = createContentBuffer();	// null-terminates buffer
+		if (! post_content.empty())
+			memcpy(ptr, post_content.c_str(), post_content.size());
+		setMethod(REQUEST_METHOD_POST);
+		setContentType(CONTENT_TYPE_URLENCODED);
 	}
 	
 	/// adds a value for the cookie
@@ -162,56 +141,46 @@ public:
 		m_cookie_params.insert(std::make_pair(key, value));
 	}
 
-	/// sets whether or not the request is valid
-	inline void setIsValid(bool b = true) { m_is_valid = b; }
-	
-	/// clears all request data
-	inline void clear(void) {
-		m_resource.erase();
-		m_query_string.erase();
-		m_method.erase();
-		m_version_major = m_version_minor = 0;
-		m_content_length = 0;
-		m_post_content.reset();
-		m_headers.clear();
-		m_query_params.clear();
-		m_cookie_params.clear();
+	/// changes the value of a cookie
+	/// since cookie names are insensitve, key should use lowercase alpha chars
+	inline void changeCookie(const std::string& key, const std::string& value) {
+		changeValue(m_cookie_params, key, value);
 	}
 
-	/// returns true if the HTTP connection may be kept alive
-	inline bool checkKeepAlive(void) const {
-		return (getHeader(HTTPTypes::HEADER_CONNECTION) != "close"
-				&& (getVersionMajor() > 1
-					|| (getVersionMajor() >= 1 && getVersionMinor() >= 1)) );
-	}	
+	/// removes all values for a cookie
+	/// since cookie names are insensitve, key should use lowercase alpha chars
+	inline void deleteCookie(const std::string& key) {
+		deleteValue(m_cookie_params, key);
+	}
 	
 	
 protected:
 	
-	/// protected constructor restricts creation of objects (use create())
-	HTTPRequest(void)
-		: m_version_major(0), m_version_minor(0),
-		m_content_length(0), m_is_valid(false)
-	{}
-
-	/**
-	 * returns the first value in a dictionary if key is found; or an empty
-	 * string if no values are found
-	 *
-	 * @param dict the dictionary to search for key
-	 * @param key the key to search for
-	 * @return value if found; empty string if not
-	 */
-	inline static const std::string& getValue(const HTTPTypes::StringDictionary& dict,
-									   const std::string& key)
-	{
-		HTTPTypes::StringDictionary::const_iterator i = dict.find(key);
-		return ( (i==dict.end()) ? HTTPTypes::STRING_EMPTY : i->second );
+	/// returns a string containing the first line for the HTTP message
+	virtual const std::string& getFirstLine(void) const {
+		// start out with the request method
+		m_first_line = m_method;
+		m_first_line += ' ';
+		// append the resource requested
+		m_first_line += m_resource;
+		if (! m_query_string.empty()) {
+			// append query string if not empty
+			m_first_line += '?';
+			m_first_line += m_query_string;
+		}
+		m_first_line += ' ';
+		// append HTTP version
+		m_first_line += STRING_HTTP_VERSION;
+		// return the first request line
+		return m_first_line;
 	}
-
+	
 	
 private:
 	
+	/// first line sent in a HTTP request (i.e. "GET / HTTP/1.1")
+	mutable std::string				m_first_line;
+
 	/// request method (GET, POST, PUT, etc.)
 	std::string						m_method;
 
@@ -221,32 +190,11 @@ private:
 	/// query string portion of the URI
 	std::string						m_query_string;
 	
-	/// HTTP major version number for the request
-	unsigned int					m_version_major;
-
-	/// HTTP major version number for the request
-	unsigned int					m_version_minor;
-	
-	/// the length of the POST content (in bytes)
-	size_t							m_content_length;
-
-	/// the POST content, if any was sent with the request
-	boost::scoped_array<char>		m_post_content;
-	
-	/// HTTP request headers
-	HTTPTypes::Headers				m_headers;
-
 	/// HTTP query parameters parsed from the request line and post content
-	HTTPTypes::QueryParams			m_query_params;
+	QueryParams						m_query_params;
 
 	/// HTTP cookie parameters parsed from the "Cookie" request headers
-	HTTPTypes::CookieParams			m_cookie_params;
-	
-	/// True if the HTTP request is valid
-	bool							m_is_valid;
-
-	/// keep requester IP address
-	boost::asio::ip::address		m_remote_ip;
+	CookieParams					m_cookie_params;
 };
 
 

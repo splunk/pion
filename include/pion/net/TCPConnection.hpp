@@ -63,7 +63,7 @@ public:
 
 	
 	/**
-	 * creates new TCPConnection objects
+	 * creates new shared TCPConnection objects
 	 *
 	 * @param io_service asio service associated with the connection
 	 * @param ssl_context asio ssl context associated with the connection
@@ -79,7 +79,49 @@ public:
 		return boost::shared_ptr<TCPConnection>(new TCPConnection(io_service, ssl_context,
 																  ssl_flag, finished_handler));
 	}
-
+	
+	/**
+	 * creates a new TCPConnection object
+	 *
+	 * @param io_service asio service associated with the connection
+	 * @param ssl_flag if true then the connection will be encrypted using SSL 
+	 */
+	explicit TCPConnection(boost::asio::io_service& io_service, const bool ssl_flag = false)
+		: m_tcp_socket(io_service),
+#ifdef PION_HAVE_SSL
+		m_ssl_context(io_service, boost::asio::ssl::context::sslv23),
+		m_ssl_socket(io_service, m_ssl_context),
+		m_ssl_flag(ssl_flag),
+#else
+		m_ssl_context(0),
+		m_ssl_socket(io_service),
+		m_ssl_flag(false),
+#endif
+		m_lifecycle(LIFECYCLE_CLOSE)
+	{
+		saveReadPosition(NULL, NULL);
+	}
+	
+	/**
+	 * creates a new TCPConnection object for SSL
+	 *
+	 * @param io_service asio service associated with the connection
+	 * @param ssl_context asio ssl context associated with the connection
+	 */
+	TCPConnection(boost::asio::io_service& io_service, SSLContext& ssl_context)
+		: m_tcp_socket(io_service),
+#ifdef PION_HAVE_SSL
+		m_ssl_context(io_service, boost::asio::ssl::context::sslv23),
+		m_ssl_socket(io_service, ssl_context), m_ssl_flag(true),
+#else
+		m_ssl_context(0),
+		m_ssl_socket(io_service), m_ssl_flag(false), 
+#endif
+		m_lifecycle(LIFECYCLE_CLOSE)
+	{
+		saveReadPosition(NULL, NULL);
+	}
+	
 	/// returns true if the connection is currently open
 	inline bool is_open(void) const {
 #ifdef PION_HAVE_SSL
@@ -102,9 +144,9 @@ public:
 
 	/// virtual destructor
 	virtual ~TCPConnection() { close(); }
-
+	
 	/**
-	 * accepts a new tcp connection
+	 * asynchronously accepts a new tcp connection
 	 *
 	 * @param tcp_acceptor object used to accept new connections
 	 * @param handler called after a new connection has been accepted
@@ -124,23 +166,164 @@ public:
 	}
 
 	/**
-	 * performs SSL handshake for a new connection (server side)
+	 * accepts a new tcp connection (blocks until established)
+	 *
+	 * @param tcp_acceptor object used to accept new connections
+	 * @return boost::system::error_code contains error code if the connection fails
+	 *
+	 * @see boost::asio::basic_socket_acceptor::accept()
+	 */
+	template <typename AcceptHandler>
+	inline boost::system::error_code accept(boost::asio::ip::tcp::acceptor& tcp_acceptor)
+	{
+		boost::system::error_code ec;
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			tcp_acceptor.accept(m_ssl_socket.lowest_layer(), ec);
+		else
+#endif		
+			tcp_acceptor.accept(m_tcp_socket, ec);
+		return ec;
+	}
+	
+	/**
+	 * asynchronously connects to a remote endpoint
+	 *
+	 * @param tcp_endpoint remote endpoint to connect to
+	 * @param handler called after a new connection has been established
+	 *
+	 * @see boost::asio::basic_socket_acceptor::async_connect()
+	 */
+	template <typename ConnectHandler>
+	inline void async_connect(boost::asio::ip::tcp::endpoint& tcp_endpoint,
+							  ConnectHandler handler)
+	{
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			m_ssl_socket.lowest_layer().async_connect(tcp_endpoint, handler);
+		else
+#endif		
+			m_tcp_socket.async_connect(tcp_endpoint, handler);
+	}
+
+	/**
+	 * asynchronously connects to a (IPv4) remote endpoint
+	 *
+	 * @param remote_addr remote IP address (v4) to connect to
+	 * @param remote_port remote port number to connect to
+	 * @param handler called after a new connection has been established
+	 *
+	 * @see boost::asio::basic_socket_acceptor::async_connect()
+	 */
+	template <typename ConnectHandler>
+	inline void async_connect(const boost::asio::ip::address& remote_addr,
+							  const unsigned int remote_port,
+							  ConnectHandler handler)
+	{
+		boost::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
+		async_connect(tcp_endpoint, handler);
+	}
+	
+	/**
+	 * connects to a remote endpoint (blocks until established)
+	 *
+	 * @param tcp_endpoint remote endpoint to connect to
+	 * @return boost::system::error_code contains error code if the connection fails
+	 *
+	 * @see boost::asio::basic_socket_acceptor::connect()
+	 */
+	inline boost::system::error_code connect(boost::asio::ip::tcp::endpoint& tcp_endpoint)
+	{
+		boost::system::error_code ec;
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			m_ssl_socket.lowest_layer().connect(tcp_endpoint, ec);
+		else
+#endif		
+			m_tcp_socket.connect(tcp_endpoint, ec);
+		return ec;
+	}
+
+	/**
+	 * connects to a (IPv4) remote endpoint (blocks until established)
+	 *
+	 * @param remote_addr remote IP address (v4) to connect to
+	 * @param remote_port remote port number to connect to
+	 * @return boost::system::error_code contains error code if the connection fails
+	 *
+	 * @see boost::asio::basic_socket_acceptor::connect()
+	 */
+	inline boost::system::error_code connect(const boost::asio::ip::address& remote_addr,
+											 const unsigned int remote_port)
+	{
+		boost::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
+		return connect(tcp_endpoint);
+	}
+	
+	/**
+	 * asynchronously performs client-side SSL handshake for a new connection
 	 *
 	 * @param handler called after the ssl handshake has completed
 	 *
 	 * @see boost::asio::ssl::stream::async_handshake()
 	 */
 	template <typename SSLHandshakeHandler>
-	inline void ssl_handshake_server(SSLHandshakeHandler handler) {
+	inline void async_handshake_client(SSLHandshakeHandler handler) {
 #ifdef PION_HAVE_SSL
 		if (getSSLFlag())
-			m_ssl_socket.async_handshake(boost::asio::ssl::stream_base::server,
-										 handler);
+			m_ssl_socket.async_handshake(boost::asio::ssl::stream_base::client, handler);
+#endif
+	}
+
+	/**
+	 * asynchronously performs server-side SSL handshake for a new connection
+	 *
+	 * @param handler called after the ssl handshake has completed
+	 *
+	 * @see boost::asio::ssl::stream::async_handshake()
+	 */
+	template <typename SSLHandshakeHandler>
+	inline void async_handshake_server(SSLHandshakeHandler handler) {
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			m_ssl_socket.async_handshake(boost::asio::ssl::stream_base::server, handler);
 #endif
 	}
 	
 	/**
-	 * reads some data into the connection's read buffer
+	 * performs client-side SSL handshake for a new connection (blocks until finished)
+	 *
+	 * @return boost::system::error_code contains error code if the connection fails
+	 *
+	 * @see boost::asio::ssl::stream::handshake()
+	 */
+	inline boost::system::error_code handshake_client(void) {
+		boost::system::error_code ec;
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			m_ssl_socket.handshake(boost::asio::ssl::stream_base::client, ec);
+#endif
+		return ec;
+	}
+
+	/**
+	 * performs server-side SSL handshake for a new connection (blocks until finished)
+	 *
+	 * @return boost::system::error_code contains error code if the connection fails
+	 *
+	 * @see boost::asio::ssl::stream::handshake()
+	 */
+	inline boost::system::error_code handshake_server(void) {
+		boost::system::error_code ec;
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			m_ssl_socket.handshake(boost::asio::ssl::stream_base::server, ec);
+#endif
+		return ec;
+	}
+	
+	/**
+	 * asynchronously reads some data into the connection's read buffer 
 	 *
 	 * @param handler called after the read operation has completed
 	 *
@@ -159,7 +342,25 @@ public:
 	}
 	
 	/**
-	 * reads data into the connection's read buffer until completion_condition is met
+	 * reads some data into the connection's read buffer (blocks until finished)
+	 *
+	 * @param ec contains error code if the read fails
+	 * @return std::size_t number of bytes read
+	 *
+	 * @see boost::asio::basic_stream_socket::read_some()
+	 */
+	inline std::size_t read_some(boost::system::error_code& ec) {
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			return m_ssl_socket.read_some(boost::asio::buffer(m_read_buffer), ec);
+		else
+#endif		
+			return m_tcp_socket.read_some(boost::asio::buffer(m_read_buffer), ec);
+	}
+	
+	/**
+	 * asynchronously reads data into the connection's read buffer until
+	 * completion_condition is met
 	 *
 	 * @param completition_condition determines if the read operation is complete
 	 * @param handler called after the read operation has completed
@@ -168,7 +369,7 @@ public:
 	 */
 	template <typename CompletionCondition, typename ReadHandler>
 	inline void async_read(CompletionCondition completion_condition,
-							ReadHandler handler)
+						   ReadHandler handler)
 	{
 #ifdef PION_HAVE_SSL
 		if (getSSLFlag())
@@ -179,9 +380,10 @@ public:
 			boost::asio::async_read(m_tcp_socket, boost::asio::buffer(m_read_buffer),
 									completion_condition, handler);
 	}
-	
+			
 	/**
-	 * reads data from the connection until completion_condition is met
+	 * asynchronously reads data from the connection until completion_condition
+	 * is met
 	 *
 	 * @param buffers one or more buffers into which the data will be read
 	 * @param completition_condition determines if the read operation is complete
@@ -205,7 +407,57 @@ public:
 	}
 	
 	/**
-	 * writes data to the connection
+	 * reads data into the connection's read buffer until completion_condition
+	 * is met (blocks until finished)
+	 *
+	 * @param completition_condition determines if the read operation is complete
+	 * @param ec contains error code if the read fails
+	 * @return std::size_t number of bytes read
+	 *
+	 * @see boost::asio::read()
+	 */
+	template <typename CompletionCondition>
+	inline std::size_t read(CompletionCondition completion_condition,
+							boost::system::error_code& ec)
+	{
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			return boost::asio::async_read(m_ssl_socket, boost::asio::buffer(m_read_buffer),
+										   completion_condition, ec);
+		else
+#endif		
+			return boost::asio::async_read(m_tcp_socket, boost::asio::buffer(m_read_buffer),
+										   completion_condition, ec);
+	}
+	
+	/**
+	 * reads data from the connection until completion_condition is met
+	 * (blocks until finished)
+	 *
+	 * @param buffers one or more buffers into which the data will be read
+	 * @param completition_condition determines if the read operation is complete
+	 * @param ec contains error code if the read fails
+	 * @return std::size_t number of bytes read
+	 *
+	 * @see boost::asio::read()
+	 */
+	template <typename MutableBufferSequence, typename CompletionCondition>
+	inline std::size_t read(const MutableBufferSequence& buffers,
+							CompletionCondition completion_condition,
+							boost::system::error_code& ec)
+	{
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			return boost::asio::read(m_ssl_socket, buffers,
+									 completion_condition, ec);
+		else
+#endif		
+			return boost::asio::read(m_tcp_socket, buffers,
+									 completion_condition, ec);
+	}
+	
+	/**
+	 * asynchronously writes data to the connection
 	 *
 	 * @param buffers one or more buffers containing the data to be written
 	 * @param handler called after the data has been written
@@ -220,6 +472,29 @@ public:
 		else
 #endif		
 			boost::asio::async_write(m_tcp_socket, buffers, handler);
+	}	
+		
+	/**
+	 * writes data to the connection (blocks until finished)
+	 *
+	 * @param buffers one or more buffers containing the data to be written
+	 * @param ec contains error code if the write fails
+	 * @return std::size_t number of bytes written
+	 *
+	 * @see boost::asio::write()
+	 */
+	template <typename ConstBufferSequence>
+	inline std::size_t write(const ConstBufferSequence& buffers,
+							 boost::system::error_code ec)
+	{
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			return boost::asio::write(m_ssl_socket, buffers,
+									  boost::asio::transfer_all(), ec);
+		else
+#endif		
+			return boost::asio::write(m_tcp_socket, buffers,
+									  boost::asio::transfer_all(), ec);
 	}	
 	
 	
@@ -301,8 +576,10 @@ protected:
 				  ConnectionHandler finished_handler)
 		: m_tcp_socket(io_service),
 #ifdef PION_HAVE_SSL
+		m_ssl_context(io_service, boost::asio::ssl::context::sslv23),
 		m_ssl_socket(io_service, ssl_context), m_ssl_flag(ssl_flag),
 #else
+		m_ssl_context(0),
 		m_ssl_socket(io_service), m_ssl_flag(false), 
 #endif
 		m_lifecycle(LIFECYCLE_CLOSE),
@@ -321,6 +598,9 @@ private:
 	/// TCP connection socket
 	Socket						m_tcp_socket;
 	
+	/// context object for the SSL connection socket
+	SSLContext					m_ssl_context;
+
 	/// SSL connection socket
 	SSLSocket					m_ssl_socket;
 

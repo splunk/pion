@@ -167,14 +167,15 @@ void TCPServer::handleAccept(TCPConnectionPtr& tcp_conn,
 		if (m_is_listening) listen();
 		
 		// handle the new connection
+#ifdef PION_HAVE_SSL
 		if (tcp_conn->getSSLFlag()) {
-			tcp_conn->ssl_handshake_server( boost::bind(&TCPServer::handleSSLHandshake,
-														this, tcp_conn,
-														boost::asio::placeholders::error));
-		} else {
+			tcp_conn->async_handshake_server(boost::bind(&TCPServer::handleSSLHandshake,
+														 this, tcp_conn,
+														 boost::asio::placeholders::error));
+		} else
+#endif
 			// not SSL -> call the handler immediately
 			handleConnection(tcp_conn);
-		}
 	}
 }
 

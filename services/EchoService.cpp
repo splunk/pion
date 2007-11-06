@@ -9,19 +9,19 @@
 
 #include "EchoService.hpp"
 #include <boost/bind.hpp>
-#include <pion/net/HTTPResponse.hpp>
+#include <pion/net/HTTPResponseWriter.hpp>
 
 using namespace pion;
 using namespace pion::net;
 
 
 /// used by handleRequest to write dictionary terms
-void writeDictionaryTerm(HTTPResponsePtr& response,
+void writeDictionaryTerm(HTTPResponseWriterPtr& writer,
 						 const HTTPTypes::StringDictionary::value_type& val,
 						 const bool decode)
 {
-	// text is copied into response text cache
-	response << val.first << HTTPTypes::HEADER_NAME_VALUE_DELIMITER
+	// text is copied into writer text cache
+	writer << val.first << HTTPTypes::HEADER_NAME_VALUE_DELIMITER
 	<< (decode ? HTTPTypes::url_decode(val.second) : val.second)
 	<< HTTPTypes::STRING_CRLF;
 }
@@ -41,14 +41,14 @@ void EchoService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 	static const std::string POST_CONTENT_TEXT("[POST Content]");
 	
 	// Set Content-type to "text/plain" (plain ascii text)
-	HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
-	response->setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));
+	writer->getResponse().setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
 	
 	// write request information
-	response->writeNoCopy(REQUEST_ECHO_TEXT);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
-	response
+	writer->writeNoCopy(REQUEST_ECHO_TEXT);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer
 		<< "Request method: "
 		<< request->getMethod()
 		<< HTTPTypes::STRING_CRLF
@@ -67,41 +67,41 @@ void EchoService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 		<< HTTPTypes::STRING_CRLF;
 			 
 	// write request headers
-	response->writeNoCopy(REQUEST_HEADERS_TEXT);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(REQUEST_HEADERS_TEXT);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	std::for_each(request->getHeaders().begin(), request->getHeaders().end(),
-				  boost::bind(&writeDictionaryTerm, response, _1, false));
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
+				  boost::bind(&writeDictionaryTerm, writer, _1, false));
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 
 	// write query parameters
-	response->writeNoCopy(QUERY_PARAMS_TEXT);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(QUERY_PARAMS_TEXT);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	std::for_each(request->getQueryParams().begin(), request->getQueryParams().end(),
-				  boost::bind(&writeDictionaryTerm, response, _1, true));
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
+				  boost::bind(&writeDictionaryTerm, writer, _1, true));
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	
 	// write cookie parameters
-	response->writeNoCopy(COOKIE_PARAMS_TEXT);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(COOKIE_PARAMS_TEXT);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	std::for_each(request->getCookieParams().begin(), request->getCookieParams().end(),
-				  boost::bind(&writeDictionaryTerm, response, _1, false));
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
+				  boost::bind(&writeDictionaryTerm, writer, _1, false));
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	
 	// write POST content
-	response->writeNoCopy(POST_CONTENT_TEXT);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
-	response->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(POST_CONTENT_TEXT);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	if (request->getContentLength() != 0) {
-		response->write(request->getPostContent(), request->getContentLength());
-		response->writeNoCopy(HTTPTypes::STRING_CRLF);
-		response->writeNoCopy(HTTPTypes::STRING_CRLF);
+		writer->write(request->getContent(), request->getContentLength());
+		writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+		writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	}
 	
-	// send the response
-	response->send();
+	// send the writer
+	writer->send();
 }
 
 

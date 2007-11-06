@@ -7,13 +7,16 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <pion/PionConfig.hpp>
-#include <pion/PionPlugin.hpp>
-#include <pion/net/HTTPServer.hpp>
 #include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
+#include <pion/PionConfig.hpp>
+#include <pion/PionPlugin.hpp>
+#include <pion/net/HTTPServer.hpp>
+#include <pion/PionScheduler.hpp>
+#include <pion/net/HTTPRequest.hpp>
+#include <pion/net/HTTPResponse.hpp>
 
 using namespace std;
 using namespace pion;
@@ -200,6 +203,39 @@ public:
 		checkWebServerResponseContent(http_stream, resource, content_regex, expectedResponseCode);
 	}
 	
+	/**
+	 * checks if we can successfully send and receive HTTP messages
+	 * 
+	 * @param tcp_conn open TCP connection to use for the tests
+	 */
+	inline void checkSendAndReceiveMessages(TCPConnection& tcp_conn) {
+		// send valid request to the server
+		HTTPRequest http_request("/hello");
+		boost::system::error_code error_code;
+		http_request.send(tcp_conn, error_code);
+		BOOST_REQUIRE(! error_code);
+
+		// receive the response from the server
+		HTTPResponse http_response;
+		http_response.receive(tcp_conn, error_code);
+		BOOST_REQUIRE(! error_code);
+		
+		// check that the response is OK
+		boost::regex hello_regex(".*Hello\\sWorld.*");
+		BOOST_REQUIRE(http_response.getStatusCode() == 200);
+		BOOST_REQUIRE(http_response.getContentLength() > 0);
+		BOOST_REQUIRE(boost::regex_match(http_response.getContent(), hello_regex));
+				
+		// send invalid request to the server
+		http_request.setResource("/doesnotexist");
+		http_request.send(tcp_conn, error_code);
+		BOOST_REQUIRE(! error_code);
+		http_response.receive(tcp_conn, error_code);
+		BOOST_REQUIRE(! error_code);
+		BOOST_CHECK(http_response.getStatusCode() == 404);
+	}
+	
+	
 private:
 	HTTPServerPtr	http_server_ptr;
 };
@@ -221,14 +257,40 @@ BOOST_AUTO_TEST_CASE(checkWebServerRespondsProperly) {
 	checkWebServerResponseCode();
 }
 
-/*
+BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponses) {
+	// load simple Hello service and start the server
+	getServerPtr()->loadService("/hello", "HelloService");
+	getServerPtr()->start();
+	
+	// open a connection
+	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService());
+	tcp_conn.setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(! error_code);
+	
+	checkSendAndReceiveMessages(tcp_conn);
+}
+
 #ifdef PION_HAVE_SSL
-BOOST_AUTO_TEST_CASE(checkSSLWebServerRespondsProperly) {
+BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponsesUsingSSL) {
+	// load simple Hello service and start the server
 	getServerPtr()->setSSLKeyFile(SSL_PEM_FILE);
-	checkWebServerResponseCode();
+	getServerPtr()->loadService("/hello", "HelloService");
+	getServerPtr()->start();
+
+	// open a connection
+	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService(), true);
+	tcp_conn.setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(! error_code);
+	error_code = tcp_conn.handshake_client();
+	BOOST_REQUIRE(! error_code);
+
+	checkSendAndReceiveMessages(tcp_conn);
 }
 #endif
-*/
 
 BOOST_AUTO_TEST_CASE(checkHelloServiceResponseContent) {
 	checkWebServerResponseContent("HelloService", "/hello",
@@ -260,7 +322,6 @@ BOOST_AUTO_TEST_CASE(checkLogServiceResponseContent) {
 
 #ifndef PION_STATIC_LINKING
 BOOST_AUTO_TEST_CASE(checkAllowNothingServiceResponseContent) {
-	PionPlugin::addPluginDirectory("PluginsUsedByUnitTests/bin");
 	checkWebServerResponseContent("AllowNothingService", "/deny",
 								  boost::regex(".*No, you can't.*"),
 								  HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);

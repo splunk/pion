@@ -7,9 +7,6 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <pion/PionConfig.hpp>
-#include <pion/PionPlugin.hpp>
-#include <pion/net/HTTPServer.hpp>
 #include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
@@ -18,7 +15,10 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string/find.hpp>
-#include <../services/FileService.hpp>
+#include <pion/PionConfig.hpp>
+#include <pion/PionPlugin.hpp>
+#include <pion/net/WebService.hpp>
+#include <pion/net/HTTPServer.hpp>
 
 using namespace pion;
 using namespace pion::net;
@@ -47,7 +47,7 @@ extern void setup_logging_for_unit_tests(void);
 
 #ifndef PION_STATIC_LINKING
 
-struct PluginPtrWithPluginLoaded_F : public PionPluginPtr<FileService> {
+struct PluginPtrWithPluginLoaded_F : public PionPluginPtr<WebService> {
 	PluginPtrWithPluginLoaded_F() { 
 		setup_logging_for_unit_tests();
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
@@ -58,7 +58,7 @@ struct PluginPtrWithPluginLoaded_F : public PionPluginPtr<FileService> {
 		if (s) destroy(s);
 	}
 
-	FileService* s;
+	WebService* s;
 };
 
 BOOST_FIXTURE_TEST_SUITE(PluginPtrWithPluginLoaded_S, PluginPtrWithPluginLoaded_F)
@@ -504,10 +504,13 @@ BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForFileOutsideDirectory) {
 	checkWebServerResponseContent(boost::regex(".*403\\sForbidden.*"));
 }
 
+#ifdef PION_WIN32
+// this test only works on Windows
 BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForOpenFile) {
 	boost::filesystem::ofstream openFile("sandbox/file2");
 	sendRequestAndCheckResponseHead("DELETE", "/resource1/file2", 500);
 	checkWebServerResponseContent(boost::regex(".*500\\sServer\\sError.*"));
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()

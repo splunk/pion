@@ -9,7 +9,7 @@
 
 #include "AllowNothingService.hpp"
 #include <pion/PionConfig.hpp>
-#include <pion/net/HTTPResponse.hpp>
+#include <pion/net/HTTPResponseWriter.hpp>
 
 using namespace pion;
 using namespace pion::net;
@@ -17,18 +17,18 @@ using namespace pion::net;
 void AllowNothingService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	static const std::string DENY_HTML = "<html><body>No, you can't.</body></html>\r\n\r\n";
-	HTTPResponsePtr response(HTTPResponse::create(request, tcp_conn));
-	response->setResponseCode(HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
-	response->setResponseMessage(HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));
+	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
+	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
 
 	// This is a legitimate header, but it crashes when it's sent.
-	//response->addHeader("Allow", "");
+	//writer->getResponse().addHeader("Allow", "");
 
 	// Use this line to demonstrate that it's the empty header value that's causing the problem.
-	response->addHeader("Allow", "GET");
+	writer->getResponse().addHeader("Allow", "GET");
 
-	response->writeNoCopy(DENY_HTML);
-	response->send();
+	writer->writeNoCopy(DENY_HTML);
+	writer->send();
 }
 
 /// creates new AllowNothingService objects

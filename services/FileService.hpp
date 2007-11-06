@@ -20,7 +20,7 @@
 #include <pion/PionHashMap.hpp>
 #include <pion/net/WebService.hpp>
 #include <pion/net/HTTPRequest.hpp>
-#include <pion/net/HTTPResponse.hpp>
+#include <pion/net/HTTPResponseWriter.hpp>
 #include <pion/net/HTTPServer.hpp>
 #include <string>
 #include <map>
@@ -189,35 +189,35 @@ protected:
 	
 	
 	/// primary logging interface used by this class
-	pion::PionLogger				m_logger;
+	pion::PionLogger						m_logger;
 	
 	
 private:
 
 	/// the disk file we are sending
-	DiskFile						m_disk_file;
+	DiskFile								m_disk_file;
 	
 	/// the HTTP response we are sending
-	pion::net::HTTPResponsePtr		m_response;
+	pion::net::HTTPResponseWriterPtr		m_writer;
 
 	/// used to read the file from disk if it is not already cached in memory
-	boost::filesystem::ifstream		m_file_stream;
+	boost::filesystem::ifstream				m_file_stream;
 	
 	/// buffer used to send file content
-	boost::shared_array<char>		m_content_buf;
+	boost::shared_array<char>				m_content_buf;
 	
 	/**
 	 * maximum chunk size (in bytes): files larger than this size will be
 	 * delivered to clients using HTTP chunked responses.  A value of
 	 * zero means that the size is unlimited (chunking is disabled).
 	 */
-	unsigned long					m_max_chunk_size;
+	unsigned long							m_max_chunk_size;
 
 	/// the number of file bytes send in the last operation
-	unsigned long					m_file_bytes_to_send;
+	unsigned long							m_file_bytes_to_send;
 	
 	/// the number of bytes we have sent so far
-	unsigned long					m_bytes_sent;
+	unsigned long							m_bytes_sent;
 };
 
 /// data type for a DiskFileSender pointer

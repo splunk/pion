@@ -23,6 +23,8 @@ namespace net {		// begin namespace net (Pion Network Library)
 /// 
 struct PION_NET_API HTTPTypes
 {
+	/// virtual destructor
+	virtual ~HTTPTypes() {}
 	
 	// generic strings used by HTTP
 	static const std::string	STRING_EMPTY;
@@ -95,8 +97,31 @@ struct PION_NET_API HTTPTypes
 	/// escapes URL-encoded strings (a%20value+with%20spaces)
 	static std::string url_decode(const std::string& str);
 
+	/// encodes strings so that they are safe for URLs (with%20spaces)
+	static std::string url_encode(const std::string& str);
+
 	/// converts time_t format into an HTTP-date string
 	static std::string get_date_string(const time_t t);
+
+	/// builds an HTTP query string from a collection of query parameters
+	static std::string make_query_string(const QueryParams& query_params);
+	
+	/**
+	 * creates a "Set-Cookie" header
+	 *
+	 * @param name the name of the cookie
+	 * @param value the value of the cookie
+	 * @param path the path of the cookie
+	 * @param has_max_age true if the max_age value should be set
+	 * @param max_age the life of the cookie, in seconds (0 = discard)
+	 *
+	 * @return the new "Set-Cookie" header
+	 */
+	static std::string make_set_cookie_header(const std::string& name,
+											  const std::string& value,
+											  const std::string& path,
+											  const bool has_max_age = false,
+											  const unsigned long max_age = 0);		
 };
 
 }	// end namespace net

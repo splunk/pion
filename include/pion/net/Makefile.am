@@ -4,5 +4,6 @@
 
 pion_net_includedir = $(includedir)/pion/net
 pion_net_include_HEADERS = TCPConnection.hpp TCPServer.hpp \
-	HTTPTypes.hpp HTTPRequest.hpp HTTPResponse.hpp \
-	HTTPRequestParser.hpp HTTPServer.hpp WebService.hpp
+	HTTPTypes.hpp HTTPRequest.hpp HTTPResponse.hpp HTTPParser.hpp \
+	HTTPWriter.hpp HTTPReader.hpp HTTPRequestReader.hpp \
+	HTTPResponseReader.hpp HTTPServer.hpp WebService.hpp
