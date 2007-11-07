@@ -271,7 +271,10 @@ void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
 		return LoadLibrary(plugin_file.c_str());
 	#endif
 #else
-	return dlopen(plugin_file.c_str(), RTLD_LAZY);
+	// convert into a full/absolute/complete path since dlopen()
+	// does not always search the CWD on some operating systems
+	const boost::filesystem::path full_path = boost::filesystem::complete(plugin_file);
+	return dlopen(full_path.file_string().c_str(), RTLD_LAZY);
 #endif
 }
 
