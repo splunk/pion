@@ -15,7 +15,7 @@
 	<Tool
 		Name="VCLinkerTool"
 		LinkIncremental="1"
-		AdditionalLibraryDirectories="$(LOG4CXX_HOME)\bin"
+		AdditionalLibraryDirectories="&quot;$(LOG4CXX_HOME)\bin&quot;;&quot;$(OPENSSL_HOME)\lib&quot;"
 		GenerateDebugInformation="true"
 		LinkTimeCodeGeneration="1"
 	/>

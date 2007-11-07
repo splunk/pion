@@ -27,4 +27,8 @@
 		Name="APR_INCLUDE_DIR"
 		Value="$(LOG4CXX_HOME)\src\apr\apr-1.2.9\include"
 	/>
+	<UserMacro
+		Name="OPENSSL_HOME"
+		Value="C:\OpenSSL"
+	/>
 </VisualStudioPropertySheet>
