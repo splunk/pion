@@ -148,119 +148,78 @@ AX_BOOST_BASE([1.34])
 CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
 LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
 
+# Determine Boost library extension by looking for thread library (i.e. "-gcc41-mt")
+for boost_thread_library in `ls $BOOST_HOME_DIR/lib/libboost_thread*-mt.{dll,so,a}* 2>/dev/null` ;
+do
+	if test -r $boost_thread_library ; then
+		BOOST_LIB_EXTENSION=`echo $boost_thread_library | sed 's,.*/,,' | sed -e 's;^libboost_thread\(.*\)\.dll*$;\1;' -e 's;^libboost_thread\(.*\)\.so.*$;\1;' -e 's;^libboost_thread\(.*\)\.a*$;\1;'`
+		break
+	fi
+done
+if test "x$BOOST_LIB_EXTENSION" = "x"; then
+	AC_MSG_ERROR(Unable to determine Boost library extension)
+fi
+AC_MSG_NOTICE(Boost home directory: $BOOST_HOME_DIR)
+AC_MSG_NOTICE(Boost library extension: $BOOST_LIB_EXTENSION)
+AC_SUBST(BOOST_LIB_EXTENSION)
+
 
 # Check for Boost ASIO library
 AC_CHECK_HEADERS([boost/asio.hpp],,AC_MSG_ERROR(Unable to find the boost::asio headers))
 
 
 # Check for Boost Thread library
-AC_CHECK_HEADERS([boost/thread/thread.hpp],,AC_MSG_ERROR(Unable to find the boost::thread headers))
+BOOST_TRY_LIB=thread
+BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
-BOOST_LIB=boost_thread
-for ax_lib in $BOOST_LIB-$CC-mt $BOOST_LIB-mt lib$BOOST_LIB-$CC-mt \
-	lib$BOOST_LIB-mt $BOOST_LIB-$CC $BOOST_LIB lib$BOOST_LIB-$CC \
-	lib$BOOST_LIB \
-	$BOOST_LIB-${CC}34-mt lib$BOOST_LIB-${CC}34-mt \
-	$BOOST_LIB-${CC}34 lib$BOOST_LIB-${CC}34 \
-	$BOOST_LIB-${CC}41-mt lib$BOOST_LIB-${CC}41-mt \
-	$BOOST_LIB-${CC}41 lib$BOOST_LIB-${CC}41;
-do
-	LIBS="$LIBS_SAVED -l$ax_lib"
-	AC_MSG_NOTICE(Checking for -l$ax_lib)
-	AC_TRY_LINK([#include <boost/thread/thread.hpp>],
-		[ boost::thread current_thread; return 0; ],
-		[BOOST_THREAD_LIB="-l$ax_lib"; break],
-		[BOOST_THREAD_LIB=""])
-done
-if test "x$BOOST_THREAD_LIB" = "x"; then
-	AC_MSG_ERROR(Unable to link with the boost::thread library)
-else
-	AC_MSG_NOTICE(Linking with boost::thread works)
-fi
+LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_TRY_LINK([#include <boost/thread/thread.hpp>],
+	[ boost::thread current_thread; return 0; ],
+	[BOOST_THREAD_LIB="-l${BOOST_TRY_LINK}"],
+	AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
+AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (${BOOST_TRY_LINK})])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_THREAD_LIB)
 
 
 # Check for Boost System library
-AC_CHECK_HEADERS([boost/system/error_code.hpp],,AC_MSG_ERROR(Unable to find the boost::system headers))
+BOOST_TRY_LIB=system
+BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
-BOOST_LIB=boost_system
-for ax_lib in $BOOST_LIB-$CC-mt $BOOST_LIB-mt lib$BOOST_LIB-$CC-mt \
-	lib$BOOST_LIB-mt $BOOST_LIB-$CC $BOOST_LIB lib$BOOST_LIB-$CC \
-	lib$BOOST_LIB \
-	$BOOST_LIB-${CC}34-mt lib$BOOST_LIB-${CC}34-mt \
-	$BOOST_LIB-${CC}34 lib$BOOST_LIB-${CC}34 \
-	$BOOST_LIB-${CC}41-mt lib$BOOST_LIB-${CC}41-mt \
-	$BOOST_LIB-${CC}41 lib$BOOST_LIB-${CC}41;
-do
-	LIBS="$LIBS_SAVED -l$ax_lib"
-	AC_MSG_NOTICE(Checking for -l$ax_lib)
-	AC_TRY_LINK([#include <boost/system/error_code.hpp>],
-		[ boost::system::error_code error_code; std::string message(error_code.message()); return 0; ],
-		[BOOST_SYSTEM_LIB="-l$ax_lib"; break],
-		[BOOST_SYSTEM_LIB=""])
-done
-if test "x$BOOST_SYSTEM_LIB" = "x"; then
-	AC_MSG_ERROR(Unable to link with the boost::system library)
-else
-	AC_MSG_NOTICE(Linking with boost::system works)
-fi
+LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_TRY_LINK([#include <boost/system/error_code.hpp>],
+	[ boost::system::error_code error_code; std::string message(error_code.message()); return 0; ],
+	[BOOST_SYSTEM_LIB="-l${BOOST_TRY_LINK}"],
+	AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
+AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (${BOOST_TRY_LINK})])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_SYSTEM_LIB)
 
 
 # Check for Boost Filesystem library
-AC_CHECK_HEADERS([boost/filesystem/path.hpp],,AC_MSG_ERROR(Unable to find the boost::filesystem headers))
+BOOST_TRY_LIB=filesystem
+BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
-BOOST_LIB=boost_filesystem
-for ax_lib in $BOOST_LIB-$CC-mt $BOOST_LIB-mt lib$BOOST_LIB-$CC-mt \
-	lib$BOOST_LIB-mt $BOOST_LIB-$CC $BOOST_LIB lib$BOOST_LIB-$CC \
-	lib$BOOST_LIB \
-	$BOOST_LIB-${CC}34-mt lib$BOOST_LIB-${CC}34-mt \
-	$BOOST_LIB-${CC}34 lib$BOOST_LIB-${CC}34 \
-	$BOOST_LIB-${CC}41-mt lib$BOOST_LIB-${CC}41-mt \
-	$BOOST_LIB-${CC}41 lib$BOOST_LIB-${CC}41;
-do
-	LIBS="$LIBS_SAVED -l$ax_lib"
-	AC_MSG_NOTICE(Checking for -l$ax_lib)
-	AC_TRY_LINK([#include <boost/filesystem/path.hpp>],
-		[ boost::filesystem::path a_path; return 0; ],
-		[BOOST_FILESYSTEM_LIB="-l$ax_lib"; break],
-		[BOOST_FILESYSTEM_LIB=""])
-done
-if test "x$BOOST_FILESYSTEM_LIB" = "x"; then
-	AC_MSG_ERROR(Unable to link with the boost::filesystem library)
-else
-	AC_MSG_NOTICE(Linking with boost::filesystem works)
-fi
+LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_TRY_LINK([#include <boost/filesystem/path.hpp>],
+	[ boost::filesystem::path a_path; return 0; ],
+	[BOOST_FILESYSTEM_LIB="-l${BOOST_TRY_LINK}"],
+	AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
+AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (${BOOST_TRY_LINK})])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_FILESYSTEM_LIB)
 
 
 # Check for Boost Regex library
-AC_CHECK_HEADERS([boost/regex.hpp],,AC_MSG_ERROR(Unable to find the boost::regex headers))
+BOOST_TRY_LIB=regex
+BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
-BOOST_LIB=boost_regex
-for ax_lib in $BOOST_LIB-$CC-mt $BOOST_LIB-mt lib$BOOST_LIB-$CC-mt \
-	lib$BOOST_LIB-mt $BOOST_LIB-$CC $BOOST_LIB lib$BOOST_LIB-$CC \
-	lib$BOOST_LIB \
-	$BOOST_LIB-${CC}34-mt lib$BOOST_LIB-${CC}34-mt \
-	$BOOST_LIB-${CC}34 lib$BOOST_LIB-${CC}34 \
-	$BOOST_LIB-${CC}41-mt lib$BOOST_LIB-${CC}41-mt \
-	$BOOST_LIB-${CC}41 lib$BOOST_LIB-${CC}41;
-do
-	LIBS="$LIBS_SAVED -l$ax_lib"
-	AC_MSG_NOTICE(Checking for -l$ax_lib)
-	AC_TRY_LINK([#include <boost/regex.hpp>],
-		[ boost::regex exp(".*"); return 0; ],
-		[BOOST_REGEX_LIB="-l$ax_lib"; break],
-		[BOOST_REGEX_LIB=""])
-done
-if test "x$BOOST_REGEX_LIB" = "x"; then
-	AC_MSG_ERROR(Unable to link with the boost::regex library)
-else
-	AC_MSG_NOTICE(Linking with boost::regex works)
-fi
+LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_TRY_LINK([#include <boost/regex.hpp>],
+	[ boost::regex exp(".*"); return 0; ],
+	[BOOST_REGEX_LIB="-l${BOOST_TRY_LINK}"],
+	AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
+AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (${BOOST_TRY_LINK})])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_REGEX_LIB)
 
@@ -273,32 +232,18 @@ if test "x$enable_tests" == "xno"; then
 	# Display notice if unit tests are disabled
 	AC_MSG_NOTICE([Unit tests are disabled])
 else
-	AC_CHECK_HEADERS([boost/test/unit_test.hpp],,AC_MSG_ERROR(Unable to find the boost::unit_test headers))
+	BOOST_TRY_LIB=unit_test_framework
+	BOOST_TRY_LINK="$BOOST_HOME_DIR/lib/libboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}.a"
 	LIBS_SAVED="$LIBS"
-	BOOST_LIB=boost_unit_test_framework
-	for ax_lib in $BOOST_LIB-$CC-mt $BOOST_LIB-mt lib$BOOST_LIB-$CC-mt \
-		lib$BOOST_LIB-mt $BOOST_LIB-$CC $BOOST_LIB lib$BOOST_LIB-$CC \
-		lib$BOOST_LIB \
-		$BOOST_LIB-${CC}34-mt lib$BOOST_LIB-${CC}34-mt \
-		$BOOST_LIB-${CC}34 lib$BOOST_LIB-${CC}34 \
-		$BOOST_LIB-${CC}41-mt lib$BOOST_LIB-${CC}41-mt \
-		$BOOST_LIB-${CC}41 lib$BOOST_LIB-${CC}41;
-	do
-		LIBS="$LIBS_SAVED $BOOST_HOME_DIR/lib/lib$ax_lib.a"
-		AC_MSG_NOTICE(Checking for $ax_lib)
-		AC_TRY_LINK([#include <boost/test/unit_test.hpp>
-			using namespace boost::unit_test;
-			test_suite* init_unit_test_suite( int argc, char* argv[] )
-			{ return BOOST_TEST_SUITE("Master test suite"); }],
-			[],
-			[BOOST_TEST_LIB="$BOOST_HOME_DIR/lib/lib$ax_lib.a"; break],
-			[BOOST_TEST_LIB=""])
-	done
-	if test "x$BOOST_TEST_LIB" == "x"; then
-		AC_MSG_ERROR(Unable to link with the boost::unit_test library)
-	else
-		AC_MSG_NOTICE(Linking with boost::unit_test works)
-	fi
+	LIBS="$LIBS_SAVED ${BOOST_TRY_LINK}"
+	AC_TRY_LINK([#include <boost/test/unit_test.hpp>
+		using namespace boost::unit_test;
+		test_suite* init_unit_test_suite( int argc, char* argv[] )
+		{ return BOOST_TEST_SUITE("Master test suite"); }],
+		[],
+		[BOOST_TEST_LIB="${BOOST_TRY_LINK}"],
+		AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
+	AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (libboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}.a)])
 	LIBS="$LIBS_SAVED"
 	PION_TESTS_MAKEDIRS="tests"
 fi
