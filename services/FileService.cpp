@@ -41,7 +41,9 @@ FileService::FileService(void)
 	m_max_cache_size(DEFAULT_MAX_CACHE_SIZE),
 	m_max_chunk_size(DEFAULT_MAX_CHUNK_SIZE),
 	m_writable(false)
-{}
+{
+	PION_LOG_SETLEVEL_INFO(m_logger);
+}
 
 void FileService::setOption(const std::string& name, const std::string& value)
 {
@@ -735,7 +737,7 @@ bool DiskFile::checkUpdated(void)
 DiskFileSender::DiskFileSender(DiskFile& file, pion::net::HTTPRequestPtr& request,
 							   pion::net::TCPConnectionPtr& tcp_conn,
 							   unsigned long max_chunk_size)
-	: m_logger(PION_GET_LOGGER("DiskFileSender")), m_disk_file(file),
+	: m_logger(PION_GET_LOGGER("FileService.DiskFileSender")), m_disk_file(file),
 	m_writer(pion::net::HTTPResponseWriter::create(tcp_conn, *request)),
 	m_max_chunk_size(max_chunk_size), m_file_bytes_to_send(0), m_bytes_sent(0)
 {
