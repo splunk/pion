@@ -284,14 +284,14 @@ else
 		$BOOST_LIB-${CC}41-mt lib$BOOST_LIB-${CC}41-mt \
 		$BOOST_LIB-${CC}41 lib$BOOST_LIB-${CC}41;
 	do
-		LIBS="$LIBS_SAVED -l$ax_lib"
-		AC_MSG_NOTICE(Checking for -l$ax_lib)
+		LIBS="$LIBS_SAVED $BOOST_HOME_DIR/lib/lib$ax_lib.a"
+		AC_MSG_NOTICE(Checking for $ax_lib)
 		AC_TRY_LINK([#include <boost/test/unit_test.hpp>
 			using namespace boost::unit_test;
 			test_suite* init_unit_test_suite( int argc, char* argv[] )
 			{ return BOOST_TEST_SUITE("Master test suite"); }],
 			[],
-			[BOOST_TEST_LIB="-l$ax_lib"; break],
+			[BOOST_TEST_LIB="$BOOST_HOME_DIR/lib/lib$ax_lib.a"; break],
 			[BOOST_TEST_LIB=""])
 	done
 	if test "x$BOOST_TEST_LIB" == "x"; then

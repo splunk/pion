@@ -11,7 +11,6 @@ TESTS = $(check_PROGRAMS)
 
 PionCommonUnitTests_SOURCES = PionCommonUnitTests.cpp PionCounterTests.cpp PionPluginPtrTests.cpp
 PionCommonUnitTests_LDADD = ../src/libpion-common.la @PION_EXTERNAL_LIBS@ @BOOST_TEST_LIB@
-PionCommonUnitTests_LDFLAGS = -all-static
 PionCommonUnitTests_DEPENDENCIES = ../src/libpion-common.la \
 	PluginsUsedByUnitTests/hasCreateAndDestroy.la PluginsUsedByUnitTests/hasCreateButNoDestroy.la \
 	PluginsUsedByUnitTests/hasNoCreate.la

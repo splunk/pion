@@ -67,11 +67,13 @@ if test "x$want_boost" = "xyes"; then
 	dnl this location ist chosen if boost libraries are installed with the --layout=system option
 	dnl or if you install boost with RPM
 	if test "$ac_boost_path" != ""; then
+		BOOST_HOME_DIR="$ac_boost_path"
 		BOOST_LDFLAGS="-L$ac_boost_path/lib"
 		BOOST_CPPFLAGS="-I$ac_boost_path/include"
 	else
 		for ac_boost_path_tmp in /usr /usr/local /opt ; do
 			if test -d "$ac_boost_path_tmp/include/boost" && test -r "$ac_boost_path_tmp/include/boost"; then
+				BOOST_HOME_DIR="$ac_boost_path_tmp"
 				BOOST_LDFLAGS="-L$ac_boost_path_tmp/lib"
 				BOOST_CPPFLAGS="-I$ac_boost_path_tmp/include"
 				break;
@@ -111,6 +113,7 @@ if test "x$want_boost" = "xyes"; then
 	if test "x$succeeded" != "xyes"; then
 		_version=0
 		if test "$ac_boost_path" != ""; then
+			BOOST_HOME_DIR="$ac_boost_path"
                		BOOST_LDFLAGS="-L$ac_boost_path/lib"
 			if test -d "$ac_boost_path" && test -r "$ac_boost_path"; then
 				for i in `ls -d $ac_boost_path/include/boost-* 2>/dev/null`; do
@@ -140,6 +143,7 @@ if test "x$want_boost" = "xyes"; then
 			VERSION_UNDERSCORE=`echo $_version | sed 's/\./_/'`
 			BOOST_CPPFLAGS="-I$best_path/include/boost-$VERSION_UNDERSCORE"
 			BOOST_LDFLAGS="-L$best_path/lib"
+			BOOST_HOME_DIR="$best_path"
 
 	    		if test "x$BOOST_ROOT" != "x"; then
 				if test -d "$BOOST_ROOT" && test -r "$BOOST_ROOT" && test -d "$BOOST_ROOT/stage/lib" && test -r "$BOOST_ROOT/stage/lib"; then
@@ -186,6 +190,7 @@ if test "x$want_boost" = "xyes"; then
 			AC_MSG_NOTICE([Your boost libraries seems to old (version $_version).])
 		fi
 	else
+		AC_SUBST(BOOST_HOME_DIR)
 		AC_SUBST(BOOST_CPPFLAGS)
 		AC_SUBST(BOOST_LDFLAGS)
 		AC_DEFINE(HAVE_BOOST,,[define if the Boost library is available])
