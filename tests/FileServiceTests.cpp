@@ -510,8 +510,8 @@ BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForFileOutsideDirectory) {
 	checkWebServerResponseContent(boost::regex(".*403\\sForbidden.*"));
 }
 
-#ifdef PION_WIN32
-// this test only works on Windows
+#if defined(PION_WIN32) && defined(_MSC_VER)
+// this test only works on Windows with MSVC
 BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForOpenFile) {
 	boost::filesystem::ofstream openFile("sandbox/file2");
 	sendRequestAndCheckResponseHead("DELETE", "/resource1/file2", 500);
