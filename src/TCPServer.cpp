@@ -80,6 +80,7 @@ void TCPServer::stop(bool wait_until_finished)
 		m_is_listening = false;
 
 		// this terminates any connections waiting to be accepted
+		m_tcp_acceptor.cancel();
 		m_tcp_acceptor.close();
 		
 		if (! wait_until_finished) {
