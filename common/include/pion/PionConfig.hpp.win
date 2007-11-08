@@ -17,7 +17,6 @@
 #ifdef PION_FULL
 #define PION_HAVE_APR
 #define PION_USE_LOG4CXX
-#define PION_HAVE_SSL
 #endif
 
 /* Define to 1 if you have the <ext/hash_map> header file. */
@@ -27,9 +26,8 @@
 //#undef PION_HAVE_HASH_MAP
 #define PION_HAVE_HASH_MAP 1
 
-/* If you have the `OpenSSL' library installed, include PION_HAVE_SSL or PION_FULL
-   in Preprocessor Definitions, or uncomment the following line, to use SSL. */
-//#define PION_HAVE_SSL
+/* Define to 1 if you have the `OpenSSL' library. */
+#undef PION_HAVE_SSL
 
 /* If you have the `Apache Portable Runtime' library, include PION_HAVE_APR or PION_FULL
    in Preprocessor Definitions, or uncomment the following line. */
