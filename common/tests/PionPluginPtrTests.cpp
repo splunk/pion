@@ -7,14 +7,14 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifdef WIN32
+#ifdef _MSC_VER
 	#include <direct.h>
 	#define CHANGE_DIRECTORY _chdir
-	#define GET_DIRECTORY _getcwd
+	#define GET_DIRECTORY(a,b) _getcwd(a,b)
 #else
 	#include <unistd.h>
 	#define CHANGE_DIRECTORY chdir
-	#define GET_DIRECTORY getcwd
+	#define GET_DIRECTORY(a,b) getcwd(a,b)
 #endif
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -42,6 +42,7 @@ using namespace pion;
 	static const std::string sharedLibExt = ".so";
 #endif
 
+#define DIRECTORY_MAX_SIZE 1000
 
 class InterfaceStub {
 };
@@ -49,17 +50,17 @@ class InterfaceStub {
 class EmptyPluginPtr_F : public PionPluginPtr<InterfaceStub> {
 public:
 	EmptyPluginPtr_F() { 
-		BOOST_REQUIRE((m_old_cwd = GET_DIRECTORY(NULL, 0)) != NULL);
+		BOOST_REQUIRE(GET_DIRECTORY(m_old_cwd, DIRECTORY_MAX_SIZE) != NULL);
 		BOOST_REQUIRE(CHANGE_DIRECTORY(directoryOfPluginsForTests.c_str()) == 0);
 	}
 	~EmptyPluginPtr_F() {
 		BOOST_CHECK(CHANGE_DIRECTORY(m_old_cwd) == 0);
-		free(m_old_cwd);
 	}
 
 private:
-	char* m_old_cwd;
+	char m_old_cwd[DIRECTORY_MAX_SIZE+1];
 };
+
 
 BOOST_FIXTURE_TEST_SUITE(EmptyPluginPtr_S, EmptyPluginPtr_F)
 
@@ -152,15 +153,14 @@ These tests are a subset of those in the previous suite, for comparison purposes
 */
 struct EmptyPluginPtr2_F {
 	EmptyPluginPtr2_F() : m_pluginPtr() { 
-		BOOST_REQUIRE((m_old_cwd = GET_DIRECTORY(NULL, 0)) != NULL);
+		BOOST_REQUIRE(GET_DIRECTORY(m_old_cwd, DIRECTORY_MAX_SIZE) != NULL);
 		BOOST_REQUIRE(CHANGE_DIRECTORY(directoryOfPluginsForTests.c_str()) == 0);
 	}
 	~EmptyPluginPtr2_F() {
 		BOOST_CHECK(CHANGE_DIRECTORY(m_old_cwd) == 0);
-		free(m_old_cwd);
 	}
 
-	char* m_old_cwd;
+	char m_old_cwd[DIRECTORY_MAX_SIZE+1];
 	PionPluginPtr<InterfaceStub> m_pluginPtr;
 };
 
