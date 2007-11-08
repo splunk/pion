@@ -196,7 +196,8 @@ void TCPServer::handleSSLHandshake(TCPConnectionPtr& tcp_conn,
 
 void TCPServer::finishConnection(TCPConnectionPtr& tcp_conn)
 {
-	if (tcp_conn->getKeepAlive()) {
+	boost::mutex::scoped_lock server_lock(m_mutex);
+	if (m_is_listening && tcp_conn->getKeepAlive()) {
 		
 		// keep the connection alive
 		handleConnection(tcp_conn);
@@ -205,7 +206,6 @@ void TCPServer::finishConnection(TCPConnectionPtr& tcp_conn)
 		PION_LOG_INFO(m_logger, "Closing connection on port " << getPort());
 		
 		// remove the connection from the server's management pool
-		boost::mutex::scoped_lock server_lock(m_mutex);
 		ConnectionPool::iterator conn_itr = m_conn_pool.find(tcp_conn);
 		if (conn_itr != m_conn_pool.end())
 			m_conn_pool.erase(conn_itr);
