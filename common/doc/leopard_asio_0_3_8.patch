@@ -1,0 +1,11 @@
+Index: /trunk/boost/asio/detail/posix_fd_set_adapter.hpp
+===================================================================
+--- /trunk/boost/asio/detail/posix_fd_set_adapter.hpp (revision 36938)
++++ /trunk/boost/asio/detail/posix_fd_set_adapter.hpp (revision 40546)
+@@ -60,5 +60,5 @@
+ 
+ private:
+-  fd_set fd_set_;
++  mutable fd_set fd_set_;
+   socket_type max_descriptor_;
+ };
