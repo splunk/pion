@@ -12,6 +12,10 @@
 
 #ifdef PION_HAVE_SSL
 	#include <boost/asio/ssl.hpp>
+	#if defined _MSC_VER
+		#pragma comment(lib, "ssleay32")
+		#pragma comment(lib, "libeay32")
+	#endif 
 #endif
 
 #include <boost/noncopyable.hpp>
