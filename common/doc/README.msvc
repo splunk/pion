@@ -48,16 +48,32 @@ directories, just copy the files in stage/lib into C:\Boost\Lib, and
 copy the entire boost/ directory into C:\Boost\Include.
 
 
-Installing zlib & openssl:
+Installing zlib & OpenSSL:
 --------------------------
 
-ASIO requires zlib and openssl for compression and SSL/TLS encryption
+ASIO requires zlib and OpenSSL for compression and SSL/TLS encryption
 support, respectively.  For MSVC, we recommend that you build and
 install these packages from the source tarballs, available from the
 following sites:
 
 http://www.zlib.net
 http://www.openssl.org
+
+For OpenSSL, build the static versions of ssleay32 and libeay32 (by using
+nt.mak rather than ntdll.mak, as explained in INSTALL.W32).  We recommend
+installing OpenSSL in C:\OpenSSL.
+
+
+Linking with OpenSSL:
+---------------------
+
+Macro OPENSSL_HOME in pion.vsprops is set to C:\OpenSSL.  If you installed 
+OpenSSL somewhere other than C:\OpenSSL, change OPENSSL_HOME accordingly.
+If you have both the static and dynamic versions of ssleay32 and libeay32,
+make sure OPENSSL_HOME\lib is the directory with the static versions.
+
+Include PION_HAVE_SSL or PION_FULL in Preprocessor Definitions for the project,
+or in PionConfig.hpp.win, uncomment '#define PION_HAVE_SSL'.
 
 
 Logging frameworks:
