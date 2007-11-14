@@ -71,7 +71,7 @@ public:
 	 * @param http_msg the HTTP message object to consume content for
 	 * @return unsigned long number of content bytes consumed, if any
 	 */
-	unsigned long consumeContent(HTTPMessage& http_msg);
+	std::size_t consumeContent(HTTPMessage& http_msg);
 		
 	/**
 	 * finishes an HTTP request message (copies over request-only data)
@@ -127,10 +127,10 @@ public:
 	inline unsigned long bytes_available(void) const { return (eof() ? 0 : (m_read_end_ptr - m_read_ptr)); } 
 	
 	/// returns the number of bytes read during the last parse operation
-	inline unsigned long gcount(void) const { return m_bytes_last_read; }
+	inline std::size_t gcount(void) const { return m_bytes_last_read; }
 	
 	/// returns the total number of bytes read while parsing the HTTP message
-	inline unsigned long getTotalBytesRead(void) const { return m_bytes_total_read; }
+	inline std::size_t getTotalBytesRead(void) const { return m_bytes_total_read; }
 
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
@@ -262,10 +262,10 @@ private:
 	std::string							m_header_value;
 
 	/// number of bytes read during last parse operation
-	unsigned long						m_bytes_last_read;
+	std::size_t 						m_bytes_last_read;
 	
 	/// total number of bytes read while parsing the HTTP message
-	unsigned long						m_bytes_total_read;
+	std::size_t 						m_bytes_total_read;
 };
 
 

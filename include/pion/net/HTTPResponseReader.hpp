@@ -98,7 +98,7 @@ protected:
 	 *
 	 * @param bytes_to_read number of bytes to read from the connection
 	 */
-	virtual void getMoreContentBytes(const unsigned long bytes_to_read) {
+	virtual void getMoreContentBytes(const std::size_t bytes_to_read) {
 		getTCPConnection()->async_read(boost::asio::buffer(m_http_msg->getContent() + gcount(), bytes_to_read),
 									   boost::asio::transfer_at_least(bytes_to_read),
 									   boost::bind(&HTTPResponseReader::readContentBytes,

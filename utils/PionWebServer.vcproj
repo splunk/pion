@@ -434,10 +434,6 @@
 			>
 		</Filter>
 		<File
-			RelativePath="..\doc\README.msvc"
-			>
-		</File>
-		<File
 			RelativePath=".\testservices.html"
 			>
 		</File>

@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(checkNumberOfActiveServerConnections) {
 	do {
 		sleep_briefly();
 	} while (PionScheduler::getInstance().getRunningThreads() == 0);	
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(0));
+	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(0));
 
 	// open a connection
 	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
@@ -159,37 +159,37 @@ BOOST_AUTO_TEST_CASE(checkNumberOfActiveServerConnections) {
 	// we need to wait for the server to accept the connection since it happens
 	// in another thread.  This should always take less than 0.1 seconds
 	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(1));
+	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(1));
 
 	// open a few more connections;
 	tcp::iostream tcp_stream_b(localhost);
 	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(2));
+	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(2));
 
 	tcp::iostream tcp_stream_c(localhost);
 	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(3));
+	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(3));
 
 	tcp::iostream tcp_stream_d(localhost);
 	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(4));
+	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(4));
 	
 	// close connections	
 	tcp_stream_a.close();
 	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(3));
+	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(3));
 
 	tcp_stream_b.close();
 	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(2));
+	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(2));
 
 	tcp_stream_c.close();
 	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(1));
+	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(1));
 
 	tcp_stream_d.close();
 	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<unsigned long>(0));
+	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(0));
 }
 
 BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {

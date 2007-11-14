@@ -86,7 +86,7 @@ protected:
 	 *
 	 * @param bytes_to_read number of bytes to read from the connection
 	 */
-	virtual void getMoreContentBytes(const unsigned long bytes_to_read) = 0;
+	virtual void getMoreContentBytes(const std::size_t bytes_to_read) = 0;
 	
 	
 private:	

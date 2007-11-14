@@ -546,13 +546,13 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::StringDictionary& dict,
 	return true;
 }
 
-unsigned long HTTPParser::consumeContent(HTTPMessage& http_msg)
+std::size_t HTTPParser::consumeContent(HTTPMessage& http_msg)
 {
 	// get the payload content length from the HTTP headers
 	http_msg.updateContentLengthUsingHeader();
 
 	// read the post content
-	unsigned long content_bytes_to_read = http_msg.getContentLength();
+	std::size_t content_bytes_to_read = http_msg.getContentLength();
 	char *post_buffer = http_msg.createContentBuffer();
 	
 	if (m_read_ptr < m_read_end_ptr) {

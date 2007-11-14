@@ -56,7 +56,7 @@ public:
 	void setSSLKeyFile(const std::string& pem_key_file);
 
 	/// returns the number of active tcp connections
-	unsigned long getConnections(void) const;
+	std::size_t getConnections(void) const;
 
 	/// returns tcp port number that the server listens for connections on
 	inline unsigned int getPort(void) const { return m_endpoint.port(); }

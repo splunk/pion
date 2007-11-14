@@ -71,7 +71,7 @@ void HTTPReader::consumeHeaderBytes(void)
 
 		// check if we have payload content to read
 		consumeContent(getMessage());
-		const unsigned long content_bytes_to_read = getMessage().getContentLength() - gcount();
+		const std::size_t content_bytes_to_read = getMessage().getContentLength() - gcount();
 
 		if (content_bytes_to_read == 0) {
 		
