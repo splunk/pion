@@ -17,9 +17,9 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/detail/atomic_count.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionLogger.hpp>
-#include <pion/PionCounter.hpp>
 
 
 namespace pion {	// begin namespace pion
@@ -73,7 +73,7 @@ public:
 	inline unsigned int getNumThreads(void) const { return m_num_threads; }
 
 	/// returns the number of threads that are currently running
-	inline unsigned long getRunningThreads(void) const { return m_running_threads.getValue(); }
+	inline unsigned long getRunningThreads(void) const { return m_running_threads; }
 
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
@@ -144,7 +144,7 @@ private:
 	unsigned int					m_active_users;
 
 	/// number of threads that are currently running
-	PionCounter						m_running_threads;
+	boost::detail::atomic_count		m_running_threads;
 };
 
 }	// end namespace pion

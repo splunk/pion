@@ -143,12 +143,79 @@ else
 fi
 
 
+# Check for zlib
+AC_MSG_CHECKING([for gzip compression support (zlib)])
+AC_ARG_WITH([zlib], AC_HELP_STRING([--with-zlib@<:@=DIR@:>@],[location of zlib library (for gzip compression); use --without-zlib to disable]),
+    [ zlib_location=$withval ], [ zlib_location=yes ])
+# Check if zlib location is specified
+if test "x_$zlib_location" != "x_no"; then
+	AC_MSG_RESULT(yes)
+	if test "x_$zlib_location" != "x_yes"; then
+		# alternative location provided
+		CPPFLAGS="$CPPFLAGS -I$zlib_location/include"
+		LDFLAGS="$LDFLAGS -L$zlib_location/lib"
+	fi
+	# Check for zlib headers
+	AC_CHECK_HEADERS([zlib.h],,AC_MSG_ERROR([Unable to find the zlib headers]))
+	# Check for zlib library
+	LIBS="$LIBS_SAVED -lz"
+	AC_MSG_CHECKING(linking with zlib)
+	AC_TRY_LINK([#include <zlib.h>],[ zlibVersion(); return(0); ],
+		[ AC_MSG_RESULT(ok) ],
+		[ AC_MSG_RESULT(failed)
+		  AC_MSG_ERROR(Unable to link with the zlib library)
+		])
+	# Found the zlib library
+	AC_DEFINE([PION_HAVE_ZLIB],[1],[Define to 1 if you have the `zlib' library.])
+else
+	# zlib is disabled
+	AC_MSG_RESULT(no)
+fi
+
+
+# Check for OpenSSL
+AC_MSG_CHECKING([for SSL support (openssl)])
+AC_ARG_WITH([openssl],
+    AC_HELP_STRING([--with-openssl@<:@=DIR@:>@],[location of OpenSSL library (enables SSL support)]),
+    [ openssl_location=$withval ], [ without_openssl=true ])
+# Check if openssl location is specified
+if test "$without_openssl" != "true"; then
+	AC_MSG_RESULT(yes)
+	if test "x$openssl_location" != "xyes"; then
+		CPPFLAGS="$CPPFLAGS -I$openssl_location/include"
+		LDFLAGS="$LDFLAGS -L$openssl_location/lib"
+	fi
+	# Check for OpenSSL headers
+	AC_CHECK_HEADERS([openssl/ssl.h],,AC_MSG_ERROR([Unable to find the OpenSSL headers]))
+	# Check for OpenSSL library
+	LIBS_SAVED="$LIBS"
+	LIBS="$LIBS_SAVED -lssl -lcrypto"
+	AC_MSG_CHECKING(linking with openssl)
+	AC_TRY_LINK([#include <openssl/ssl.h>],[ SSL_library_init(); return(0); ],
+		[ AC_MSG_RESULT(ok) ],
+		[ AC_MSG_RESULT(failed)
+		  AC_MSG_ERROR(Unable to link with the openssl library)
+		])
+	LIBS="$LIBS_SAVED"
+	PION_SSL_LIB="-lssl -lcrypto"
+	# Found the OpenSSL library
+	AC_MSG_NOTICE(Building Pion with support for SSL (using OpenSSL))
+	AC_DEFINE([PION_HAVE_SSL],[1],[Define to 1 if you have the `OpenSSL' library.])
+else
+	# SSL is disabled
+	AC_MSG_RESULT(no)
+fi
+AC_SUBST(PION_SSL_LIB)
+
+
 # Check for Boost
 AX_BOOST_BASE([1.34])
+# AC_MSG_NOTICE(Boost home directory: $BOOST_HOME_DIR)
 CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
 LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
 
 # Determine Boost library extension by looking for thread library (i.e. "-gcc41-mt")
+AC_MSG_CHECKING([boost library extension])
 for boost_thread_library in `ls $BOOST_HOME_DIR/lib/libboost_thread*-mt.{dll,so,a}* 2>/dev/null` ;
 do
 	if test -r $boost_thread_library ; then
@@ -159,8 +226,7 @@ done
 if test "x$BOOST_LIB_EXTENSION" = "x"; then
 	AC_MSG_ERROR(Unable to determine Boost library extension)
 fi
-AC_MSG_NOTICE(Boost home directory: $BOOST_HOME_DIR)
-AC_MSG_NOTICE(Boost library extension: $BOOST_LIB_EXTENSION)
+AC_MSG_RESULT($BOOST_LIB_EXTENSION)
 AC_SUBST(BOOST_LIB_EXTENSION)
 
 
@@ -173,11 +239,15 @@ BOOST_TRY_LIB=thread
 BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
 LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
 AC_TRY_LINK([#include <boost/thread/thread.hpp>],
 	[ boost::thread current_thread; return 0; ],
-	[BOOST_THREAD_LIB="-l${BOOST_TRY_LINK}"],
-	AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
-AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (${BOOST_TRY_LINK})])
+	[ AC_MSG_RESULT(ok)
+	  BOOST_THREAD_LIB="-l${BOOST_TRY_LINK}"
+	],
+	[ AC_MSG_RESULT(not found)
+	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+	])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_THREAD_LIB)
 
@@ -187,11 +257,15 @@ BOOST_TRY_LIB=system
 BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
 LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
 AC_TRY_LINK([#include <boost/system/error_code.hpp>],
 	[ boost::system::error_code error_code; std::string message(error_code.message()); return 0; ],
-	[BOOST_SYSTEM_LIB="-l${BOOST_TRY_LINK}"],
-	AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
-AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (${BOOST_TRY_LINK})])
+	[ AC_MSG_RESULT(ok)
+	  BOOST_SYSTEM_LIB="-l${BOOST_TRY_LINK}"
+	],
+	[ AC_MSG_RESULT(not found)
+	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+	])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_SYSTEM_LIB)
 
@@ -201,11 +275,15 @@ BOOST_TRY_LIB=filesystem
 BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
 LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
 AC_TRY_LINK([#include <boost/filesystem/path.hpp>],
 	[ boost::filesystem::path a_path; return 0; ],
-	[BOOST_FILESYSTEM_LIB="-l${BOOST_TRY_LINK}"],
-	AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
-AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (${BOOST_TRY_LINK})])
+	[ AC_MSG_RESULT(ok)
+	  BOOST_FILESYSTEM_LIB="-l${BOOST_TRY_LINK}"
+	],
+	[ AC_MSG_RESULT(not found)
+	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+	])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_FILESYSTEM_LIB)
 
@@ -215,11 +293,15 @@ BOOST_TRY_LIB=regex
 BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
 LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
 AC_TRY_LINK([#include <boost/regex.hpp>],
 	[ boost::regex exp(".*"); return 0; ],
-	[BOOST_REGEX_LIB="-l${BOOST_TRY_LINK}"],
-	AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
-AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (${BOOST_TRY_LINK})])
+	[ AC_MSG_RESULT(ok)
+	  BOOST_REGEX_LIB="-l${BOOST_TRY_LINK}"
+	],
+	[ AC_MSG_RESULT(not found)
+	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+	])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_REGEX_LIB)
 
@@ -236,79 +318,23 @@ else
 	BOOST_TRY_LINK="$BOOST_HOME_DIR/lib/libboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}.a"
 	LIBS_SAVED="$LIBS"
 	LIBS="$LIBS_SAVED ${BOOST_TRY_LINK}"
+	AC_MSG_CHECKING([for boost unit test framework])
 	AC_TRY_LINK([#include <boost/test/unit_test.hpp>
 		using namespace boost::unit_test;
 		test_suite* init_unit_test_suite( int argc, char* argv[] )
 		{ return BOOST_TEST_SUITE("Master test suite"); }],
 		[],
-		[BOOST_TEST_LIB="${BOOST_TRY_LINK}"],
-		AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library))
-	AC_MSG_NOTICE([Found boost::${BOOST_TRY_LIB} library (libboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}.a)])
+		[ AC_MSG_RESULT(ok)
+		  BOOST_TEST_LIB="${BOOST_TRY_LINK}"
+		],
+		[ AC_MSG_RESULT(not found)
+		  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+		])
 	LIBS="$LIBS_SAVED"
 	PION_TESTS_MAKEDIRS="tests"
 fi
 AC_SUBST(BOOST_TEST_LIB)
 AC_SUBST(PION_TESTS_MAKEDIRS)
-
-
-# Check for OpenSSL
-AC_ARG_WITH([openssl],
-    AC_HELP_STRING([--with-openssl@<:@=DIR@:>@],[location of OpenSSL library (enables SSL support)]),
-    [ openssl_location=$withval ], [ without_openssl=true ])
-# Check if openssl location is specified
-if test "$without_openssl" != "true"; then
-	if test "x$openssl_location" != "xyes"; then
-		CPPFLAGS="$CPPFLAGS -I$openssl_location/include"
-		LDFLAGS="$LDFLAGS -L$openssl_location/lib"
-	fi
-	# Check for OpenSSL headers
-	AC_CHECK_HEADERS([openssl/ssl.h],,AC_MSG_ERROR([Unable to find the OpenSSL headers]))
-	# Check for OpenSSL library
-	LIBS_SAVED="$LIBS"
-	LIBS="$LIBS_SAVED -lssl -lcrypto"
-	AC_TRY_LINK([#include <openssl/ssl.h>],[ SSL_library_init(); return(0); ],
-		AC_MSG_NOTICE(Linking with OpenSSL works),
-		AC_MSG_ERROR(Unable to link with the OpenSSL library))
-	LIBS="$LIBS_SAVED"
-	PION_SSL_LIB="-lssl -lcrypto"
-	# Found the OpenSSL library
-	AC_MSG_NOTICE(SSL encryption support enabled (found OpenSSL))
-	AC_DEFINE([PION_HAVE_SSL],[1],[Define to 1 if you have the `OpenSSL' library.])
-else
-	# Display notice if SSL is disabled
-	AC_MSG_NOTICE([SSL support is disabled (try --with-openssl)])
-fi
-AC_SUBST(PION_SSL_LIB)
-
-
-# Check for Apache Portable Runtime (APR) library
-AC_ARG_WITH([apr],
-    AC_HELP_STRING([--with-apr@<:@=DIR@:>@],[location of Apache Portable Runtime library]),
-    [ apr_location=$withval ], [ without_apr=true ])
-# Check if APR location is specified
-if test "$without_apr" != "true"; then
-	# Check for apr headers
-	if test "x$apr_location" != "xyes"; then
-		CPPFLAGS="$CPPFLAGS -I$apr_location/include"
-		LDFLAGS="$LDFLAGS -L$apr_location/lib"
-	fi
-	AC_CHECK_HEADERS([apr-1/apr_atomic.h],,AC_MSG_ERROR([Unable to find the APR headers]))
-	# Check for APR library
-	LIBS_SAVED="$LIBS"
-	LIBS="$LIBS_SAVED -lapr-1"
-	AC_TRY_LINK([#include <apr-1/apr_atomic.h>],[ apr_uint32_t n; apr_atomic_set32(&n, 0); return(0); ],
-		AC_MSG_NOTICE(Linking with APR works),
-		AC_MSG_ERROR(Unable to link with the APR library))
-	LIBS="$LIBS_SAVED"
-	PION_APR_LIB="-lapr-1"
-	# Found the APR library
-	AC_MSG_NOTICE([Building Pion with support for the Apache Portable Runtime (APR)])
-	AC_DEFINE([PION_HAVE_APR],[1],[Define to 1 if you have the `Apache Portable Runtime' library.])
-else
-	# Display notice if APR is disabled
-	AC_MSG_NOTICE([Building Pion without the Apache Portable Runtime (APR)])
-fi
-AC_SUBST(PION_APR_LIB)
 
 
 # Check for logging support
@@ -324,11 +350,14 @@ AC_ARG_WITH([log4cplus],
 AC_ARG_WITH([log4cpp],
     AC_HELP_STRING([--with-log4cpp@<:@=DIR@:>@],[location of log4cpp library]),
     [ log4cpp_location=$withval ], [ without_log4cpp=true ])
+AC_MSG_CHECKING([for logging support])
 if test "x$enable_logging" == "xno"; then
 	# Display notice if no logging found
-	AC_MSG_NOTICE([Logging is disabled])
+	AC_MSG_RESULT(no)
 	AC_DEFINE([PION_DISABLE_LOGGING],[1],[Define to 1 to disable logging.])
 elif test "$without_log4cxx" != "true"; then
+	AC_MSG_RESULT(log4cxx)
+
 	# Check if log4cxx location is specified
 	if test "x$log4cxx_location" != "xyes"
 	then
@@ -342,16 +371,20 @@ elif test "$without_log4cxx" != "true"; then
 	# Check for log4cxx library
 	LIBS_SAVED="$LIBS"
 	LIBS="$LIBS_SAVED -llog4cxx"
+	AC_MSG_CHECKING(linking with log4cxx)
 	AC_TRY_LINK([#include <log4cxx/logger.h>],[ log4cxx::Logger::getRootLogger(); return 0; ],
-		AC_MSG_NOTICE(Linking with log4cxx works),
-		AC_MSG_ERROR(Unable to link with the log4cxx library))
+		[ AC_MSG_RESULT(ok) ],
+		[ AC_MSG_RESULT(failed)
+		  AC_MSG_ERROR(Unable to link with the log4cxx library)
+		])
 	LIBS="$LIBS_SAVED"
 	PION_LOG_LIB="-llog4cxx"
 
 	# Found the log4cxx library
-	AC_MSG_NOTICE(Using the log4cxx library for logging)
 	AC_DEFINE([PION_USE_LOG4CXX],[1],[Define to 1 if you have the `log4cxx' library (-llog4cxx).])
 elif test "$without_log4cplus" != "true"; then
+	AC_MSG_RESULT(log4cplus)
+
 	# Check if log4cplus location is specified
 	if test "x$log4cplus_location" != "xyes"
 	then
@@ -365,16 +398,20 @@ elif test "$without_log4cplus" != "true"; then
 	# Check for log4cplus library
 	LIBS_SAVED="$LIBS"
 	LIBS="$LIBS_SAVED -llog4cplus"
+	AC_MSG_CHECKING(linking with log4cplus)
 	AC_TRY_LINK([#include <log4cplus/logger.h>],[ log4cplus::Logger::getRoot(); return 0; ],
-		AC_MSG_NOTICE(Linking with log4cplus works),
-		AC_MSG_ERROR(Unable to link with the log4cplus library))
+		[ AC_MSG_RESULT(ok) ],
+		[ AC_MSG_RESULT(failed)
+		  AC_MSG_ERROR(Unable to link with the log4cplus library)
+		])
 	LIBS="$LIBS_SAVED"
 	PION_LOG_LIB="-llog4cplus"
 
 	# Found the log4cplus library
-	AC_MSG_NOTICE(Using the log4cplus library for logging)
 	AC_DEFINE([PION_USE_LOG4CPLUS],[1],[Define to 1 if you have the `log4cplus' library (-llog4cplus).])
 elif test "$without_log4cpp" != "true"; then
+	AC_MSG_RESULT(log4cpp)
+
 	# Check if log4cpp location is specified
 	if test "x$log4cpp_location" != "xyes"
 	then
@@ -388,22 +425,24 @@ elif test "$without_log4cpp" != "true"; then
 	# Check for log4cpp library
 	LIBS_SAVED="$LIBS"
 	LIBS="$LIBS_SAVED -llog4cpp"
+	AC_MSG_CHECKING(linking with log4cpp)
 	AC_TRY_LINK([#include <log4cpp/Category.hh>],[ log4cpp::Category::getRoot(); return 0; ],
-		AC_MSG_NOTICE(Linking with log4cpp works),
-		AC_MSG_ERROR(Unable to link with the log4cpp library))
+		[ AC_MSG_RESULT(ok) ],
+		[ AC_MSG_RESULT(failed)
+		  AC_MSG_ERROR(Unable to link with the log4cpp library)
+		])
 	LIBS="$LIBS_SAVED"
 	PION_LOG_LIB="-llog4cpp"
 
 	# Found the log4cpp library
-	AC_MSG_NOTICE(Using the log4cpp library for logging)
 	AC_DEFINE([PION_USE_LOG4CPP],[1],[Define to 1 if you have the `log4cpp' library (-llog4cpp).])
 else
-	AC_MSG_NOTICE(Using std::cout and std::cerr for logging)
+	AC_MSG_RESULT(using std::ostream)
 	AC_DEFINE([PION_USE_OSTREAM_LOGGING],[1],[Define to 1 to use std::cout and std::cerr for logging.])
 fi
 AC_SUBST(PION_LOG_LIB)
 
 
 # Set external library dependencies
-PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $PION_SSL_LIB $PION_APR_LIB $PION_LOG_LIB"
+PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $PION_LOG_LIB"
 AC_SUBST(PION_EXTERNAL_LIBS)

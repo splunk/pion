@@ -20,6 +20,21 @@
 #define PION_HAVE_SSL
 #endif
 
+/* Define to the version number of pion. */
+#undef PION_VERSION
+
+/* Define to the directory where Pion plug-ins are installed. */
+//#undef PION_PLUGINS_DIRECTORY
+#define PION_PLUGINS_DIRECTORY "."
+
+/* Define to the directory where cygwin is installed. */
+#undef PION_CYGWIN_DIRECTORY
+
+// -----------------------------------------------------------------------
+// hash_map support
+//
+// At least one of the following options should be defined.
+
 /* Define to 1 if you have the <ext/hash_map> header file. */
 #undef PION_HAVE_EXT_HASH_MAP
 
@@ -27,13 +42,8 @@
 //#undef PION_HAVE_HASH_MAP
 #define PION_HAVE_HASH_MAP 1
 
-/* If you have the `OpenSSL' library installed, include PION_HAVE_SSL or PION_FULL
-   in Preprocessor Definitions, or uncomment the following line, to use SSL. */
-//#define PION_HAVE_SSL
-
-/* If you have the `Apache Portable Runtime' library, include PION_HAVE_APR or PION_FULL
-   in Preprocessor Definitions, or uncomment the following line. */
-//#define PION_HAVE_APR
+/* Define to 1 if you have the <unordered_map> header file. */
+#undef PION_HAVE_UNORDERED_MAP
 
 // -----------------------------------------------------------------------
 // Logging Options
@@ -59,18 +69,13 @@
 
 // -----------------------------------------------------------------------
 
-/* Define to 1 if you have the <unordered_map> header file. */
-#undef PION_HAVE_UNORDERED_MAP
+/* Define to 1 if you have the `zlib' library. */
+#undef PION_HAVE_ZLIB
 
-/* Define to the version number of pion. */
-#undef PION_VERSION
+/* If you have the `OpenSSL' library installed, include PION_HAVE_SSL or PION_FULL
+   in Preprocessor Definitions, or uncomment the following line, to use SSL. */
+//#define PION_HAVE_SSL
 
-/* Define to the directory where Pion plug-ins are installed. */
-//#undef PION_PLUGINS_DIRECTORY
-#define PION_PLUGINS_DIRECTORY "."
-
-/* Define to the directory where cygwin is installed. */
-#undef PION_CYGWIN_DIRECTORY
 
 #ifdef _WIN32
 	#define PION_WIN32	1
