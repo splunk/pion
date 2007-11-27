@@ -15,7 +15,6 @@
 // Other libraries should be added here as they become part of the configuration 
 // used for binary releases.
 #ifdef PION_FULL
-#define PION_HAVE_APR
 #define PION_USE_LOG4CXX
 #define PION_HAVE_SSL
 #endif

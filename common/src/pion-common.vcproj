@@ -379,10 +379,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\PionCounter.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\PionLogger.cpp"
 				>
 			</File>
@@ -490,6 +486,10 @@
 			</File>
 			<File
 				RelativePath="..\include\pion\PionScheduler.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\PluginManager.hpp"
 				>
 			</File>
 		</Filter>

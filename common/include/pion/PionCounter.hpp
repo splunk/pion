@@ -20,7 +20,7 @@ namespace pion {	// begin namespace pion
 ///
 /// PionCounter: thread-safe 64-bit integer counter
 ///
-class PION_COMMON_API PionCounter {
+class PionCounter {
 protected:
 	
 	/// increments the value of the counter
@@ -115,7 +115,7 @@ public:
 	inline void reset(void) { assign(0); }
 
 	/// returns the value of the counter
-	inline unsigned long getValue(void) const {
+	inline unsigned long long getValue(void) const {
 		return m_value;
 	}
 	

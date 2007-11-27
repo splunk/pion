@@ -106,38 +106,6 @@ Include PION_USE_LOG4CXX or PION_FULL in Preprocessor Definitions for the projec
 or in PionConfig.hpp.win, uncomment '#define PION_USE_LOG4CXX'.
 
 
-Apache Portable Runtime:
-------------------------
-
-If you installed log4cxx as described above, then all you need to do is define
-PION_HAVE_APR to 1 in PionConfig.hpp.win.
-
-If you installed log4cxx some other way, you will probably need to change 
-APR_INCLUDE_DIR (see below).
-
-If you haven't installed apr, and don't want to install log4cxx, you can 
-get apr from http://apr.apache.org.  Once you have installed it, or if you
-already had it installed other than as part of log4cxx, you will need to 
-change APR_INCLUDE_DIR (see below).
-
-Make sure that the directory containing apr.dll and aprd.dll is on your path.
-If you installed log4cxx as described in the above readme file, then this
-directory is <LOG4CXX_HOME>\bin, which should already be on your path.
-
-To link with the static libraries apr.lib and aprd.lib, you will need to 
-have the appropriate directory in 'Additional Library Directories' in the
-static configurations of the project file for the executable, e.g. 
-PionServiceTest.vcproj.  Again, if you installed log4cxx as described above,
-the appropriate directory, $(LOG4CXX_HOME)\bin\static, is already included.
-
-Macro APR_INCLUDE_DIR in pion.vsprops is set to 
-$(LOG4CXX_HOME)\src\apr\apr-1.2.9\include.  If you installed apr in any way 
-other than as part of log4cxx as described above, you will need to change
-$(APR_INCLUDE_DIR) to the appropriate directory.
-
-Finally, in PionConfig.hpp.win, define PION_HAVE_APR to 1.
-
-
 Building and installing Pion:
 -----------------------------
 

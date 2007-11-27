@@ -25,7 +25,7 @@ namespace pion {	// begin namespace pion
 /// PluginManager: used to manage a collection of plug-in objects
 ///
 template <typename PLUGIN_TYPE>
-class PION_COMMON_API PluginManager
+class PluginManager
 {
 public:
 

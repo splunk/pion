@@ -7,7 +7,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;;&quot;$(LOG4CXX_HOME)\src\main\include&quot;;&quot;$(APR_INCLUDE_DIR)&quot;;&quot;$(OPENSSL_HOME)\include&quot;"
+		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;;&quot;$(LOG4CXX_HOME)\src\main\include&quot;;&quot;$(OPENSSL_HOME)\include&quot;"
 		PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_UNICODE;UNICODE;_WIN32_WINNT=0x0500"
 		MinimalRebuild="true"
 		UsePrecompiledHeader="0"
@@ -23,10 +23,6 @@
 	<UserMacro
 		Name="LOG4CXX_HOME"
 		Value="C:\log4cxx"
-	/>
-	<UserMacro
-		Name="APR_INCLUDE_DIR"
-		Value="$(LOG4CXX_HOME)\src\apr\apr-1.2.9\include"
 	/>
 	<UserMacro
 		Name="OPENSSL_HOME"
