@@ -36,6 +36,13 @@ public:
 			: PionException("No plug-ins found for identifier: ", plugin_id) {}
 	};
 
+	/// exception thrown if we try to add or load a duplicate plug-in
+	class DuplicatePluginException : public PionException {
+	public:
+		DuplicatePluginException(const std::string& plugin_id)
+			: PionException("A plug-in already exists for identifier: ", plugin_id) {}
+	};
+	
 	/// data type for a function that may be called by the run() method
 	typedef boost::function1<void, PLUGIN_TYPE*>	PluginFunction;
 
@@ -67,17 +74,32 @@ public:
 	inline void add(const std::string& plugin_id, PLUGIN_TYPE *plugin_object_ptr);
 	
 	/**
+	 * removes a plug-in object
+	 *
+	 * @param plugin_id unique identifier associated with the plug-in
+	 */
+	inline void remove(const std::string& plugin_id);
+	
+	/**
 	 * loads a new plug-in object
 	 *
 	 * @param plugin_id unique identifier associated with the plug-in
-	 * @param plugin_name the name or type of the plug-in to load (searches
+	 * @param plugin_type the name or type of the plug-in to load (searches
 	 *                    plug-in directories and appends extensions)
 	 * @return PLUGIN_TYPE* pointer to the new plug-in object
 	 */
-	inline PLUGIN_TYPE *load(const std::string& plugin_id, const std::string& plugin_name);
+	inline PLUGIN_TYPE *load(const std::string& plugin_id, const std::string& plugin_type);
 	
 	/**
-	 * finds the plug-in object associated with a particular resource
+	 * gets the plug-in object associated with a particular plugin_id (exact match)
+	 *
+	 * @param plugin_id unique identifier associated with the plug-in
+	 * @return PLUGIN_TYPE* pointer to the matching plug-in object or NULL if not found
+	 */
+	inline PLUGIN_TYPE *get(const std::string& plugin_id);
+	
+	/**
+	 * finds the plug-in object associated with a particular resource (fuzzy match)
 	 *
 	 * @param resource resource identifier (uri-stem) to search for
 	 * @return PLUGIN_TYPE* pointer to the matching plug-in object or NULL if not found
@@ -85,23 +107,20 @@ public:
 	inline PLUGIN_TYPE *find(const std::string& resource);
 	
 	/**
-	 * runs a method for each plug-in being managed
+	 * runs a method for every plug-in being managed
 	 *
 	 * @param run_func the function to execute for each plug-in object
 	 */
 	inline void run(PluginFunction run_func);
 	
 	/**
-	 * sets a configuration option for a managed plug-in
+	 * runs a method for a particular plug-in
 	 *
 	 * @param plugin_id unique identifier associated with the plug-in
-	 * @param option_name the name of the configuration option
-	 * @param option_value the value to set the option to
+	 * @param run_func the function to execute
 	 */
-	inline void setOption(const std::string& plugin_id,
-						  const std::string& option_name,
-						  const std::string& option_value);
-	
+	inline void run(const std::string& plugin_id, PluginFunction run_func);
+		
 	
 protected:
 	
@@ -136,8 +155,23 @@ inline void PluginManager<PLUGIN_TYPE>::add(const std::string& plugin_id,
 }
 
 template <typename PLUGIN_TYPE>
+inline void PluginManager<PLUGIN_TYPE>::remove(const std::string& plugin_id)
+{
+	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
+	typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i = m_plugin_map.find(plugin_id);
+	if (i == m_plugin_map.end())
+		throw PluginNotFoundException(plugin_id);
+	if (i->second.second.is_open()) {
+		i->second.second.destroy(i->second.first);
+	} else {
+		delete i->second.first;
+	}
+	m_plugin_map.erase(i);
+}
+
+template <typename PLUGIN_TYPE>
 inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::load(const std::string& plugin_id,
-													 const std::string& plugin_name)
+													 const std::string& plugin_type)
 {
 	// search for the plug-in file using the configured paths
 	bool is_static;
@@ -145,14 +179,14 @@ inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::load(const std::string& plugin_i
 	void *destroy_func;
 	
 	// check if plug-in is statically linked, and if not, try to resolve for dynamic
-	is_static = PionPlugin::findStaticEntryPoint(plugin_name, &create_func, &destroy_func);
+	is_static = PionPlugin::findStaticEntryPoint(plugin_type, &create_func, &destroy_func);
 	
 	// open up the plug-in's shared object library
 	PionPluginPtr<PLUGIN_TYPE> plugin_ptr;
 	if (is_static) {
-		plugin_ptr.openStaticLinked(plugin_name, create_func, destroy_func);	// may throw
+		plugin_ptr.openStaticLinked(plugin_type, create_func, destroy_func);	// may throw
 	} else {
-		plugin_ptr.open(plugin_name);	// may throw
+		plugin_ptr.open(plugin_type);	// may throw
 	}
 	
 	// create a new object using the plug-in library
@@ -166,6 +200,17 @@ inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::load(const std::string& plugin_i
 	return plugin_object_ptr;
 }
 
+template <typename PLUGIN_TYPE>
+inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::get(const std::string& plugin_id)
+{
+	PLUGIN_TYPE *plugin_object_ptr = NULL;
+	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
+	typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i = m_plugin_map.find(plugin_id);
+	if (i != m_plugin_map.end())
+		plugin_object_ptr = i->second.first;
+	return plugin_object_ptr;
+}
+	
 template <typename PLUGIN_TYPE>
 inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::find(const std::string& resource)
 {
@@ -209,20 +254,6 @@ inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::find(const std::string& resource
 }
 	
 template <typename PLUGIN_TYPE>
-inline void PluginManager<PLUGIN_TYPE>::setOption(const std::string& plugin_id,
-												  const std::string& option_name,
-												  const std::string& option_value)
-{
-	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
-	// find the plug-in & set the option
-	// if plugin_id == "/" then look for identifier with an empty string
-	typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i = (plugin_id == "/" ? m_plugin_map.find("") : m_plugin_map.find(plugin_id));
-	if (i == m_plugin_map.end())
-		throw PluginNotFoundException(plugin_id);
-	i->second.first->setOption(option_name, option_value);
-}
-
-template <typename PLUGIN_TYPE>
 inline void PluginManager<PLUGIN_TYPE>::run(PluginFunction run_func)
 {
 	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
@@ -233,6 +264,17 @@ inline void PluginManager<PLUGIN_TYPE>::run(PluginFunction run_func)
 	}
 }
 
+template <typename PLUGIN_TYPE>
+inline void PluginManager<PLUGIN_TYPE>::run(const std::string& plugin_id,
+											PluginFunction run_func)
+{
+	// no need to lock (handled by PluginManager::get())
+	PLUGIN_TYPE *plugin_object_ptr = get(plugin_id);
+	if (plugin_object_ptr == NULL)
+		throw PluginNotFoundException(plugin_id);
+	run_func(plugin_object_ptr);
+}
+	
 
 // PluginManager::PluginMap member functions
 
