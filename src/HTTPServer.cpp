@@ -38,173 +38,86 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 	}
 		
 	PION_LOG_DEBUG(m_logger, "Received a valid HTTP request");
-	
+
 	// strip off trailing slash if the request has one
-	std::string resource(http_request->getResource());
-	if (! resource.empty() && resource[resource.size() - 1] == '/')
-		resource.resize( resource.size() - 1 );
-
-	// true if a web service successfully handled the request
-	bool request_was_handled = false;
+	std::string resource_requested(stripTrailingSlash(http_request->getResource()));
 	
-	// lock mutex for thread safety (this should probably use ref counters)
-	boost::mutex::scoped_lock services_lock(m_mutex);
-
-	if (m_services.empty()) {
+	// search for a service object matching the resource requested
+	WebService *service_ptr = m_services.find(resource_requested);
+	
+	if (service_ptr == NULL) {
 		
-		// no services configured
-		PION_LOG_WARN(m_logger, "No web services configured");
-		
-	} else {
-
-		// iterate through each web service that may be able to handle the request
-		WebServiceMap::iterator i = m_services.upper_bound(resource);
-		while (i != m_services.begin()) {
-			--i;
-			
-			// keep checking while the first part of the strings match
-			if (resource.compare(0, i->first.size(), i->first) != 0) {
-				// the first part no longer matches
-				if (i != m_services.begin()) {
-					// continue to next service in list if its size is < this one
-					WebServiceMap::iterator j=i;
-					--j;
-					if (j->first.size() < i->first.size())
-						continue;
-				}
-				// otherwise we've reached the end; stop looking for a match
-				break;
-			}
-				
-			// only try the service if the request matches the service name or
-			// if service name is followed first with a '/' character
-			if (resource.size() == i->first.size() || resource[i->first.size()]=='/') {
-				
-				// try to handle the request with the web service
-				try {
-					i->second.first->handleRequest(http_request, tcp_conn);
-					PION_LOG_DEBUG(m_logger, "HTTP request handled by web service ("
-								   << i->first << "): "
-								   << http_request->getResource());
-				} catch (HTTPResponseWriter::LostConnectionException& e) {
-					// the connection was lost while or before sending the response
-					PION_LOG_WARN(m_logger, "Web service (" << resource << "): " << e.what());
-					tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
-					tcp_conn->finish();
-				} catch (std::bad_alloc&) {
-					// propagate memory errors (FATAL)
-					throw;
-				} catch (std::exception& e) {
-					// recover gracefully from other exceptions thrown by services
-					PION_LOG_ERROR(m_logger, "WebService (" << resource << "): " << e.what());
-					m_server_error_handler(http_request, tcp_conn, e.what());
-				}
-
-				request_was_handled = true;
-				break;
-			}
+		if (m_services.empty()) {
+			// no services configured
+			PION_LOG_WARN(m_logger, "No web services configured");
+		} else {
+			// no web services found that could handle the request
+			PION_LOG_INFO(m_logger, "No web services found to handle HTTP request: "
+						  << resource_requested);
 		}
-	}
-	
-	if (! request_was_handled) {
-		// no web services found that could handle the request
-		PION_LOG_INFO(m_logger, "No web services found to handle HTTP request: " << resource);
 		m_not_found_handler(http_request, tcp_conn);
-	}
-}
 
-void HTTPServer::beforeStarting(void)
-{
-	// call the start() method for each web service associated with this server
-	boost::mutex::scoped_lock services_lock(m_mutex);
-	for (WebServiceMap::iterator i = m_services.begin(); i != m_services.end(); ++i) {
-		// catch exceptions thrown by services since their exceptions may be free'd
-		// from memory before they are caught
-		try { i->second.first->start(); }
-		catch (std::exception& e) {
-			throw WebServiceException(i->first, e.what());
+	} else {
+		
+		// try to handle the request with the web service
+		try {
+			service_ptr->handleRequest(http_request, tcp_conn);
+			PION_LOG_DEBUG(m_logger, "HTTP request handled by web service ("
+						   << service_ptr->getResource() << "): "
+						   << resource_requested);
+		} catch (HTTPResponseWriter::LostConnectionException& e) {
+			// the connection was lost while or before sending the response
+			PION_LOG_WARN(m_logger, "Web service (" << service_ptr->getResource() << "): " << e.what());
+			tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+			tcp_conn->finish();
+		} catch (std::bad_alloc&) {
+			// propagate memory errors (FATAL)
+			throw;
+		} catch (std::exception& e) {
+			// recover gracefully from other exceptions thrown by services
+			PION_LOG_ERROR(m_logger, "WebService (" << service_ptr->getResource() << "): " << e.what());
+			m_server_error_handler(http_request, tcp_conn, e.what());
 		}
-	}
-}
-
-void HTTPServer::afterStopping(void)
-{
-	// call the stop() method for each web service associated with this server
-	boost::mutex::scoped_lock services_lock(m_mutex);
-	for (WebServiceMap::iterator i = m_services.begin(); i != m_services.end(); ++i) {
-		// catch exceptions thrown by services since their exceptions may be free'd
-		// from memory before they are caught
-		try { i->second.first->stop(); }
-		catch (std::exception& e) {
-			throw WebServiceException(i->first, e.what());
-		}
-	}
+	}		
 }
 
 void HTTPServer::addService(const std::string& resource, WebService *service_ptr)
 {
 	PionPluginPtr<WebService> plugin_ptr;
-	service_ptr->setResource(resource);	// strips any trailing '/' from the name
-	boost::mutex::scoped_lock services_lock(m_mutex);
-	m_services.insert(std::make_pair(service_ptr->getResource(),
-									 std::make_pair(service_ptr, plugin_ptr)));
+	const std::string clean_resource(stripTrailingSlash(resource));
+	service_ptr->setResource(clean_resource);
+	// catch exceptions thrown by services since their exceptions may be free'd
+	// from memory before they are caught
+	try { m_services.add(clean_resource, service_ptr); }
+	catch (std::exception& e) {
+		throw WebServiceException(resource, e.what());
+	}
+	PION_LOG_INFO(m_logger, "Loaded static web service for resource (" << clean_resource << ")");
 }
 
 void HTTPServer::loadService(const std::string& resource, const std::string& service_name)
 {
-	// search for the plug-in file using the configured paths
-	bool is_static;
-	void *create_func;
-	void *destroy_func;
-	
-	// check if service is statically linked, and if not, try to resolve for dynamic
-	is_static = PionPlugin::findStaticEntryPoint(service_name, &create_func, &destroy_func);
-
-	// open up the plug-in's shared object library
-	PionPluginPtr<WebService> plugin_ptr;
-	if (is_static) {
-		plugin_ptr.openStaticLinked(service_name, create_func, destroy_func);	// may throw
-	} else {
-		plugin_ptr.open(service_name);	// may throw
+	const std::string clean_resource(stripTrailingSlash(resource));
+	WebService *service_ptr;
+	// catch exceptions thrown by services since their exceptions may be free'd
+	// from memory before they are caught
+	try { service_ptr = m_services.load(clean_resource, service_name); }
+	catch (std::exception& e) {
+		throw WebServiceException(resource, e.what());
 	}
-
-	// create a new web service using the plug-in library
-	WebService *service_ptr(plugin_ptr.create());
-	service_ptr->setResource(resource);	// strips any trailing '/' from the name
-
-	// add the web service to the server's collection
-	boost::mutex::scoped_lock services_lock(m_mutex);
-	m_services.insert(std::make_pair(service_ptr->getResource(),
-									 std::make_pair(service_ptr, plugin_ptr)));
-	services_lock.unlock();
-
-	if (is_static) {
-		PION_LOG_INFO(m_logger, "Loaded static web service for resource (" << resource << "): " << service_name);
-	} else {
-		PION_LOG_INFO(m_logger, "Loaded web service plug-in for resource (" << resource << "): " << service_name);
-	}
+	service_ptr->setResource(clean_resource);
+	PION_LOG_INFO(m_logger, "Loaded web service plug-in for resource (" << clean_resource << "): " << service_name);
 }
 
 void HTTPServer::setServiceOption(const std::string& resource,
 								  const std::string& name, const std::string& value)
 {
-	boost::mutex::scoped_lock services_lock(m_mutex);
-
-	// find the web service associated with resource & set the option
-	// if resource == "/" then look for web service with an empty string
-	WebServiceMap::iterator i = (resource == "/" ? m_services.find("") : m_services.find(resource));
-	if (i == m_services.end())
-		throw ServiceNotFoundException(resource);
-
 	// catch exceptions thrown by services since their exceptions may be free'd
 	// from memory before they are caught
-	try {
-		i->second.first->setOption(name, value);
-	} catch (std::exception& e) {
-		throw WebServiceException(i->first, e.what());
+	try { m_services.setOption(resource, name, value); }
+	catch (std::exception& e) {
+		throw WebServiceException(resource, e.what());
 	}
-
-	services_lock.unlock();
 	PION_LOG_INFO(m_logger, "Set web service option for resource ("
 				  << resource << "): " << name << '=' << value);
 }
@@ -336,12 +249,6 @@ void HTTPServer::loadServiceConfig(const std::string& config_name)
 	}
 }
 
-void HTTPServer::clearServices(void)
-{
-	boost::mutex::scoped_lock services_lock(m_mutex);
-	m_services.clear();
-}
-
 void HTTPServer::handleBadRequest(HTTPRequestPtr& http_request,
 								  TCPConnectionPtr& tcp_conn)
 {
@@ -400,22 +307,6 @@ void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
 	writer << error_msg;
 	writer->writeNoCopy(SERVER_ERROR_HTML_FINISH);
 	writer->send();
-}
-
-
-// HTTPServer::WebServiceMap member functions
-
-void HTTPServer::WebServiceMap::clear(void) {
-	if (! empty()) {
-		for (iterator i = begin(); i != end(); ++i) {
-			if (i->second.second.is_open()) {
-				i->second.second.destroy(i->second.first);
-			} else {
-				delete i->second.first;
-			}
-		}
-		erase(begin(), end());
-	}
 }
 
 }	// end namespace net

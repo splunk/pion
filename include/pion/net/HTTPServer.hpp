@@ -10,11 +10,13 @@
 #ifndef __PION_HTTPSERVER_HEADER__
 #define __PION_HTTPSERVER_HEADER__
 
+#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
 #include <pion/PionPlugin.hpp>
+#include <pion/PluginManager.hpp>
 #include <pion/net/TCPServer.hpp>
 #include <pion/net/TCPConnection.hpp>
 #include <pion/net/WebService.hpp>
@@ -142,7 +144,7 @@ public:
 	void loadServiceConfig(const std::string& config_name);
 
 	/// clears all the web services that are currently configured
-	void clearServices(void);
+	inline void clearServices(void) { m_services.clear(); }
 	
 	/// sets the function that handles bad HTTP requests
 	inline void setBadRequestHandler(BadRequestHandler h) { m_bad_request_handler = h; }
@@ -229,33 +231,48 @@ protected:
 								  const std::string& error_msg);
 	
 	/// called before the TCP server starts listening for new connections
-	virtual void beforeStarting(void);
+	virtual void beforeStarting(void) {
+		// call the start() method for each web service associated with this server
+		try { m_services.run(boost::bind(&WebService::start, _1)); }
+		catch (std::exception& e) {
+			// catch exceptions thrown by services since their exceptions may be free'd
+			// from memory before they are caught
+			throw WebServiceException("[Startup]", e.what());
+		}
+	}
 	
 	/// called after the TCP server has stopped listening for new connections
-	virtual void afterStopping(void);
+	virtual void afterStopping(void) {
+		// call the stop() method for each web service associated with this server
+		try { m_services.run(boost::bind(&WebService::stop, _1)); }
+		catch (std::exception& e) {
+			// catch exceptions thrown by services since their exceptions may be free'd
+			// from memory before they are caught
+			throw WebServiceException("[Shutdown]", e.what());
+		}
+	}
 
 	
 private:
 	
-	/// used by WebServiceMap to associate web service objects with plug-in libraries
-	typedef std::pair<WebService *, PionPluginPtr<WebService> >	PluginPair;
+	/// strips trailing slash from string, if one exists
+	static inline std::string stripTrailingSlash(const std::string& str) {
+		std::string result(str);
+		if (!result.empty() && result[result.size()-1]=='/')
+			result.resize(result.size() - 1);
+		return result;
+	}
+	
 	
 	/// data type for a collection of web services
-	class WebServiceMap
-		: public std::map<std::string, PluginPair>
-	{
-	public:
-		void clear(void);
-		virtual ~WebServiceMap() { WebServiceMap::clear(); }
-		WebServiceMap(void) {}
-	};
+	typedef PluginManager<WebService>	WebServiceManager;
 	
 	
-	/// Web services associated with this server
-	WebServiceMap			m_services;
-
 	/// mutex to make class thread-safe
 	boost::mutex			m_mutex;
+	
+	/// Web services associated with this server
+	WebServiceManager		m_services;
 
 	/// points to a function that handles bad HTTP requests
 	BadRequestHandler		m_bad_request_handler;

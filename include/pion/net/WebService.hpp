@@ -68,8 +68,8 @@ public:
 	/// called when the web service's server is stopping
 	virtual void stop(void) {}
 	
-	/// sets the URI stem or resource that is bound to the web service (strips any trailing slash)	
-	inline void setResource(const std::string& str) { m_resource = stripTrailingSlash(str); }
+	/// sets the URI stem or resource that is bound to the web service
+	inline void setResource(const std::string& str) { m_resource = str; }
 
 	/// returns the URI stem or resource that is bound to the web service	
 	inline const std::string& getResource(void) const { return m_resource; }
@@ -87,14 +87,6 @@ public:
 	
 	
 private:
-		
-	/// strips trailing slash from string, if one exists
-	static inline std::string stripTrailingSlash(const std::string& str) {
-		std::string result(str);
-		if (!result.empty() && result[result.size()-1]=='/')
-			result.resize(result.size() - 1);
-		return result;
-	}
 		
 	/// the URI stem or resource that is bound to the web service	
 	std::string	m_resource;
