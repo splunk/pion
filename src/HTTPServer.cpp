@@ -114,8 +114,12 @@ void HTTPServer::setServiceOption(const std::string& resource,
 {
 	// catch exceptions thrown by services since their exceptions may be free'd
 	// from memory before they are caught
-	try { m_services.setOption(resource, name, value); }
-	catch (std::exception& e) {
+	const std::string clean_resource(stripTrailingSlash(resource));
+	try {
+		m_services.run(clean_resource, boost::bind(&WebService::setOption, _1, name, value));
+	} catch (PluginManager<WebService>::PluginNotFoundException& e) {
+		throw ServiceNotFoundException(resource);
+	} catch (std::exception& e) {
 		throw WebServiceException(resource, e.what());
 	}
 	PION_LOG_INFO(m_logger, "Set web service option for resource ("

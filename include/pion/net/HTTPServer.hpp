@@ -207,7 +207,7 @@ protected:
      * @param http_request the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
 	 */
-	 static void handleBadRequest(HTTPRequestPtr& http_request,
+	static void handleBadRequest(HTTPRequestPtr& http_request,
 								  TCPConnectionPtr& tcp_conn);
 	
 	/**
@@ -267,9 +267,6 @@ private:
 	/// data type for a collection of web services
 	typedef PluginManager<WebService>	WebServiceManager;
 	
-	
-	/// mutex to make class thread-safe
-	boost::mutex			m_mutex;
 	
 	/// Web services associated with this server
 	WebServiceManager		m_services;
