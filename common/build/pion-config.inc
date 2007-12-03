@@ -35,7 +35,7 @@ case "$build_os" in
 		CPPFLAGS="$CPPFLAGS -pthreads -D_REENTRANT"
 		LDFLAGS="$LDFLAGS -pthreads"
 		PION_OPT_FLAGS="-O2 -Wall"
-		PION_DEBUG_FLAGS="-ggdb -Wall -fno-inline"
+		PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
 	fi
 	LIBS="$LIBS -lsocket -lnsl -ldl -lposix4"
 	;;
@@ -45,7 +45,7 @@ case "$build_os" in
 	CPPFLAGS="$CPPFLAGS -D_REENTRANT"
 	#LDFLAGS="$LDFLAGS"
 	PION_OPT_FLAGS="-O2 -Wall"
-	PION_DEBUG_FLAGS="-ggdb -Wall -fno-inline"
+	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
 	LIBS="$LIBS -ldl"
 	;;
 *cygwin*)
@@ -53,7 +53,7 @@ case "$build_os" in
 	CPPFLAGS="$CPPFLAGS -mthreads -D_REENTRANT -DPION_WIN32 -D__USE_W32_SOCKETS"
 	LDFLAGS="$LDFLAGS -mthreads"
 	PION_OPT_FLAGS="-O2 -Wall"
-	PION_DEBUG_FLAGS="-ggdb -Wall -fno-inline"
+	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
 	LIBS="$LIBS -lws2_32 -lmswsock"
 	;;
 *freebsd*)
@@ -61,33 +61,36 @@ case "$build_os" in
 	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT"
 	LDFLAGS="$LDFLAGS -pthread"
 	PION_OPT_FLAGS="-O2 -Wall"
-	PION_DEBUG_FLAGS="-ggdb -Wall -fno-inline"
+	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
 	;;
 *)
 	# Other (Linux): GCC compiler
 	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT"
 	LDFLAGS="$LDFLAGS -pthread"
 	PION_OPT_FLAGS="-O2 -Wall"
-	PION_DEBUG_FLAGS="-ggdb -Wall -fno-inline"
+	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
 	LIBS="$LIBS -ldl"
 	;;
 esac
 
 
 # Check for debug
+AC_MSG_CHECKING([for debugging])
 AC_ARG_WITH([debug],
     AC_HELP_STRING([--with-debug],[build with debugging information]),
     [with_debug=$withval],
     [with_debug=no])
 if test "$with_debug" = "no"; then
+	AC_MSG_RESULT(no)
 	CXXFLAGS="$CXXFLAGS $PION_OPT_FLAGS"
 else
-	AC_MSG_NOTICE(Building with debugging information)
+	AC_MSG_RESULT(yes)
 	CXXFLAGS="$CXXFLAGS $PION_DEBUG_FLAGS"
 fi
 
 
 # Check for --with-plugins
+AC_MSG_CHECKING([for plug-ins directory])
 AC_ARG_WITH([plugins],
     AC_HELP_STRING([--with-plugins@<:@=DIR@:>@],[directory where Pion Plug-ins are installed]),
     [with_plugins=$withval],
@@ -101,12 +104,13 @@ if test "$with_plugins" = "no"; then
 else
 	PION_PLUGINS_DIRECTORY=$with_plugins
 fi
-AC_MSG_NOTICE([Pion Plug-ins directory: $PION_PLUGINS_DIRECTORY])
+AC_MSG_RESULT($PION_PLUGINS_DIRECTORY)
 AC_DEFINE_UNQUOTED([PION_PLUGINS_DIRECTORY],["$PION_PLUGINS_DIRECTORY"],[Define to the directory where Pion Plug-ins are installed.])
 AC_SUBST(PION_PLUGINS_DIRECTORY)
      
 
 # Check for --with-cygwin
+AC_MSG_CHECKING([for cygwin directory])
 AC_ARG_WITH([cygwin],
     AC_HELP_STRING([--with-cygwin@<:@=DIR@:>@],[directory where cygwin is installed (Windows only)]),
     [with_cygwin=$withval],
@@ -115,14 +119,17 @@ if test "$with_cygwin" = "maybe"; then
 	case "$build_os" in
 	*cygwin*)
 		PION_CYGWIN_DIRECTORY="c:/cygwin"
-		AC_MSG_NOTICE([Cygwin root directory: $PION_CYGWIN_DIRECTORY])
+		AC_MSG_RESULT($PION_CYGWIN_DIRECTORY)
 		;;
 	*)
+		AC_MSG_RESULT(no)
 		;;
 	esac
 elif test "$with_cygwin" != "no"; then
 	PION_CYGWIN_DIRECTOR="$with_cygwin"
-	AC_MSG_NOTICE([Cygwin root directory: $PION_CYGWIN_DIRECTORY])
+	AC_MSG_RESULT($PION_CYGWIN_DIRECTORY)
+else
+	AC_MSG_RESULT(no)
 fi
 AC_DEFINE_UNQUOTED([PION_CYGWIN_DIRECTORY],["$PION_CYGWIN_DIRECTORY"],[Define to the directory where cygwin is installed.])
 AC_SUBST(PION_CYGWIN_DIRECTORY)
@@ -306,6 +313,24 @@ LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_REGEX_LIB)
 
 
+# Check for Boost Date Time library
+BOOST_TRY_LIB=date_time
+BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
+LIBS_SAVED="$LIBS"
+LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
+AC_TRY_LINK([#include <boost/date_time/gregorian/gregorian_types.hpp>],
+	[ boost::gregorian::date d(2007, 11, 11); return 0; ],
+	[ AC_MSG_RESULT(ok)
+	  BOOST_DATE_TIME_LIB="-l${BOOST_TRY_LINK}"
+	],
+	[ AC_MSG_RESULT(not found)
+	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+	])
+LIBS="$LIBS_SAVED"
+AC_SUBST(BOOST_DATE_TIME_LIB)
+
+
 # Check for Boost Unit Test Framework
 AC_ARG_ENABLE([tests],
     AC_HELP_STRING([--disable-tests],[do not build and run the unit tests]),
@@ -444,5 +469,5 @@ AC_SUBST(PION_LOG_LIB)
 
 
 # Set external library dependencies
-PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $PION_SSL_LIB $PION_LOG_LIB"
+PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $BOOST_DATE_TIME_LIB $PION_SSL_LIB $PION_LOG_LIB"
 AC_SUBST(PION_EXTERNAL_LIBS)
