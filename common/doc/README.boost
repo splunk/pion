@@ -67,12 +67,12 @@ system, filesystem, regex, date_time and unit_test_framework.  If you
 wish to only build these six libraries (this will save you a lot of
 time), include the following options when running bjam: "--with-thread
 --with-system --with-filesystem --with-regex --with-date_time
---with-unit_test_framework"
+--with-test"
 
 For example (when using Microsoft Visual C++):
 
 bjam --toolset=msvc --with-thread --with-system --with-filesystem \
-	--with-regex --with-date_time --with-unit_test_framework \
+	--with-regex --with-date_time --with-test \
 	debug release threading=multi stage
 
 This will build the three libraries required by Pion and place the
