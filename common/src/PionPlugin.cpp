@@ -281,11 +281,16 @@ void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
 void PionPlugin::closeDynamicLibrary(void *lib_handle)
 {
 #ifdef PION_WIN32
-	// The handling of dynamic libraries in Cygwin is EXTREMELY buggy, so 
-	// if we are running in Cygwin, never free the shared libraries
-	#ifndef PION_CYGWIN_DIRECTORY
-		FreeLibrary((HINSTANCE) lib_handle);
-	#endif
+	// Apparently, FreeLibrary sometimes causes crashes when running 
+	// pion-net-unit-tests under Windows.
+	// It's hard to pin down, because many things can suppress the crashes,
+	// such as enabling logging or setting breakpoints (i.e. things that 
+	// might help pin it down.)  Also, it's very intermittent, and can be 
+	// strongly affected by other processes that are running.
+	// So, please don't call FreeLibrary here unless you've been able to 
+	// reproduce and fix the crashing of the unit tests.
+
+	//FreeLibrary((HINSTANCE) lib_handle);
 #else
 	dlclose(lib_handle);
 #endif
