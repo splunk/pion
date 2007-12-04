@@ -38,7 +38,7 @@ void HTTPWriter::prepareWriteBuffers(HTTPMessage::WriteBuffers& write_buffers,
 			// prepare the next chunk of data to send
 			// write chunk length in hex
 			char cast_buf[35];
-			sprintf(cast_buf, "%zx", m_content_length);
+			sprintf(cast_buf, "%lx", static_cast<long>(m_content_length));
 			
 			// add chunk length as a string at the back of the text cache
 			m_text_cache.push_back(cast_buf);

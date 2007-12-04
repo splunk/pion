@@ -105,6 +105,8 @@ protected:
 		: HTTPWriter(tcp_conn), m_http_response(http_response)
 	{
 		setLogger(PION_GET_LOGGER("pion.net.HTTPResponseWriter"));
+		// tell the HTTPWriter base class whether or not the client supports chunks
+		supportsChunkedMessages(m_http_response->getChunksSupported());
 		// check if we should initialize the payload content using
 		// the response's content buffer
 		if (http_response->getContentLength() > 0
@@ -125,6 +127,8 @@ protected:
 		: HTTPWriter(tcp_conn), m_http_response(new HTTPResponse(http_request))
 	{
 		setLogger(PION_GET_LOGGER("pion.net.HTTPResponseWriter"));
+		// tell the HTTPWriter base class whether or not the client supports chunks
+		supportsChunkedMessages(m_http_response->getChunksSupported());
 	}
 	
 	

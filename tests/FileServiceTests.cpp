@@ -43,6 +43,7 @@ PION_DECLARE_PLUGIN(FileService)
 	static const std::string PATH_TO_PLUGINS("../services/.libs");
 #endif
 
+char CRLF[] = "\x0D\x0A";
 
 /// sets up logging (run once only)
 extern void setup_logging_for_unit_tests(void);
@@ -518,5 +519,116 @@ BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForOpenFile) {
 	checkWebServerResponseContent(boost::regex(".*500\\sServer\\sError.*"));
 }
 #endif
+
+BOOST_AUTO_TEST_SUITE_END()
+
+const char g_file4_contents[] = "012345678901234";
+
+class RunningFileServiceWithMaxChunkSizeSet_F : public RunningFileService_F {
+public:
+	RunningFileServiceWithMaxChunkSizeSet_F() {
+		getServerPtr()->setServiceOption("/resource1", "max_chunk_size", boost::lexical_cast<std::string>(MAX_CHUNK_SIZE));
+
+		// make sure the length of the test data is in the range expected by the tests
+		m_file4_len = strlen(g_file4_contents);
+		BOOST_REQUIRE(m_file4_len > MAX_CHUNK_SIZE);
+		BOOST_REQUIRE(m_file4_len < 2 * MAX_CHUNK_SIZE);
+
+		FILE* fp = fopen("sandbox/file4", "wb");
+		fwrite(g_file4_contents, 1, m_file4_len, fp);
+		fclose(fp);
+	}
+	~RunningFileServiceWithMaxChunkSizeSet_F() {
+	}
+
+	static const int MAX_CHUNK_SIZE = 10;
+	char m_data_buf[2 * MAX_CHUNK_SIZE];
+	int m_file4_len;
+};
+
+BOOST_FIXTURE_TEST_SUITE(RunningFileServiceWithMaxChunkSizeSet_S, RunningFileServiceWithMaxChunkSizeSet_F)
+
+BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
+	m_http_stream << "GET /resource1/file4 HTTP/1.1" << CRLF << CRLF;
+	m_http_stream.flush();
+
+	checkResponseHead(200);
+
+	//From RFC 2616, sec 4.4:
+	//Messages MUST NOT include both a Content-Length header field and a non-identity transfer-coding.
+	BOOST_CHECK(m_response_headers.find("Content-Length") == m_response_headers.end());
+
+	// read first chunk header
+	const boost::regex regex_chunk_header("([0-9a-fA-F]+)\\r");
+	std::string rsp_line;
+	boost::smatch rx_matches;
+	BOOST_REQUIRE(std::getline(m_http_stream, rsp_line));
+	BOOST_CHECK(boost::regex_match(rsp_line, rx_matches, regex_chunk_header));
+	BOOST_CHECK(rx_matches.size() == 2);
+
+	// extract first chunk size
+	unsigned int chunk_size_1;	
+	sscanf(rx_matches[1].str().c_str(), "%x", &chunk_size_1);
+	BOOST_REQUIRE_EQUAL(chunk_size_1, MAX_CHUNK_SIZE);
+
+	// read first chunk
+	m_http_stream.read(m_data_buf, chunk_size_1);
+
+	// expect CRLF following chunk
+	char two_bytes[2];
+	BOOST_CHECK(m_http_stream.read(two_bytes, 2));
+	BOOST_CHECK(strncmp(two_bytes, CRLF, 2) == 0);
+
+	// read second chunk header
+	BOOST_REQUIRE(std::getline(m_http_stream, rsp_line));
+	BOOST_CHECK(boost::regex_match(rsp_line, rx_matches, regex_chunk_header));
+	BOOST_CHECK(rx_matches.size() == 2);
+
+	// extract second chunk size
+	unsigned int chunk_size_2;	
+	sscanf(rx_matches[1].str().c_str(), "%x", &chunk_size_2);
+	BOOST_REQUIRE(chunk_size_2 < MAX_CHUNK_SIZE);
+
+	// read second chunk
+	m_http_stream.read(m_data_buf + chunk_size_1, chunk_size_2);
+
+	// verify reconstructed data
+	BOOST_CHECK(strncmp(m_data_buf, g_file4_contents, chunk_size_1 + chunk_size_2) == 0);
+
+	// expect CRLF following chunk
+	memset(two_bytes, 0, 2);
+	BOOST_CHECK(m_http_stream.read(two_bytes, 2));
+	BOOST_CHECK(strncmp(two_bytes, CRLF, 2) == 0);
+
+	// read final chunk header
+	BOOST_REQUIRE(std::getline(m_http_stream, rsp_line));
+	const boost::regex regex_last_chunk_header("0+\\r");
+	BOOST_CHECK(boost::regex_match(rsp_line, rx_matches, regex_last_chunk_header));
+
+	// there could be a trailer here, but so far there isn't...
+
+	// expect CRLF following final chunk (and optional trailer)
+	memset(two_bytes, 0, 2);
+	BOOST_CHECK(m_http_stream.read(two_bytes, 2));
+	BOOST_CHECK(strncmp(two_bytes, CRLF, 2) == 0);
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_0_Request) {
+	m_http_stream << "GET /resource1/file4 HTTP/1.0" << CRLF << CRLF;
+	m_http_stream.flush();
+
+	checkResponseHead(200);
+
+	// We expect no Content-Length header...
+	BOOST_CHECK(m_response_headers.find("Content-Length") == m_response_headers.end());
+	// ... but connection should be closed after sending all the data, so we check for EOF.
+	int i;
+	for (i = 0; !m_http_stream.eof(); ++i) {
+		m_http_stream.read(&m_data_buf[i], 1);
+	}
+
+	BOOST_CHECK_EQUAL(i, m_file4_len + 1);
+	BOOST_CHECK(strncmp(m_data_buf, g_file4_contents, m_file4_len) == 0);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
