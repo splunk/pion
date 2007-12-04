@@ -526,6 +526,8 @@ const char g_file4_contents[] = "012345678901234";
 
 class RunningFileServiceWithMaxChunkSizeSet_F : public RunningFileService_F {
 public:
+	enum _size_constants { MAX_CHUNK_SIZE = 10 };
+
 	RunningFileServiceWithMaxChunkSizeSet_F() {
 		getServerPtr()->setServiceOption("/resource1", "max_chunk_size", boost::lexical_cast<std::string>(MAX_CHUNK_SIZE));
 
@@ -541,7 +543,6 @@ public:
 	~RunningFileServiceWithMaxChunkSizeSet_F() {
 	}
 
-	static const int MAX_CHUNK_SIZE = 10;
 	char m_data_buf[2 * MAX_CHUNK_SIZE];
 	int m_file4_len;
 };
@@ -569,7 +570,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
 	// extract first chunk size
 	unsigned int chunk_size_1;	
 	sscanf(rx_matches[1].str().c_str(), "%x", &chunk_size_1);
-	BOOST_REQUIRE_EQUAL(chunk_size_1, MAX_CHUNK_SIZE);
+	BOOST_REQUIRE_EQUAL(chunk_size_1, static_cast<unsigned int>(MAX_CHUNK_SIZE));
 
 	// read first chunk
 	m_http_stream.read(m_data_buf, chunk_size_1);
