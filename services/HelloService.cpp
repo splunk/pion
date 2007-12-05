@@ -19,9 +19,11 @@ using namespace pion::net;
 /// handles requests for HelloService
 void HelloService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
-	static const std::string HELLO_HTML = "<html><body>Hello World!</body></html>\r\n\r\n";
+	static const std::string HELLO_HTML = "<html><body>Hello World!</body></html>";
 	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));
 	writer->writeNoCopy(HELLO_HTML);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	writer->send();
 }
 

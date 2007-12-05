@@ -96,7 +96,7 @@ public:
 		const boost::regex regex_response_end("^\\s*$");
 
 		// send HTTP request to the server
-		http_stream << "GET " << resource << " HTTP/1.1\r\n\r\n";
+		http_stream << "GET " << resource << " HTTP/1.1" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
 		http_stream.flush();
 				
 		// receive response from the server

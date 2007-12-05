@@ -16,7 +16,7 @@ using namespace pion::net;
 
 void AllowNothingService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
-	static const std::string DENY_HTML = "<html><body>No, you can't.</body></html>\r\n\r\n";
+	static const std::string DENY_HTML = "<html><body>No, you can't.</body></html>";
 	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));
 	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
 	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
@@ -28,6 +28,8 @@ void AllowNothingService::handleRequest(HTTPRequestPtr& request, TCPConnectionPt
 	writer->getResponse().addHeader("Allow", "GET");
 
 	writer->writeNoCopy(DENY_HTML);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+	writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	writer->send();
 }
 

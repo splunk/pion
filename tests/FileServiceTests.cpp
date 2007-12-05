@@ -43,8 +43,6 @@ PION_DECLARE_PLUGIN(FileService)
 	static const std::string PATH_TO_PLUGINS("../services/.libs");
 #endif
 
-char CRLF[] = "\x0D\x0A";
-
 /// sets up logging (run once only)
 extern void setup_logging_for_unit_tests(void);
 
@@ -195,7 +193,7 @@ public:
 												unsigned int expected_response_code = 200)
 	{
 		// send HTTP request to the server
-		m_http_stream << request_method << " " << resource << " HTTP/1.1\r\n\r\n";
+		m_http_stream << request_method << " " << resource << " HTTP/1.1" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
 		m_http_stream.flush();
 
 		checkResponseHead(expected_response_code);
@@ -258,8 +256,8 @@ public:
 									   const std::string& content)
 	{
 		// send HTTP request to the server
-		m_http_stream << request_method << " " << resource << " HTTP/1.1\r\n";
-		m_http_stream << "Content-Length: " << content.size() << "\r\n\r\n" << content;
+		m_http_stream << request_method << " " << resource << " HTTP/1.1" << HTTPTypes::STRING_CRLF;
+		m_http_stream << "Content-Length: " << content.size() << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF << content;
 		m_http_stream.flush();
 	}
 	
@@ -550,7 +548,7 @@ public:
 BOOST_FIXTURE_TEST_SUITE(RunningFileServiceWithMaxChunkSizeSet_S, RunningFileServiceWithMaxChunkSizeSet_F)
 
 BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
-	m_http_stream << "GET /resource1/file4 HTTP/1.1" << CRLF << CRLF;
+	m_http_stream << "GET /resource1/file4 HTTP/1.1" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
 	m_http_stream.flush();
 
 	checkResponseHead(200);
@@ -559,36 +557,31 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
 	//Messages MUST NOT include both a Content-Length header field and a non-identity transfer-coding.
 	BOOST_CHECK(m_response_headers.find("Content-Length") == m_response_headers.end());
 
-	// read first chunk header
-	const boost::regex regex_chunk_header("([0-9a-fA-F]+)\\r");
-	std::string rsp_line;
-	boost::smatch rx_matches;
-	BOOST_REQUIRE(std::getline(m_http_stream, rsp_line));
-	BOOST_CHECK(boost::regex_match(rsp_line, rx_matches, regex_chunk_header));
-	BOOST_CHECK(rx_matches.size() == 2);
-
 	// extract first chunk size
-	unsigned int chunk_size_1;	
-	sscanf(rx_matches[1].str().c_str(), "%x", &chunk_size_1);
-	BOOST_REQUIRE_EQUAL(chunk_size_1, static_cast<unsigned int>(MAX_CHUNK_SIZE));
+	unsigned int chunk_size_1 = 0;
+	m_http_stream >> std::hex >> chunk_size_1;
+	BOOST_CHECK_EQUAL(chunk_size_1, static_cast<unsigned int>(MAX_CHUNK_SIZE));
+
+	// expect CRLF following chunk size
+	char two_bytes[2];
+	BOOST_CHECK(m_http_stream.read(two_bytes, 2));
+	BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
 
 	// read first chunk
 	m_http_stream.read(m_data_buf, chunk_size_1);
 
 	// expect CRLF following chunk
-	char two_bytes[2];
 	BOOST_CHECK(m_http_stream.read(two_bytes, 2));
-	BOOST_CHECK(strncmp(two_bytes, CRLF, 2) == 0);
-
-	// read second chunk header
-	BOOST_REQUIRE(std::getline(m_http_stream, rsp_line));
-	BOOST_CHECK(boost::regex_match(rsp_line, rx_matches, regex_chunk_header));
-	BOOST_CHECK(rx_matches.size() == 2);
+	BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
 
 	// extract second chunk size
-	unsigned int chunk_size_2;	
-	sscanf(rx_matches[1].str().c_str(), "%x", &chunk_size_2);
-	BOOST_REQUIRE(chunk_size_2 < MAX_CHUNK_SIZE);
+	unsigned int chunk_size_2 = 0;
+	m_http_stream >> std::hex >> chunk_size_2;
+	BOOST_CHECK_EQUAL(chunk_size_2, m_file4_len - static_cast<unsigned int>(MAX_CHUNK_SIZE));
+	
+	// expect CRLF following chunk size
+	BOOST_CHECK(m_http_stream.read(two_bytes, 2));
+	BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
 
 	// read second chunk
 	m_http_stream.read(m_data_buf + chunk_size_1, chunk_size_2);
@@ -599,23 +592,23 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
 	// expect CRLF following chunk
 	memset(two_bytes, 0, 2);
 	BOOST_CHECK(m_http_stream.read(two_bytes, 2));
-	BOOST_CHECK(strncmp(two_bytes, CRLF, 2) == 0);
+	BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
 
-	// read final chunk header
-	BOOST_REQUIRE(std::getline(m_http_stream, rsp_line));
-	const boost::regex regex_last_chunk_header("0+\\r");
-	BOOST_CHECK(boost::regex_match(rsp_line, rx_matches, regex_last_chunk_header));
+	// extract final chunk size
+	unsigned int chunk_size_3 = 99;
+	m_http_stream >> std::hex >> chunk_size_3;
+	BOOST_CHECK(chunk_size_3 == 0);
 
 	// there could be a trailer here, but so far there isn't...
 
 	// expect CRLF following final chunk (and optional trailer)
 	memset(two_bytes, 0, 2);
 	BOOST_CHECK(m_http_stream.read(two_bytes, 2));
-	BOOST_CHECK(strncmp(two_bytes, CRLF, 2) == 0);
+	BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_0_Request) {
-	m_http_stream << "GET /resource1/file4 HTTP/1.0" << CRLF << CRLF;
+	m_http_stream << "GET /resource1/file4 HTTP/1.0" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
 	m_http_stream.flush();
 
 	checkResponseHead(200);
