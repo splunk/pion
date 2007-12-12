@@ -16,7 +16,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPResponse.hpp>
-#include <pion/net/HTTPRequestReader.hpp>
+#include <pion/net/HTTPReader.hpp>
 
 
 namespace pion {	// begin namespace pion
@@ -27,7 +27,7 @@ namespace net {		// begin namespace net (Pion Network Library)
 /// HTTPResponseReader: asynchronously reads and parses HTTP responses
 ///
 class HTTPResponseReader :
-	public HTTPRequestReader,
+	public HTTPReader,
 	public boost::enable_shared_from_this<HTTPResponseReader>
 {
 
@@ -63,7 +63,7 @@ protected:
 	 * @param handler function called after the message has been parsed
 	 */
 	HTTPResponseReader(TCPConnectionPtr& tcp_conn, FinishedHandler handler)
-		: HTTPRequestReader(false, tcp_conn), m_http_msg(new HTTPResponse),
+		: HTTPReader(false, tcp_conn), m_http_msg(new HTTPResponse),
 		m_finished(handler)
 	{
 		m_http_msg->setRemoteIp(tcp_conn->getRemoteIp());

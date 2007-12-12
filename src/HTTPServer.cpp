@@ -117,7 +117,7 @@ void HTTPServer::setServiceOption(const std::string& resource,
 	const std::string clean_resource(stripTrailingSlash(resource));
 	try {
 		m_services.run(clean_resource, boost::bind(&WebService::setOption, _1, name, value));
-	} catch (PluginManager<WebService>::PluginNotFoundException& e) {
+	} catch (PluginManager<WebService>::PluginNotFoundException&) {
 		throw ServiceNotFoundException(resource);
 	} catch (std::exception& e) {
 		throw WebServiceException(resource, e.what());

@@ -513,7 +513,7 @@ public:
 	inline void setLifecycle(LifecycleType t) { m_lifecycle = t; }
 	
 	/// returns the lifecycle type for the connection
-	inline bool getLifecycle(void) const { return m_lifecycle; }
+	inline LifecycleType getLifecycle(void) const { return m_lifecycle; }
 	
 	/// returns true if the connection should be kept alive
 	inline bool getKeepAlive(void) const { return m_lifecycle != LIFECYCLE_CLOSE; }

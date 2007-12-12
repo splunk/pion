@@ -39,7 +39,7 @@ protected:
 	
 	/**
 	 * protected constructor: only derived classes may create objects
-     * 
+	 * 
 	 * @param tcp_conn TCP connection used to send the message
 	 */
 	HTTPWriter(TCPConnectionPtr& tcp_conn)
@@ -195,10 +195,11 @@ public:
 		// send more data
 		sendMoreData(false, send_handler);
 	}
-	
+
 	/**
 	 * Sends all data buffered (if any) and also sends the final HTTP chunk.
-	 * This function must be called following any calls to sendChunk().
+	 * This function (either overloaded version) must be called following any 
+	 * calls to sendChunk().
 	 * Following a call to this function, it is not thread safe to use your
 	 * reference to the HTTPWriter object until the send_handler has been called.
 	 *
@@ -208,16 +209,19 @@ public:
 	 */ 
 	template <typename SendHandler>
 	inline void sendFinalChunk(SendHandler send_handler) {
+		m_sending_chunks = true;
 		sendMoreData(true, send_handler);
 	}
 	
 	/**
 	 * Sends all data buffered (if any) and also sends the final HTTP chunk.
-	 * This function must be called following any calls to sendChunk().
+	 * This function (either overloaded version) must be called following any 
+	 * calls to sendChunk().
 	 * Following a call to this function, it is not thread safe to use your
 	 * reference to the HTTPWriter object.
 	 */ 
 	inline void sendFinalChunk(void) {
+		m_sending_chunks = true;
 		sendMoreData(true, bindToWriteHandler());
 	}
 	

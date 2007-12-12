@@ -107,7 +107,14 @@ protected:
 												   boost::asio::placeholders::bytes_transferred));
 	}
 
-	
+	/// Reads more HTTP chunked content bytes from the TCP connection
+	virtual void getMoreChunkedContentBytes(void) {
+		getTCPConnection()->async_read_some(boost::bind(&HTTPRequestReader::readChunkedContentBytes,
+														shared_from_this(),
+														boost::asio::placeholders::error,
+														boost::asio::placeholders::bytes_transferred));
+	}
+		
 	/// The new HTTP message container being created
 	HTTPRequestPtr				m_http_msg;
 

@@ -19,7 +19,7 @@ namespace net {		// begin namespace net (Pion Network Library)
 void HTTPReader::receive(void)
 {
 	if (m_tcp_conn->getPipelined()) {
-		// there are pipeliend messages available in the connection's read buffer
+		// there are pipelined messages available in the connection's read buffer
 		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// default to close the connection
 		m_tcp_conn->loadReadPosition(m_read_ptr, m_read_end_ptr);
 		consumeHeaderBytes();
@@ -70,21 +70,44 @@ void HTTPReader::consumeHeaderBytes(void)
 		// finished reading HTTP headers and they are valid
 
 		// check if we have payload content to read
-		consumeContent(getMessage());
-		const std::size_t content_bytes_to_read = getMessage().getContentLength() - gcount();
-
-		if (content_bytes_to_read == 0) {
-		
-			// read all of the content from the last read operation
-			const boost::system::error_code no_error;
-			readContentBytes(no_error, 0);
-
+		getMessage().updateTransferCodingUsingHeader();
+		if (getMessage().isChunked()) {
+			initializeChunkParser();
+			if (m_read_ptr < m_read_end_ptr) {
+				result = parseChunks(getMessage(), getMessage().getChunkBuffers());
+				if (boost::indeterminate(result)) {
+					// read more bytes from the connection
+					getMoreChunkedContentBytes();
+				} else if (!result) {
+					// the message is invalid or an error occured
+					m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+					getMessage().setIsValid(false);
+					finishedReading();
+				} else {
+					// finished parsing all chunks
+					getMessage().concatenateChunks();
+					const boost::system::error_code no_error;
+					readContentBytes(no_error, 0);
+				}
+			} else {
+				getMoreChunkedContentBytes();
+			}
 		} else {
-			// read the rest of the payload content into the buffer
-			// and only return after we've finished or an error occurs
-			getMoreContentBytes(content_bytes_to_read);
+			consumeContent(getMessage());
+			const std::size_t content_bytes_to_read = getMessage().getContentLength() - gcount();
+
+			if (content_bytes_to_read == 0) {
+			
+				// read all of the content from the last read operation
+				const boost::system::error_code no_error;
+				readContentBytes(no_error, 0);
+
+			} else {
+				// read the rest of the payload content into the buffer
+				// and only return after we've finished or an error occurs
+				getMoreContentBytes(content_bytes_to_read);
+			}
 		}
-		
 	} else if (!result) {
 		// the message is invalid or an error occured
 
@@ -155,6 +178,35 @@ void HTTPReader::readContentBytes(const boost::system::error_code& read_error,
 
 	// we have finished parsing the HTTP message
 	finishedReading();
+}
+
+void HTTPReader::readChunkedContentBytes(const boost::system::error_code& read_error,
+										 std::size_t bytes_read)
+{
+	if (read_error) {
+		// a read error occured
+		handleReadError(read_error);
+		return;
+	}
+
+	// set pointers for new HTTP content data to be consumed
+	setReadBuffer(m_tcp_conn->getReadBuffer().data(), bytes_read);
+
+	boost::tribool result = parseChunks(getMessage(), getMessage().getChunkBuffers());
+	if (boost::indeterminate(result)) {
+		// read more bytes from the connection
+		getMoreChunkedContentBytes();
+	} else if (!result) {
+		// the message is invalid or an error occured
+		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+		getMessage().setIsValid(false);
+		finishedReading();
+	} else {
+		// finished parsing all chunks
+		getMessage().concatenateChunks();
+		const boost::system::error_code no_error;
+		readContentBytes(no_error, 0);
+	}
 }
 
 void HTTPReader::handleReadError(const boost::system::error_code& read_error)

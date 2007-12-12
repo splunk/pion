@@ -21,7 +21,7 @@ void HTTPWriter::prepareWriteBuffers(HTTPMessage::WriteBuffers& write_buffers,
 {
 	// check if the HTTP headers have been sent yet
 	if (! m_sent_headers) {
-		// iniitalize write buffers for send operation
+		// initialize write buffers for send operation
 		prepareBuffersForSend(write_buffers);
 
 		// only send the headers once

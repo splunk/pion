@@ -22,7 +22,7 @@ namespace net {		// begin namespace net (Pion Network Library)
 std::size_t HTTPMessage::send(TCPConnection& tcp_conn,
 							  boost::system::error_code& ec)
 {
-	// iniitalize write buffers for send operation using HTTP headers
+	// initialize write buffers for send operation using HTTP headers
 	WriteBuffers write_buffers;
 	prepareBuffersForSend(write_buffers, tcp_conn.getKeepAlive(), false);
 
@@ -47,7 +47,7 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 	clear();
 
 	if (tcp_conn.getPipelined()) {
-		// there are pipeliend messages available in the connection's read buffer
+		// there are pipelined messages available in the connection's read buffer
 		const char *read_ptr;
 		const char *read_end_ptr;
 		tcp_conn.loadReadPosition(read_ptr, read_end_ptr);
@@ -74,19 +74,41 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 	}
 	
 	if (parse_result == false) {
-		// an error occured while parsing the message headers
+		// an error occurred while parsing the message headers
 		ec.assign(1, RECEIVE_ERROR);
 		return http_parser.getTotalBytesRead();
 	}
 	
-	// set content length & consume any payload content left in the read buffers
-	last_bytes_read = http_parser.consumeContent(*this);
-	const std::size_t content_bytes_to_read = getContentLength() - last_bytes_read;
-	if (content_bytes_to_read > 0) {
-		// read remainder of payload content from the connection
-		last_bytes_read = tcp_conn.read(boost::asio::buffer(getContent() + last_bytes_read, content_bytes_to_read),
-										boost::asio::transfer_at_least(content_bytes_to_read), ec);
-		if (ec) return http_parser.getTotalBytesRead();
+	std::size_t content_bytes_to_read = 0;
+	updateTransferCodingUsingHeader();
+	if (isChunked()) {
+		http_parser.initializeChunkParser();
+		while (true) {
+			// parse bytes available in the read buffer
+			parse_result = http_parser.parseChunks(*this, m_chunk_buffers);
+			if (parse_result == false) {
+				// an error occurred while parsing the message headers
+				ec.assign(1, RECEIVE_ERROR);
+				return http_parser.getTotalBytesRead();
+			}
+			if (parse_result == true) break;
+
+			// parse_result was indeterminate, so read more bytes from the connection
+			last_bytes_read = tcp_conn.read_some(ec);
+			if (ec) return http_parser.getTotalBytesRead();
+			http_parser.setReadBuffer(tcp_conn.getReadBuffer().data(), last_bytes_read);
+		}
+		concatenateChunks();
+	} else {
+		// set content length & consume any payload content left in the read buffers
+		last_bytes_read = http_parser.consumeContent(*this);
+		content_bytes_to_read = getContentLength() - last_bytes_read;
+		if (content_bytes_to_read > 0) {
+			// read remainder of payload content from the connection
+			last_bytes_read = tcp_conn.read(boost::asio::buffer(getContent() + last_bytes_read, content_bytes_to_read),
+											boost::asio::transfer_at_least(content_bytes_to_read), ec);
+			if (ec) return http_parser.getTotalBytesRead();
+		}
 	}
 
 	// the message is valid: finish it (sets valid flag)
@@ -120,6 +142,22 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 	return (http_parser.getTotalBytesRead() + content_bytes_to_read);
 }
 	
+void HTTPMessage::concatenateChunks(void)
+{
+	std::size_t sumOfChunkSizes = 0;
+	ChunkCache::const_iterator i;
+	for (i = m_chunk_buffers.begin(); i != m_chunk_buffers.end(); ++i) {
+		sumOfChunkSizes += i->size();
+	}
+	setContentLength(sumOfChunkSizes);
+	if (sumOfChunkSizes > 0) {
+		char *post_buffer = createContentBuffer();
+		for (i = m_chunk_buffers.begin(); i != m_chunk_buffers.end(); ++i) {
+			memcpy(post_buffer, &((*i)[0]), i->size());
+			post_buffer += i->size();
+		}
+	}
+}
 	
 }	// end namespace net
 }	// end namespace pion

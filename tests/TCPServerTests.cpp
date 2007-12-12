@@ -14,6 +14,8 @@
 #include <boost/thread/xtime.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/test/unit_test.hpp>
+#include <pion/net/HTTPRequest.hpp>
+#include <pion/net/HTTPResponse.hpp>
 
 using namespace std;
 using namespace pion;
@@ -31,7 +33,6 @@ class HelloServer
 	: public pion::net::TCPServer
 {
 public:
-	/// default constructor
 	virtual ~HelloServer() {}
 
 	/**
@@ -86,11 +87,11 @@ private:
 					const boost::system::error_code& read_error,
 					std::size_t bytes_read)
 	{
-		static const std::string HELLO_MESSAGE("Goodbye!\n");
+		static const std::string GOODBYE_MESSAGE("Goodbye!\n");
 		if (read_error) {
 			tcp_conn->finish();
 		} else {
-			tcp_conn->async_write(boost::asio::buffer(HELLO_MESSAGE),
+			tcp_conn->async_write(boost::asio::buffer(GOODBYE_MESSAGE),
 								  boost::bind(&pion::net::TCPConnection::finish, tcp_conn));
 		}
 	}
@@ -224,6 +225,182 @@ BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
 	std::getline(tcp_stream_b, message);
 	tcp_stream_b.close();
 	BOOST_CHECK(message == "Goodbye!");
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+///
+/// MockSyncServer: simple TCP server that synchronously receives HTTP requests using HTTPMessage::receive(),
+/// and checks that the received request object has some expected properties.
+///
+class MockSyncServer
+	: public pion::net::TCPServer
+{
+public:
+	/**
+	 * MockSyncServer constructor
+	 *
+	 * @param tcp_port port number used to listen for new connections (IPv4)
+	 */
+	MockSyncServer(const unsigned int tcp_port) : pion::net::TCPServer(tcp_port) {}
+	
+	virtual ~MockSyncServer() {}
+
+	/**
+	 * handles a new TCP connection
+	 * 
+	 * @param tcp_conn the new TCP connection to handle
+	 */
+	virtual void handleConnection(pion::net::TCPConnectionPtr& tcp_conn) {
+		// wait until an HTTP request is received or an error occurs
+		boost::system::error_code error_code;
+		HTTPRequest http_request;
+		http_request.receive(*tcp_conn, error_code);
+		BOOST_REQUIRE(!error_code);
+
+		// check the received request for expected headers and content
+		for (std::map<std::string, std::string>::const_iterator i = m_expectedHeaders.begin(); i != m_expectedHeaders.end(); ++i) {
+			BOOST_CHECK_EQUAL(http_request.getHeader(i->first), i->second);
+		}
+		BOOST_CHECK(strncmp(http_request.getContent(), m_expectedContent.c_str(), m_expectedContent.size()) == 0);
+
+		// send a simple response as evidence that this part of the code was reached
+		static const std::string GOODBYE_MESSAGE("Goodbye!\n");
+		tcp_conn->write(boost::asio::buffer(GOODBYE_MESSAGE), error_code);
+
+		// wrap up
+		tcp_conn->setLifecycle(pion::net::TCPConnection::LIFECYCLE_CLOSE);
+		tcp_conn->finish();
+	}
+
+	static void setExpectations(const std::map<std::string, std::string>& expectedHeaders, 
+								const std::string& expectedContent)
+	{
+		m_expectedHeaders = expectedHeaders;
+		m_expectedContent = expectedContent;
+	}
+
+private:
+	static std::map<std::string, std::string> m_expectedHeaders;
+	static std::string m_expectedContent;
+};
+
+std::map<std::string, std::string> MockSyncServer::m_expectedHeaders;
+std::string MockSyncServer::m_expectedContent;
+
+///
+/// MockSyncServerTests_F: fixture used for running MockSyncServer tests
+/// 
+class MockSyncServerTests_F {
+public:
+	MockSyncServerTests_F()
+		: sync_server_ptr(new MockSyncServer(8080))
+	{
+		setup_logging_for_unit_tests();
+		sync_server_ptr->start();
+	}
+	~MockSyncServerTests_F() {
+		sync_server_ptr->stop();
+	}
+	inline TCPServerPtr& getServerPtr(void) { return sync_server_ptr; }
+
+private:
+	TCPServerPtr	sync_server_ptr;
+};
+
+
+// MockSyncServer Test Cases
+
+BOOST_FIXTURE_TEST_SUITE(MockSyncServerTests_S, MockSyncServerTests_F)
+
+BOOST_AUTO_TEST_CASE(checkMockSyncServerIsListening) {
+	BOOST_CHECK(getServerPtr()->isListening());
+}
+
+BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingStream) {
+	// open a connection
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream tcp_stream(localhost);
+
+	// send request to the server
+	tcp_stream << "POST /resource1 HTTP/1.1" << HTTPTypes::STRING_CRLF;
+	tcp_stream << HTTPTypes::HEADER_CONTENT_LENGTH << ": 8" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+	tcp_stream << "12345678";
+	tcp_stream.flush();
+
+	// set expectations for received request
+	std::map<std::string, std::string> expectedHeaders;
+	expectedHeaders[HTTPTypes::HEADER_CONTENT_LENGTH] = "8";
+	expectedHeaders[HTTPTypes::HEADER_TRANSFER_ENCODING] = ""; // i.e. check that there is no transfer encoding header
+	MockSyncServer::setExpectations(expectedHeaders, "12345678");
+	
+	// receive goodbye from the first server
+	std::string message;
+	std::getline(tcp_stream, message);
+	BOOST_CHECK(message == "Goodbye!");
+	tcp_stream.close();
+}
+
+BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingChunkedStream) {
+	// open a connection
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream tcp_stream(localhost);
+
+	// send request to the server
+	tcp_stream << "POST /resource1 HTTP/1.1" << HTTPTypes::STRING_CRLF;
+	tcp_stream << HTTPTypes::HEADER_TRANSFER_ENCODING << ": chunked" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+	// write first chunk size
+	tcp_stream << "A" << HTTPTypes::STRING_CRLF;
+	// write first chunk 
+	tcp_stream << "abcdefghij" << HTTPTypes::STRING_CRLF;
+	// write second chunk size
+	tcp_stream << "5" << HTTPTypes::STRING_CRLF;
+	// write second chunk 
+	tcp_stream << "klmno" << HTTPTypes::STRING_CRLF;
+	// write final chunk size
+	tcp_stream << "0" << HTTPTypes::STRING_CRLF;
+	tcp_stream << HTTPTypes::STRING_CRLF;
+	tcp_stream.flush();
+
+	// set expectations for received request
+	std::map<std::string, std::string> expectedHeaders;
+	expectedHeaders[HTTPTypes::HEADER_TRANSFER_ENCODING] = "chunked";
+	expectedHeaders[HTTPTypes::HEADER_CONTENT_LENGTH] = ""; // i.e. check that there is no content length header
+	MockSyncServer::setExpectations(expectedHeaders, "abcdefghijklmno");
+	
+	// receive goodbye from the first server
+	std::string message;
+	std::getline(tcp_stream, message);
+	BOOST_CHECK(message == "Goodbye!");
+	tcp_stream.close();
+}
+
+BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
+	// open a connection
+	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService());
+	boost::system::error_code error_code;
+	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+
+	// send request to the server
+	HTTPRequest http_request;
+	http_request.addHeader("foo", "bar");
+	http_request.setContentLength(4);
+	http_request.createContentBuffer();
+	memcpy(http_request.getContent(), "wxyz", 4);
+	http_request.send(tcp_conn, error_code);
+	BOOST_REQUIRE(!error_code);
+
+	std::map<std::string, std::string> expectedHeaders;
+	expectedHeaders[HTTPTypes::HEADER_CONTENT_LENGTH] = "4";
+	expectedHeaders[HTTPTypes::HEADER_TRANSFER_ENCODING] = ""; // i.e. check that there is no transfer encoding header
+	expectedHeaders["foo"] = "bar";
+	MockSyncServer::setExpectations(expectedHeaders, "wxyz");
+
+	// receive the response from the server
+	tcp_conn.read_some(error_code);
+	BOOST_CHECK(!error_code);
+	BOOST_CHECK(strncmp(tcp_conn.getReadBuffer().data(), "Goodbye!", strlen("Goodbye!")) == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

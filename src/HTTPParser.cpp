@@ -220,7 +220,7 @@ boost::tribool HTTPParser::parseMessage(HTTPMessage& http_msg)
 			} else if (*m_read_ptr == '\r') {
 				// we received two CR's in a row
 				// assume CR only is (incorrectly) being used for line termination
-				// therefore, the request is finished
+				// therefore, the message is finished
 				++m_read_ptr;
 				m_bytes_last_read = (m_read_ptr - read_start_ptr);
 				m_bytes_total_read += m_bytes_last_read;
@@ -244,7 +244,7 @@ boost::tribool HTTPParser::parseMessage(HTTPMessage& http_msg)
 			} else if (*m_read_ptr == '\n') {
 				// we received two newlines in a row
 				// assume newline only is (incorrectly) being used for line termination
-				// therefore, the request is finished
+				// therefore, the message is finished
 				++m_read_ptr;
 				m_bytes_last_read = (m_read_ptr - read_start_ptr);
 				m_bytes_total_read += m_bytes_last_read;
@@ -571,7 +571,6 @@ std::size_t HTTPParser::consumeContent(HTTPMessage& http_msg)
 			memcpy(post_buffer, m_read_ptr, bytes_left_in_read_buffer);
 			content_bytes_to_read -= bytes_left_in_read_buffer;
 			m_read_ptr = m_read_end_ptr;
-			post_buffer += bytes_left_in_read_buffer;
 			PION_LOG_DEBUG(m_logger, "Parsed " << bytes_left_in_read_buffer << " payload content bytes from last read operation (partial)");
 		}
 	}
@@ -579,6 +578,119 @@ std::size_t HTTPParser::consumeContent(HTTPMessage& http_msg)
 	m_bytes_last_read = (http_msg.getContentLength() - content_bytes_to_read);
 	m_bytes_total_read += m_bytes_last_read;
 	return m_bytes_last_read;
+}
+
+boost::tribool HTTPParser::parseChunks(HTTPMessage& http_msg, HTTPMessage::ChunkCache& chunk_buffers)
+{
+	//
+	// note that boost::tribool may have one of THREE states:
+	//
+	// false: encountered an error while parsing message
+	// true: finished successfully parsing the message
+	// indeterminate: parsed bytes, but the message is not yet finished
+	//
+	const char *read_start_ptr = m_read_ptr;
+	m_bytes_last_read = 0;
+	while (m_read_ptr < m_read_end_ptr) {
+
+		switch (m_parse_state) {
+		case PARSE_CHUNK_SIZE_START:
+			// we have not yet started parsing the next chunk size
+			if (*m_read_ptr != ' ' && *m_read_ptr != '\r' && *m_read_ptr != '\n') {	// ignore leading whitespace
+				if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr))
+					return false;
+				m_chunk_size_str.erase();
+				m_chunk_size_str.push_back(*m_read_ptr);
+				m_parse_state = PARSE_CHUNK_SIZE;
+			}
+			break;
+
+		case PARSE_CHUNK_SIZE:
+			// We can't be flexible here because if we see anything other than hex digits followed 
+			// immediately by CRLF, we can't be certain where the chunk starts.
+			if (isHexDigit(*m_read_ptr)) {
+				m_chunk_size_str.push_back(*m_read_ptr);
+			} else if (*m_read_ptr == '\x0D') {
+				m_parse_state = PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE;
+			} else {
+				return false;
+			}
+			break;
+
+		case PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE:
+			// We received a CR; expecting LF to follow.  We can't be flexible here because 
+			// if we see anything other than LF, we can't be certain where the chunk starts.
+			if (*m_read_ptr == '\x0A') {
+				m_bytes_read_in_current_chunk = 0;
+				m_size_of_current_chunk = strtol(m_chunk_size_str.c_str(), 0, 16);
+				if (m_size_of_current_chunk == 0) {
+					m_parse_state = PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK;
+				} else {
+					m_parse_state = PARSE_CHUNK;
+				}
+			} else {
+				return false;
+			}
+			break;
+
+		case PARSE_CHUNK:
+			if (m_bytes_read_in_current_chunk < m_size_of_current_chunk) {
+				m_current_chunk.push_back(*m_read_ptr);
+				m_bytes_read_in_current_chunk++;
+			}
+			if (m_bytes_read_in_current_chunk == m_size_of_current_chunk) {
+				chunk_buffers.push_back(m_current_chunk);
+				m_current_chunk.clear();
+				m_parse_state = PARSE_EXPECTING_CR_AFTER_CHUNK;
+			}
+			break;
+
+		case PARSE_EXPECTING_CR_AFTER_CHUNK:
+			// we've read exactly m_size_of_current_chunk bytes since starting the current chunk
+			if (*m_read_ptr == '\x0D') {
+				m_parse_state = PARSE_EXPECTING_LF_AFTER_CHUNK;
+			} else {
+				return false;
+			}
+			break;
+
+		case PARSE_EXPECTING_LF_AFTER_CHUNK:
+			// we received a CR; expecting LF to follow
+			if (*m_read_ptr == '\x0A') {
+				m_parse_state = PARSE_CHUNK_SIZE_START;
+			} else {
+				return false;
+			}
+			break;
+
+		case PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK:
+			// we've read the final chunk; expecting final CRLF
+			if (*m_read_ptr == '\x0D') {
+				m_parse_state = PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK;
+			} else {
+				return false;
+			}
+			break;
+
+		case PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK:
+			// we received the final CR; expecting LF to follow
+			if (*m_read_ptr == '\x0A') {
+				++m_read_ptr;
+				m_bytes_last_read = (m_read_ptr - read_start_ptr);
+				m_bytes_total_read += m_bytes_last_read;
+				PION_LOG_DEBUG(m_logger, "Parsed " << m_bytes_last_read << " chunked payload content bytes; chunked content complete.");
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		++m_read_ptr;
+	}
+
+	m_bytes_last_read = (m_read_ptr - read_start_ptr);
+	m_bytes_total_read += m_bytes_last_read;
+	return boost::indeterminate;
 }
 
 void HTTPParser::finishRequest(HTTPRequest& http_request)

@@ -25,7 +25,7 @@ namespace net {		// begin namespace net (Pion Network Library)
 ///
 /// HTTPRequestWriter: used to asynchronously send HTTP requests
 /// 
-class PION_NET_API HTTPRequestWriter :
+class HTTPRequestWriter :
 	public HTTPWriter,
 	public boost::enable_shared_from_this<HTTPRequestWriter>
 {
@@ -35,12 +35,12 @@ public:
 	virtual ~HTTPRequestWriter() {}
 
 	/**
-     * creates new HTTPRequestWriter objects
-     * 
+	 * creates new HTTPRequestWriter objects
+	 *
 	 * @param tcp_conn TCP connection used to send the request
 	 * 
-     * @return boost::shared_ptr<HTTPRequestWriter> shared pointer to
-     *         the new writer object that was created
+	 * @return boost::shared_ptr<HTTPRequestWriter> shared pointer to
+	 *         the new writer object that was created
 	 */
 	static inline boost::shared_ptr<HTTPRequestWriter> create(TCPConnectionPtr& tcp_conn)
 	{
@@ -48,13 +48,13 @@ public:
 	}
 
 	/**
-     * creates new HTTPRequestWriter objects
-     * 
-	 * @param tcp_conn TCP connection used to send the request
-     * @param http_request pointer to the request that will be sent
+	 * creates new HTTPRequestWriter objects
 	 * 
-     * @return boost::shared_ptr<HTTPRequestWriter> shared pointer to
-     *         the new writer object that was created
+	 * @param tcp_conn TCP connection used to send the request
+	 * @param http_request pointer to the request that will be sent
+	 * 
+	 * @return boost::shared_ptr<HTTPRequestWriter> shared pointer to
+	 *         the new writer object that was created
 	 */
 	static inline boost::shared_ptr<HTTPRequestWriter> create(TCPConnectionPtr& tcp_conn,
 															  HTTPRequestPtr& http_request)
@@ -70,9 +70,9 @@ protected:
 	
 	/**
 	 * protected constructor restricts creation of objects (use create())
-     * 
+	 * 
 	 * @param tcp_conn TCP connection used to send the request
-     * @param http_request pointer to the request that will be sent
+	 * @param http_request pointer to the request that will be sent
 	 */
 	HTTPRequestWriter(TCPConnectionPtr& tcp_conn)
 		: HTTPWriter(tcp_conn), m_http_request(new HTTPRequest)
@@ -82,9 +82,9 @@ protected:
 	
 	/**
 	 * protected constructor restricts creation of objects (use create())
-     * 
+	 * 
 	 * @param tcp_conn TCP connection used to send the request
-     * @param http_request pointer to the request that will be sent
+	 * @param http_request pointer to the request that will be sent
 	 */
 	HTTPRequestWriter(TCPConnectionPtr& tcp_conn, HTTPRequestPtr& http_request)
 		: HTTPWriter(tcp_conn), m_http_request(http_request)
@@ -94,7 +94,7 @@ protected:
 		// the request's content buffer
 		if (http_request->getContentLength() > 0
 			&& http_request->getContent() != NULL
-			&& http_response->getContent()[0] != '\0')
+			&& http_request->getContent()[0] != '\0')
 		{
 			writeNoCopy(http_request->getContent(), http_request->getContentLength());
 		}
@@ -121,7 +121,31 @@ protected:
 						   boost::asio::placeholders::bytes_transferred);
 	}
 
-	
+	/**
+	 * called after the message is sent
+	 * 
+	 * @param write_error error status from the last write operation
+	 * @param bytes_written number of bytes sent by the last write operation
+	 */
+	void handleWrite(const boost::system::error_code& write_error,
+					 std::size_t bytes_written)
+	{
+		PionLogger logger = getLogger();
+		if (write_error) {
+			// encountered error sending request
+			PION_LOG_WARN(logger, "Unable to send HTTP request (" << write_error.message() << ')');
+		} else {
+			// request sent OK
+			if (sendingChunkedMessage()) {
+				PION_LOG_DEBUG(logger, "Sent HTTP request chunk of " << bytes_written << " bytes");
+				clear();
+			} else {
+				PION_LOG_DEBUG(logger, "Sent HTTP request of " << bytes_written << " bytes");
+			}
+		}
+	}
+
+
 private:
 	
 	/// the request that will be sent

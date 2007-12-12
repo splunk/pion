@@ -69,6 +69,15 @@ protected:
 	void readContentBytes(const boost::system::error_code& read_error,
 						  std::size_t bytes_read);
 
+	/**
+	 * Called after new chunked payload content bytes have been read
+	 * 
+	 * @param read_error error status from the last read operation
+	 * @param bytes_read number of bytes consumed by the last read operation
+	 */
+	void readChunkedContentBytes(const boost::system::error_code& read_error,
+								 std::size_t bytes_read);
+
 	/// Finishes updating the HTTP message we are parsing
 	virtual void finishMessage(void) = 0;
 	
@@ -80,7 +89,7 @@ protected:
 	
 	/// Reads more HTTP header bytes from the TCP connection
 	virtual void getMoreHeaderBytes(void) = 0;
-	
+
 	/**
 	 * Reads more payload content bytes from the TCP connection
 	 *
@@ -88,9 +97,13 @@ protected:
 	 */
 	virtual void getMoreContentBytes(const std::size_t bytes_to_read) = 0;
 	
-	
-private:	
-	
+	/**
+	 * Reads more payload content bytes from the TCP connection
+	 */
+	virtual void getMoreChunkedContentBytes(void) = 0;
+
+private:
+
 	/**
 	 * Consumes HTTP header bytes available in the read buffer
 	 */
@@ -102,7 +115,7 @@ private:
 	 * @param read_error error status from the last read operation
 	 */
 	void handleReadError(const boost::system::error_code& read_error);
-	
+
 
 	/// The HTTP connection that has a new HTTP message to parse
 	TCPConnectionPtr						m_tcp_conn;

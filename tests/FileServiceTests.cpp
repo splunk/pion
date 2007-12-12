@@ -19,6 +19,8 @@
 #include <pion/PionPlugin.hpp>
 #include <pion/net/WebService.hpp>
 #include <pion/net/HTTPServer.hpp>
+#include <pion/net/HTTPRequest.hpp>
+#include <pion/net/HTTPResponse.hpp>
 
 using namespace pion;
 using namespace pion::net;
@@ -118,7 +120,7 @@ public:
 	/// returns a smart pointer to the HTTP server
 	inline HTTPServerPtr& getServerPtr(void) { return m_http_server_ptr; }
 
-private:
+protected:
 	HTTPServerPtr m_http_server_ptr;
 };
 
@@ -140,7 +142,15 @@ BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithNonexistentFileThrows) {
 	BOOST_CHECK_THROW(getServerPtr()->setServiceOption("/resource1", "file", "NotAFile"), HTTPServer::WebServiceException);
 }
 
-// TODO: tests for options "cache", "scan", "max_chunk_size"
+// TODO: tests for options "cache" and "scan"
+
+BOOST_AUTO_TEST_CASE(checkSetServiceOptionMaxChunkSizeWithSizeZeroThrows) {
+	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "max_chunk_size", "0"));
+}
+
+BOOST_AUTO_TEST_CASE(checkSetServiceOptionMaxChunkSizeWithNonZeroSizeDoesntThrow) {
+	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "max_chunk_size", "100"));
+}
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToTrueDoesntThrow) {
 	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "writable", "true"));
@@ -398,6 +408,14 @@ BOOST_AUTO_TEST_CASE(checkResponseToRequestWithBogusMethod) {
 	checkWebServerResponseContent(boost::regex(".*501\\sNot\\sImplemented.*"));
 }
 
+BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_0_Request) {
+	m_http_stream << "GET /resource1 HTTP/1.0" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+	m_http_stream.flush();
+
+	checkResponseHead(200);
+	checkWebServerResponseContent(boost::regex("abc\\s*"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 class RunningFileServiceWithWritingEnabled_F : public RunningFileService_F {
@@ -425,18 +443,18 @@ BOOST_AUTO_TEST_CASE(checkResponseToPostRequestForDefaultFile) {
 	sendRequestWithContent("POST", "/resource1", "1234");
 	checkResponseHead(204);
 	BOOST_CHECK(m_content_length == 0);
-	checkFileContents("sandbox/file1", "abc\n1234\n");
+	checkFileContents("sandbox/file1", "abc\n1234");
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToPostRequestForSpecifiedFile) {
-	sendRequestWithContent("POST", "/resource1/file2", "1234");
+	sendRequestWithContent("POST", "/resource1/file2", "1234\n");
 	checkResponseHead(204);
 	BOOST_CHECK(m_content_length == 0);
 	checkFileContents("sandbox/file2", "xyz\n1234\n");
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToPostRequestForNonexistentFile) {
-	sendRequestWithContent("POST", "/resource1/file3", "1234");
+	sendRequestWithContent("POST", "/resource1/file3", "1234\n");
 	checkResponseHead(201);
 	BOOST_CHECK_EQUAL(m_response_headers["Location"], "/resource1/file3");
 	checkWebServerResponseContent(boost::regex(".*201\\sCreated.*"));
@@ -444,7 +462,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToPostRequestForNonexistentFile) {
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToPutRequestForDefaultFile) {
-	sendRequestWithContent("PUT", "/resource1", "1234");
+	sendRequestWithContent("PUT", "/resource1", "1234\n");
 	checkResponseHead(204);
 	BOOST_CHECK(m_content_length == 0);
 	checkFileContents("sandbox/file1", "1234\n");
@@ -454,7 +472,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToPutRequestForSpecifiedFile) {
 	sendRequestWithContent("PUT", "/resource1/file2", "1234");
 	checkResponseHead(204);
 	BOOST_CHECK(m_content_length == 0);
-	checkFileContents("sandbox/file2", "1234\n");
+	checkFileContents("sandbox/file2", "1234");
 }
 
 /* TODO: write a couple tests of PUT requests with header 'If-None-Match: *'.
@@ -463,7 +481,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToPutRequestForSpecifiedFile) {
 */
 
 BOOST_AUTO_TEST_CASE(checkResponseToPutRequestForNonexistentFile) {
-	sendRequestWithContent("PUT", "/resource1/file3", "1234");
+	sendRequestWithContent("PUT", "/resource1/file3", "1234\n");
 	checkResponseHead(201);
 	BOOST_CHECK_EQUAL(m_response_headers["Location"], "/resource1/file3");
 	checkWebServerResponseContent(boost::regex(".*201\\sCreated.*"));
@@ -517,6 +535,46 @@ BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForOpenFile) {
 	checkWebServerResponseContent(boost::regex(".*500\\sServer\\sError.*"));
 }
 #endif
+
+BOOST_AUTO_TEST_CASE(checkResponseToChunkedPutRequest) {
+	m_http_stream << "PUT /resource1 HTTP/1.1" << HTTPTypes::STRING_CRLF;
+	m_http_stream << HTTPTypes::HEADER_TRANSFER_ENCODING << ": chunked" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+	// write first chunk size
+	m_http_stream << "A" << HTTPTypes::STRING_CRLF;
+	// write first chunk 
+	m_http_stream << "abcdefghij" << HTTPTypes::STRING_CRLF;
+	// write second chunk size
+	m_http_stream << "5" << HTTPTypes::STRING_CRLF;
+	// write second chunk 
+	m_http_stream << "klmno" << HTTPTypes::STRING_CRLF;
+	// write final chunk size
+	m_http_stream << "0" << HTTPTypes::STRING_CRLF;
+	m_http_stream << HTTPTypes::STRING_CRLF;
+	m_http_stream.flush();
+	checkResponseHead(204);
+	BOOST_CHECK(m_content_length == 0);
+	checkFileContents("sandbox/file1", "abcdefghijklmno");
+}
+
+BOOST_AUTO_TEST_CASE(checkResponseToChunkedPostRequest) {
+	m_http_stream << "POST /resource1 HTTP/1.1" << HTTPTypes::STRING_CRLF;
+	m_http_stream << HTTPTypes::HEADER_TRANSFER_ENCODING << ": chunked" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+	// write first chunk size
+	m_http_stream << "A" << HTTPTypes::STRING_CRLF;
+	// write first chunk 
+	m_http_stream << "abcdefghij" << HTTPTypes::STRING_CRLF;
+	// write second chunk size
+	m_http_stream << "5" << HTTPTypes::STRING_CRLF;
+	// write second chunk 
+	m_http_stream << "klmno" << HTTPTypes::STRING_CRLF;
+	// write final chunk size
+	m_http_stream << "0" << HTTPTypes::STRING_CRLF;
+	m_http_stream << HTTPTypes::STRING_CRLF;
+	m_http_stream.flush();
+	checkResponseHead(204);
+	BOOST_CHECK(m_content_length == 0);
+	checkFileContents("sandbox/file1", "abc\nabcdefghijklmno");
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -605,6 +663,32 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
 	memset(two_bytes, 0, 2);
 	BOOST_CHECK(m_http_stream.read(two_bytes, 2));
 	BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
+}
+
+BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
+	// open (another) connection
+	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService());
+	boost::system::error_code error_code;
+	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+
+	// send request to the server
+	HTTPRequest http_request("/resource1/file4");
+	http_request.send(tcp_conn, error_code);
+	BOOST_REQUIRE(!error_code);
+
+	// receive the response from the server
+	HTTPResponse http_response;
+	http_response.receive(tcp_conn, error_code);
+	BOOST_REQUIRE(!error_code);
+
+	// verify that the headers are as expected for a chunked response 
+	BOOST_CHECK_EQUAL(http_response.getHeader(HTTPTypes::HEADER_TRANSFER_ENCODING), "chunked");
+	BOOST_CHECK_EQUAL(http_response.getHeader(HTTPTypes::HEADER_CONTENT_LENGTH), "");
+
+	// verify reconstructed data
+	BOOST_CHECK_EQUAL(http_response.getContentLength(), m_file4_len);
+	BOOST_CHECK(strncmp(http_response.getContent(), g_file4_contents, m_file4_len) == 0);
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_0_Request) {

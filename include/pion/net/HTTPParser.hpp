@@ -21,7 +21,7 @@
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)
 
-// foward declarations used for finishing HTTP messages
+// forward declarations used for finishing HTTP messages
 class HTTPRequest;
 class HTTPResponse;
 	
@@ -63,6 +63,18 @@ public:
 	 */
 	boost::tribool parseMessage(HTTPMessage& http_msg);
 	
+	/**
+	 * parses a chunked HTTP message-body using bytes available in the read buffer
+	 *
+	 * @param http_msg the HTTP message object to populate from parsing
+	 * @param chunk_buffers
+	 *
+	 * @return boost::tribool result of parsing:
+	 *                        false = message has an error,
+	 *                        true = finished parsing message,
+	 *                        indeterminate = message is not yet finished
+	 */
+	boost::tribool parseChunks(HTTPMessage& http_msg, HTTPMessage::ChunkCache& chunk_buffers);
 
 	/**
 	 * prepares the payload content buffer and consumes any content remaining
@@ -109,7 +121,7 @@ public:
 		read_end_ptr = m_read_end_ptr;
 	}
 	
-	/// resets the parser to it's initial state
+	/// resets the parser to its initial state
 	inline void reset(void) {
 		m_parse_state = (m_is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H);
 		m_status_code = 0;
@@ -120,6 +132,12 @@ public:
 		m_bytes_last_read = m_bytes_total_read = 0;
 	}
 	
+	/// get ready to parse chunked data
+	inline void initializeChunkParser(void) {
+		m_parse_state = PARSE_CHUNK_SIZE_START;
+		m_current_chunk.clear();
+	}
+
 	/// returns true if there are no more bytes available in the read buffer
 	inline bool eof(void) const { return m_read_ptr == NULL || m_read_ptr >= m_read_end_ptr; }
 
@@ -171,6 +189,7 @@ protected:
 	inline static bool isControl(int c);
 	inline static bool isSpecial(int c);
 	inline static bool isDigit(int c);
+	inline static bool isHexDigit(int c);
 
 	
 	/// maximum length for response status message
@@ -233,10 +252,14 @@ private:
 		PARSE_EXPECTING_NEWLINE, PARSE_EXPECTING_CR,
 		PARSE_HEADER_WHITESPACE, PARSE_HEADER_START, PARSE_HEADER_NAME,
 		PARSE_SPACE_BEFORE_HEADER_VALUE, PARSE_HEADER_VALUE,
-		PARSE_EXPECTING_FINAL_NEWLINE, PARSE_EXPECTING_FINAL_CR
+		PARSE_EXPECTING_FINAL_NEWLINE, PARSE_EXPECTING_FINAL_CR,
+		PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE, PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE,
+		PARSE_CHUNK_START, PARSE_CHUNK, 
+		PARSE_EXPECTING_CR_AFTER_CHUNK, PARSE_EXPECTING_LF_AFTER_CHUNK,
+		PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK, 
+		PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK
 	};
 
-	
 	/// the current state of parsing the request
 	ParseState							m_parse_state;
 
@@ -260,6 +283,18 @@ private:
 
 	/// Used for parsing the value of HTTP headers
 	std::string							m_header_value;
+
+	/// Used for parsing the chunk size
+	std::string							m_chunk_size_str;
+
+	/// Used for parsing the current chunk
+	std::vector<char>					m_current_chunk;
+
+	/// number of bytes in the chunk currently being parsed
+	std::size_t 						m_size_of_current_chunk;
+
+	/// number of bytes read so far in the chunk currently being parsed
+	std::size_t 						m_bytes_read_in_current_chunk;
 
 	/// number of bytes read during last parse operation
 	std::size_t 						m_bytes_last_read;
@@ -297,6 +332,11 @@ inline bool HTTPParser::isSpecial(int c)
 inline bool HTTPParser::isDigit(int c)
 {
 	return(c >= '0' && c <= '9');
+}
+
+inline bool HTTPParser::isHexDigit(int c)
+{
+	return((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
 }
 
 }	// end namespace net

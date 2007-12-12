@@ -75,6 +75,14 @@ BOOST_AUTO_TEST_CASE(checkIsValidReturnsFalse) {
 	BOOST_CHECK(!isValid());
 }
 
+BOOST_AUTO_TEST_CASE(testChunksSupportedAccessors) {
+	BOOST_CHECK(!getChunksSupported());
+	setChunksSupported(true);
+	BOOST_CHECK(getChunksSupported());
+	setChunksSupported(false);
+	BOOST_CHECK(!getChunksSupported());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 class HTTPRequestWithContentLengthSet_F : public HTTPRequest {

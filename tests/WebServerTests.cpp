@@ -17,6 +17,7 @@
 #include <pion/PionScheduler.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
+#include <pion/net/HTTPRequestWriter.hpp>
 
 using namespace std;
 using namespace pion;
@@ -55,6 +56,126 @@ PION_DECLARE_PLUGIN(CookieService)
 
 /// sets up logging (run once only)
 extern void setup_logging_for_unit_tests(void);
+
+/// generates chunked POST requests for testing purposes
+class ChunkedPostRequestSender : 
+	public boost::enable_shared_from_this<ChunkedPostRequestSender>,
+	private boost::noncopyable
+{
+public:
+	/**
+	 * creates new ChunkedPostRequestSender objects
+	 *
+	 * @param tcp_conn TCP connection used to send the file
+	 * @param resource
+	 */
+	static inline boost::shared_ptr<ChunkedPostRequestSender>
+		create(pion::net::TCPConnectionPtr& tcp_conn, const std::string& resource) 
+	{
+		return boost::shared_ptr<ChunkedPostRequestSender>(new ChunkedPostRequestSender(tcp_conn, resource));
+	}
+	
+	~ChunkedPostRequestSender() {
+		for (m_chunk_iterator = m_chunks.begin(); m_chunk_iterator != m_chunks.end(); ++m_chunk_iterator) {
+			delete[] m_chunk_iterator->second;
+		}
+	}
+	
+	void send(void);
+
+	void addChunk(size_t size, const char* ptr) {
+		char* localCopy = new char[size];
+		memcpy(localCopy, ptr, size);
+		m_chunks.push_back(Chunk(size, localCopy));
+		m_chunk_iterator = m_chunks.begin();
+	}
+
+protected:
+
+	ChunkedPostRequestSender(pion::net::TCPConnectionPtr& tcp_conn,
+							 const std::string& resource);
+	
+	/**
+	 * handler called after a send operation has completed
+	 *
+	 * @param write_error error status from the last write operation
+	 * @param bytes_written number of bytes sent by the last write operation
+	 */
+	void handleWrite(const boost::system::error_code& write_error,
+					 std::size_t bytes_written);
+
+private:
+
+	typedef std::pair<size_t, char*> Chunk;
+
+	/// primary logging interface used by this class
+	pion::PionLogger						m_logger;
+
+	/// the chunks we are sending
+	std::vector<Chunk>						m_chunks;
+	
+	std::vector<Chunk>::const_iterator		m_chunk_iterator;
+
+	/// the HTTP request writer we are using
+	pion::net::HTTPRequestWriterPtr			m_writer;
+};
+
+ChunkedPostRequestSender::ChunkedPostRequestSender(pion::net::TCPConnectionPtr& tcp_conn,
+												   const std::string& resource)
+	: m_logger(PION_GET_LOGGER("ChunkedPostRequestSender")),
+	m_writer(pion::net::HTTPRequestWriter::create(tcp_conn))
+{
+	m_writer->getRequest().setMethod("POST");
+	m_writer->getRequest().setResource(resource);
+	m_writer->getRequest().setChunksSupported(true);
+	m_chunk_iterator = m_chunks.begin();
+}
+
+void ChunkedPostRequestSender::send(void)
+{
+	if (m_chunk_iterator == m_chunks.end()) {
+		m_writer->sendFinalChunk(boost::bind(&ChunkedPostRequestSender::handleWrite,
+											 shared_from_this(),
+											 boost::asio::placeholders::error,
+											 boost::asio::placeholders::bytes_transferred));
+		return;
+	}
+
+	// write the current chunk
+	m_writer->writeNoCopy(m_chunk_iterator->second, m_chunk_iterator->first);
+	
+	if (++m_chunk_iterator == m_chunks.end()) {
+		m_writer->sendFinalChunk(boost::bind(&ChunkedPostRequestSender::handleWrite,
+											 shared_from_this(),
+											 boost::asio::placeholders::error,
+											 boost::asio::placeholders::bytes_transferred));
+	} else {
+		m_writer->sendChunk(boost::bind(&ChunkedPostRequestSender::handleWrite,
+										shared_from_this(),
+										boost::asio::placeholders::error,
+										boost::asio::placeholders::bytes_transferred));
+	}
+}
+
+void ChunkedPostRequestSender::handleWrite(const boost::system::error_code& write_error,
+										   std::size_t bytes_written)
+{
+	if (write_error) {
+		// encountered error sending request data
+		m_writer->getTCPConnection()->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+		PION_LOG_ERROR(m_logger, "Error sending chunked request (" << write_error.message() << ')');
+	} else {
+		// request data sent OK
+		
+		if (m_chunk_iterator == m_chunks.end()) {
+			PION_LOG_DEBUG(m_logger, "Sent " << bytes_written << " bytes (finished)");
+		} else {
+			PION_LOG_DEBUG(m_logger, "Sent " << bytes_written << " bytes");
+			m_writer->clear();
+			send();
+		}
+	}
+}
 
 ///
 /// WebServerTests_F: fixture used for running web server tests
@@ -277,6 +398,130 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponses) {
 	BOOST_REQUIRE(! error_code);
 	
 	checkSendAndReceiveMessages(tcp_conn);
+}
+
+BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
+	getServerPtr()->loadService("/echo", "EchoService");
+	getServerPtr()->start();
+
+	// open a connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
+	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+
+	HTTPRequestWriterPtr writer(HTTPRequestWriter::create(tcp_conn));
+	writer->getRequest().setMethod("POST");
+	writer->getRequest().setResource("/echo");
+
+	writer << "junk";
+	writer->send();
+
+	// receive the response from the server
+	HTTPResponse http_response;
+	http_response.receive(*tcp_conn, error_code);
+	BOOST_CHECK(!error_code);
+
+	// check that the response is OK
+	BOOST_CHECK(http_response.getStatusCode() == 200);
+	BOOST_CHECK(http_response.getContentLength() > 0);
+
+	// check the post content of the request, by parsing it out of the post content of the response
+	boost::regex post_content(".*\\[POST Content]\\s*junk.*");
+	BOOST_CHECK(boost::regex_match(http_response.getContent(), post_content));
+}
+
+BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
+	getServerPtr()->loadService("/echo", "EchoService");
+	getServerPtr()->start();
+
+	// open a connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
+	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+
+	boost::shared_ptr<ChunkedPostRequestSender> sender = ChunkedPostRequestSender::create(tcp_conn, "/echo");
+	sender->addChunk(5, "klmno");
+	sender->addChunk(4, "1234");
+	sender->addChunk(10, "abcdefghij");
+	sender->send();
+
+	// receive the response from the server
+	HTTPResponse http_response;
+	http_response.receive(*tcp_conn, error_code);
+	BOOST_CHECK(!error_code);
+
+	// check that the response is OK
+	BOOST_CHECK(http_response.getStatusCode() == 200);
+	BOOST_CHECK(http_response.getContentLength() > 0);
+
+	// check the content length of the request, by parsing it out of the post content of the response
+	boost::regex content_length_of_request(".*Content length\\: 19.*");
+	BOOST_CHECK(boost::regex_match(http_response.getContent(), content_length_of_request));
+
+	// check the post content of the request, by parsing it out of the post content of the response
+	boost::regex post_content_of_request(".*\\[POST Content]\\s*klmno1234abcdefghij.*");
+	BOOST_CHECK(boost::regex_match(http_response.getContent(), post_content_of_request));
+}
+
+BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
+	getServerPtr()->loadService("/echo", "EchoService");
+	getServerPtr()->start();
+
+	// open a connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
+	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+
+	boost::shared_ptr<ChunkedPostRequestSender> sender = ChunkedPostRequestSender::create(tcp_conn, "/echo");
+	sender->addChunk(10, "abcdefghij");
+	sender->send();
+
+	// receive the response from the server
+	HTTPResponse http_response;
+	http_response.receive(*tcp_conn, error_code);
+	BOOST_CHECK(!error_code);
+
+	// check that the response is OK
+	BOOST_CHECK(http_response.getStatusCode() == 200);
+	BOOST_CHECK(http_response.getContentLength() > 0);
+
+	// check the post content of the request, by parsing it out of the post content of the response
+	boost::regex post_content(".*\\[POST Content]\\s*abcdefghij.*");
+	BOOST_CHECK(boost::regex_match(http_response.getContent(), post_content));
+}
+
+BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
+	getServerPtr()->loadService("/echo", "EchoService");
+	getServerPtr()->start();
+
+	// open a connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
+	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+
+	boost::shared_ptr<ChunkedPostRequestSender> sender = ChunkedPostRequestSender::create(tcp_conn, "/echo");
+	sender->send();
+
+	// receive the response from the server
+	HTTPResponse http_response;
+	http_response.receive(*tcp_conn, error_code);
+	BOOST_CHECK(!error_code);
+
+	// check that the response is OK
+	BOOST_CHECK(http_response.getStatusCode() == 200);
+	BOOST_CHECK(http_response.getContentLength() > 0);
+
+	// check the content length of the request, by parsing it out of the post content of the response
+	boost::regex content_length_of_request(".*Content length\\: 0.*");
+	BOOST_CHECK(boost::regex_match(http_response.getContent(), content_length_of_request));
 }
 
 #ifdef PION_HAVE_SSL

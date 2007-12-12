@@ -62,7 +62,7 @@ public:
 	/// constructs a new HTTP message object
 	HTTPMessage(void)
 		: m_is_valid(false), m_chunks_supported(false),
-		m_version_major(0), m_version_minor(0), m_content_length(0)
+		m_version_major(0), m_version_minor(0), m_content_length(0), m_is_chunked(false)
 	{}
 
 	/// copy constructor
@@ -73,7 +73,9 @@ public:
 		m_version_major(http_msg.m_version_major),
 		m_version_minor(http_msg.m_version_minor),
 		m_content_length(http_msg.m_content_length),
-		m_headers(http_msg.m_headers)
+		m_is_chunked(http_msg.m_is_chunked),
+		m_headers(http_msg.m_headers),
+		m_chunk_buffers(http_msg.m_chunk_buffers)
 	{
 		if (http_msg.m_content_buf) {
 			char *ptr = createContentBuffer();
@@ -90,7 +92,9 @@ public:
 		m_remote_ip = boost::asio::ip::address_v4(0);
 		m_version_major = m_version_minor = 0;
 		m_content_length = 0;
+		m_is_chunked = false;
 		m_content_buf.reset();
+		m_chunk_buffers.clear();
 		m_headers.clear();
 	}
 
@@ -114,6 +118,9 @@ public:
 	
 	/// returns the length of the payload content (in bytes)
 	inline size_t getContentLength(void) const { return m_content_length; }
+
+	/// returns true if the message content is chunked
+	inline bool isChunked(void) const { return m_is_chunked; }
 	
 	/// returns a pointer to the payload content, or NULL if there is none
 	inline char *getContent(void) { return m_content_buf.get(); }
@@ -121,6 +128,12 @@ public:
 	/// returns a const pointer to the payload content, or NULL if there is none
 	inline const char *getContent(void) const { return m_content_buf.get(); }
 	
+	/// used to cache chunked data
+	typedef std::list<std::vector<char> > ChunkCache;
+
+	/// returns a reference to the chunk buffers
+	inline ChunkCache& getChunkBuffers(void) { return m_chunk_buffers; }
+
 	/// returns a value for the header if any are defined; otherwise, an empty string
 	inline const std::string& getHeader(const std::string& key) const {
 		return getValue(m_headers, key);
@@ -160,6 +173,16 @@ public:
 		Headers::const_iterator i = m_headers.find(HEADER_CONTENT_LENGTH);
 		if (i == m_headers.end()) m_content_length = 0;
 		else m_content_length = strtoul(i->second.c_str(), 0, 10);
+	}
+	
+	/// sets the transfer coding using the Transfer-Encoding header
+	inline void updateTransferCodingUsingHeader(void) {
+		m_is_chunked = false;
+		Headers::const_iterator i = m_headers.find(HEADER_TRANSFER_ENCODING);
+		if (i != m_headers.end()) {
+			if (_stricmp(i->second.c_str(), "chunked") == 0) m_is_chunked = true;
+			// ignoring other possibilities for now
+		}
 	}
 	
 	/// creates a payload content buffer of size m_content_length and returns
@@ -233,7 +256,11 @@ public:
 	 * @return std::size_t number of bytes read from the connection
 	 */
 	std::size_t receive(TCPConnection& tcp_conn, boost::system::error_code& ec);
-	
+
+	/**
+	 * pieces together all the received chunks
+	 */
+	void concatenateChunks(void);
 	
 protected:
 	
@@ -360,8 +387,14 @@ private:
 	/// the length of the payload content (in bytes)
 	size_t							m_content_length;
 
+	/// whether the message body is chunked
+	bool							m_is_chunked;
+
 	/// the payload content, if any was sent with the message
 	boost::scoped_array<char>		m_content_buf;
+
+	/// buffers for holding chunked data
+	ChunkCache						m_chunk_buffers;
 	
 	/// HTTP message headers
 	Headers							m_headers;

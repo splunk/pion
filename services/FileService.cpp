@@ -454,7 +454,7 @@ void FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_c
 				std::ios_base::openmode mode = request->getMethod() == HTTPTypes::REQUEST_METHOD_POST?
 											   std::ios::app : std::ios::out;
 				boost::filesystem::ofstream file_stream(file_path, mode);
-				file_stream << request->getContent() << std::endl;
+				file_stream.write(request->getContent(), request->getContentLength());
 				file_stream.close();
 				if (!boost::filesystem::exists(file_path)) {
 					static const std::string PUT_FAILED_HTML_START =
