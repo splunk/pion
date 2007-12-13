@@ -37,7 +37,7 @@ case "$build_os" in
 		PION_OPT_FLAGS="-O2 -Wall"
 		PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
 	fi
-	LIBS="$LIBS -lsocket -lnsl -ldl -lposix4"
+	PION_EXTERNAL_LIBS="-lsocket -lnsl -ldl -lposix4"
 	;;
 *darwin*)
 	# Mac OS X: GCC compiler
@@ -46,7 +46,7 @@ case "$build_os" in
 	#LDFLAGS="$LDFLAGS"
 	PION_OPT_FLAGS="-O2 -Wall"
 	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
-	LIBS="$LIBS -ldl"
+	PION_EXTERNAL_LIBS="-ldl"
 	;;
 *cygwin*)
 	# Cygwin GCC compiler (Windows)
@@ -54,7 +54,7 @@ case "$build_os" in
 	LDFLAGS="$LDFLAGS -mthreads"
 	PION_OPT_FLAGS="-O2 -Wall"
 	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
-	LIBS="$LIBS -lws2_32 -lmswsock"
+	PION_EXTERNAL_LIBS="-lws2_32 -lmswsock"
 	;;
 *freebsd*)
 	# FreeBSD: GCC compiler
@@ -69,7 +69,7 @@ case "$build_os" in
 	LDFLAGS="$LDFLAGS -pthread"
 	PION_OPT_FLAGS="-O2 -Wall"
 	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
-	LIBS="$LIBS -ldl"
+	PION_EXTERNAL_LIBS="-ldl"
 	;;
 esac
 
@@ -319,7 +319,7 @@ BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
 LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
 AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
-AC_TRY_LINK([#include <boost/date_time/gregorian/gregorian_types.hpp>],
+AC_TRY_LINK([#include <boost/date_time/gregorian/greg_date.hpp>],
 	[ boost::gregorian::date d(2007, 11, 11); return 0; ],
 	[ AC_MSG_RESULT(ok)
 	  BOOST_DATE_TIME_LIB="-l${BOOST_TRY_LINK}"
@@ -343,7 +343,7 @@ else
 	BOOST_TRY_LINK="$BOOST_HOME_DIR/lib/libboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}.a"
 	LIBS_SAVED="$LIBS"
 	LIBS="$LIBS_SAVED ${BOOST_TRY_LINK}"
-	AC_MSG_CHECKING([for boost unit test framework])
+	AC_MSG_CHECKING([for boost::test library])
 	AC_TRY_LINK([#include <boost/test/unit_test.hpp>
 		using namespace boost::unit_test;
 		test_suite* init_unit_test_suite( int argc, char* argv[] )
@@ -469,5 +469,5 @@ AC_SUBST(PION_LOG_LIB)
 
 
 # Set external library dependencies
-PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $BOOST_DATE_TIME_LIB $PION_SSL_LIB $PION_LOG_LIB"
+PION_EXTERNAL_LIBS="$PION_EXTERNAL_LIBS $BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $BOOST_DATE_TIME_LIB $PION_SSL_LIB $PION_LOG_LIB"
 AC_SUBST(PION_EXTERNAL_LIBS)
