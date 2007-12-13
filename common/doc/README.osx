@@ -6,15 +6,6 @@ Building Boost with ASIO:
 
 Please see the README.boost file for general instructions.
 
-You will need to patch the ASIO headers if you are using Leopard (Mac OS X
-v10.5) and ASIO 0.3.8.  Make sure that you apply this patch after copying the
-ASIO source code into the boost source directory:
-
-cd BOOST_SOURCE_DIR
-patch -p2 < <PROJECT_ROOT>/common/doc/leopard_asio_0_3_8.patch
-
-This patch will be incorporated into the next release of ASIO (0.3.9).
-
 
 Installing zlib & openssl:
 --------------------------
