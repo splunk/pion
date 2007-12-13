@@ -7,6 +7,7 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <pion/net/HTTPMessage.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
 #include <pion/net/HTTPParser.hpp>
@@ -85,7 +86,7 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 		http_parser.initializeChunkParser();
 		while (true) {
 			// parse bytes available in the read buffer
-			parse_result = http_parser.parseChunks(*this, m_chunk_buffers);
+			parse_result = http_parser.parseChunks(m_chunk_buffers);
 			if (parse_result == false) {
 				// an error occurred while parsing the message headers
 				ec.assign(1, RECEIVE_ERROR);

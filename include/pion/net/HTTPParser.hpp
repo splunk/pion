@@ -66,15 +66,14 @@ public:
 	/**
 	 * parses a chunked HTTP message-body using bytes available in the read buffer
 	 *
-	 * @param http_msg the HTTP message object to populate from parsing
-	 * @param chunk_buffers
+	 * @param chunk_buffers buffers to be populated from parsing chunked content
 	 *
 	 * @return boost::tribool result of parsing:
 	 *                        false = message has an error,
 	 *                        true = finished parsing message,
 	 *                        indeterminate = message is not yet finished
 	 */
-	boost::tribool parseChunks(HTTPMessage& http_msg, HTTPMessage::ChunkCache& chunk_buffers);
+	boost::tribool parseChunks(HTTPMessage::ChunkCache& chunk_buffers);
 
 	/**
 	 * prepares the payload content buffer and consumes any content remaining

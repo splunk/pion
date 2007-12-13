@@ -71,29 +71,6 @@ void HTTPWriter::prepareWriteBuffers(HTTPMessage::WriteBuffers& write_buffers,
 	}
 }
 
-void HTTPWriter::handleWrite(const boost::system::error_code& write_error,
-							 std::size_t bytes_written)
-{
-	if (write_error) {
-		// encountered error sending response
-		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
-		PION_LOG_WARN(m_logger, "Unable to send HTTP response (" << write_error.message() << ')');
-	} else {
-		// response sent OK
-		if (sendingChunkedMessage()) {
-			PION_LOG_DEBUG(m_logger, "Sent HTTP response chunk of " << bytes_written << " bytes");
-		} else {
-			PION_LOG_DEBUG(m_logger, "Sent HTTP response of " << bytes_written << " bytes ("
-						   << (m_tcp_conn->getKeepAlive() ? "keeping alive)" : "closing)"));
-		}
-	}
-	
-	// TCPConnection::finish() calls TCPServer::finishConnection, which will either:
-	// a) call HTTPServer::handleConnection again if keep-alive is true; or,
-	// b) close the socket and remove it from the server's connection pool
-	m_tcp_conn->finish();
-}
-
 }	// end namespace net
 }	// end namespace pion
 

@@ -35,12 +35,12 @@ public:
 	virtual ~HTTPResponseWriter() {}
 
 	/**
-     * creates new HTTPResponseWriter objects
-     * 
+	 * creates new HTTPResponseWriter objects
+	 * 
 	 * @param tcp_conn TCP connection used to send the response
 	 * 
-     * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
-     *         the new writer object that was created
+	 * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
+	 *         the new writer object that was created
 	 */
 	static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn)
 	{
@@ -48,13 +48,13 @@ public:
 	}
 
 	/**
-     * creates new HTTPResponseWriter objects
-     * 
-	 * @param tcp_conn TCP connection used to send the response
-     * @param http_response pointer to the response that will be sent
+	 * creates new HTTPResponseWriter objects
 	 * 
-     * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
-     *         the new writer object that was created
+	 * @param tcp_conn TCP connection used to send the response
+	 * @param http_response pointer to the response that will be sent
+	 * 
+	 * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
+	 *         the new writer object that was created
 	 */
 	static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn,
 															   HTTPResponsePtr& http_response)
@@ -63,13 +63,13 @@ public:
 	}
 
 	/**
-     * creates new HTTPResponseWriter objects
-     * 
-	 * @param tcp_conn TCP connection used to send the response
-     * @param http_request pointer to the request we are responding to
+	 * creates new HTTPResponseWriter objects
 	 * 
-     * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
-     *         the new writer object that was created
+	 * @param tcp_conn TCP connection used to send the response
+	 * @param http_request pointer to the request we are responding to
+	 * 
+	 * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
+	 *         the new writer object that was created
 	 */
 	static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn,
 															   const HTTPMessage& http_request)
@@ -85,9 +85,9 @@ protected:
 	
 	/**
 	 * protected constructor restricts creation of objects (use create())
-     * 
+	 * 
 	 * @param tcp_conn TCP connection used to send the response
-     * @param http_response pointer to the response that will be sent
+	 * @param http_response pointer to the response that will be sent
 	 */
 	HTTPResponseWriter(TCPConnectionPtr& tcp_conn)
 		: HTTPWriter(tcp_conn), m_http_response(new HTTPResponse)
@@ -97,9 +97,9 @@ protected:
 	
 	/**
 	 * protected constructor restricts creation of objects (use create())
-     * 
+	 * 
 	 * @param tcp_conn TCP connection used to send the response
-     * @param http_response pointer to the response that will be sent
+	 * @param http_response pointer to the response that will be sent
 	 */
 	HTTPResponseWriter(TCPConnectionPtr& tcp_conn, HTTPResponsePtr& http_response)
 		: HTTPWriter(tcp_conn), m_http_response(http_response)
@@ -119,9 +119,9 @@ protected:
 	
 	/**
 	 * protected constructor restricts creation of objects (use create())
-     * 
+	 * 
 	 * @param tcp_conn TCP connection used to send the response
-     * @param http_request pointer to the request we are responding to
+	 * @param http_request pointer to the request we are responding to
 	 */
 	HTTPResponseWriter(TCPConnectionPtr& tcp_conn, const HTTPMessage& http_request)
 		: HTTPWriter(tcp_conn), m_http_response(new HTTPResponse(http_request))
@@ -150,6 +150,36 @@ protected:
 		return boost::bind(&HTTPResponseWriter::handleWrite, shared_from_this(),
 						   boost::asio::placeholders::error,
 						   boost::asio::placeholders::bytes_transferred);
+	}
+
+	/**
+	 * called after the response is sent
+	 * 
+	 * @param write_error error status from the last write operation
+	 * @param bytes_written number of bytes sent by the last write operation
+	 */
+	void handleWrite(const boost::system::error_code& write_error,
+					 std::size_t bytes_written)
+	{
+		PionLogger logger = getLogger();
+		if (write_error) {
+			// encountered error sending response
+			getTCPConnection()->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+			PION_LOG_WARN(logger, "Unable to send HTTP response (" << write_error.message() << ')');
+		} else {
+			// response sent OK
+			if (sendingChunkedMessage()) {
+				PION_LOG_DEBUG(logger, "Sent HTTP response chunk of " << bytes_written << " bytes");
+			} else {
+				PION_LOG_DEBUG(getLogger(), "Sent HTTP response of " << bytes_written << " bytes ("
+							   << (getTCPConnection()->getKeepAlive() ? "keeping alive)" : "closing)"));
+			}
+		}
+
+		// TCPConnection::finish() calls TCPServer::finishConnection, which will either:
+		// a) call HTTPServer::handleConnection again if keep-alive is true; or,
+		// b) close the socket and remove it from the server's connection pool
+		getTCPConnection()->finish();
 	}
 
 	

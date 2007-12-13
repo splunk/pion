@@ -580,7 +580,7 @@ std::size_t HTTPParser::consumeContent(HTTPMessage& http_msg)
 	return m_bytes_last_read;
 }
 
-boost::tribool HTTPParser::parseChunks(HTTPMessage& http_msg, HTTPMessage::ChunkCache& chunk_buffers)
+boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
 {
 	//
 	// note that boost::tribool may have one of THREE states:

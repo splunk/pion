@@ -74,7 +74,7 @@ void HTTPReader::consumeHeaderBytes(void)
 		if (getMessage().isChunked()) {
 			initializeChunkParser();
 			if (m_read_ptr < m_read_end_ptr) {
-				result = parseChunks(getMessage(), getMessage().getChunkBuffers());
+				result = parseChunks(getMessage().getChunkBuffers());
 				if (boost::indeterminate(result)) {
 					// read more bytes from the connection
 					getMoreChunkedContentBytes();
@@ -192,7 +192,7 @@ void HTTPReader::readChunkedContentBytes(const boost::system::error_code& read_e
 	// set pointers for new HTTP content data to be consumed
 	setReadBuffer(m_tcp_conn->getReadBuffer().data(), bytes_read);
 
-	boost::tribool result = parseChunks(getMessage(), getMessage().getChunkBuffers());
+	boost::tribool result = parseChunks(getMessage().getChunkBuffers());
 	if (boost::indeterminate(result)) {
 		// read more bytes from the connection
 		getMoreChunkedContentBytes();

@@ -122,7 +122,7 @@ protected:
 	}
 
 	/**
-	 * called after the message is sent
+	 * called after the request is sent
 	 * 
 	 * @param write_error error status from the last write operation
 	 * @param bytes_written number of bytes sent by the last write operation

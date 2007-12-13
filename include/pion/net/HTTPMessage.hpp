@@ -38,6 +38,9 @@ public:
 	/// data type for I/O write buffers (these wrap existing data to be sent)
 	typedef std::vector<boost::asio::const_buffer>	WriteBuffers;
 	
+	/// used to cache chunked data
+	typedef std::list<std::vector<char> >			ChunkCache;
+
 	/// data type for library errors returned during receive() operations
 	struct ReceiveError
 		: public boost::system::error_category
@@ -128,9 +131,6 @@ public:
 	/// returns a const pointer to the payload content, or NULL if there is none
 	inline const char *getContent(void) const { return m_content_buf.get(); }
 	
-	/// used to cache chunked data
-	typedef std::list<std::vector<char> > ChunkCache;
-
 	/// returns a reference to the chunk buffers
 	inline ChunkCache& getChunkBuffers(void) { return m_chunk_buffers; }
 
@@ -180,8 +180,13 @@ public:
 		m_is_chunked = false;
 		Headers::const_iterator i = m_headers.find(HEADER_TRANSFER_ENCODING);
 		if (i != m_headers.end()) {
-			if (_stricmp(i->second.c_str(), "chunked") == 0) m_is_chunked = true;
-			// ignoring other possibilities for now
+			// From RFC 2616, sec 3.5: All content-coding values are case-insensitive.
+			std::string lowerCaseHeaderValue;
+			for (std::string::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
+				lowerCaseHeaderValue.push_back(std::tolower(*j));
+			}
+			if (lowerCaseHeaderValue == "chunked") m_is_chunked = true;
+			// ignoring other possible values for now
 		}
 	}
 	
