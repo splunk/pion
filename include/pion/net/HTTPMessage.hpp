@@ -180,8 +180,8 @@ public:
 		m_is_chunked = false;
 		Headers::const_iterator i = m_headers.find(HEADER_TRANSFER_ENCODING);
 		if (i != m_headers.end()) {
-			// From RFC 2616, sec 3.5: All content-coding values are case-insensitive.
-			m_is_chunked = boost::regex_match(i->second, boost::regex("chunked", boost::regex::icase));
+			// From RFC 2616, sec 3.6: All transfer-coding values are case-insensitive.
+			m_is_chunked = boost::regex_match(i->second, REGEX_ICASE_CHUNKED);
 			// ignoring other possible values for now
 		}
 	}
@@ -370,6 +370,8 @@ protected:
 	
 private:
 	
+	static const boost::regex		REGEX_ICASE_CHUNKED;
+
 	/// True if the HTTP message is valid
 	bool							m_is_valid;
 

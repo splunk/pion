@@ -17,7 +17,11 @@
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)
 
-	
+// static members of HTTPMessage
+
+const boost::regex		HTTPMessage::REGEX_ICASE_CHUNKED("chunked", boost::regex::icase);
+
+
 // HTTPRequest member functions
 
 std::size_t HTTPMessage::send(TCPConnection& tcp_conn,
