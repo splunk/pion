@@ -119,9 +119,9 @@ public:
 	/**
 	 * put the current thread to sleep for an amount of time
 	 *
-	 * @param nsec number of nanoseconds (10^-9) to sleep for (default = 0.01 seconds)
+	 * @param nsec number of nanoseconds (10^-9) to sleep for
 	 */
-	inline void sleep_briefly(unsigned long nsec = 50000000)
+	inline void sleep_briefly(unsigned long nsec)
 	{
 		boost::xtime stop_time;
 		boost::xtime_get(&stop_time, boost::TIME_UTC);
@@ -133,6 +133,21 @@ public:
 		boost::thread::sleep(stop_time);
 	}
 	
+	/**
+	 * check at 0.1 second intervals for up to one second to see if the number
+	 * of connections is as expected
+	 *
+	 * @param expectedNumberOfConnections expected number of connections
+	 */
+	void checkNumConnectionsForUpToOneSecond(std::size_t expectedNumberOfConnections)
+	{
+		for (int i = 0; i < 10; ++i) {
+			if (getServerPtr()->getConnections() == expectedNumberOfConnections) break;
+			sleep_briefly(100000000); // 0.1 seconds
+		}
+		BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), expectedNumberOfConnections);
+	}
+
 private:
 	TCPServerPtr	hello_server_ptr;
 };
@@ -147,50 +162,39 @@ BOOST_AUTO_TEST_CASE(checkTCPServerIsListening) {
 }
 
 BOOST_AUTO_TEST_CASE(checkNumberOfActiveServerConnections) {
-	// there should be no connections to start
-	// sleep first just in case other tests ran before this one, which are still
-	do {
-		sleep_briefly();
-	} while (PionScheduler::getInstance().getRunningThreads() == 0);	
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(0));
+	// there should be no connections to start, but wait if needed
+	// just in case other tests ran before this one, which are still connected
+	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(0));
 
 	// open a connection
 	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
 	tcp::iostream tcp_stream_a(localhost);
 	// we need to wait for the server to accept the connection since it happens
-	// in another thread.  This should always take less than 0.1 seconds
-	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(1));
+	// in another thread.  This should always take less than one second.
+	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(1));
 
 	// open a few more connections;
 	tcp::iostream tcp_stream_b(localhost);
-	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(2));
+	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(2));
 
 	tcp::iostream tcp_stream_c(localhost);
-	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(3));
+	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(3));
 
 	tcp::iostream tcp_stream_d(localhost);
-	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(4));
+	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(4));
 	
 	// close connections	
 	tcp_stream_a.close();
-	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(3));
+	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(3));
 
 	tcp_stream_b.close();
-	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(2));
+	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(2));
 
 	tcp_stream_c.close();
-	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(1));
+	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(1));
 
 	tcp_stream_d.close();
-	sleep_briefly();
-	BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), static_cast<std::size_t>(0));
+	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(0));
 }
 
 BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
