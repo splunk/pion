@@ -181,11 +181,7 @@ public:
 		Headers::const_iterator i = m_headers.find(HEADER_TRANSFER_ENCODING);
 		if (i != m_headers.end()) {
 			// From RFC 2616, sec 3.5: All content-coding values are case-insensitive.
-			std::string lowerCaseHeaderValue;
-			for (std::string::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
-				lowerCaseHeaderValue.push_back(std::tolower(*j));
-			}
-			if (lowerCaseHeaderValue == "chunked") m_is_chunked = true;
+			m_is_chunked = boost::regex_match(i->second, boost::regex("chunked", boost::regex::icase));
 			// ignoring other possible values for now
 		}
 	}
