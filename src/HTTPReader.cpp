@@ -72,7 +72,6 @@ void HTTPReader::consumeHeaderBytes(void)
 		// check if we have payload content to read
 		getMessage().updateTransferCodingUsingHeader();
 		if (getMessage().isChunked()) {
-			initializeChunkParser();
 			if (m_read_ptr < m_read_end_ptr) {
 				result = parseChunks(getMessage().getChunkBuffers());
 				if (boost::indeterminate(result)) {

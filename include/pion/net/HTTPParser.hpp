@@ -44,6 +44,7 @@ public:
 		: m_logger(PION_GET_LOGGER("pion.net.HTTPParser")), m_is_request(is_request),		
 		m_read_ptr(NULL), m_read_end_ptr(NULL),
 		m_headers_parse_state(is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H),
+		m_chunked_content_parse_state(PARSE_CHUNK_SIZE_START),
 		m_status_code(0), m_bytes_last_read(0), m_bytes_total_read(0)
 	{}
 	
@@ -124,18 +125,14 @@ public:
 	/// resets the parser to its initial state
 	inline void reset(void) {
 		m_headers_parse_state = (m_is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H);
+		m_chunked_content_parse_state = PARSE_CHUNK_SIZE_START;
 		m_status_code = 0;
 		m_status_message.erase();
 		m_method.erase();
 		m_resource.erase();
 		m_query_string.erase();
-		m_bytes_last_read = m_bytes_total_read = 0;
-	}
-	
-	/// get ready to parse chunked data
-	inline void initializeChunkParser(void) {
-		m_chunked_content_parse_state = PARSE_CHUNK_SIZE_START;
 		m_current_chunk.clear();
+		m_bytes_last_read = m_bytes_total_read = 0;
 	}
 
 	/// returns true if there are no more bytes available in the read buffer
@@ -257,8 +254,8 @@ private:
 
 	/// state used to keep track of where we are in parsing chunked content
 	enum ChunkedContentParseState {
-		PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE, PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE,
-		PARSE_CHUNK_START, PARSE_CHUNK, 
+		PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE, 
+		PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE, PARSE_CHUNK, 
 		PARSE_EXPECTING_CR_AFTER_CHUNK, PARSE_EXPECTING_LF_AFTER_CHUNK,
 		PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK, 
 		PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK

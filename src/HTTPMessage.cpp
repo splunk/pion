@@ -87,7 +87,6 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 	std::size_t content_bytes_to_read = 0;
 	updateTransferCodingUsingHeader();
 	if (isChunked()) {
-		http_parser.initializeChunkParser();
 		while (true) {
 			// parse bytes available in the read buffer
 			parse_result = http_parser.parseChunks(m_chunk_buffers);

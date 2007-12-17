@@ -626,6 +626,7 @@ boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
 				if (m_size_of_current_chunk == 0) {
 					m_chunked_content_parse_state = PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK;
 				} else {
+					m_current_chunk.clear();
 					m_chunked_content_parse_state = PARSE_CHUNK;
 				}
 			} else {
