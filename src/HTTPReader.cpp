@@ -59,7 +59,7 @@ void HTTPReader::consumeHeaderBytes(void)
 	// true: finished successfully parsing the message
 	// indeterminate: parsed bytes, but the message is not yet finished
 	//
-	boost::tribool result = parseMessage(getMessage());
+	boost::tribool result = parseHTTPHeaders(getMessage());
 	
 	if (gcount() > 0) {
 		// parsed > 0 bytes in HTTP headers

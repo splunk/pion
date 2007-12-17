@@ -43,7 +43,7 @@ public:
 	HTTPParser(const bool is_request)
 		: m_logger(PION_GET_LOGGER("pion.net.HTTPParser")), m_is_request(is_request),		
 		m_read_ptr(NULL), m_read_end_ptr(NULL),
-		m_parse_state(is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H),
+		m_headers_parse_state(is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H),
 		m_status_code(0), m_bytes_last_read(0), m_bytes_total_read(0)
 	{}
 	
@@ -52,16 +52,17 @@ public:
 
 	
 	/**
-	 * parses an HTTP message using bytes available in the read buffer
+	 * parses an HTTP message up to the end of the headers using bytes 
+	 * available in the read buffer
 	 *
 	 * @param http_msg the HTTP message object to populate from parsing
 	 *
 	 * @return boost::tribool result of parsing:
 	 *                        false = message has an error,
-	 *                        true = finished parsing message,
-	 *                        indeterminate = message is not yet finished
+	 *                        true = finished parsing HTTP headers,
+	 *                        indeterminate = not yet finished parsing HTTP headers
 	 */
-	boost::tribool parseMessage(HTTPMessage& http_msg);
+	boost::tribool parseHTTPHeaders(HTTPMessage& http_msg);
 	
 	/**
 	 * parses a chunked HTTP message-body using bytes available in the read buffer
@@ -122,7 +123,7 @@ public:
 	
 	/// resets the parser to its initial state
 	inline void reset(void) {
-		m_parse_state = (m_is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H);
+		m_headers_parse_state = (m_is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H);
 		m_status_code = 0;
 		m_status_message.erase();
 		m_method.erase();
@@ -133,7 +134,7 @@ public:
 	
 	/// get ready to parse chunked data
 	inline void initializeChunkParser(void) {
-		m_parse_state = PARSE_CHUNK_SIZE_START;
+		m_chunked_content_parse_state = PARSE_CHUNK_SIZE_START;
 		m_current_chunk.clear();
 	}
 
@@ -240,8 +241,8 @@ protected:
 	
 private:
 
-	/// state used to keep track of where we are in parsing the request
-	enum ParseState {
+	/// state used to keep track of where we are in parsing the HTTP headers
+	enum HeadersParseState {
 		PARSE_METHOD_START, PARSE_METHOD, PARSE_URI_STEM, PARSE_URI_QUERY,
 		PARSE_HTTP_VERSION_H, PARSE_HTTP_VERSION_T_1, PARSE_HTTP_VERSION_T_2,
 		PARSE_HTTP_VERSION_P, PARSE_HTTP_VERSION_SLASH,
@@ -251,7 +252,11 @@ private:
 		PARSE_EXPECTING_NEWLINE, PARSE_EXPECTING_CR,
 		PARSE_HEADER_WHITESPACE, PARSE_HEADER_START, PARSE_HEADER_NAME,
 		PARSE_SPACE_BEFORE_HEADER_VALUE, PARSE_HEADER_VALUE,
-		PARSE_EXPECTING_FINAL_NEWLINE, PARSE_EXPECTING_FINAL_CR,
+		PARSE_EXPECTING_FINAL_NEWLINE, PARSE_EXPECTING_FINAL_CR
+	};
+
+	/// state used to keep track of where we are in parsing chunked content
+	enum ChunkedContentParseState {
 		PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE, PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE,
 		PARSE_CHUNK_START, PARSE_CHUNK, 
 		PARSE_EXPECTING_CR_AFTER_CHUNK, PARSE_EXPECTING_LF_AFTER_CHUNK,
@@ -259,8 +264,11 @@ private:
 		PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK
 	};
 
-	/// the current state of parsing the request
-	ParseState							m_parse_state;
+	/// the current state of parsing HTTP headers
+	HeadersParseState					m_headers_parse_state;
+
+	/// the current state of parsing chunked content
+	ChunkedContentParseState			m_chunked_content_parse_state;
 
 	/// Used for parsing the HTTP response status code
 	unsigned int						m_status_code;
