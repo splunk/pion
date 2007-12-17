@@ -77,8 +77,8 @@ public:
 		m_version_minor(http_msg.m_version_minor),
 		m_content_length(http_msg.m_content_length),
 		m_is_chunked(http_msg.m_is_chunked),
-		m_headers(http_msg.m_headers),
-		m_chunk_buffers(http_msg.m_chunk_buffers)
+		m_chunk_buffers(http_msg.m_chunk_buffers),
+		m_headers(http_msg.m_headers)
 	{
 		if (http_msg.m_content_buf) {
 			char *ptr = createContentBuffer();
@@ -370,6 +370,7 @@ protected:
 	
 private:
 	
+	/// Regex used to check for the "chunked" transfer encoding header
 	static const boost::regex		REGEX_ICASE_CHUNKED;
 
 	/// True if the HTTP message is valid

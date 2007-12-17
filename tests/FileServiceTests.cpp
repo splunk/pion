@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
 	BOOST_CHECK_EQUAL(http_response.getHeader(HTTPTypes::HEADER_CONTENT_LENGTH), "");
 
 	// verify reconstructed data
-	BOOST_CHECK_EQUAL(http_response.getContentLength(), m_file4_len);
+	BOOST_CHECK_EQUAL(http_response.getContentLength(), static_cast<size_t>(m_file4_len));
 	BOOST_CHECK(strncmp(http_response.getContent(), g_file4_contents, m_file4_len) == 0);
 }
 
