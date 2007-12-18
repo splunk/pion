@@ -75,7 +75,7 @@ bjam --toolset=msvc --with-thread --with-system --with-filesystem \
 	--with-regex --with-date_time --with-test \
 	debug release threading=multi stage
 
-This will build the three libraries required by Pion and place the
+This will build the six libraries required by Pion and place the
 files within the stage/ subdirectory of your build directory.
 
 To install, you can now just copy the files in stage/lib into your
