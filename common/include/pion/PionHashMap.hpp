@@ -19,6 +19,7 @@
 	#define PION_HASH_MAP std::tr1::unordered_map
 	#define PION_HASH_MULTIMAP std::tr1::unordered_multimap
 	#define PION_HASH_STRING boost::hash<std::string>
+	#define PION_HASH(TYPE) boost::hash<TYPE>
 #elif defined(PION_HAVE_EXT_HASH_MAP)
 	#if __GNUC__ >= 3
 		#include <ext/hash_map>
@@ -30,16 +31,19 @@
 		#define PION_HASH_MULTIMAP hash_multimap
 	#endif
 	#define PION_HASH_STRING boost::hash<std::string>
+	#define PION_HASH(TYPE) boost::hash<TYPE>
 #elif defined(PION_HAVE_HASH_MAP)
 	#include <hash_map>
 	#ifdef _MSC_VER
 		#define PION_HASH_MAP stdext::hash_map
 		#define PION_HASH_MULTIMAP stdext::hash_multimap
 		#define PION_HASH_STRING stdext::hash_compare<std::string, std::less<std::string> >
+		#define PION_HASH(TYPE) stdext::hash_compare<TYPE, std::less<TYPE> >
 	#else
 		#define PION_HASH_MAP hash_map
 		#define PION_HASH_MULTIMAP hash_multimap
 		#define PION_HASH_STRING boost::hash<std::string>
+		#define PION_HASH(TYPE) boost::hash<TYPE>
 	#endif
 #endif
 
