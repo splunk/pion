@@ -74,9 +74,9 @@ private:
 
 // define PION_ASSERT macro to check assertions when debugging mode is enabled
 #ifdef NDEBUG
-	#define PION_ASSERT(LOG, EXPR)	((void)0)
+	#define PION_ASSERT(EXPR)	((void)0)
 #else
-	#define PION_ASSERT(LOG, EXPR)	if (!(EXPR)) { throw BadAssertException(__FILE__, __LINE__); }
+	#define PION_ASSERT(EXPR)	if (!(EXPR)) { throw BadAssertException(__FILE__, __LINE__); }
 #endif
 
 
