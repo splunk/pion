@@ -13,6 +13,7 @@
 #include <pion/PionConfig.hpp>
 #include <exception>
 #include <string>
+#include <cstdio>
 
 
 namespace pion {	// begin namespace pion
@@ -48,6 +49,35 @@ private:
 	const std::string	m_what_msg;
 };
 
+
+///
+/// BadAssertException: exception thrown if an assertion (PION_ASSERT) fails
+///
+class BadAssertException : public PionException {
+public:
+	BadAssertException(const std::string& file, unsigned long line)
+		: PionException(make_string(file, line)) {}
+	
+private:
+	static std::string make_string(const std::string& file, unsigned long line) {
+		std::string result("Assertion failed at ");
+		result += file;
+		char line_buf[50];
+		sprintf(line_buf, " line %lu", line);
+		result += line_buf;
+		return result;
+	}
+};
+	
 }	// end namespace pion
+
+
+// define PION_ASSERT macro to check assertions when debugging mode is enabled
+#ifdef NDEBUG
+	#define PION_ASSERT(LOG, EXPR)	((void)0)
+#else
+	#define PION_ASSERT(LOG, EXPR)	if (!(EXPR)) { throw BadAssertException(__FILE__, __LINE__); }
+#endif
+
 
 #endif
