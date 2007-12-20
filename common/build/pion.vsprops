@@ -7,7 +7,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;;&quot;$(LOG4CXX_HOME)\src\main\include&quot;;&quot;$(OPENSSL_HOME)\include&quot;"
+		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;;&quot;$(LOG4CXX_HOME)\src\main\include&quot;;&quot;$(OPENSSL_HOME)\include&quot;;&quot;$(LIBXML_HOME)\include&quot;;&quot;$(ICONV_HOME)\include&quot;"
 		PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_UNICODE;UNICODE;_WIN32_WINNT=0x0500"
 		MinimalRebuild="true"
 		UsePrecompiledHeader="0"
@@ -27,5 +27,13 @@
 	<UserMacro
 		Name="OPENSSL_HOME"
 		Value="C:\OpenSSL"
+	/>
+	<UserMacro
+		Name="LIBXML_HOME"
+		Value="C:\libxml2-2.6.30"
+	/>
+	<UserMacro
+		Name="ICONV_HOME"
+		Value="C:\iconv-1.9.2"
 	/>
 </VisualStudioPropertySheet>

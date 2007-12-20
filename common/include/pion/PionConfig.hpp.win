@@ -110,6 +110,14 @@
 		#define PION_SERVICE_API __declspec(dllexport)
 	#endif
 
+	#ifdef PION_REACTOR_EXPORTS
+		#define PION_REACTOR_API __declspec(dllexport)
+	#elif defined PION_STATIC_LINKING
+		#define PION_REACTOR_API
+	#else
+		#define PION_REACTOR_API __declspec(dllimport)
+	#endif
+
 	/*
 	Verify correctness of the PION_STATIC_LINKING setup
 	*/
