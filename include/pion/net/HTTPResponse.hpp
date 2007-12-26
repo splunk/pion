@@ -145,7 +145,7 @@ public:
 	
 	/// sets the time that the response was last modified (Last-Modified)
 	inline void setLastModified(const unsigned long t) {
-		addHeader(HEADER_LAST_MODIFIED, get_date_string(t));
+		changeHeader(HEADER_LAST_MODIFIED, get_date_string(t));
 	}
 
 	

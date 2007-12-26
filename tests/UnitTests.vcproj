@@ -423,7 +423,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HTTPMessageTests.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HTTPRequestTests.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HTTPResponseTests.cpp"
 				>
 			</File>
 			<File
