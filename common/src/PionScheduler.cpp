@@ -8,7 +8,9 @@
 //
 
 #include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/thread/xtime.hpp>
+#include <boost/thread/mutex.hpp>
 #include <pion/PionScheduler.hpp>
 
 namespace pion {	// begin namespace pion

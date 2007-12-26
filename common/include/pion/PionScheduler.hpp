@@ -11,6 +11,7 @@
 #define __PION_PIONSCHEDULER_HEADER__
 
 #include <list>
+#include <boost/shared_ptr.hpp>
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/once.hpp>
@@ -36,9 +37,9 @@ public:
 	~PionScheduler() { shutdown(); }
 
 	/**
-     * return an instance of the PionScheduler singleton
+	 * return an instance of the PionScheduler singleton
 	 * 
-     * @return PionScheduler& instance of PionScheduler
+	 * @return PionScheduler& instance of PionScheduler
 	 */
 	inline static PionScheduler& getInstance(void) {
 		boost::call_once(PionScheduler::createInstance, m_instance_flag);

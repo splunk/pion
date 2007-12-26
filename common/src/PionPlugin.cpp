@@ -8,6 +8,7 @@
 //
 
 #include <boost/filesystem.hpp>
+#include <boost/thread/mutex.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionPlugin.hpp>
 
