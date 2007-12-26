@@ -15,6 +15,7 @@
 #include <boost/asio.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPTypes.hpp>
 

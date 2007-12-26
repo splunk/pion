@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <exception>
+#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>

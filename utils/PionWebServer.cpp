@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <iostream>
+#include <boost/asio.hpp>
 #include <pion/PionPlugin.hpp>
 #include <pion/net/HTTPServer.hpp>
 #include "ShutdownManager.hpp"
@@ -31,7 +32,7 @@ void argument_error(void)
 {
 	std::cerr << "usage:   PionWebServer [OPTIONS] RESOURCE WEBSERVICE" << std::endl
 		      << "         PionWebServer [OPTIONS] -c SERVICE_CONFIG_FILE" << std::endl
-			  << "options: [-ssl PEM_FILE] [-i IP] [-p PORT] [-d PLUGINS_DIR] [-o OPTION=VALUE]" << std::endl;
+		      << "options: [-ssl PEM_FILE] [-i IP] [-p PORT] [-d PLUGINS_DIR] [-o OPTION=VALUE]" << std::endl;
 }
 
 

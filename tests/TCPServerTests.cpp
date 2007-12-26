@@ -10,6 +10,7 @@
 #include <pion/PionConfig.hpp>
 #include <pion/PionScheduler.hpp>
 #include <pion/net/TCPServer.hpp>
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/thread/thread.hpp>

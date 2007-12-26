@@ -10,6 +10,7 @@
 #ifndef __PION_HTTPSERVER_HEADER__
 #define __PION_HTTPSERVER_HEADER__
 
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>

@@ -7,6 +7,8 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <boost/asio.hpp>
+#include <boost/logic/tribool.hpp>
 #include <pion/net/HTTPReader.hpp>
 
 

@@ -8,7 +8,6 @@
 //
 
 #include <boost/bind.hpp>
-#include <boost/asio.hpp>
 #include <pion/net/HTTPServer.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPRequestReader.hpp>

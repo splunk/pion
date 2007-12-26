@@ -8,9 +8,11 @@
 //
 
 #include <pion/PionConfig.hpp>
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>

@@ -7,13 +7,15 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <boost/asio.hpp>
 #include <pion/net/HTTPWriter.hpp>
+#include <pion/net/HTTPMessage.hpp>
 
 
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)
 
-	
+
 // HTTPWriter member functions
 
 void HTTPWriter::prepareWriteBuffers(HTTPMessage::WriteBuffers& write_buffers,

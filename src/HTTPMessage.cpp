@@ -7,6 +7,9 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <boost/asio.hpp>
+#include <boost/regex.hpp>
+#include <boost/logic/tribool.hpp>
 #include <pion/net/HTTPMessage.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>

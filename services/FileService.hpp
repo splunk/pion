@@ -10,6 +10,7 @@
 #ifndef __PION_FILESERVICE_HEADER__
 #define __PION_FILESERVICE_HEADER__
 
+#include <boost/shared_ptr.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/thread/once.hpp>

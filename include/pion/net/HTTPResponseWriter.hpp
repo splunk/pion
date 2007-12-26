@@ -10,6 +10,7 @@
 #ifndef __PION_HTTPRESPONSEWRITER_HEADER__
 #define __PION_HTTPRESPONSEWRITER_HEADER__
 
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>

@@ -10,6 +10,7 @@
 #ifndef __PION_HTTPRESPONSEREADER_HEADER__
 #define __PION_HTTPRESPONSEREADER_HEADER__
 
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>

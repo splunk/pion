@@ -8,9 +8,12 @@
 //
 
 #include <pion/PionConfig.hpp>
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/PionPlugin.hpp>
 #include <pion/net/HTTPServer.hpp>

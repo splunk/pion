@@ -7,7 +7,9 @@
 // See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <boost/thread/mutex.hpp>
 #include <pion/PionScheduler.hpp>
 #include <pion/net/TCPServer.hpp>
 
