@@ -63,8 +63,9 @@
 
 
 /* The following are only used by the Windows projects */
-#define PION_NET_API
 #define PION_COMMON_API
+#define PION_PLUGIN_API
+#define PION_NET_API
 #define PION_SERVICE_API
 #define PION_PLATFORM_API
 
