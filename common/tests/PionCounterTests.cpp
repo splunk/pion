@@ -9,7 +9,9 @@
 
 #include <pion/PionConfig.hpp>
 #include <pion/PionCounter.hpp>
+#include <pion/tests/PionUnitTestDefs.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/mpl/list.hpp>
 
 using namespace pion;
 
@@ -23,23 +25,23 @@ public:
 private:
 };
 
-BOOST_FIXTURE_TEST_SUITE(NewPionCounter_S, NewPionCounter_F)
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(NewPionCounter_S, boost::mpl::list<NewPionCounter_F>)
 
-BOOST_AUTO_TEST_CASE(checkGetValueReturnsZero) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetValueReturnsZero) {
 	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long long>(0));
 }
 
-BOOST_AUTO_TEST_CASE(checkGetValueAfterIncrement) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetValueAfterIncrement) {
 	increment();
 	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long long>(1));
 }
 
-BOOST_AUTO_TEST_CASE(checkGetValueAfterDecrement) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetValueAfterDecrement) {
 	decrement();
 	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long long>(-1));
 }
 
-BOOST_AUTO_TEST_CASE(checkGetValueAfterReset) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetValueAfterReset) {
 	reset();
 	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long long>(0));
 }
@@ -57,23 +59,23 @@ public:
 private:
 };
 
-BOOST_FIXTURE_TEST_SUITE(PionCounterSetTo5_S, PionCounterSetTo5_F)
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(PionCounterSetTo5_S, boost::mpl::list<PionCounterSetTo5_F>)
 
-BOOST_AUTO_TEST_CASE(checkGetValueReturns5) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetValueReturns5) {
 	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long long>(5));
 }
 
-BOOST_AUTO_TEST_CASE(checkGetValueAfterIncrement) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetValueAfterIncrement) {
 	increment();
 	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long long>(6));
 }
 
-BOOST_AUTO_TEST_CASE(checkGetValueAfterDecrement) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetValueAfterDecrement) {
 	decrement();
 	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long long>(4));
 }
 
-BOOST_AUTO_TEST_CASE(checkGetValueAfterReset) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetValueAfterReset) {
 	reset();
 	BOOST_CHECK_EQUAL(getValue(), static_cast<unsigned long long>(0));
 }
