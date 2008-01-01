@@ -1,10 +1,10 @@
 // -----------------------------------------------------------------------
 // pion-common: a collection of common libraries used by the Pion Platform
 // -----------------------------------------------------------------------
-// Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// Copyright (C) 2007-2008 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
-// See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
+// See http://www.boost.org/LICENSE_1_0.txt
 //
 
 #ifndef __PION_PIONCONFIG_HEADER__
@@ -114,12 +114,12 @@
 		#define PION_PLUGIN_API __declspec(dllexport)
 	#endif
 
-	#ifdef PION_REACTOR_EXPORTS
-		#define PION_REACTOR_API __declspec(dllexport)
+	#ifdef PION_PLATFORM_EXPORTS
+		#define PION_PLATFORM_API __declspec(dllexport)
 	#elif defined PION_STATIC_LINKING
-		#define PION_REACTOR_API
+		#define PION_PLATFORM_API
 	#else
-		#define PION_REACTOR_API __declspec(dllimport)
+		#define PION_PLATFORM_API __declspec(dllimport)
 	#endif
 
 	/*
