@@ -9,7 +9,7 @@
 
 #include <pion/PionConfig.hpp>
 #include <pion/PionCounter.hpp>
-#include <pion/tests/PionUnitTestDefs.hpp>
+#include <pion/PionUnitTestDefs.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
 
