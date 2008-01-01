@@ -1,10 +1,10 @@
 // ------------------------------------------------------------------
 // pion-net: a C++ framework for building lightweight HTTP interfaces
 // ------------------------------------------------------------------
-// Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// Copyright (C) 2007-2008 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
-// See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
+// See http://www.boost.org/LICENSE_1_0.txt
 //
 
 #include <pion/PionConfig.hpp>
@@ -23,10 +23,10 @@ void setup_logging_for_unit_tests(void)
 		PION_LOG_CONFIG_BASIC;
 		pion::PionLogger log_ptr;
 		log_ptr = PION_GET_LOGGER("pion");
-		PION_LOG_SETLEVEL_INFO(log_ptr);
+		PION_LOG_SETLEVEL_WARN(log_ptr);
 		log_ptr = PION_GET_LOGGER("FileService");
-		PION_LOG_SETLEVEL_INFO(log_ptr);
+		PION_LOG_SETLEVEL_WARN(log_ptr);
 		log_ptr = PION_GET_LOGGER("DiskFileSender");
-		PION_LOG_SETLEVEL_INFO(log_ptr);
+		PION_LOG_SETLEVEL_WARN(log_ptr);
 	}
 }

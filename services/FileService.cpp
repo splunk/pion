@@ -1,10 +1,10 @@
 // ------------------------------------------------------------------
 // pion-net: a C++ framework for building lightweight HTTP interfaces
 // ------------------------------------------------------------------
-// Copyright (C) 2007 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// Copyright (C) 2007-2008 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
-// See accompanying file COPYING or copy at http://www.boost.org/LICENSE_1_0.txt
+// See http://www.boost.org/LICENSE_1_0.txt
 //
 
 #include <boost/asio.hpp>
@@ -42,9 +42,7 @@ FileService::FileService(void)
 	m_max_cache_size(DEFAULT_MAX_CACHE_SIZE),
 	m_max_chunk_size(DEFAULT_MAX_CHUNK_SIZE),
 	m_writable(false)
-{
-	PION_LOG_SETLEVEL_INFO(m_logger);
-}
+{}
 
 void FileService::setOption(const std::string& name, const std::string& value)
 {
