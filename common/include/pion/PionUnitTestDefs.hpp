@@ -34,6 +34,7 @@ part of the name, making some error reports ambiguous.)
 (BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE is based on BOOST_AUTO_TEST_CASE_TEMPLATE,
 in unit_test_suite.hpp.)
 
+
 Minimal example demonstrating usage of BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE:
 
 class ObjectToTest_F { // suffix _F is used for fixtures
@@ -42,6 +43,7 @@ public:
 		m_value = 2;
 	}
 	int m_value;
+	int getValue() { return m_value; }
 };
 
 // This illustrates the most common case, where just one fixture will be used,
@@ -50,8 +52,25 @@ public:
 BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(ObjectToTest_S,
 									   boost::mpl::list<ObjectToTest_F>)
 
+// One method for testing the fixture...
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwo) {
+	BOOST_CHECK_EQUAL(F::m_value, 2);
+	BOOST_CHECK_EQUAL(F::getValue(), 2);
+}
+
+// Another method for testing the fixture...
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwoAgain) {
+	BOOST_CHECK_EQUAL(this->m_value, 2);
+	BOOST_CHECK_EQUAL(this->getValue(), 2);
+}
+
+// The simplest, but, alas, non conformant to the C++ standard, method for testing the fixture.
+// This will compile with MSVC (unless language extensions are disabled (/Za)).
+// It won't compile with gcc unless -fpermissive is used.
+// See http://gcc.gnu.org/onlinedocs/gcc/Name-lookup.html.
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwoNonConformant) {
 	BOOST_CHECK_EQUAL(m_value, 2);
+	BOOST_CHECK_EQUAL(getValue(), 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -63,8 +82,8 @@ typedef fixture_types BOOST_AUTO_TEST_CASE_FIXTURE_TYPES;                 \
 /**/
 
 #define BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(test_name)		\
-template<typename type_name>									\
-struct test_name : public type_name								\
+template<typename F>											\
+struct test_name : public F										\
 { void test_method(); };										\
 																\
 struct BOOST_AUTO_TC_INVOKER( test_name ) {						\
@@ -82,8 +101,8 @@ BOOST_AUTO_TC_REGISTRAR( test_name )(							\
 		BOOST_AUTO_TEST_CASE_FIXTURE_TYPES >(					\
 			BOOST_STRINGIZE( test_name ) ) );					\
 																\
-template<typename type_name>									\
-void test_name<type_name>::test_method()						\
+template<typename F>											\
+void test_name<F>::test_method()								\
 /**/
 
 #endif
