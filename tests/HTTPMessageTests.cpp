@@ -2,34 +2,11 @@
 #include <pion/net/HTTPMessage.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
+#include <pion/PionUnitTestDefs.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
 
 using namespace pion::net;
-
-// Based on BOOST_AUTO_TEST_CASE_TEMPLATE (in unit_test_suite.hpp)
-#define BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(test_name, TL)	\
-template<typename type_name>									\
-struct test_name : public type_name								\
-{ void test_method(); };										\
-																\
-struct BOOST_AUTO_TC_INVOKER( test_name ) {						\
-	template<typename TestType>									\
-	static void run( boost::type<TestType>* = 0 )				\
-	{															\
-		test_name<TestType> t;									\
-		t.test_method();										\
-	}															\
-};																\
-																\
-BOOST_AUTO_TC_REGISTRAR( test_name )(							\
-	boost::unit_test::ut_detail::template_test_case_gen<		\
-	BOOST_AUTO_TC_INVOKER( test_name ),TL >(					\
-		BOOST_STRINGIZE( test_name ) ) );						\
-																\
-template<typename type_name>									\
-void test_name<type_name>::test_method()
 
 #define FIXTURE_TYPE_LIST(F) boost::mpl::list<F<HTTPRequest>, F<HTTPResponse> >
 
@@ -42,44 +19,43 @@ public:
 	}
 };
 
-BOOST_AUTO_TEST_SUITE(NewHTTPMessage_S)
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(NewHTTPMessage_S,
+									   FIXTURE_TYPE_LIST(NewHTTPMessage_F))
 
-typedef FIXTURE_TYPE_LIST(NewHTTPMessage_F) fixture_types;
-
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthReturnsZero, fixture_types) {
-	BOOST_CHECK_EQUAL(getContentLength(), static_cast<size_t>(0));
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthReturnsZero) {
+	BOOST_CHECK_EQUAL(F::getContentLength(), static_cast<size_t>(0));
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkSetContentLengthDoesntThrow, fixture_types) {
-	BOOST_CHECK_NO_THROW(setContentLength(10));
-	BOOST_CHECK_NO_THROW(setContentLength(0));
-}
-
-// Is this what we want?  Note that the length is zero here.
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferReturnsPointer, fixture_types) {
-	BOOST_CHECK(createContentBuffer() != NULL);
-}
-
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsNull, fixture_types) {
-	BOOST_CHECK(getContent() == NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkSetContentLengthDoesntThrow) {
+	BOOST_CHECK_NO_THROW(F::setContentLength(10));
+	BOOST_CHECK_NO_THROW(F::setContentLength(0));
 }
 
 // Is this what we want?  Note that the length is zero here.
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsPointerAfterCreatingContentBuffer, fixture_types) {
-	createContentBuffer();
-	BOOST_CHECK(getContent() != NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferReturnsPointer) {
+	BOOST_CHECK(F::createContentBuffer() != NULL);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkIsValidReturnsFalse, fixture_types) {
-	BOOST_CHECK(!isValid());
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsNull) {
+	BOOST_CHECK(F::getContent() == NULL);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(testChunksSupportedAccessors, fixture_types) {
-	BOOST_CHECK(!getChunksSupported());
-	setChunksSupported(true);
-	BOOST_CHECK(getChunksSupported());
-	setChunksSupported(false);
-	BOOST_CHECK(!getChunksSupported());
+// Is this what we want?  Note that the length is zero here.
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsPointerAfterCreatingContentBuffer) {
+	F::createContentBuffer();
+	BOOST_CHECK(F::getContent() != NULL);
+}
+
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkIsValidReturnsFalse) {
+	BOOST_CHECK(!F::isValid());
+}
+
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(testChunksSupportedAccessors) {
+	BOOST_CHECK(!F::getChunksSupported());
+	F::setChunksSupported(true);
+	BOOST_CHECK(F::getChunksSupported());
+	F::setChunksSupported(false);
+	BOOST_CHECK(!F::getChunksSupported());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -88,37 +64,36 @@ template<typename ConcreteMessageType>
 class HTTPMessageWithContentLengthSet_F : public ConcreteMessageType {
 public:
 	HTTPMessageWithContentLengthSet_F() {
-		setContentLength(20);
+		this->setContentLength(20);
 	}
 	~HTTPMessageWithContentLengthSet_F() {
 	}
 };
 
-BOOST_AUTO_TEST_SUITE(HTTPMessageWithContentLengthSet_S)
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(HTTPMessageWithContentLengthSet_S,
+									   FIXTURE_TYPE_LIST(HTTPMessageWithContentLengthSet_F))
 
-typedef FIXTURE_TYPE_LIST(HTTPMessageWithContentLengthSet_F) fixture_types;
-
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthReturnsCorrectLength, fixture_types) {
-	BOOST_CHECK_EQUAL(getContentLength(), static_cast<size_t>(20));
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthReturnsCorrectLength) {
+	BOOST_CHECK_EQUAL(F::getContentLength(), static_cast<size_t>(20));
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthAfterSettingLengthAgain, fixture_types) {
-	setContentLength(30);
-	BOOST_CHECK_EQUAL(getContentLength(), static_cast<size_t>(30));
-	setContentLength(0);
-	BOOST_CHECK_EQUAL(getContentLength(), static_cast<size_t>(0));
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthAfterSettingLengthAgain) {
+	F::setContentLength(30);
+	BOOST_CHECK_EQUAL(F::getContentLength(), static_cast<size_t>(30));
+	F::setContentLength(0);
+	BOOST_CHECK_EQUAL(F::getContentLength(), static_cast<size_t>(0));
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferReturnsPointer, fixture_types) {
-	BOOST_CHECK(createContentBuffer() != NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferReturnsPointer) {
+	BOOST_CHECK(F::createContentBuffer() != NULL);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsNull, fixture_types) {
-	BOOST_CHECK(getContent() == NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsNull) {
+	BOOST_CHECK(F::getContent() == NULL);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkIsValidReturnsFalse, fixture_types) {
-	BOOST_CHECK(!isValid());
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkIsValidReturnsFalse) {
+	BOOST_CHECK(!F::isValid());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -128,8 +103,8 @@ class HTTPMessageWithContentBufferCreated_F : public ConcreteMessageType {
 public:
 	HTTPMessageWithContentBufferCreated_F() {
 		m_len = 10;
-		setContentLength(m_len);
-		m_content_buffer = createContentBuffer();
+		this->setContentLength(m_len);
+		m_content_buffer = this->createContentBuffer();
 	}
 	~HTTPMessageWithContentBufferCreated_F() {
 	}
@@ -138,24 +113,23 @@ public:
 	char* m_content_buffer;
 };
 
-BOOST_AUTO_TEST_SUITE(HTTPMessageWithContentBufferCreated_S)
-
-typedef FIXTURE_TYPE_LIST(HTTPMessageWithContentBufferCreated_F) fixture_types;
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(HTTPMessageWithContentBufferCreated_S,
+									   FIXTURE_TYPE_LIST(HTTPMessageWithContentBufferCreated_F))
 
 // ???
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferAgainReturnsPointer, fixture_types) {
-	BOOST_CHECK(createContentBuffer() != NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferAgainReturnsPointer) {
+	BOOST_CHECK(F::createContentBuffer() != NULL);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsPointer, fixture_types) {
-	BOOST_CHECK(getContent() != NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsPointer) {
+	BOOST_CHECK(F::getContent() != NULL);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsWhatWasWrittenToBuffer, fixture_types) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsWhatWasWrittenToBuffer) {
 	char buf[] = {0, 1, 2, 3, 127, 0, -1, -2, -3, -128};
-	BOOST_CHECK_EQUAL(sizeof(buf), static_cast<unsigned int>(m_len));
-	memcpy(m_content_buffer, buf, m_len);
-	BOOST_CHECK(memcmp(buf, getContent(), m_len) == 0);
+	BOOST_CHECK_EQUAL(sizeof(buf), static_cast<unsigned int>(F::m_len));
+	memcpy(F::m_content_buffer, buf, F::m_len);
+	BOOST_CHECK(memcmp(buf, F::getContent(), F::m_len) == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -169,8 +143,8 @@ class HTTPMessageWithTextOnlyContent_F : public ConcreteMessageType {
 public:
 	HTTPMessageWithTextOnlyContent_F() {
 		m_len = strlen(TEXT_STRING_1);
-		setContentLength(m_len);
-		m_content_buffer = createContentBuffer();
+		this->setContentLength(m_len);
+		m_content_buffer = this->createContentBuffer();
 		memcpy(m_content_buffer, TEXT_STRING_1, m_len);
 	}
 	~HTTPMessageWithTextOnlyContent_F() {
@@ -180,35 +154,34 @@ public:
 	char* m_content_buffer;
 };
 
-BOOST_AUTO_TEST_SUITE(HTTPMessageWithTextOnlyContent_S)
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(HTTPMessageWithTextOnlyContent_S, 
+									   FIXTURE_TYPE_LIST(HTTPMessageWithTextOnlyContent_F))
 
-typedef FIXTURE_TYPE_LIST(HTTPMessageWithTextOnlyContent_F) fixture_types;
-
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsPointer, fixture_types) {
-	BOOST_CHECK(getContent() != NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsPointer) {
+	BOOST_CHECK(F::getContent() != NULL);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsWhatWasWrittenToBuffer, fixture_types) {
-	BOOST_CHECK(memcmp(TEXT_STRING_1, getContent(), m_len) == 0);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsWhatWasWrittenToBuffer) {
+	BOOST_CHECK(memcmp(TEXT_STRING_1, F::getContent(), F::m_len) == 0);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentAfterChangingContent, fixture_types) {
-	BOOST_CHECK_EQUAL(strlen(TEXT_STRING_2), static_cast<unsigned int>(m_len));
-	memcpy(m_content_buffer, TEXT_STRING_2, m_len);
-	BOOST_CHECK(memcmp(TEXT_STRING_2, getContent(), m_len) == 0);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentAfterChangingContent) {
+	BOOST_CHECK_EQUAL(strlen(TEXT_STRING_2), static_cast<unsigned int>(F::m_len));
+	memcpy(F::m_content_buffer, TEXT_STRING_2, F::m_len);
+	BOOST_CHECK(memcmp(TEXT_STRING_2, F::getContent(), F::m_len) == 0);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentAfterChangingSizeAndContent, fixture_types) {
-	m_len = strlen(TEXT_STRING_3);
-	setContentLength(m_len);
-	m_content_buffer = createContentBuffer();
-	memcpy(m_content_buffer, TEXT_STRING_3, m_len);
-	BOOST_CHECK(memcmp(TEXT_STRING_3, getContent(), m_len) == 0);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentAfterChangingSizeAndContent) {
+	F::m_len = strlen(TEXT_STRING_3);
+	F::setContentLength(F::m_len);
+	F::m_content_buffer = F::createContentBuffer();
+	memcpy(F::m_content_buffer, TEXT_STRING_3, F::m_len);
+	BOOST_CHECK(memcmp(TEXT_STRING_3, F::getContent(), F::m_len) == 0);
 }
 
 // This is just for convenience for text-only post content.
 // Strictly speaking, getContent() guarantees nothing beyond the buffer.
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsZeroTerminatedBuffer, fixture_types) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsZeroTerminatedBuffer) {
 	// This crashes due to bug in Boost.Test if m_content_buffer[m_len] is negative, so use workaround.
 	//BOOST_CHECK_EQUAL(m_content_buffer[m_len], static_cast<char>(0));
 
@@ -217,13 +190,13 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsZeroTerminatedBuffer
 	//char c2 = -2;
 	//BOOST_CHECK_EQUAL(c1, c2);
 
-	BOOST_CHECK_EQUAL(static_cast<int>(m_content_buffer[m_len]), static_cast<int>(0));
+	BOOST_CHECK_EQUAL(static_cast<int>(F::m_content_buffer[F::m_len]), static_cast<int>(0));
 }
 
 // See comments for checkGetContentReturnsZeroTerminatedBuffer.
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkContentPointerUsableAsString, fixture_types) {
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkContentPointerUsableAsString) {
 	const std::string s1 = TEXT_STRING_1;
-	std::string s2 = getContent();
+	std::string s2 = F::getContent();
 	BOOST_CHECK_EQUAL(s1, s2);
 }
 
