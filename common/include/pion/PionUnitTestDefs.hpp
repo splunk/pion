@@ -13,6 +13,19 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 
+#ifdef _MSC_VER
+	#include <direct.h>
+	#define CHANGE_DIRECTORY _chdir
+	#define GET_DIRECTORY(a,b) _getcwd(a,b)
+#else
+	#include <unistd.h>
+	#define CHANGE_DIRECTORY chdir
+	#define GET_DIRECTORY(a,b) getcwd(a,b)
+#endif
+
+#define DIRECTORY_MAX_SIZE 1000
+
+
 /*
 Using BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE and
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE has two additional benefits relative to 

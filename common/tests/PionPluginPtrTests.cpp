@@ -7,20 +7,12 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifdef _MSC_VER
-	#include <direct.h>
-	#define CHANGE_DIRECTORY _chdir
-	#define GET_DIRECTORY(a,b) _getcwd(a,b)
-#else
-	#include <unistd.h>
-	#define CHANGE_DIRECTORY chdir
-	#define GET_DIRECTORY(a,b) getcwd(a,b)
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionPlugin.hpp>
+#include <pion/PionUnitTestDefs.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace pion;
@@ -41,8 +33,6 @@ using namespace pion;
 	#endif
 	static const std::string sharedLibExt = ".so";
 #endif
-
-#define DIRECTORY_MAX_SIZE 1000
 
 class InterfaceStub {
 };
