@@ -16,7 +16,7 @@
 	<Tool
 		Name="VCLinkerTool"
 		LinkIncremental="2"
-		AdditionalLibraryDirectories="&quot;$(LOG4CXX_HOME)\bin&quot;;&quot;$(OPENSSL_HOME)\lib&quot;;&quot;$(LIBXML_HOME)\lib&quot;"
+		AdditionalLibraryDirectories="&quot;$(LOG4CXX_HOME)\bin&quot;;&quot;$(OPENSSL_HOME)\lib&quot;;&quot;$(LIBXML_HOME)\lib&quot;;&quot;$(SQLITE_HOME)&quot;;&quot;$(MYSQL_HOME)\lib\debug&quot;"
 		GenerateDebugInformation="true"
 	/>
 </VisualStudioPropertySheet>
