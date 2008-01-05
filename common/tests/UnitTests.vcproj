@@ -432,6 +432,10 @@
 				RelativePath=".\PionPluginPtrTests.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\PluginManagerTests.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

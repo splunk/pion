@@ -178,6 +178,9 @@ inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::load(const std::string& plugin_i
 	void *create_func;
 	void *destroy_func;
 	
+	if (m_plugin_map.find(plugin_id) != m_plugin_map.end())
+		throw DuplicatePluginException(plugin_id);
+	
 	// check if plug-in is statically linked, and if not, try to resolve for dynamic
 	is_static = PionPlugin::findStaticEntryPoint(plugin_type, &create_func, &destroy_func);
 	
