@@ -429,6 +429,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PionDateTimeTests.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PionPluginPtrTests.cpp"
 				>
 			</File>

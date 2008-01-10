@@ -80,12 +80,12 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGet) {
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkRemove) {
-	BOOST_CHECK_THROW(F::remove("urn:id_1"), PluginManager::PluginNotFoundException);
+	BOOST_CHECK_THROW(F::remove("urn:id_1"), PluginManager<InterfaceStub>::PluginNotFoundException);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkRun) {
-	PluginFunction f;
-	BOOST_CHECK_THROW(F::run("urn:id_3", f), PluginManager::PluginNotFoundException);
+	typename F::PluginFunction f;
+	BOOST_CHECK_THROW(F::run("urn:id_3", f), PluginManager<InterfaceStub>::PluginNotFoundException);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkClear) {
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkLoadSecondPlugin) {
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkLoadSecondPluginWithSameId) {
-	BOOST_CHECK_THROW(F::load("urn:id_1", "hasCreateAndDestroy"), PluginManager::DuplicatePluginException);
+	BOOST_CHECK_THROW(F::load("urn:id_1", "hasCreateAndDestroy"), PluginManager<InterfaceStub>::DuplicatePluginException);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGet) {

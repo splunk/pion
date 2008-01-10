@@ -469,6 +469,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\pion\PionDateTime.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\include\pion\PionException.hpp"
 				>
 			</File>
