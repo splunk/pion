@@ -83,7 +83,7 @@ public:
 	 * read date_time value from a string using the defined format
 	 *
 	 * @param str string to read the value from
-	 * @param t will be set to the value read from the string
+	 * @param t will be set to the date_time value read from the string
 	 */
 	inline void fromString(const std::string& str, PionDateTime& t) {
 		m_input_stream.str(str);
@@ -94,7 +94,7 @@ public:
 	 * read date_time value from a string using the defined format
 	 *
 	 * @param str string to read the value from
-	 * @param t will be set to the value read from the string
+	 * @param t will be set to the date_time value read from the string
 	 */
 	inline void fromString(const char *str, PionDateTime& t) {
 		m_input_stream.str(str);
@@ -102,15 +102,53 @@ public:
 	}
 	
 	/**
+	 * read date_time value from a string using the defined format
+	 *
+	 * @param str string to read the value from
+	 * @return result of the date_time value read from the string
+	 */
+	inline PionDateTime fromString(const std::string& str) {
+		PionDateTime t;
+		m_input_stream.str(str);
+		m_input_stream >> t;
+		return t;
+	}
+	
+	/**
+	 * read date_time value from a string using the defined format
+	 *
+	 * @param str string to read the value from
+	 * @return result of the date_time value read from the string
+	 */
+	inline PionDateTime fromString(const char *str) {
+		PionDateTime t;
+		m_input_stream.str(str);
+		m_input_stream >> t;
+		return t;
+	}
+	
+	/**
 	 * write date_time value to a string using the defined format
 	 *
 	 * @param str string to write the value to
-	 * @param t the value to write to the string
+	 * @param t the date_time value to write to the string
 	 */
 	inline void toString(std::string& str, const PionDateTime& t) {
 		m_output_stream.str("");
 		m_output_stream << t;
 		str = m_output_stream.str();
+	}
+
+	/**
+	 * write date_time value to a string using the defined format
+	 *
+	 * @param t the date_time value to write to the string
+	 * @return the date_time value converted into string format
+	 */
+	inline std::string toString(const PionDateTime& t) {
+		m_output_stream.str("");
+		m_output_stream << t;
+		return m_output_stream.str();
 	}
 
 	/// sets the format used for I/O (see boost::date_time docs)
