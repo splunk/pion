@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkRemove) {
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkRun) {
-	typename F::PluginFunction f;
+	typename F::PluginRunFunction f;
 	BOOST_CHECK_THROW(F::run("urn:id_3", f), PluginManager<InterfaceStub>::PluginNotFoundException);
 }
 

@@ -11,6 +11,7 @@
 #define __PION_PIONCOUNTER_HEADER__
 
 #include <pion/PionConfig.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/thread/mutex.hpp>
 
 
@@ -115,7 +116,7 @@ public:
 	inline void reset(void) { assign(0); }
 
 	/// returns the value of the counter
-	inline unsigned long long getValue(void) const {
+	inline boost::uint64_t getValue(void) const {
 		return m_value;
 	}
 	
@@ -126,7 +127,7 @@ private:
 	boost::mutex				m_mutex;
 	
 	/// used to keep track of the counter's value
-	unsigned long long			m_value;
+	boost::uint64_t				m_value;
 };
 
 

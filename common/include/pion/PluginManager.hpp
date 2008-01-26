@@ -10,13 +10,14 @@
 #ifndef __PION_PLUGINMANAGER_HEADER__
 #define __PION_PLUGINMANAGER_HEADER__
 
+#include <map>
+#include <string>
+#include <boost/cstdint.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
 #include <pion/PionPlugin.hpp>
-#include <string>
-#include <map>
 
 
 namespace pion {	// begin namespace pion
@@ -44,7 +45,10 @@ public:
 	};
 	
 	/// data type for a function that may be called by the run() method
-	typedef boost::function1<void, PLUGIN_TYPE*>	PluginFunction;
+	typedef boost::function1<void, PLUGIN_TYPE*>	PluginRunFunction;
+
+	/// data type for a function that may be called by the getStat() method
+	typedef boost::function1<boost::uint64_t, const PLUGIN_TYPE*>	PluginStatFunction;
 
 	
 	/// default constructor
@@ -111,7 +115,7 @@ public:
 	 *
 	 * @param run_func the function to execute for each plug-in object
 	 */
-	inline void run(PluginFunction run_func);
+	inline void run(PluginRunFunction run_func);
 	
 	/**
 	 * runs a method for a particular plug-in
@@ -119,7 +123,23 @@ public:
 	 * @param plugin_id unique identifier associated with the plug-in
 	 * @param run_func the function to execute
 	 */
-	inline void run(const std::string& plugin_id, PluginFunction run_func);
+	inline void run(const std::string& plugin_id, PluginRunFunction run_func);
+	
+	/**
+	 * returns a total statistic value summed for every plug-in being managed
+	 *
+	 * @param stat_func the statistic function to execute for each plug-in object
+	 */
+	inline boost::uint64_t getStatistic(PluginStatFunction stat_func) const;
+	
+	/**
+	 * returns a statistic value for a particular plug-in
+	 *
+	 * @param plugin_id unique identifier associated with the plug-in
+	 * @param stat_func the statistic function to execute
+	 */
+	inline boost::uint64_t getStatistic(const std::string& plugin_id,
+										PluginStatFunction stat_func) const;
 		
 	
 protected:
@@ -257,7 +277,7 @@ inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::find(const std::string& resource
 }
 	
 template <typename PLUGIN_TYPE>
-inline void PluginManager<PLUGIN_TYPE>::run(PluginFunction run_func)
+inline void PluginManager<PLUGIN_TYPE>::run(PluginRunFunction run_func)
 {
 	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
 	for (typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i = m_plugin_map.begin();
@@ -269,7 +289,7 @@ inline void PluginManager<PLUGIN_TYPE>::run(PluginFunction run_func)
 
 template <typename PLUGIN_TYPE>
 inline void PluginManager<PLUGIN_TYPE>::run(const std::string& plugin_id,
-											PluginFunction run_func)
+											PluginRunFunction run_func)
 {
 	// no need to lock (handled by PluginManager::get())
 	PLUGIN_TYPE *plugin_object_ptr = get(plugin_id);
@@ -277,7 +297,31 @@ inline void PluginManager<PLUGIN_TYPE>::run(const std::string& plugin_id,
 		throw PluginNotFoundException(plugin_id);
 	run_func(plugin_object_ptr);
 }
-	
+
+template <typename PLUGIN_TYPE>
+inline boost::uint64_t PluginManager<PLUGIN_TYPE>::getStatistic(PluginStatFunction stat_func) const
+{
+	boost::uint64_t stat_value = 0;
+	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
+	for (typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::const_iterator i = m_plugin_map.begin();
+		 i != m_plugin_map.end(); ++i)
+	{
+		stat_value += stat_func(i->second.first);
+	}
+	return stat_value;
+}
+
+template <typename PLUGIN_TYPE>
+inline boost::uint64_t PluginManager<PLUGIN_TYPE>::getStatistic(const std::string& plugin_id,
+																PluginStatFunction stat_func) const
+{
+	// no need to lock (handled by PluginManager::get())
+	const PLUGIN_TYPE *plugin_object_ptr = const_cast<PluginManager<PLUGIN_TYPE>*>(this)->get(plugin_id);
+	if (plugin_object_ptr == NULL)
+		throw PluginNotFoundException(plugin_id);
+	return stat_func(plugin_object_ptr);
+}
+
 
 // PluginManager::PluginMap member functions
 
