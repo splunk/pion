@@ -314,8 +314,8 @@ public:
 	virtual void setOption(const std::string& name, const std::string& value);
 	
 	/// handles requests for FileService
-	virtual void handleRequest(pion::net::HTTPRequestPtr& request,
-							   pion::net::TCPConnectionPtr& tcp_conn);	
+	virtual void operator()(pion::net::HTTPRequestPtr& request,
+							pion::net::TCPConnectionPtr& tcp_conn);	
 	
 	/// called when the web service's server is starting
 	virtual void start(void);

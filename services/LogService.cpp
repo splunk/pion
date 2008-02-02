@@ -143,7 +143,7 @@ LogService::~LogService()
 }
 
 /// handles requests for LogService
-void LogService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void LogService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	// Set Content-type to "text/plain" (plain ascii text)
 	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));

@@ -17,7 +17,7 @@ using namespace pion::net;
 // HelloService member functions
 
 /// handles requests for HelloService
-void HelloService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void HelloService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	static const std::string HELLO_HTML = "<html><body>Hello World!</body></html>";
 	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));

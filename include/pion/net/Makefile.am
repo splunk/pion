@@ -8,4 +8,4 @@ pion_net_include_HEADERS = TCPConnection.hpp TCPServer.hpp \
 	HTTPParser.hpp HTTPWriter.hpp HTTPReader.hpp \
 	HTTPRequestReader.hpp HTTPResponseReader.hpp \
 	HTTPRequestWriter.hpp HTTPResponseWriter.hpp \
-	HTTPServer.hpp WebService.hpp
+	HTTPServer.hpp WebService.hpp WebServer.hpp

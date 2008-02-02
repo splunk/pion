@@ -132,8 +132,8 @@ public:
 	virtual ~LogService();
 	
 	/// handles a new HTTP request
-	virtual void handleRequest(pion::net::HTTPRequestPtr& request,
-							   pion::net::TCPConnectionPtr& tcp_conn);
+	virtual void operator()(pion::net::HTTPRequestPtr& request,
+							pion::net::TCPConnectionPtr& tcp_conn);
 
 	/// returns the log appender used by LogService
 	inline LogServiceAppender& getLogAppender(void) { return *m_log_appender_ptr; }

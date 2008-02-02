@@ -50,7 +50,7 @@ public:
 	 *
 	 * @return true if the request was handled; false if not
 	 */
-	virtual void handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) = 0;
+	virtual void operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) = 0;
 	
 	/**
 	 * sets a configuration option

@@ -14,7 +14,7 @@
 using namespace pion;
 using namespace pion::net;
 
-void AllowNothingService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void AllowNothingService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	static const std::string DENY_HTML = "<html><body>No, you can't.</body></html>";
 	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));

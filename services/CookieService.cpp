@@ -17,7 +17,7 @@ using namespace pion::net;
 // CookieService member functions
 
 /// handles requests for CookieService
-void CookieService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	static const std::string HEADER_HTML = "<html>\n<head>\n<title>Cookie Service</title>\n"
 		"</head>\n<body>\n\n<h1>Cookie Service</h1>\n";

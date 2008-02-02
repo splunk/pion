@@ -99,7 +99,7 @@ void FileService::setOption(const std::string& name, const std::string& value)
 	}
 }
 
-void FileService::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	// get the relative resource path for the request
 	const std::string relative_path(getRelativeResource(request->getResource()));

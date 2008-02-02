@@ -22,8 +22,8 @@ class EchoService :
 public:
 	EchoService(void) {}
 	virtual ~EchoService() {}
-	virtual void handleRequest(pion::net::HTTPRequestPtr& request,
-							   pion::net::TCPConnectionPtr& tcp_conn);
+	virtual void operator()(pion::net::HTTPRequestPtr& request,
+							pion::net::TCPConnectionPtr& tcp_conn);
 };
 
 #endif

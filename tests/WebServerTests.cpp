@@ -16,11 +16,11 @@
 #include <boost/regex.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/PionPlugin.hpp>
-#include <pion/net/HTTPServer.hpp>
 #include <pion/PionScheduler.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
 #include <pion/net/HTTPRequestWriter.hpp>
+#include <pion/net/WebServer.hpp>
 
 using namespace std;
 using namespace pion;
@@ -187,21 +187,14 @@ class WebServerTests_F {
 public:
 	
 	// default constructor & destructor
-	WebServerTests_F() {
+	WebServerTests_F() : m_server(8080) {
 		setup_logging_for_unit_tests();
 
 		// initialize the list of directories in which to look for plug-ins
 		PionPlugin::resetPluginDirectories();
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
-
-		// create an HTTP server for port 8080
-		http_server_ptr = HTTPServer::create(8080);
-		BOOST_REQUIRE(http_server_ptr);
 	}
 	~WebServerTests_F() {}
-	
-	/// returns a smart pointer to the HTTP server
-	inline HTTPServerPtr& getServerPtr(void) { return http_server_ptr; }
 	
 	/**
 	 * sends a request to the local HTTP server
@@ -259,8 +252,8 @@ public:
 	 */
 	inline void checkWebServerResponseCode(void) {
 		// load simple Hello service and start the server
-		getServerPtr()->loadService("/hello", "HelloService");
-		getServerPtr()->start();
+		m_server.loadService("/hello", "HelloService");
+		m_server.start();
 		
 		// open a connection
 		tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
@@ -323,8 +316,8 @@ public:
 											  unsigned int expectedResponseCode = 200)
 	{
 		// load specified service and start the server
-		getServerPtr()->loadService(resource, service);
-		getServerPtr()->start();
+		m_server.loadService(resource, service);
+		m_server.start();
 		
 		// open a connection
 		tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
@@ -366,9 +359,7 @@ public:
 		BOOST_CHECK(http_response.getStatusCode() == 404);
 	}
 	
-	
-private:
-	HTTPServerPtr	http_server_ptr;
+	WebServer	m_server;
 };
 
 
@@ -377,11 +368,11 @@ private:
 BOOST_FIXTURE_TEST_SUITE(WebServerTests_S, WebServerTests_F)
 
 BOOST_AUTO_TEST_CASE(checkWebServerIsListening) {
-	BOOST_CHECK(! getServerPtr()->isListening());
-	getServerPtr()->start();
-	BOOST_CHECK(getServerPtr()->isListening());
-	getServerPtr()->stop();
-	BOOST_CHECK(! getServerPtr()->isListening());
+	BOOST_CHECK(! m_server.isListening());
+	m_server.start();
+	BOOST_CHECK(m_server.isListening());
+	m_server.stop();
+	BOOST_CHECK(! m_server.isListening());
 }
 
 BOOST_AUTO_TEST_CASE(checkWebServerRespondsProperly) {
@@ -390,8 +381,8 @@ BOOST_AUTO_TEST_CASE(checkWebServerRespondsProperly) {
 
 BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponses) {
 	// load simple Hello service and start the server
-	getServerPtr()->loadService("/hello", "HelloService");
-	getServerPtr()->start();
+	m_server.loadService("/hello", "HelloService");
+	m_server.start();
 	
 	// open a connection
 	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService());
@@ -404,8 +395,8 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponses) {
 }
 
 BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
-	getServerPtr()->loadService("/echo", "EchoService");
-	getServerPtr()->start();
+	m_server.loadService("/echo", "EchoService");
+	m_server.start();
 
 	// open a connection
 	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
@@ -436,8 +427,8 @@ BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
 }
 
 BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
-	getServerPtr()->loadService("/echo", "EchoService");
-	getServerPtr()->start();
+	m_server.loadService("/echo", "EchoService");
+	m_server.start();
 
 	// open a connection
 	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
@@ -471,8 +462,8 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
 }
 
 BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
-	getServerPtr()->loadService("/echo", "EchoService");
-	getServerPtr()->start();
+	m_server.loadService("/echo", "EchoService");
+	m_server.start();
 
 	// open a connection
 	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
@@ -500,8 +491,8 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
 }
 
 BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
-	getServerPtr()->loadService("/echo", "EchoService");
-	getServerPtr()->start();
+	m_server.loadService("/echo", "EchoService");
+	m_server.start();
 
 	// open a connection
 	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
@@ -530,9 +521,9 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
 #ifdef PION_HAVE_SSL
 BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponsesUsingSSL) {
 	// load simple Hello service and start the server
-	getServerPtr()->setSSLKeyFile(SSL_PEM_FILE);
-	getServerPtr()->loadService("/hello", "HelloService");
-	getServerPtr()->start();
+	m_server.setSSLKeyFile(SSL_PEM_FILE);
+	m_server.loadService("/hello", "HelloService");
+	m_server.start();
 
 	// open a connection
 	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService(), true);
@@ -585,8 +576,8 @@ BOOST_AUTO_TEST_CASE(checkAllowNothingServiceResponseContent) {
 
 BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
 	// load multiple services and start the server
-	getServerPtr()->loadServiceConfig(SERVICES_CONFIG_FILE);
-	getServerPtr()->start();
+	m_server.loadServiceConfig(SERVICES_CONFIG_FILE);
+	m_server.start();
 	
 	// open a connection
 	tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);

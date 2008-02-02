@@ -11,7 +11,7 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <pion/PionPlugin.hpp>
-#include <pion/net/HTTPServer.hpp>
+#include <pion/net/WebServer.hpp>
 #include "ShutdownManager.hpp"
 
 // these are used only when linking to static web service libraries
@@ -138,12 +138,12 @@ int main (int argc, char *argv[])
 		}
 
 		// create a server for HTTP & add the Hello Service
-		HTTPServerPtr http_server(HTTPServer::create(cfg_endpoint));
+		WebServer  web_server(cfg_endpoint);
 
 		if (ssl_flag) {
 #ifdef PION_HAVE_SSL
 			// configure server for SSL
-			http_server->setSSLKeyFile(ssl_pem_file);
+			web_server.setSSLKeyFile(ssl_pem_file);
 			PION_LOG_INFO(main_log, "SSL support enabled using key file: " << ssl_pem_file);
 #else
 			PION_LOG_ERROR(main_log, "SSL support is not enabled");
@@ -152,21 +152,21 @@ int main (int argc, char *argv[])
 		
 		if (service_config_file.empty()) {
 			// load a single web service using the command line arguments
-			http_server->loadService(resource_name, service_name);
+			web_server.loadService(resource_name, service_name);
 
 			// set web service options if any are defined
 			for (ServiceOptionsType::iterator i = service_options.begin();
 				 i != service_options.end(); ++i)
 			{
-				http_server->setServiceOption(resource_name, i->first, i->second);
+				web_server.setServiceOption(resource_name, i->first, i->second);
 			}
 		} else {
 			// load services using the configuration file
-			http_server->loadServiceConfig(service_config_file);
+			web_server.loadServiceConfig(service_config_file);
 		}
 
 		// startup the server
-		http_server->start();
+		web_server.start();
 		main_shutdown_manager.wait();
 		
 	} catch (std::exception& e) {

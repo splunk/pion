@@ -19,10 +19,10 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <pion/PionPlugin.hpp>
-#include <pion/net/WebService.hpp>
-#include <pion/net/HTTPServer.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
+#include <pion/net/WebService.hpp>
+#include <pion/net/WebServer.hpp>
 
 using namespace pion;
 using namespace pion::net;
@@ -95,11 +95,9 @@ BOOST_AUTO_TEST_SUITE_END()
 
 class NewlyLoadedFileService_F {
 public:
-	NewlyLoadedFileService_F() {
+	NewlyLoadedFileService_F() : m_server(8080) {
 		PionPlugin::resetPluginDirectories();
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
-		m_http_server_ptr = HTTPServer::create(8080);
-		BOOST_REQUIRE(m_http_server_ptr);
 
 		boost::filesystem::remove_all("sandbox");
 		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox"));
@@ -113,67 +111,63 @@ public:
 		emptyFile.close();
 		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1"));
 
-		getServerPtr()->loadService("/resource1", "FileService");
+		m_server.loadService("/resource1", "FileService");
 	}
 	~NewlyLoadedFileService_F() {
 		boost::filesystem::remove_all("sandbox");
 	}
 	
-	/// returns a smart pointer to the HTTP server
-	inline HTTPServerPtr& getServerPtr(void) { return m_http_server_ptr; }
-
-protected:
-	HTTPServerPtr m_http_server_ptr;
+	WebServer	m_server;
 };
 
 BOOST_FIXTURE_TEST_SUITE(NewlyLoadedFileService_S, NewlyLoadedFileService_F)
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithExistingDirectoryDoesntThrow) {
-	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "directory", "sandbox"));
+	BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "directory", "sandbox"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithNonexistentDirectoryThrows) {
-	BOOST_CHECK_THROW(getServerPtr()->setServiceOption("/resource1", "directory", "NotADirectory"), HTTPServer::WebServiceException);
+	BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "directory", "NotADirectory"), WebServer::WebServiceException);
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithExistingFileDoesntThrow) {
-	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "file", "sandbox/file1"));
+	BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "file", "sandbox/file1"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithNonexistentFileThrows) {
-	BOOST_CHECK_THROW(getServerPtr()->setServiceOption("/resource1", "file", "NotAFile"), HTTPServer::WebServiceException);
+	BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "file", "NotAFile"), WebServer::WebServiceException);
 }
 
 // TODO: tests for options "cache" and "scan"
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionMaxChunkSizeWithSizeZeroThrows) {
-	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "max_chunk_size", "0"));
+	BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "max_chunk_size", "0"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionMaxChunkSizeWithNonZeroSizeDoesntThrow) {
-	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "max_chunk_size", "100"));
+	BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "max_chunk_size", "100"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToTrueDoesntThrow) {
-	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "writable", "true"));
+	BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "writable", "true"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToFalseDoesntThrow) {
-	BOOST_CHECK_NO_THROW(getServerPtr()->setServiceOption("/resource1", "writable", "false"));
+	BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "writable", "false"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToNonBooleanThrows) {
-	BOOST_REQUIRE_THROW(getServerPtr()->setServiceOption("/resource1", "writable", "3"), HTTPServer::WebServiceException);
+	BOOST_REQUIRE_THROW(m_server.setServiceOption("/resource1", "writable", "3"), WebServer::WebServiceException);
 	try {
-		getServerPtr()->setServiceOption("/resource1", "writable", "3");
-	} catch (HTTPServer::WebServiceException& e) {
+		m_server.setServiceOption("/resource1", "writable", "3");
+	} catch (WebServer::WebServiceException& e) {
 		BOOST_CHECK_EQUAL(e.what(), "WebService (/resource1): FileService invalid value for writable option: 3");
 	}
 	//Original exception is FileService::InvalidOptionValueException
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWithInvalidOptionNameThrows) {
-	BOOST_CHECK_THROW(getServerPtr()->setServiceOption("/resource1", "NotAnOption", "value1"), HTTPServer::WebServiceException);
+	BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "NotAnOption", "value1"), WebServer::WebServiceException);
 }
 
 BOOST_AUTO_TEST_SUITE_END()	
@@ -182,9 +176,9 @@ class RunningFileService_F : public NewlyLoadedFileService_F {
 public:
 	RunningFileService_F() {
 		m_content_length = 0;
-		getServerPtr()->setServiceOption("/resource1", "directory", "sandbox");
-		getServerPtr()->setServiceOption("/resource1", "file", "sandbox/file1");
-		getServerPtr()->start();
+		m_server.setServiceOption("/resource1", "directory", "sandbox");
+		m_server.setServiceOption("/resource1", "file", "sandbox/file1");
+		m_server.start();
 
 		// open a connection
 		tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
@@ -423,7 +417,7 @@ BOOST_AUTO_TEST_SUITE_END()
 class RunningFileServiceWithWritingEnabled_F : public RunningFileService_F {
 public:
 	RunningFileServiceWithWritingEnabled_F() {
-		getServerPtr()->setServiceOption("/resource1", "writable", "true");
+		m_server.setServiceOption("/resource1", "writable", "true");
 	}
 	~RunningFileServiceWithWritingEnabled_F() {
 	}
@@ -587,7 +581,7 @@ public:
 	enum _size_constants { MAX_CHUNK_SIZE = 10 };
 
 	RunningFileServiceWithMaxChunkSizeSet_F() {
-		getServerPtr()->setServiceOption("/resource1", "max_chunk_size", boost::lexical_cast<std::string>(MAX_CHUNK_SIZE));
+		m_server.setServiceOption("/resource1", "max_chunk_size", boost::lexical_cast<std::string>(MAX_CHUNK_SIZE));
 
 		// make sure the length of the test data is in the range expected by the tests
 		m_file4_len = strlen(g_file4_contents);
