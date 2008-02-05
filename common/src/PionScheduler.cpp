@@ -8,29 +8,20 @@
 //
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/xtime.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pion/PionScheduler.hpp>
 
 namespace pion {	// begin namespace pion
 
 
 // static members of PionScheduler
-const unsigned int		PionScheduler::DEFAULT_NUM_THREADS = 8;
-const unsigned long		PionScheduler::NSEC_IN_SECOND = 1000000000;	// (10^9)
-const unsigned long		PionScheduler::SLEEP_WHEN_NO_WORK_NSEC = NSEC_IN_SECOND / 4;
-PionScheduler *			PionScheduler::m_instance_ptr = NULL;
-boost::once_flag		PionScheduler::m_instance_flag = BOOST_ONCE_INIT;
+	
+const boost::uint32_t	PionScheduler::DEFAULT_NUM_THREADS = 8;
+const boost::uint32_t	PionScheduler::NSEC_IN_SECOND = 1000000000;	// (10^9)
+const boost::uint32_t	PionScheduler::SLEEP_WHEN_NO_WORK_NSEC = NSEC_IN_SECOND / 4;
 
 
 // PionScheduler member functions
-
-void PionScheduler::createInstance(void)
-{
-	static PionScheduler pion_instance;
-	m_instance_ptr = &pion_instance;
-}
 
 void PionScheduler::startup(void)
 {
@@ -42,7 +33,7 @@ void PionScheduler::startup(void)
 		m_is_running = true;
 
 		// start multiple threads to handle async tasks
-		for (unsigned int n = 0; n < m_num_threads; ++n) {
+		for (boost::uint32_t n = 0; n < m_num_threads; ++n) {
 			boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&PionScheduler::run, this) ));
 			m_thread_pool.push_back(new_thread);
 		}
@@ -65,7 +56,7 @@ void PionScheduler::shutdown(void)
 		}
 
 		// Stop the service to make sure no more events are pending
-		m_asio_service.stop();
+		m_service.stop();
 
 		if (! m_thread_pool.empty()) {
 			PION_LOG_DEBUG(m_logger, "Waiting for threads to shutdown");
@@ -92,7 +83,7 @@ void PionScheduler::shutdown(void)
 	} else {
 	
 		// Stop the service to make sure for certain that no events are pending
-		m_asio_service.stop();
+		m_service.stop();
 		
 		// Make sure that the thread pool is empty
 		m_thread_pool.clear();
@@ -133,17 +124,17 @@ void PionScheduler::run(void)
 		// handle I/O events managed by the service
 		++m_running_threads;
 		try {
-			m_asio_service.run();
+			m_service.run();
 		} catch (std::exception& e) {
 			PION_LOG_FATAL(m_logger, "Caught exception in pool thread: " << e.what());
 		}
-		if (--m_running_threads == static_cast<unsigned long>(0)) {
-			m_asio_service.reset();
+		if (--m_running_threads == static_cast<boost::uint32_t>(0)) {
+			m_service.reset();
 		}
 		if (m_is_running) {
 			boost::xtime_get(&wakeup_time, boost::TIME_UTC);
 			wakeup_time.nsec += SLEEP_WHEN_NO_WORK_NSEC;
-			if (static_cast<unsigned long>(wakeup_time.nsec) >= NSEC_IN_SECOND) {
+			if (static_cast<boost::uint32_t>(wakeup_time.nsec) >= NSEC_IN_SECOND) {
 				wakeup_time.sec++;
 				wakeup_time.nsec -= NSEC_IN_SECOND;
 			}
