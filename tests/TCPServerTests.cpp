@@ -245,9 +245,11 @@ public:
 	/**
 	 * MockSyncServer constructor
 	 *
+	 * @param scheduler the PionScheduler that will be used to manage worker threads
 	 * @param tcp_port port number used to listen for new connections (IPv4)
 	 */
-	MockSyncServer(const unsigned int tcp_port) : pion::net::TCPServer(tcp_port) {}
+	MockSyncServer(PionScheduler& scheduler, const unsigned int tcp_port)
+		: pion::net::TCPServer(scheduler, tcp_port) {}
 	
 	virtual ~MockSyncServer() {}
 
@@ -299,7 +301,7 @@ std::string MockSyncServer::m_expectedContent;
 class MockSyncServerTests_F {
 public:
 	MockSyncServerTests_F()
-		: sync_server_ptr(new MockSyncServer(8080))
+		: m_scheduler(), sync_server_ptr(new MockSyncServer(m_scheduler, 8080))
 	{
 		setup_logging_for_unit_tests();
 		sync_server_ptr->start();
@@ -308,8 +310,10 @@ public:
 		sync_server_ptr->stop();
 	}
 	inline TCPServerPtr& getServerPtr(void) { return sync_server_ptr; }
+	inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }
 
 private:
+	PionScheduler	m_scheduler;
 	TCPServerPtr	sync_server_ptr;
 };
 
@@ -382,7 +386,7 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingChunkedStream) {
 
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
 	// open a connection
-	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService());
+	TCPConnection tcp_conn(getIOService());
 	boost::system::error_code error_code;
 	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
 	BOOST_REQUIRE(!error_code);

@@ -69,7 +69,7 @@ public:
 	virtual ~WebServer() { clear(); }
 	
 	/**
-	 * creates new WebServer objects
+	 * creates a new WebServer object
 	 * 
 	 * @param tcp_port port number used to listen for new connections (IPv4)
 	 */
@@ -80,12 +80,36 @@ public:
 	}
 	
 	/**
-	 * creates new WebServer objects
+	 * creates a new WebServer object
 	 * 
 	 * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
 	 */
 	explicit WebServer(const boost::asio::ip::tcp::endpoint& endpoint)
 		: HTTPServer(endpoint)
+	{ 
+		setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+	}
+
+	/**
+	 * creates a new WebServer object
+	 * 
+	 * @param scheduler the PionScheduler that will be used to manage worker threads
+	 * @param tcp_port port number used to listen for new connections (IPv4)
+	 */
+	explicit WebServer(PionScheduler& scheduler, const unsigned int tcp_port = 0)
+		: HTTPServer(scheduler, tcp_port)
+	{ 
+		setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+	}
+	
+	/**
+	 * creates a new WebServer object
+	 * 
+	 * @param scheduler the PionScheduler that will be used to manage worker threads
+	 * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
+	 */
+	WebServer(PionScheduler& scheduler, const boost::asio::ip::tcp::endpoint& endpoint)
+		: HTTPServer(scheduler, endpoint)
 	{ 
 		setLogger(PION_GET_LOGGER("pion.net.WebServer"));
 	}

@@ -187,7 +187,7 @@ class WebServerTests_F {
 public:
 	
 	// default constructor & destructor
-	WebServerTests_F() : m_server(8080) {
+	WebServerTests_F() : m_scheduler(), m_server(m_scheduler, 8080) {
 		setup_logging_for_unit_tests();
 
 		// initialize the list of directories in which to look for plug-ins
@@ -359,7 +359,10 @@ public:
 		BOOST_CHECK(http_response.getStatusCode() == 404);
 	}
 	
-	WebServer	m_server;
+	inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }
+	
+	PionScheduler	m_scheduler;
+	WebServer		m_server;
 };
 
 
@@ -385,7 +388,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponses) {
 	m_server.start();
 	
 	// open a connection
-	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService());
+	TCPConnection tcp_conn(getIOService());
 	tcp_conn.setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
 	boost::system::error_code error_code;
 	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
@@ -399,7 +402,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
 	m_server.start();
 
 	// open a connection
-	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
 	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
 	boost::system::error_code error_code;
 	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
@@ -431,7 +434,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
 	m_server.start();
 
 	// open a connection
-	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
 	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
 	boost::system::error_code error_code;
 	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
@@ -466,7 +469,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
 	m_server.start();
 
 	// open a connection
-	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
 	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
 	boost::system::error_code error_code;
 	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
@@ -495,7 +498,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
 	m_server.start();
 
 	// open a connection
-	TCPConnectionPtr tcp_conn(new TCPConnection(PionScheduler::getInstance().getIOService()));
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
 	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
 	boost::system::error_code error_code;
 	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
@@ -526,7 +529,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponsesUsingSSL) {
 	m_server.start();
 
 	// open a connection
-	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService(), true);
+	TCPConnection tcp_conn(getIOService(), true);
 	tcp_conn.setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
 	boost::system::error_code error_code;
 	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);

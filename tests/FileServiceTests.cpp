@@ -7,7 +7,6 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <pion/PionConfig.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
@@ -18,7 +17,9 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string/find.hpp>
+#include <pion/PionConfig.hpp>
 #include <pion/PionPlugin.hpp>
+#include <pion/PionScheduler.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
 #include <pion/net/WebService.hpp>
@@ -50,7 +51,6 @@ PION_DECLARE_PLUGIN(FileService)
 /// sets up logging (run once only)
 extern void setup_logging_for_unit_tests(void);
 
-#include <pion/PionScheduler.hpp>
 
 #ifndef PION_STATIC_LINKING
 
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 class NewlyLoadedFileService_F {
 public:
-	NewlyLoadedFileService_F() : m_server(8080) {
+	NewlyLoadedFileService_F() : m_scheduler(), m_server(m_scheduler, 8080) {
 		PionPlugin::resetPluginDirectories();
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
 
@@ -117,7 +117,10 @@ public:
 		boost::filesystem::remove_all("sandbox");
 	}
 	
-	WebServer	m_server;
+	inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }
+	
+	PionScheduler	m_scheduler;
+	WebServer		m_server;
 };
 
 BOOST_FIXTURE_TEST_SUITE(NewlyLoadedFileService_S, NewlyLoadedFileService_F)
@@ -663,7 +666,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
 
 BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
 	// open (another) connection
-	TCPConnection tcp_conn(PionScheduler::getInstance().getIOService());
+	TCPConnection tcp_conn(getIOService());
 	boost::system::error_code error_code;
 	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
 	BOOST_REQUIRE(!error_code);

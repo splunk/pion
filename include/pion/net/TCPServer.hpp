@@ -10,15 +10,16 @@
 #ifndef __PION_TCPSERVER_HEADER__
 #define __PION_TCPSERVER_HEADER__
 
+#include <set>
+#include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include <boost/asio.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionLogger.hpp>
+#include <pion/PionScheduler.hpp>
 #include <pion/net/TCPConnection.hpp>
-#include <set>
 
 
 namespace pion {	// begin namespace pion
@@ -87,7 +88,7 @@ public:
 	
 	/// returns true if the server is listening for connections
 	inline bool isListening(void) const { return m_is_listening; }
-
+	
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
 	
@@ -102,7 +103,7 @@ protected:
 	 * 
 	 * @param tcp_port port number used to listen for new connections (IPv4)
 	 */
-	explicit TCPServer(const unsigned int tcp_port = 0);
+	explicit TCPServer(const unsigned int tcp_port);
 	
 	/**
 	 * protected constructor so that only derived objects may be created
@@ -111,6 +112,22 @@ protected:
 	 */
 	explicit TCPServer(const boost::asio::ip::tcp::endpoint& endpoint);
 
+	/**
+	 * protected constructor so that only derived objects may be created
+	 * 
+	 * @param scheduler the PionScheduler that will be used to manage worker threads
+	 * @param tcp_port port number used to listen for new connections (IPv4)
+	 */
+	explicit TCPServer(PionScheduler& scheduler, const unsigned int tcp_port = 0);
+	
+	/**
+	 * protected constructor so that only derived objects may be created
+	 * 
+	 * @param scheduler the PionScheduler that will be used to manage worker threads
+	 * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
+	 */
+	TCPServer(PionScheduler& scheduler, const boost::asio::ip::tcp::endpoint& endpoint);
+	
 	/**
 	 * handles a new TCP connection; derived classes SHOULD override this
 	 * since the default behavior does nothing
@@ -128,9 +145,12 @@ protected:
 	/// called after the TCP server has stopped listing for new connections
 	virtual void afterStopping(void) {}
 	
+	/// returns an async I/O service used to schedule work
+	inline boost::asio::io_service& getIOService(void) { return m_active_scheduler.getIOService(); }
+	
 	
 	/// primary logging interface used by this class
-	PionLogger								m_logger;
+	PionLogger					m_logger;
 	
 	
 private:
@@ -168,10 +188,14 @@ private:
 	
 	/// data type for a pool of TCP connections
 	typedef std::set<TCPConnectionPtr>		ConnectionPool;
+	
+	
+	/// the default PionScheduler object used to manage worker threads
+	PionScheduler							m_default_scheduler;
 
-	/// mutex to make class thread-safe
-	mutable boost::mutex					m_mutex;
-
+	/// reference to the active PionScheduler object used to manage worker threads
+	PionScheduler &							m_active_scheduler;
+	
 	/// manages async TCP connections
 	boost::asio::ip::tcp::acceptor			m_tcp_acceptor;
 
@@ -195,6 +219,9 @@ private:
 
 	/// set to true when the server is listening for new connections
 	bool									m_is_listening;
+
+	/// mutex to make class thread-safe
+	mutable boost::mutex					m_mutex;
 };
 
 

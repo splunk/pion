@@ -46,7 +46,7 @@ public:
 	virtual ~HTTPServer() { if (isListening()) stop(); }
 	
 	/**
-	 * creates new HTTPServer objects
+	 * creates a new HTTPServer object
 	 * 
 	 * @param tcp_port port number used to listen for new connections (IPv4)
 	 */
@@ -60,12 +60,42 @@ public:
 	}
 	
 	/**
-	 * creates new HTTPServer objects
+	 * creates a new HTTPServer object
 	 * 
 	 * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
 	 */
 	explicit HTTPServer(const boost::asio::ip::tcp::endpoint& endpoint)
 		: TCPServer(endpoint),
+		m_bad_request_handler(HTTPServer::handleBadRequest),
+		m_not_found_handler(HTTPServer::handleNotFoundRequest),
+		m_server_error_handler(HTTPServer::handleServerError)
+	{ 
+		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
+	}
+	
+	/**
+	 * creates a new HTTPServer object
+	 * 
+	 * @param scheduler the PionScheduler that will be used to manage worker threads
+	 * @param tcp_port port number used to listen for new connections (IPv4)
+	 */
+	explicit HTTPServer(PionScheduler& scheduler, const unsigned int tcp_port = 0)
+		: TCPServer(scheduler, tcp_port),
+		m_bad_request_handler(HTTPServer::handleBadRequest),
+		m_not_found_handler(HTTPServer::handleNotFoundRequest),
+		m_server_error_handler(HTTPServer::handleServerError)
+	{ 
+		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
+	}
+	
+	/**
+	 * creates a new HTTPServer object
+	 * 
+	 * @param scheduler the PionScheduler that will be used to manage worker threads
+	 * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
+	 */
+	HTTPServer(PionScheduler& scheduler, const boost::asio::ip::tcp::endpoint& endpoint)
+		: TCPServer(scheduler, endpoint),
 		m_bad_request_handler(HTTPServer::handleBadRequest),
 		m_not_found_handler(HTTPServer::handleNotFoundRequest),
 		m_server_error_handler(HTTPServer::handleServerError)
