@@ -187,8 +187,8 @@ void TCPServer::handleAccept(TCPConnectionPtr& tcp_conn,
 		finishConnection(tcp_conn);
 	} else {
 		// got a new TCP connection
-		PION_LOG_INFO(m_logger, "New" << (tcp_conn->getSSLFlag() ? " SSL " : " ")
-					  << "connection on port " << getPort());
+		PION_LOG_DEBUG(m_logger, "New" << (tcp_conn->getSSLFlag() ? " SSL " : " ")
+					   << "connection on port " << getPort());
 
 		// schedule the acceptance of another new connection
 		// (this returns immediately since it schedules it as an event)
@@ -231,7 +231,7 @@ void TCPServer::finishConnection(TCPConnectionPtr& tcp_conn)
 		handleConnection(tcp_conn);
 
 	} else {
-		PION_LOG_INFO(m_logger, "Closing connection on port " << getPort());
+		PION_LOG_DEBUG(m_logger, "Closing connection on port " << getPort());
 		
 		// remove the connection from the server's management pool
 		ConnectionPool::iterator conn_itr = m_conn_pool.find(tcp_conn);
