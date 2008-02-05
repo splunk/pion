@@ -97,6 +97,48 @@ public:
 		m_resources.clear();
 	}
 	
+	/**
+	 * strips trailing slash from a string, if one exists
+	 *
+	 * @param str the original string
+	 * @return the resulting string, after any trailing slash is removed
+	 */
+	static inline std::string stripTrailingSlash(const std::string& str) {
+		std::string result(str);
+		if (!result.empty() && result[result.size()-1]=='/')
+			result.resize(result.size() - 1);
+		return result;
+	}
+	
+	/**
+	 * used to send responses when a bad HTTP request is made
+	 *
+     * @param http_request the new HTTP request to handle
+     * @param tcp_conn the TCP connection that has the new request
+	 */
+	static void handleBadRequest(HTTPRequestPtr& http_request,
+								 TCPConnectionPtr& tcp_conn);
+	
+	/**
+	 * used to send responses when no web services can handle the request
+	 *
+     * @param http_request the new HTTP request to handle
+     * @param tcp_conn the TCP connection that has the new request
+	 */
+	static void handleNotFoundRequest(HTTPRequestPtr& http_request,
+									  TCPConnectionPtr& tcp_conn);
+	
+	/**
+	 * used to send responses when a server error occurs
+	 *
+     * @param http_request the new HTTP request to handle
+     * @param tcp_conn the TCP connection that has the new request
+	 * @param error_msg message that explains what went wrong
+	 */
+	static void handleServerError(HTTPRequestPtr& http_request,
+								  TCPConnectionPtr& tcp_conn,
+								  const std::string& error_msg);
+
 	
 protected:
 	
@@ -123,50 +165,8 @@ protected:
 	 */
 	bool findRequestHandler(const std::string& resource,
 							RequestHandler& request_handler) const;
+	
 		
-	/**
-	 * used to send responses when a bad HTTP request is made
-	 *
-     * @param http_request the new HTTP request to handle
-     * @param tcp_conn the TCP connection that has the new request
-	 */
-	static void handleBadRequest(HTTPRequestPtr& http_request,
-								  TCPConnectionPtr& tcp_conn);
-	
-	/**
-	 * used to send responses when no web services can handle the request
-	 *
-     * @param http_request the new HTTP request to handle
-     * @param tcp_conn the TCP connection that has the new request
-	 */
-	static void handleNotFoundRequest(HTTPRequestPtr& http_request,
-									  TCPConnectionPtr& tcp_conn);
-	
-	/**
-	 * used to send responses when a server error occurs
-	 *
-     * @param http_request the new HTTP request to handle
-     * @param tcp_conn the TCP connection that has the new request
-	 * @param error_msg message that explains what went wrong
-	 */
-	static void handleServerError(HTTPRequestPtr& http_request,
-								  TCPConnectionPtr& tcp_conn,
-								  const std::string& error_msg);
-	
-	/**
-	 * strips trailing slash from a string, if one exists
-	 *
-	 * @param str the original string
-	 * @return the resulting string, after any trailing slash is removed
-	 */
-	static inline std::string stripTrailingSlash(const std::string& str) {
-		std::string result(str);
-		if (!result.empty() && result[result.size()-1]=='/')
-			result.resize(result.size() - 1);
-		return result;
-	}
-
-	
 private:
 	
 	/// data type for a map of resources to request handlers

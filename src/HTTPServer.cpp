@@ -84,26 +84,14 @@ bool HTTPServer::findRequestHandler(const std::string& resource,
 	ResourceMap::const_iterator i = m_resources.upper_bound(resource);
 	while (i != m_resources.begin()) {
 		--i;
-		
-		// keep checking while the first part of the strings match
-		if (resource.compare(0, i->first.size(), i->first) != 0) {
-			// the first part no longer matches
-			if (i != m_resources.begin()) {
-				// continue to next resource entry in the map if its size is < this one
-				ResourceMap::const_iterator j = i;
-				--j;
-				if (j->first.size() < i->first.size())
-					continue;
+		// check for a match if the first part of the strings match
+		if (i->first.empty() || resource.compare(0, i->first.size(), i->first) == 0) {
+			// only if the resource matches the plug-in's identifier
+			// or if resource is followed first with a '/' character
+			if (resource.size() == i->first.size() || resource[i->first.size()]=='/') {
+				request_handler = i->second;
+				return true;
 			}
-			// otherwise we've reached the end; stop looking for a match
-			break;
-		}
-		
-		// only if the resource matches the plug-in's identifier
-		// or if resource is followed first with a '/' character
-		if (resource.size() == i->first.size() || resource[i->first.size()]=='/') {
-			request_handler = i->second;
-			return true;
 		}
 	}
 	
