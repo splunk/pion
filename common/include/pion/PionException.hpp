@@ -38,7 +38,7 @@ public:
 	PionException(std::string description, const std::string& param)
 		: m_what_msg(description + param) {}
 
-	/// returns a desciptive message for the exception
+	/// returns a descriptive message for the exception
 	virtual const char* what() const throw() {
 		return m_what_msg.c_str();
 	}
@@ -74,7 +74,7 @@ private:
 
 // define PION_ASSERT macro to check assertions when debugging mode is enabled
 #ifdef NDEBUG
-	#define PION_ASSERT(EXPR)	((void)0)
+	#define PION_ASSERT(EXPR)	((void)0);
 #else
 	#define PION_ASSERT(EXPR)	if (!(EXPR)) { throw BadAssertException(__FILE__, __LINE__); }
 #endif

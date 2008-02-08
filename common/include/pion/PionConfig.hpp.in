@@ -68,6 +68,7 @@
 #define PION_NET_API
 #define PION_SERVICE_API
 #define PION_PLATFORM_API
+#define PION_SERVER_API
 
 
 #endif
