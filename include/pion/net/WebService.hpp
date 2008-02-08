@@ -47,8 +47,6 @@ public:
 	 *
 	 * @param request the new HTTP request to handle
 	 * @param tcp_conn the TCP connection that has the new request
-	 *
-	 * @return true if the request was handled; false if not
 	 */
 	virtual void operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) = 0;
 	
