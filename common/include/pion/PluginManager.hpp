@@ -103,6 +103,14 @@ public:
 	inline PLUGIN_TYPE *get(const std::string& plugin_id);
 	
 	/**
+	 * gets the plug-in object associated with a particular plugin_id (exact match)
+	 *
+	 * @param plugin_id unique identifier associated with the plug-in
+	 * @return PLUGIN_TYPE* pointer to the matching plug-in object or NULL if not found
+	 */
+	inline const PLUGIN_TYPE *get(const std::string& plugin_id) const;
+	
+	/**
 	 * finds the plug-in object associated with a particular resource (fuzzy match)
 	 *
 	 * @param resource resource identifier (uri-stem) to search for
@@ -234,6 +242,17 @@ inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::get(const std::string& plugin_id
 	return plugin_object_ptr;
 }
 	
+template <typename PLUGIN_TYPE>
+inline const PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::get(const std::string& plugin_id) const
+{
+	const PLUGIN_TYPE *plugin_object_ptr = NULL;
+	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
+	typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::const_iterator i = m_plugin_map.find(plugin_id);
+	if (i != m_plugin_map.end())
+		plugin_object_ptr = i->second.first;
+	return plugin_object_ptr;
+}
+
 template <typename PLUGIN_TYPE>
 inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::find(const std::string& resource)
 {

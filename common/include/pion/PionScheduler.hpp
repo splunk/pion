@@ -62,7 +62,7 @@ public:
 	
 	/// returns an async I/O service used to schedule work
 	virtual boost::asio::io_service& getIOService(void) { return m_service; }
-
+	
 	/// returns true if the scheduler is running
 	inline bool isRunning(void) const { return m_is_running; }
 	
@@ -80,6 +80,14 @@ public:
 
 	/// returns the logger currently in use
 	inline PionLogger getLogger(void) { return m_logger; }
+	
+	/**
+	 * schedules work to be performed by one of the pooled threads
+	 *
+	 * @param work_func work function to be executed
+	 */
+	template<typename WorkFunction>
+	inline void post(WorkFunction work_func) { getIOService().post(work_func); }
 	
 	
 private:
