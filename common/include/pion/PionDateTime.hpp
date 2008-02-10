@@ -11,8 +11,9 @@
 #define __PION_PIONDATETIME_HEADER__
 
 #include <string>
+#include <istream>
+#include <ostream>
 #include <sstream>
-#include <iostream>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <pion/PionConfig.hpp>
 
@@ -63,7 +64,8 @@ public:
 	 * @param input stream to read the value from
 	 * @param t will be set to the value read from the input stream
 	 */
-	inline void read(std::istream& input, PionDateTime& t) {
+	template <class charT, class traits>
+	inline void read(std::basic_istream<charT,traits>& input, PionDateTime& t) {
 		input.imbue(std::locale(input.getloc(), new boost::posix_time::time_input_facet(m_format.c_str())));
 		input >> t;
 	}
@@ -74,7 +76,8 @@ public:
 	 * @param output stream to write the value to
 	 * @param t the value to write to the stream
 	 */
-	inline void write(std::ostream& output, const PionDateTime& t) {
+	template <class charT, class traits>
+	inline void write(std::basic_ostream<charT,traits>& output, const PionDateTime& t) {
 		output.imbue(std::locale(output.getloc(), new boost::posix_time::time_facet(m_format.c_str())));
 		output << t;
 	}
