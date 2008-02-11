@@ -275,7 +275,10 @@ void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
 	// convert into a full/absolute/complete path since dlopen()
 	// does not always search the CWD on some operating systems
 	const boost::filesystem::path full_path = boost::filesystem::complete(plugin_file);
-	return dlopen(full_path.file_string().c_str(), RTLD_LAZY);
+	// NOTE: you must load shared libraries using RTLD_GLOBAL on Unix platforms
+	// due to a bug in GCC (or Boost::any, depending on which crowd you want to believe).
+	// see: http://svn.boost.org/trac/boost/ticket/754
+	return dlopen(full_path.file_string().c_str(), RTLD_LAZY | RTLD_GLOBAL);
 #endif
 }
 
