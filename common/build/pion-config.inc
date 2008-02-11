@@ -51,7 +51,7 @@ case "$build_os" in
 *cygwin*)
 	# Cygwin GCC compiler (Windows)
 	CPPFLAGS="$CPPFLAGS -mthreads -D_REENTRANT -DPION_WIN32 -D__USE_W32_SOCKETS"
-	LDFLAGS="$LDFLAGS -mthreads"
+	LDFLAGS="$LDFLAGS -mthreads -Wl,-E"
 	PION_OPT_FLAGS="-O2 -Wall -DNDEBUG"
 	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
 	PION_EXTERNAL_LIBS="-lws2_32 -lmswsock"
@@ -59,14 +59,14 @@ case "$build_os" in
 *freebsd*)
 	# FreeBSD: GCC compiler
 	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT"
-	LDFLAGS="$LDFLAGS -pthread"
+	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
 	PION_OPT_FLAGS="-O2 -Wall -DNDEBUG"
 	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
 	;;
 *)
 	# Other (Linux): GCC compiler
 	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT"
-	LDFLAGS="$LDFLAGS -pthread"
+	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
 	PION_OPT_FLAGS="-O2 -Wall -DNDEBUG"
 	PION_DEBUG_FLAGS="-ggdb -Wall -fkeep-inline-functions"
 	PION_EXTERNAL_LIBS="-ldl"
