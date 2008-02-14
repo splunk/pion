@@ -41,7 +41,7 @@ public:
 	// some integer constants used within TCPStreamBuffer
 	enum {
 		PUT_BACK_MAX = 10,	//< number of bytes that can be put back into the read buffer
-		WRITE_BUFFER_SIZE = 3	// size of the write buffer
+		WRITE_BUFFER_SIZE = 8192	//< size of the write buffer
 	};
 	
 	
