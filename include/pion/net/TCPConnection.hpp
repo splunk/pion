@@ -40,14 +40,22 @@ class TCPConnection :
 {
 public:
 
+	/// data type for the connection's lifecycle state
+	enum LifecycleType {
+		LIFECYCLE_CLOSE, LIFECYCLE_KEEPALIVE, LIFECYCLE_PIPELINED
+	};
+	
+	/// size of the read buffer
+	enum { READ_BUFFER_SIZE = 8192 };
+	
 	/// data type for a function that handles TCP connection objects
 	typedef boost::function1<void, boost::shared_ptr<TCPConnection> >	ConnectionHandler;
 	
 	/// data type for an I/O read buffer
-	typedef boost::array<char, 8192>		ReadBuffer;
+	typedef boost::array<char, READ_BUFFER_SIZE>	ReadBuffer;
 	
 	/// data type for a socket connection
-	typedef boost::asio::ip::tcp::socket	Socket;
+	typedef boost::asio::ip::tcp::socket			Socket;
 
 #ifdef PION_HAVE_SSL
 	/// data type for an SSL socket connection
@@ -59,11 +67,6 @@ public:
 	typedef Socket	SSLSocket;
 	typedef int		SSLContext;
 #endif
-
-	/// data type for the connection's lifecycle state
-	enum LifecycleType {
-		LIFECYCLE_CLOSE, LIFECYCLE_KEEPALIVE, LIFECYCLE_PIPELINED
-	};
 
 	
 	/**
@@ -177,7 +180,6 @@ public:
 	 *
 	 * @see boost::asio::basic_socket_acceptor::accept()
 	 */
-	template <typename AcceptHandler>
 	inline boost::system::error_code accept(boost::asio::ip::tcp::acceptor& tcp_acceptor)
 	{
 		boost::system::error_code ec;
@@ -360,6 +362,27 @@ public:
 		else
 #endif		
 			return m_tcp_socket.read_some(boost::asio::buffer(m_read_buffer), ec);
+	}
+	
+	/**
+	 * reads some data into the connection's read buffer (blocks until finished)
+	 *
+	 * @param read_buffer the buffer to read data into
+	 * @param ec contains error code if the read fails
+	 * @return std::size_t number of bytes read
+	 *
+	 * @see boost::asio::basic_stream_socket::read_some()
+	 */
+	template <typename ReadBufferType>
+	inline std::size_t read_some(ReadBufferType read_buffer,
+								 boost::system::error_code& ec)
+	{
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			return m_ssl_socket.read_some(read_buffer, ec);
+		else
+#endif		
+			return m_tcp_socket.read_some(read_buffer, ec);
 	}
 	
 	/**
