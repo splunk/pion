@@ -139,16 +139,30 @@ public:
 			return m_tcp_socket.is_open();
 	}
 	
-	/// closes the tcp socket
+	/// closes the tcp socket and cancels any pending asynchronous operations
 	inline void close(void) {
 #ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			m_ssl_socket.lowest_layer().close();
-		else 
+		if (getSSLFlag()) {
+			if (m_ssl_socket.lowest_layer().is_open())
+				m_ssl_socket.lowest_layer().close();
+		} else
 #endif
-			m_tcp_socket.close();
+		{
+			if (m_tcp_socket.is_open())
+				m_tcp_socket.close();
+		}
 	}
 
+	/// cancels any asynchronous operations pending on the socket
+	inline void cancel(void) {
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			m_ssl_socket.lowest_layer().cancel();
+		else
+#endif
+			m_tcp_socket.cancel();
+	}
+	
 	/// virtual destructor
 	virtual ~TCPConnection() { close(); }
 	
@@ -345,6 +359,25 @@ public:
 #endif		
 			m_tcp_socket.async_read_some(boost::asio::buffer(m_read_buffer),
 										 handler);
+	}
+	
+	/**
+	 * asynchronously reads some data into the connection's read buffer 
+	 *
+	 * @param read_buffer the buffer to read data into
+	 * @param handler called after the read operation has completed
+	 *
+	 * @see boost::asio::basic_stream_socket::async_read_some()
+	 */
+	template <typename ReadBufferType, typename ReadHandler>
+	inline void async_read_some(ReadBufferType read_buffer,
+								ReadHandler handler) {
+#ifdef PION_HAVE_SSL
+		if (getSSLFlag())
+			m_ssl_socket.async_read_some(read_buffer, handler);
+		else
+#endif		
+			m_tcp_socket.async_read_some(read_buffer, handler);
 	}
 	
 	/**
