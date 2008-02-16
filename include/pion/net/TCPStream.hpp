@@ -13,6 +13,7 @@
 #include <cstring>
 #include <istream>
 #include <streambuf>
+#include <boost/bind.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <pion/PionConfig.hpp>
