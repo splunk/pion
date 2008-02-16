@@ -569,8 +569,8 @@ public:
 		read_end_ptr = m_read_position.second;
 	}
 
-	/// returns the client's IP address
-	inline boost::asio::ip::address getRemoteIp(void) const {
+	/// returns an ASIO endpoint for the client connection
+	inline boost::asio::ip::tcp::endpoint getRemoteEndpoint(void) const {
 		boost::asio::ip::tcp::endpoint remote_endpoint;
 		try {
 #ifdef PION_HAVE_SSL
@@ -583,8 +583,19 @@ public:
 		} catch (boost::system::system_error& /* e */) {
 			// do nothing
 		}
-		return remote_endpoint.address();
+		return remote_endpoint;
 	}
+
+	/// returns the client's IP address
+	inline boost::asio::ip::address getRemoteIp(void) const {
+		return getRemoteEndpoint().address();
+	}
+
+	/// returns the client's port number
+	inline unsigned short getRemotePort(void) const {
+		return getRemoteEndpoint().port();
+	}
+	
 	
 protected:
 		
