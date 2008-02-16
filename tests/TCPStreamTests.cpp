@@ -13,6 +13,7 @@
 #include <boost/function.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/PionConfig.hpp>
+#include <pion/PionScheduler.hpp>
 #include <pion/net/TCPStream.hpp>
 
 using namespace std;
@@ -35,11 +36,13 @@ public:
 	
 	
 	// default constructor and destructor
-	TCPStreamTests_F()
-	{
+	TCPStreamTests_F() {
 		setup_logging_for_unit_tests();
+		m_scheduler.addActiveUser();
 	}
-	virtual ~TCPStreamTests_F() {}
+	virtual ~TCPStreamTests_F() {
+		m_scheduler.removeActiveUser();
+	}
 	
 	/**
 	 * listen for a TCP connection and call the connection handler when connected
@@ -48,7 +51,7 @@ public:
 	 */
 	void acceptConnection(ConnectionHandler conn_handler) {
 		// configure the acceptor service
-		tcp::acceptor	tcp_acceptor(m_io_service);
+		tcp::acceptor	tcp_acceptor(m_scheduler.getIOService());
 		tcp::endpoint	tcp_endpoint(tcp::v4(), 8080);
 		tcp_acceptor.open(tcp_endpoint.protocol());
 		// allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
@@ -57,7 +60,7 @@ public:
 		tcp_acceptor.listen();
 
 		// schedule another thread to listen for a TCP connection
-		TCPStream listener_stream(m_io_service);
+		TCPStream listener_stream(m_scheduler.getIOService());
 		boost::system::error_code ec = listener_stream.accept(tcp_acceptor);
 		tcp_acceptor.close();
 		BOOST_REQUIRE(! ec);
@@ -73,7 +76,7 @@ public:
 	}
 	
 	/// used to schedule work across multiple threads
-	boost::asio::io_service		m_io_service;
+	PionScheduler		m_scheduler;
 };
 
 
@@ -88,7 +91,7 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
 											  this, conn_handler) );
 	
 	// connect to the listener
-	TCPStream client_str(m_io_service);
+	TCPStream client_str(m_scheduler.getIOService());
 	boost::system::error_code ec;
 	ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
 	BOOST_REQUIRE(! ec);
@@ -139,7 +142,7 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
 											  this, conn_handler) );
 	
 	// connect to the listener
-	TCPStream client_str(m_io_service);
+	TCPStream client_str(m_scheduler.getIOService());
 	boost::system::error_code ec;
 	ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
 	BOOST_REQUIRE(! ec);
