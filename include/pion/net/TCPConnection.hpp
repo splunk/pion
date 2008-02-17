@@ -11,6 +11,10 @@
 #define __PION_TCPCONNECTION_HEADER__
 
 #ifdef PION_HAVE_SSL
+	#ifdef PION_XCODE
+		// ignore openssl warnings if building with XCode
+		#pragma GCC system_header
+	#endif
 	#include <boost/asio/ssl.hpp>
 	#if defined _MSC_VER
 		#pragma comment(lib, "ssleay32")

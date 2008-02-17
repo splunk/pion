@@ -36,7 +36,7 @@ FileService::MIMETypeMap	*FileService::m_mime_types_ptr = NULL;
 // FileService member functions
 
 FileService::FileService(void)
-	: m_logger(PION_GET_LOGGER("FileService")),
+	: m_logger(PION_GET_LOGGER("pion.FileService")),
 	m_cache_setting(DEFAULT_CACHE_SETTING),
 	m_scan_setting(DEFAULT_SCAN_SETTING),
 	m_max_cache_size(DEFAULT_MAX_CACHE_SIZE),
@@ -736,7 +736,7 @@ bool DiskFile::checkUpdated(void)
 DiskFileSender::DiskFileSender(DiskFile& file, pion::net::HTTPRequestPtr& request,
 							   pion::net::TCPConnectionPtr& tcp_conn,
 							   unsigned long max_chunk_size)
-	: m_logger(PION_GET_LOGGER("FileService.DiskFileSender")), m_disk_file(file),
+	: m_logger(PION_GET_LOGGER("pion.FileService.DiskFileSender")), m_disk_file(file),
 	m_writer(pion::net::HTTPResponseWriter::create(tcp_conn, *request)),
 	m_max_chunk_size(max_chunk_size), m_file_bytes_to_send(0), m_bytes_sent(0)
 {

@@ -125,7 +125,7 @@ private:
 
 ChunkedPostRequestSender::ChunkedPostRequestSender(pion::net::TCPConnectionPtr& tcp_conn,
 												   const std::string& resource)
-	: m_logger(PION_GET_LOGGER("ChunkedPostRequestSender")),
+	: m_logger(PION_GET_LOGGER("pion.ChunkedPostRequestSender")),
 	m_writer(pion::net::HTTPRequestWriter::create(tcp_conn))
 {
 	m_writer->getRequest().setMethod("POST");
@@ -558,8 +558,14 @@ BOOST_AUTO_TEST_CASE(checkEchoServiceResponseContent) {
 
 BOOST_AUTO_TEST_CASE(checkLogServiceResponseContent) {
 #if defined(PION_USE_LOG4CXX) || defined(PION_USE_LOG4CPLUS) || defined(PION_USE_LOG4CPP)
+	// make sure that the log level is high enough so that the entry will be recorded
+	pion::PionLogger log_ptr = PION_GET_LOGGER("pion.net");
+	PION_LOG_SETLEVEL_INFO(log_ptr);
+	// make sure that the log service includes an entry for loading itself
 	checkWebServerResponseContent("LogService", "/log",
 								  boost::regex(".*Loaded.*plug-in.*\\(/log\\):\\sLogService.*"));
+	// bump the log level back down when we are done with the test
+	PION_LOG_SETLEVEL_WARN(log_ptr);
 #elif defined(PION_DISABLE_LOGGING)
 	checkWebServerResponseContent("LogService", "/log",
 								  boost::regex(".*Logging\\sis\\sdisabled.*"));
