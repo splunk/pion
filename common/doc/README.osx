@@ -11,12 +11,10 @@ Installing zlib & openssl:
 --------------------------
 
 ASIO requires zlib and openssl for compression and SSL/TLS encryption
-support, respectively.  These libraries are pre-installed on OS X.
-However, you may instead choose to download and install the latest
-versions from the following sites:
-
-http://www.zlib.net
-http://www.openssl.org
+support, respectively.  These libraries are normally pre-installed on
+OS X.  If you do not have them already, you should be able to grab the
+latest source code tarballs from the "Third Party Libraries" page on
+our website.
 
 
 Logging frameworks:
@@ -25,19 +23,55 @@ Logging frameworks:
 Note that the use of a logging framework is entirely optional, so you may
 skip this step if you like.
 
-If you have MacPorts (http://www.macports.org) already installed, it is easy
-to use it to install the log4cpp library:
+We recommend that you use log4cxx for logging.  Log4cxx requires that 
+you have the Apache Portable Runtime (APR) installed.  This library is 
+normally pre-installed on OS X (make sure that you have "libapr" and
+"libapr-util" dynamic libraries within /usr/lib).
 
-sudo port install log4cpp
+If you do not have APR pre-installed, it is also included within the
+log4cxx distribution.  You will have to build and install both the "apr"
+and "apr-util" projects in the "src" subdirectory before building log4cxx.
 
-If you do not have MacPorts or prefer to compile the logging framework from
-source, you can download the tarballs from the following sites:
+Please visit the "Third Party Libraries" page on our website to obtain
+the source code tarball for log4cxx.  Then, just run:
 
-http://logging.apache.org/log4cxx
-http://log4cpp.sourceforge.net
+# tar xvfj log4cxx_<version>.tar.bz2
+# cd log4cxx_<version>
+# ./configure
+# make all
+# make install
 
-Note that the log4cplus library does not build properly under OS X, so you
-will need to use log4cxx or log4cpp instead.
+
+Installing libxml2:
+-------------------
+
+The Pion Platform requires the libxml2 development library for 
+manipulating configuration files, and other things.  This library is not 
+used by the Pion Network Library, so you may skip this step if you are 
+only building the Network Library.
+
+The libxml2 library is normally pre-installed on OS X.  If you do not 
+have it already, you should be able to grab the latest source code
+tarball from the "Third Party Libraries" page on our website.
+
+
+Installing OSSP uuid:
+---------------------
+
+The Pion Platform requires the OSSP uuid library to generate universally 
+unique identifiers for most platforms, including Linux.  This library is 
+not used by the Pion Network Library, so you may skip this step if you 
+are only building the Network Library.
+
+You can download the source code tarball for the uuid library from the 
+"Third Party Libraries" page on our website.  After downloading it, just 
+run:
+
+# tar xvfz uuid-<version>.tar.gz
+# cd uuid-<version>
+# ./configure
+# make all
+# make install
 
 
 Updating the UNIX Build Tools:
@@ -52,19 +86,19 @@ update these build tools first.
 
 This is easy to do using MacPorts (http://www.macports.org):
 
-sudo port update autoconf automake libtool
+# sudo port update autoconf automake libtool
 
 Note that you need to set /opt/local/bin (or the directoy into which you 
 installed MacPorts) in your PATH before /usr/bin to ensure that the 
 updated build tools are used:
 
-export PATH=/opt/local/bin:$PATH
+# export PATH=/opt/local/bin:$PATH
 
 Also, you will need to create symbolic links for the updated libtool 
 scripts to remove the "g" prefix that MacPorts adds to their filenames:
 
-sudo ln -s /opt/local/bin/glibtool /opt/local/bin/libtool
-sudo ln -s /opt/local/bin/glibtoolize /opt/local/bin/libtoolize
+# sudo ln -s /opt/local/bin/glibtool /opt/local/bin/libtool
+# sudo ln -s /opt/local/bin/glibtoolize /opt/local/bin/libtoolize
 
 
 Building and installing Pion:
@@ -72,11 +106,11 @@ Building and installing Pion:
 
 Now you should be able to build and install Pion:
 
-tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
-cd pion-<PROJECT>-<VERSION>
-./configure [--with-boost=<BOOST_DIR>] \
-	[--with-openssl] [--with-log4cpp=/opt/local]
-make ; sudo make install
+# tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
+# cd pion-<PROJECT>-<VERSION>
+# ./configure [--with-boost=<BOOST_DIR>] [--with-openssl] [--with-log4cxx]
+# make all
+# make install
 
 To build and run Pion's unit tests, run "make check"
 
@@ -91,10 +125,8 @@ Building with XCode:
 There is an XCode project included in the root directory of each project
 called "pion-<PROJECT>.xcodeproj".  You must run the "configure" script before
 building anything within XCode -- this is used to generate the PionConfig.hpp
-configuration file.  If you configure Pion to use any of the optional
-libraries (such as openssl or log4cxx), then you must add the library's
-headers to the project's include path, and also also add the library to the
-project's link parameters.
+configuration file.  The XCode project assumes that you have the following
+optional libraries installed: openssl, zlib and log4cxx.
 
 To run PionWebServer from within XCode, you first need to configure
 the executable's command arguments by right-clicking on PionWebServer
