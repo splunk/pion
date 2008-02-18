@@ -56,7 +56,7 @@ ASIO requires zlib and openssl for compression and SSL/TLS encryption
 support, respectively.  On Solaris, we recommend that you download and
 install the packages available on SunFreeware.com. However, you may
 instead choose to download and install the latest versions from the
-following sites:
+"Third Party Libraries" page on our website, or from the following sites:
 
 http://www.zlib.net
 http://www.openssl.org
@@ -68,17 +68,65 @@ Logging frameworks:
 Note that the use of a logging framework is entirely optional, so you may
 skip this step if you like.
 
-If you wish to use one of the supported logging frameworks with Pion,
-you will need to download and install it from source, since none of them
-are currently available pre-built for Solaris.  The current releases of
-the log4cpp and log4cplus libraries do not seem to build correctly under
-Solaris, so you will have to use the log4cxx library.  You can download
-the source tarball for log4cxx from:
+We recommend that you use log4cxx for logging.  Log4cxx requires that 
+you have the Apache Portable Runtime (APR) installed, which is not normally
+included with Solaris.  You can download the latest source code tarballs from
+the "Third Party Libraries" page on our website, or from the following site:
 
-http://logging.apache.org/log4cxx
+http://apr.apache.org
 
-Please see the log4cxx documentation for more information on how to build
-and install this library.
+You will need to install both the "apr" and the "apr-util" packages.  For
+each, just download the source and run:
+
+# bzip2 -dc apr-<version>.tar.bz2 | tar xvf -
+# cd apr-<version>
+# ./configure
+# make all
+# make install
+
+Next, please visit the "Third Party Libraries" page on our website to obtain
+the source code tarball for log4cxx.  Then, just run:
+
+# bzip2 -dc log4cxx-<version>.tar.bz2 | tar xvf -
+# cd log4cxx-<version>
+# ./configure
+# make all
+# make install
+
+
+Installing libxml2:
+-------------------
+
+The Pion Platform requires the libxml2 development library for 
+manipulating configuration files, and other things.  This library is not 
+used by the Pion Network Library, so you may skip this step if you are 
+only building the Network Library.
+
+The libxml2 library is normally pre-installed with the Solaris development
+tools.  If you do not have it already, you should be able to grab the
+latest source code tarball from the "Third Party Libraries" page on our
+website, or from the following site:
+
+http://www.xmlsoft.org
+
+
+Installing OSSP uuid:
+---------------------
+
+The Pion Platform requires the OSSP uuid library to generate universally 
+unique identifiers for most platforms, including Solaris.  This library is 
+not used by the Pion Network Library, so you may skip this step if you 
+are only building the Network Library.
+
+You can download the source code tarball for the uuid library from the 
+"Third Party Libraries" page on our website.  After downloading it, just 
+run:
+
+# gzip -dc uuid-<version>.tar.gz | tar xvf -
+# cd uuid-<version>
+# ./configure
+# make all
+# make install
 
 
 Building and installing Pion:
@@ -86,17 +134,13 @@ Building and installing Pion:
 
 Now you should be able to build and install Pion:
 
-tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
-cd pion-<PROJECT>-<VERSION>
-./configure [--with-boost=<BOOST_DIR>] \
-	[--with-openssl=/usr/local/ssl] [--with-log4cxx=/opt/local]
-make ; sudo make install
+# gzip -dc pion-<PROJECT>-<VERSION>.tar.gz | tar xvf -
+# cd pion-<PROJECT>-<VERSION>
+# ./configure [--with-openssl] [--with-log4cxx]
+# make all
+# make install
 
 To build and run Pion's unit tests, run "make check"
-
-Note that you only need to specify a "--with-boost=<BOOST_DIR>" parameter to
-Pion's configure script if you installed Boost into an alternative directory
-(other than /usr/local).
 
 
 Known problems:

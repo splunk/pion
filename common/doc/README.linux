@@ -46,8 +46,8 @@ manager:
 After installing APR, please visit the "Third Party Libraries" page on 
 our website to obtain a source code tarball.  Then, just run:
 
-# tar xvfj log4cxx_<version>.tar.bz2
-# cd log4cxx_<version>
+# tar xvfj log4cxx-<version>.tar.bz2
+# cd log4cxx-<version>
 # ./configure
 # make all
 # make install
@@ -96,15 +96,11 @@ Now you should be able to build and install Pion:
 
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-boost=<BOOST_DIR>] [--with-openssl] [--with-log4cxx]
+# ./configure [--with-openssl] [--with-log4cxx]
 # make all
 # make install
 
 To build and run Pion's unit tests, run "make check"
-
-Note that you only need to specify a "--with-boost=<BOOST_DIR>" parameter to
-Pion's configure script if you installed Boost into an alternative directory
-(other than /usr/local).
 
 
 Known Problems

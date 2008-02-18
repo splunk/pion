@@ -14,7 +14,10 @@ ASIO requires zlib and openssl for compression and SSL/TLS encryption
 support, respectively.  These libraries are normally pre-installed on
 OS X.  If you do not have them already, you should be able to grab the
 latest source code tarballs from the "Third Party Libraries" page on
-our website.
+our website, or from the following sites:
+
+http://www.zlib.net
+http://www.openssl.org
 
 
 Logging frameworks:
@@ -28,15 +31,17 @@ you have the Apache Portable Runtime (APR) installed.  This library is
 normally pre-installed on OS X (make sure that you have "libapr" and
 "libapr-util" dynamic libraries within /usr/lib).
 
-If you do not have APR pre-installed, it is also included within the
-log4cxx distribution.  You will have to build and install both the "apr"
-and "apr-util" projects in the "src" subdirectory before building log4cxx.
+If you do not have APR pre-installed, you should be able to grab the
+latest source code tarballs from the "Third Party Libraries" page on
+our website, or from the following site:
+
+http://apr.apache.org
 
 Please visit the "Third Party Libraries" page on our website to obtain
 the source code tarball for log4cxx.  Then, just run:
 
-# tar xvfj log4cxx_<version>.tar.bz2
-# cd log4cxx_<version>
+# tar xvfj log4cxx-<version>.tar.bz2
+# cd log4cxx-<version>
 # ./configure
 # make all
 # make install
@@ -52,14 +57,17 @@ only building the Network Library.
 
 The libxml2 library is normally pre-installed on OS X.  If you do not 
 have it already, you should be able to grab the latest source code
-tarball from the "Third Party Libraries" page on our website.
+tarball from the "Third Party Libraries" page on our website, or from
+the following site:
+
+http://www.xmlsoft.org
 
 
 Installing OSSP uuid:
 ---------------------
 
 The Pion Platform requires the OSSP uuid library to generate universally 
-unique identifiers for most platforms, including Linux.  This library is 
+unique identifiers for most platforms, including OS X.  This library is 
 not used by the Pion Network Library, so you may skip this step if you 
 are only building the Network Library.
 
@@ -108,15 +116,11 @@ Now you should be able to build and install Pion:
 
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-boost=<BOOST_DIR>] [--with-openssl] [--with-log4cxx]
+# ./configure [--with-openssl] [--with-log4cxx]
 # make all
 # make install
 
 To build and run Pion's unit tests, run "make check"
-
-Note that you only need to specify a "--with-boost=<BOOST_DIR>" parameter to
-Pion's configure script if you installed Boost into an alternative directory
-(other than /usr/local).
 
 
 Building with XCode:

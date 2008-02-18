@@ -88,7 +88,7 @@ PionConfig.hpp.win, uncomment '#define PION_DISABLE_LOGGING'.
 At this time, log4cxx (http://logging.apache.org/log4cxx) is the only 
 supported logging library that builds correctly under Windows.
 
-A binary distribution is available at http://atomiclabs.com/files/log4cxx.zip.
+A binary distribution is available at http://pion.org/files/log4cxx.zip.
 Install it in C:\log4cxx, or change LOG4CXX_HOME accordingly (see below).
 
 You can also download the current source code from 
