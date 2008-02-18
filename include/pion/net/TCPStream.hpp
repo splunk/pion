@@ -116,11 +116,11 @@ protected:
 		const std::streamsize bytes_to_send = pptr() - pbase();
 		int_type bytes_sent = 0;
 		if (bytes_to_send > 0) {
+			boost::mutex::scoped_lock async_lock(m_async_mutex);
 			m_conn_ptr->async_write(boost::asio::buffer(pbase(), bytes_to_send),
 									boost::bind(&TCPStreamBuffer::operationFinished, this,
 												boost::asio::placeholders::error,
 												boost::asio::placeholders::bytes_transferred));
-			boost::mutex::scoped_lock async_lock(m_async_mutex);
 			m_async_done.wait(async_lock);
 			bytes_sent = m_bytes_transferred;
 			pbump(-bytes_sent);
@@ -153,12 +153,12 @@ protected:
 		// note that this has to be an ansynchronous call; otherwise, it cannot
 		// be cancelled by other threads and will block forever (such as during shutdown)
 		m_bytes_transferred = 0;
+		boost::mutex::scoped_lock async_lock(m_async_mutex);
 		m_conn_ptr->async_read_some(boost::asio::buffer(m_read_buf+PUT_BACK_MAX,
 														TCPConnection::READ_BUFFER_SIZE-PUT_BACK_MAX),
 									boost::bind(&TCPStreamBuffer::operationFinished, this,
 												boost::asio::placeholders::error,
 												boost::asio::placeholders::bytes_transferred));
-		boost::mutex::scoped_lock async_lock(m_async_mutex);
 		m_async_done.wait(async_lock);
 		if (m_async_error)
 			return traits_type::eof();
@@ -220,12 +220,12 @@ protected:
 			if ((n-bytes_available) >= (WRITE_BUFFER_SIZE-1)) {
 				// the remaining data to send is larger than the buffer available
 				// send it all now rather than buffering
+				boost::mutex::scoped_lock async_lock(m_async_mutex);
 				m_conn_ptr->async_write(boost::asio::buffer(s+bytes_available,
 															n-bytes_available),
 										boost::bind(&TCPStreamBuffer::operationFinished, this,
 													boost::asio::placeholders::error,
 													boost::asio::placeholders::bytes_transferred));
-				boost::mutex::scoped_lock async_lock(m_async_mutex);
 				m_async_done.wait(async_lock);
 				bytes_sent = bytes_available + m_bytes_transferred;
 			} else {
@@ -285,6 +285,7 @@ private:
 	inline void operationFinished(const boost::system::error_code& error_code,
 								  std::size_t bytes_transferred)
 	{
+		boost::mutex::scoped_lock async_lock(m_async_mutex);
 		m_async_error = error_code;
 		m_bytes_transferred = bytes_transferred;
 		m_async_done.notify_one();
