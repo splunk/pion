@@ -41,10 +41,8 @@
 	#if defined _MSC_VER
 		#if defined _DEBUG
 			#pragma comment(lib, "log4cxxd")
-			#pragma comment(lib, "aprd")
 		#else
 			#pragma comment(lib, "log4cxx")
-			#pragma comment(lib, "apr")
 		#endif
 		#pragma comment(lib, "odbc32")
 	#endif 
