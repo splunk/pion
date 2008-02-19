@@ -38,11 +38,8 @@ public:
 	// default constructor and destructor
 	TCPStreamTests_F() {
 		setup_logging_for_unit_tests();
-		m_scheduler.addActiveUser();
 	}
-	virtual ~TCPStreamTests_F() {
-		m_scheduler.removeActiveUser();
-	}
+	virtual ~TCPStreamTests_F() {}
 	
 	/**
 	 * listen for a TCP connection and call the connection handler when connected
@@ -90,6 +87,8 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
 	boost::thread listener_thread(boost::bind(&TCPStreamTests_F::acceptConnection,
 											  this, conn_handler) );
 	
+	m_scheduler.addActiveUser();
+
 	// connect to the listener
 	TCPStream client_str(m_scheduler.getIOService());
 	boost::system::error_code ec;
@@ -100,6 +99,8 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
 	std::string response_msg;
 	client_str >> response_msg;
 	BOOST_CHECK_EQUAL(response_msg, "Hello");
+
+	m_scheduler.removeActiveUser();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -141,6 +142,8 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
 	boost::thread listener_thread(boost::bind(&TCPStreamBufferTests_F::acceptConnection,
 											  this, conn_handler) );
 	
+	m_scheduler.addActiveUser();
+
 	// connect to the listener
 	TCPStream client_str(m_scheduler.getIOService());
 	boost::system::error_code ec;
@@ -151,6 +154,8 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
 	char another_buf[BIG_BUF_SIZE];
 	BOOST_REQUIRE(client_str.read(another_buf, BIG_BUF_SIZE));
 	BOOST_CHECK_EQUAL(memcmp(m_big_buf, another_buf, BIG_BUF_SIZE), 0);
+
+	m_scheduler.removeActiveUser();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
