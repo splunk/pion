@@ -406,6 +406,10 @@
 				RelativePath="TCPServer.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\WebServer.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -466,6 +470,10 @@
 			</File>
 			<File
 				RelativePath="..\include\pion\net\TCPServer.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\net\WebServer.hpp"
 				>
 			</File>
 			<File

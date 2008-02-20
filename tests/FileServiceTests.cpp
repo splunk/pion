@@ -31,20 +31,10 @@ using boost::asio::ip::tcp;
 
 PION_DECLARE_PLUGIN(FileService)
 
-#if defined(_MSC_VER)
-	#if defined(_DEBUG) && defined(PION_FULL)
-		static const std::string PATH_TO_PLUGINS("../../bin/Debug_DLL_full");
-	#elif defined(_DEBUG) && !defined(PION_FULL)
-		static const std::string PATH_TO_PLUGINS("../../bin/Debug_DLL");
-	#elif defined(NDEBUG) && defined(PION_FULL)
-		static const std::string PATH_TO_PLUGINS("../../bin/Release_DLL_full");
-	#elif defined(NDEBUG) && !defined(PION_FULL)
-		static const std::string PATH_TO_PLUGINS("../../bin/Release_DLL");
-	#endif
-#elif defined(PION_XCODE)
+#if defined(PION_XCODE)
 	static const std::string PATH_TO_PLUGINS(".");
 #else
-	// same for Unix and Cygwin
+	// same for Unix and Windows
 	static const std::string PATH_TO_PLUGINS("../services/.libs");
 #endif
 

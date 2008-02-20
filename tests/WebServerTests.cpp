@@ -33,24 +33,12 @@ PION_DECLARE_PLUGIN(HelloService)
 PION_DECLARE_PLUGIN(LogService)
 PION_DECLARE_PLUGIN(CookieService)
 
-#if defined(_MSC_VER)
-	#if defined(_DEBUG) && defined(PION_FULL)
-		static const std::string PATH_TO_PLUGINS("../../bin/Debug_DLL_full");
-	#elif defined(_DEBUG) && !defined(PION_FULL)
-		static const std::string PATH_TO_PLUGINS("../../bin/Debug_DLL");
-	#elif defined(NDEBUG) && defined(PION_FULL)
-		static const std::string PATH_TO_PLUGINS("../../bin/Release_DLL_full");
-	#elif defined(NDEBUG) && !defined(PION_FULL)
-		static const std::string PATH_TO_PLUGINS("../../bin/Release_DLL");
-	#endif
-	static const std::string SSL_PEM_FILE("../utils/sslkey.pem");
-	static const std::string SERVICES_CONFIG_FILE("../utils/vcservices.conf");
-#elif defined(PION_XCODE)
+#if defined(PION_XCODE)
 	static const std::string PATH_TO_PLUGINS(".");
 	static const std::string SSL_PEM_FILE("../../net/utils/sslkey.pem");
 	static const std::string SERVICES_CONFIG_FILE("../../net/utils/xcodeservices.conf");
 #else
-	// same for Unix and Cygwin
+	// same for Unix and Windows
 	static const std::string PATH_TO_PLUGINS("../services/.libs");
 	static const std::string SSL_PEM_FILE("../utils/sslkey.pem");
 	static const std::string SERVICES_CONFIG_FILE("../utils/testservices.conf");
