@@ -110,8 +110,28 @@ struct PION_NET_API HTTPTypes
 		}
 	};
 
+	struct CaseInsensitiveLess {
+		bool operator()(const std::string& str1, const std::string& str2) const {
+			if (str1.size() < str2.size())
+				return true;
+			std::string::const_iterator it1 = str1.begin();
+			std::string::const_iterator it2 = str2.begin();
+			while ( (it1 != str1.end()) && (it2 != str2.end()) ) {
+				if (tolower(*it1) < tolower(*it2))
+					return true;
+				++it1;
+				++it2;
+			}
+			return false;
+		}
+	};
+
 	/// use case-insensitive comparisons for HTTP header names
+#ifdef _MSC_VER
+	typedef PION_HASH_MULTIMAP<std::string, std::string, stdext::hash_compare<std::string, CaseInsensitiveLess> >	Headers;
+#else
 	typedef PION_HASH_MULTIMAP<std::string, std::string, HashHeader, HeadersAreEqual >	Headers;
+#endif
 
 	/// data type for a dictionary of strings (used for HTTP headers)
 	typedef PION_HASH_MULTIMAP<std::string, std::string, PION_HASH_STRING >	StringDictionary;
