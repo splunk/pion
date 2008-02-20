@@ -309,10 +309,11 @@ protected:
 	 * @param key the key to search for
 	 * @return value if found; empty string if not
 	 */
-	inline static const std::string& getValue(const StringDictionary& dict,
+	template <typename DictionaryType>
+	inline static const std::string& getValue(const DictionaryType& dict,
 											  const std::string& key)
 	{
-		StringDictionary::const_iterator i = dict.find(key);
+		typename DictionaryType::const_iterator i = dict.find(key);
 		return ( (i==dict.end()) ? STRING_EMPTY : i->second );
 	}
 
@@ -325,12 +326,13 @@ protected:
 	 * @param key the key to change the value for
 	 * @param value the value to assign to the key
 	 */
-	inline static void changeValue(StringDictionary& dict,
+	template <typename DictionaryType>
+	inline static void changeValue(DictionaryType& dict,
 								   const std::string& key, const std::string& value)
 
 	{
 		// retrieve all current values for key
-		std::pair<StringDictionary::iterator, StringDictionary::iterator>
+		std::pair<typename DictionaryType::iterator, typename DictionaryType::iterator>
 			result_pair = dict.equal_range(key);
 		if (result_pair.first == dict.end()) {
 			// no values exist -> add a new key
@@ -339,7 +341,7 @@ protected:
 			// set the first value found for the key to the new one
 			result_pair.first->second = value;
 			// remove any remaining values
-			StringDictionary::iterator i;
+			typename DictionaryType::iterator i;
 			++(result_pair.first);
 			while (result_pair.first != result_pair.second) {
 				i = result_pair.first;
@@ -355,10 +357,11 @@ protected:
 	 * @param dict the dictionary object to update
 	 * @param key the key to delete
 	 */
-	inline static void deleteValue(StringDictionary& dict,
+	template <typename DictionaryType>
+	inline static void deleteValue(DictionaryType& dict,
 								   const std::string& key)
 	{
-		std::pair<StringDictionary::iterator, StringDictionary::iterator>
+		std::pair<typename DictionaryType::iterator, typename DictionaryType::iterator>
 			result_pair = dict.equal_range(key);
 		if (result_pair.first != dict.end())
 			dict.erase(result_pair.first, result_pair.second);

@@ -12,7 +12,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <algorithm>
+#include <boost/algorithm/string/case_conv.hpp>
 
 #include "FileService.hpp"
 #include <pion/PionPlugin.hpp>
@@ -652,8 +652,7 @@ std::string FileService::findMIMEType(const std::string& file_name) {
 	
 	// determine the file's extension
 	std::string extension(file_name.substr(file_name.find_last_of('.') + 1));
-	std::transform(extension.begin(), extension.end(),
-				   extension.begin(), tolower);
+	boost::algorithm::to_lower(extension);
 	
 	// search for the matching mime type and return the result
 	MIMETypeMap::iterator i = m_mime_types_ptr->find(extension);

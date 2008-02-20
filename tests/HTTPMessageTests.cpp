@@ -58,6 +58,16 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(testChunksSupportedAccessors) {
 	BOOST_CHECK(!F::getChunksSupported());
 }
 
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(testHeaderCaseIsIgnored) {
+	const std::string xml_content_type("text/xml");
+
+	F::addHeader(HTTPTypes::HEADER_CONTENT_TYPE, xml_content_type);
+	BOOST_CHECK_EQUAL(F::getHeader("CoNTenT-TYPe"), xml_content_type);
+
+	F::addHeader("content-length", "10");
+	BOOST_CHECK_EQUAL(F::getHeader(HTTPTypes::HEADER_CONTENT_LENGTH), "10");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 template<typename ConcreteMessageType>

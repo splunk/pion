@@ -10,9 +10,10 @@
 #ifndef __PION_HTTPTYPES_HEADER__
 #define __PION_HTTPTYPES_HEADER__
 
+#include <string>
+#include <cctype>
 #include <pion/PionConfig.hpp>
 #include <pion/PionHashMap.hpp>
-#include <string>
 
 
 namespace pion {	// begin namespace pion
@@ -42,7 +43,7 @@ struct PION_NET_API HTTPTypes
 	static const std::string	HEADER_CONTENT_LOCATION;
 	static const std::string	HEADER_LAST_MODIFIED;
 	static const std::string	HEADER_IF_MODIFIED_SINCE;
-    static const std::string	HEADER_TRANSFER_ENCODING;
+	static const std::string	HEADER_TRANSFER_ENCODING;
 	static const std::string	HEADER_LOCATION;
 
 	// common HTTP content types
@@ -82,12 +83,39 @@ struct PION_NET_API HTTPTypes
 	static const unsigned int	RESPONSE_CODE_SERVER_ERROR;
 	static const unsigned int	RESPONSE_CODE_NOT_IMPLEMENTED;
 	
+	/// used for case-insensitive comparisons of HTTP header names
+	struct HeadersAreEqual {
+		inline bool operator()(const std::string& str1, const std::string& str2) const {
+			if (str1.size() != str2.size())
+				return false;
+			std::string::const_iterator it1 = str1.begin();
+			std::string::const_iterator it2 = str2.begin();
+			while ( (it1!=str1.end()) && (it2!=str2.end()) ) {
+				if (tolower(*it1) != tolower(*it2))
+					return false;
+				++it1;
+				++it2;
+			}
+			return true;
+		}
+	};
+
+	/// your plain old string hash algorithm, except case insensitive
+	struct HashHeader {
+		inline unsigned long operator()(const std::string& str) const {
+			unsigned long value = 0;
+			for (std::string::const_iterator i = str.begin(); i!= str.end(); ++i)
+				value = static_cast<unsigned char>(tolower(*i)) + (value << 6) + (value << 16) - value;
+			return value;
+		}
+	};
+
+	/// use case-insensitive comparisons for HTTP header names
+	typedef PION_HASH_MULTIMAP<std::string, std::string, HashHeader, HeadersAreEqual >	Headers;
+
 	/// data type for a dictionary of strings (used for HTTP headers)
 	typedef PION_HASH_MULTIMAP<std::string, std::string, PION_HASH_STRING >	StringDictionary;
 
-	/// data type for HTTP headers
-	typedef StringDictionary	Headers;
-	
 	/// data type for HTTP query parameters
 	typedef StringDictionary	QueryParams;
 	
