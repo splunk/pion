@@ -125,6 +125,7 @@ struct PION_NET_API HTTPTypes
 		}
 	};
 
+#ifdef _MSC_VER
 	/// case insensitive extension of stdext::hash_compare for std::string
 	struct CaseInsensitiveHashCompare : public stdext::hash_compare<std::string, CaseInsensitiveLess> {
 		// makes operator() with two arguments visible, otherwise it would be hidden by the operator() defined here
@@ -134,6 +135,7 @@ struct PION_NET_API HTTPTypes
 			return CaseInsensitiveHash()(str);
 		}
 	};
+#endif
 
 	/// use case-insensitive comparisons for HTTP header names
 #ifdef _MSC_VER
