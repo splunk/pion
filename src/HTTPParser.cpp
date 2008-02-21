@@ -598,22 +598,40 @@ boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
 		switch (m_chunked_content_parse_state) {
 		case PARSE_CHUNK_SIZE_START:
 			// we have not yet started parsing the next chunk size
-			if (*m_read_ptr != ' ' && *m_read_ptr != '\r' && *m_read_ptr != '\n') {	// ignore leading whitespace
-				if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr))
-					return false;
+			if (isHexDigit(*m_read_ptr)) {
 				m_chunk_size_str.erase();
 				m_chunk_size_str.push_back(*m_read_ptr);
 				m_chunked_content_parse_state = PARSE_CHUNK_SIZE;
+			} else if (*m_read_ptr == ' ' || *m_read_ptr == '\x09' || *m_read_ptr == '\x0D' || *m_read_ptr == '\x0A') {
+				// Ignore leading whitespace.  Technically, the standard probably doesn't allow white space here, 
+				// but we'll be flexible, since there's no ambiguity.
+				break;
+			} else {
+				return false;
 			}
 			break;
 
 		case PARSE_CHUNK_SIZE:
-			// We can't be flexible here because if we see anything other than hex digits followed 
-			// immediately by CRLF, we can't be certain where the chunk starts.
 			if (isHexDigit(*m_read_ptr)) {
 				m_chunk_size_str.push_back(*m_read_ptr);
 			} else if (*m_read_ptr == '\x0D') {
 				m_chunked_content_parse_state = PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE;
+			} else if (*m_read_ptr == ' ' || *m_read_ptr == '\x09') {
+				// Ignore trailing tabs or spaces.  Technically, the standard probably doesn't allow this, 
+				// but we'll be flexible, since there's no ambiguity.
+				m_chunked_content_parse_state = PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE;
+			} else {
+				return false;
+			}
+			break;
+
+		case PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE:
+			if (*m_read_ptr == '\x0D') {
+				m_chunked_content_parse_state = PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE;
+			} else if (*m_read_ptr == ' ' || *m_read_ptr == '\x09') {
+				// Ignore trailing tabs or spaces.  Technically, the standard probably doesn't allow this, 
+				// but we'll be flexible, since there's no ambiguity.
+				break;
 			} else {
 				return false;
 			}

@@ -41,7 +41,7 @@ public:
 	 *                   if false, the message is parsed as an HTTP response
 	 */
 	HTTPParser(const bool is_request)
-		: m_logger(PION_GET_LOGGER("pion.net.HTTPParser")), m_is_request(is_request),		
+		: m_logger(PION_GET_LOGGER("pion.net.HTTPParser")), m_is_request(is_request),
 		m_read_ptr(NULL), m_read_end_ptr(NULL),
 		m_headers_parse_state(is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H),
 		m_chunked_content_parse_state(PARSE_CHUNK_SIZE_START),
@@ -255,6 +255,7 @@ private:
 	/// state used to keep track of where we are in parsing chunked content
 	enum ChunkedContentParseState {
 		PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE, 
+		PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE,
 		PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE, PARSE_CHUNK, 
 		PARSE_EXPECTING_CR_AFTER_CHUNK, PARSE_EXPECTING_LF_AFTER_CHUNK,
 		PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK, 

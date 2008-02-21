@@ -382,6 +382,43 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingChunkedStream) {
 	tcp_stream.close();
 }
 
+BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingExtraWhiteSpaceAroundChunkSizes) {
+	// open a connection
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream tcp_stream(localhost);
+
+	// set expectations for received request
+	std::map<std::string, std::string> expectedHeaders;
+	expectedHeaders[HTTPTypes::HEADER_TRANSFER_ENCODING] = "chunked";
+	getServerPtr()->setExpectations(expectedHeaders, "abcdefghijklmno");
+	
+	// send request to the server
+	tcp_stream << "POST /resource1 HTTP/1.1" << HTTPTypes::STRING_CRLF;
+	tcp_stream << HTTPTypes::HEADER_TRANSFER_ENCODING << ": chunked" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+
+	// write some chunks with chunk sizes with leading and/or trailing tabs and spaces
+	tcp_stream <<      " 2"       << HTTPTypes::STRING_CRLF << "ab" << HTTPTypes::STRING_CRLF;
+	tcp_stream <<       "2\t \t " << HTTPTypes::STRING_CRLF << "cd" << HTTPTypes::STRING_CRLF;
+	tcp_stream <<     "  2  "     << HTTPTypes::STRING_CRLF << "ef" << HTTPTypes::STRING_CRLF;
+	tcp_stream << "\t \t 2\t\t"   << HTTPTypes::STRING_CRLF << "gh" << HTTPTypes::STRING_CRLF;
+
+	// write chunks with extra CRLF before chunk size
+	// (extra CRLF after chunk size not allowed, since it would be ambiguous)
+	tcp_stream << HTTPTypes::STRING_CRLF << "2"   << HTTPTypes::STRING_CRLF << "ij" << HTTPTypes::STRING_CRLF;
+	tcp_stream << HTTPTypes::STRING_CRLF << " 5 " << HTTPTypes::STRING_CRLF << "klmno" << HTTPTypes::STRING_CRLF;
+
+	// write final chunk size
+	tcp_stream << "0" << HTTPTypes::STRING_CRLF;
+	tcp_stream << HTTPTypes::STRING_CRLF;
+	tcp_stream.flush();
+
+	// receive goodbye from the first server
+	std::string message;
+	std::getline(tcp_stream, message);
+	BOOST_CHECK(message == "Goodbye!");
+	tcp_stream.close();
+}
+
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
 	// open a connection
 	TCPConnection tcp_conn(getIOService());
