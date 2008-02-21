@@ -435,6 +435,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HTTPTypesTests.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PionNetUnitTests.cpp"
 				>
 			</File>
