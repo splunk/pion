@@ -17,6 +17,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPWriter.hpp>
+#include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
 
 
@@ -39,43 +40,34 @@ public:
 	 * creates new HTTPResponseWriter objects
 	 * 
 	 * @param tcp_conn TCP connection used to send the response
-	 * 
-	 * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
-	 *         the new writer object that was created
-	 */
-	static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn)
-	{
-		return boost::shared_ptr<HTTPResponseWriter>(new HTTPResponseWriter(tcp_conn));
-	}
-
-	/**
-	 * creates new HTTPResponseWriter objects
-	 * 
-	 * @param tcp_conn TCP connection used to send the response
 	 * @param http_response pointer to the response that will be sent
+	 * @param handler function called after the response has been sent
 	 * 
 	 * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
 	 *         the new writer object that was created
 	 */
 	static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn,
-															   HTTPResponsePtr& http_response)
+															   HTTPResponsePtr& http_response,
+															   FinishedHandler handler = FinishedHandler())
 	{
-		return boost::shared_ptr<HTTPResponseWriter>(new HTTPResponseWriter(tcp_conn, http_response));
+		return boost::shared_ptr<HTTPResponseWriter>(new HTTPResponseWriter(tcp_conn, http_response, handler));
 	}
 
 	/**
 	 * creates new HTTPResponseWriter objects
 	 * 
 	 * @param tcp_conn TCP connection used to send the response
-	 * @param http_request pointer to the request we are responding to
+	 * @param http_request the request we are responding to
+	 * @param handler function called after the request has been sent
 	 * 
 	 * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
 	 *         the new writer object that was created
 	 */
 	static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn,
-															   const HTTPMessage& http_request)
+															   const HTTPRequest& http_request,
+															   FinishedHandler handler = FinishedHandler())
 	{
-		return boost::shared_ptr<HTTPResponseWriter>(new HTTPResponseWriter(tcp_conn, http_request));
+		return boost::shared_ptr<HTTPResponseWriter>(new HTTPResponseWriter(tcp_conn, http_request, handler));
 	}
 	
 	/// returns a non-const reference to the response that will be sent
@@ -89,21 +81,11 @@ protected:
 	 * 
 	 * @param tcp_conn TCP connection used to send the response
 	 * @param http_response pointer to the response that will be sent
+	 * @param handler function called after the request has been sent
 	 */
-	HTTPResponseWriter(TCPConnectionPtr& tcp_conn)
-		: HTTPWriter(tcp_conn), m_http_response(new HTTPResponse)
-	{
-		setLogger(PION_GET_LOGGER("pion.net.HTTPResponseWriter"));
-	}
-	
-	/**
-	 * protected constructor restricts creation of objects (use create())
-	 * 
-	 * @param tcp_conn TCP connection used to send the response
-	 * @param http_response pointer to the response that will be sent
-	 */
-	HTTPResponseWriter(TCPConnectionPtr& tcp_conn, HTTPResponsePtr& http_response)
-		: HTTPWriter(tcp_conn), m_http_response(http_response)
+	HTTPResponseWriter(TCPConnectionPtr& tcp_conn, HTTPResponsePtr& http_response,
+					   FinishedHandler handler)
+		: HTTPWriter(tcp_conn, handler), m_http_response(http_response)
 	{
 		setLogger(PION_GET_LOGGER("pion.net.HTTPResponseWriter"));
 		// tell the HTTPWriter base class whether or not the client supports chunks
@@ -122,10 +104,12 @@ protected:
 	 * protected constructor restricts creation of objects (use create())
 	 * 
 	 * @param tcp_conn TCP connection used to send the response
-	 * @param http_request pointer to the request we are responding to
+	 * @param http_request the request we are responding to
+	 * @param handler function called after the request has been sent
 	 */
-	HTTPResponseWriter(TCPConnectionPtr& tcp_conn, const HTTPMessage& http_request)
-		: HTTPWriter(tcp_conn), m_http_response(new HTTPResponse(http_request))
+	HTTPResponseWriter(TCPConnectionPtr& tcp_conn, const HTTPRequest& http_request,
+					   FinishedHandler handler)
+		: HTTPWriter(tcp_conn, handler), m_http_response(new HTTPResponse(http_request))
 	{
 		setLogger(PION_GET_LOGGER("pion.net.HTTPResponseWriter"));
 		// tell the HTTPWriter base class whether or not the client supports chunks
@@ -160,27 +144,22 @@ protected:
 	 * @param bytes_written number of bytes sent by the last write operation
 	 */
 	virtual void handleWrite(const boost::system::error_code& write_error,
-					 std::size_t bytes_written)
+							 std::size_t bytes_written)
 	{
-		PionLogger logger = getLogger();
 		if (write_error) {
 			// encountered error sending response
 			getTCPConnection()->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
-			PION_LOG_WARN(logger, "Unable to send HTTP response (" << write_error.message() << ')');
+			PION_LOG_WARN(getLogger(), "Unable to send HTTP response (" << write_error.message() << ')');
 		} else {
 			// response sent OK
 			if (sendingChunkedMessage()) {
-				PION_LOG_DEBUG(logger, "Sent HTTP response chunk of " << bytes_written << " bytes");
+				PION_LOG_DEBUG(getLogger(), "Sent HTTP response chunk of " << bytes_written << " bytes");
 			} else {
 				PION_LOG_DEBUG(getLogger(), "Sent HTTP response of " << bytes_written << " bytes ("
 							   << (getTCPConnection()->getKeepAlive() ? "keeping alive)" : "closing)"));
 			}
 		}
-
-		// TCPConnection::finish() calls TCPServer::finishConnection, which will either:
-		// a) call HTTPServer::handleConnection again if keep-alive is true; or,
-		// b) close the socket and remove it from the server's connection pool
-		getTCPConnection()->finish();
+		finishedWriting();
 	}
 
 	

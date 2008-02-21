@@ -61,7 +61,7 @@ protected:
 						 std::size_t bytes_read);
 
 	/**
-	 * Called after new payload content bytes have been read
+	 * Called after new payload content bytes have been read (with error code to check)
 	 * 
 	 * @param read_error error status from the last read operation
 	 * @param bytes_read number of bytes consumed by the last read operation
@@ -69,6 +69,22 @@ protected:
 	void readContentBytes(const boost::system::error_code& read_error,
 						  std::size_t bytes_read);
 
+	/**
+	 * Called after new payload content bytes have been read
+	 * 
+	 * @param bytes_read number of bytes consumed by the last read operation
+	 */
+	void readContentBytes(std::size_t bytes_read);
+	
+	/**
+	 * Called after new payload content bytes have been read (continue through EOS)
+	 * 
+	 * @param read_error error status from the last read operation
+	 * @param bytes_read number of bytes consumed by the last read operation
+	 */
+	void readContentBytesUntilEOS(const boost::system::error_code& read_error,
+								  std::size_t bytes_read);
+	
 	/**
 	 * Called after new chunked payload content bytes have been read
 	 * 
@@ -90,6 +106,9 @@ protected:
 	/// Reads more HTTP header bytes from the TCP connection
 	virtual void getMoreHeaderBytes(void) = 0;
 
+	/// Reads more payload content bytes from the TCP connection (continue through EOS)
+	virtual void getMoreContentBytes(void) = 0;
+	
 	/**
 	 * Reads more payload content bytes from the TCP connection
 	 *

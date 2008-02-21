@@ -65,19 +65,21 @@ public:
 
 	/// constructs a new HTTP message object
 	HTTPMessage(void)
-		: m_is_valid(false), m_chunks_supported(false),
-		m_version_major(0), m_version_minor(0), m_content_length(0), m_is_chunked(false)
+		: m_is_valid(false), m_is_chunked(false), m_chunks_supported(false),
+		m_do_not_send_content_length(false),
+		m_version_major(0), m_version_minor(0), m_content_length(0)
 	{}
 
 	/// copy constructor
 	HTTPMessage(const HTTPMessage& http_msg)
 		: m_is_valid(http_msg.m_is_valid),
+		m_is_chunked(http_msg.m_is_chunked),
 		m_chunks_supported(http_msg.m_chunks_supported),
+		m_do_not_send_content_length(http_msg.m_do_not_send_content_length),
 		m_remote_ip(http_msg.m_remote_ip),
 		m_version_major(http_msg.m_version_major),
 		m_version_minor(http_msg.m_version_minor),
 		m_content_length(http_msg.m_content_length),
-		m_is_chunked(http_msg.m_is_chunked),
 		m_chunk_buffers(http_msg.m_chunk_buffers),
 		m_headers(http_msg.m_headers)
 	{
@@ -92,16 +94,18 @@ public:
 
 	/// clears all message data
 	virtual void clear(void) {
-		m_is_valid = m_chunks_supported = false;
+		m_is_valid = m_is_chunked = m_chunks_supported
+			= m_do_not_send_content_length = false;
 		m_remote_ip = boost::asio::ip::address_v4(0);
 		m_version_major = m_version_minor = 0;
 		m_content_length = 0;
-		m_is_chunked = false;
 		m_content_buf.reset();
 		m_chunk_buffers.clear();
 		m_headers.clear();
 	}
-
+	
+	/// should return true if the content length can be implied without headers
+	virtual bool isContentLengthImplied(void) const = 0;
 	
 	/// returns true if the message is valid
 	inline bool isValid(void) const { return m_is_valid; }
@@ -168,6 +172,9 @@ public:
 
 	/// sets the length of the payload content (in bytes)
 	inline void setContentLength(const size_t n) { m_content_length = n; }
+
+	/// if called, the content-length will not be sent in the HTTP headers
+	inline void setDoNotSendContentLength(void) { m_do_not_send_content_length = true; }
 	
 	/// sets the length of the payload content using the Content-Length header
 	inline void updateContentLengthUsingHeader(void) {
@@ -279,7 +286,7 @@ protected:
 		if (using_chunks) {
 			if (getChunksSupported())
 				changeHeader(HEADER_TRANSFER_ENCODING, "chunked");
-		} else {
+		} else if (! m_do_not_send_content_length) {
 			changeHeader(HEADER_CONTENT_LENGTH, boost::lexical_cast<std::string>(getContentLength()));
 		}
 	}
@@ -380,8 +387,14 @@ private:
 	/// True if the HTTP message is valid
 	bool							m_is_valid;
 
+	/// whether the message body is chunked
+	bool							m_is_chunked;
+	
 	/// true if chunked transfer encodings are supported
 	bool							m_chunks_supported;
+	
+	/// if true, the content length will not be sent in the HTTP headers
+	bool							m_do_not_send_content_length;
 	
 	/// IP address of the remote endpoint
 	boost::asio::ip::address		m_remote_ip;
@@ -394,9 +407,6 @@ private:
 	
 	/// the length of the payload content (in bytes)
 	size_t							m_content_length;
-
-	/// whether the message body is chunked
-	bool							m_is_chunked;
 
 	/// the payload content, if any was sent with the message
 	boost::scoped_array<char>		m_content_buf;

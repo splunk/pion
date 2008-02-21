@@ -86,10 +86,14 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 		ec.assign(1, RECEIVE_ERROR);
 		return http_parser.getTotalBytesRead();
 	}
-	
+
+	bool force_connection_closed = false;
 	std::size_t content_bytes_to_read = 0;
 	updateTransferCodingUsingHeader();
+	
 	if (isChunked()) {
+		// message content is encoded using chunks
+		
 		while (true) {
 			// parse bytes available in the read buffer
 			parse_result = http_parser.parseChunks(m_chunk_buffers);
@@ -106,17 +110,64 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 			http_parser.setReadBuffer(tcp_conn.getReadBuffer().data(), last_bytes_read);
 		}
 		concatenateChunks();
-	} else {
-		// set content length & consume any payload content left in the read buffers
-		last_bytes_read = http_parser.consumeContent(*this);
-		content_bytes_to_read = getContentLength() - last_bytes_read;
-		if (content_bytes_to_read > 0) {
-			// read remainder of payload content from the connection
-			last_bytes_read = tcp_conn.read(boost::asio::buffer(getContent() + last_bytes_read, content_bytes_to_read),
-											boost::asio::transfer_at_least(content_bytes_to_read), ec);
-			if (ec) return http_parser.getTotalBytesRead();
+		
+	} else if (! isContentLengthImplied()) {
+		// we cannot assume that the message has no content
+		
+		if (hasHeader(HTTPTypes::HEADER_CONTENT_LENGTH)) {
+			// message has a content-length header
+			
+			// set content length & consume any payload content left in the read buffers
+			last_bytes_read = http_parser.consumeContent(*this);
+			content_bytes_to_read = getContentLength() - last_bytes_read;
+			if (content_bytes_to_read > 0) {
+				// read remainder of payload content from the connection
+				last_bytes_read = tcp_conn.read(boost::asio::buffer(getContent() + last_bytes_read, content_bytes_to_read),
+												boost::asio::transfer_at_least(content_bytes_to_read), ec);
+				if (ec) return http_parser.getTotalBytesRead();
+			}
+			
+		} else {
+			// no content-length specified, and the content length cannot
+			// otherwise be determined
+
+			// only if not a request, read through the close of the connection
+			if (dynamic_cast<HTTPRequest*>(this) == NULL) {
+
+				force_connection_closed = true;	// make sure lifecycle will be set to close
+				content_bytes_to_read = 0;		// note this is used to calculate total bytes read
+				m_chunk_buffers.clear();		// clear the chunk buffers before we start
+
+				// read in the remaining data available
+				while (true) {
+					// use the parser to consume the next chunk
+					http_parser.consumeContentAsNextChunk(m_chunk_buffers);
+
+					// read some more data from the connection
+					last_bytes_read = tcp_conn.read_some(ec);
+					if (ec || last_bytes_read == 0) {
+						ec.clear();		// clear error code for connection closed
+						break;
+					}
+					http_parser.setReadBuffer(tcp_conn.getReadBuffer().data(), last_bytes_read);
+					content_bytes_to_read += last_bytes_read;
+				}
+				
+				// concatenate the chunks together into a new content buffer
+				concatenateChunks();
+			} else {
+				// the message has no content
+				
+				setContentLength(0);
+				createContentBuffer();
+			}
 		}
-	}
+	} else {
+		// the message has no content
+		
+		setContentLength(0);
+		createContentBuffer();
+	}		
 
 	// the message is valid: finish it (sets valid flag)
 	if (is_request)
@@ -125,7 +176,7 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 		http_parser.finishResponse(dynamic_cast<HTTPResponse&>(*this));
 	
 	// set the connection's lifecycle type
-	if (checkKeepAlive()) {
+	if (!force_connection_closed && checkKeepAlive()) {
 		if ( http_parser.eof() ) {
 			// the connection should be kept alive, but does not have pipelined messages
 			tcp_conn.setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);

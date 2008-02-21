@@ -14,6 +14,7 @@
 #include <boost/lexical_cast.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPMessage.hpp>
+#include <pion/net/HTTPRequest.hpp>
 
 
 namespace pion {	// begin namespace pion
@@ -28,29 +29,43 @@ class HTTPResponse
 {
 public:
 
-	/// constructs a new HTTPResponse object
-	HTTPResponse(void)
-		: m_status_code(RESPONSE_CODE_OK),
-		m_status_message(RESPONSE_MESSAGE_OK) {}
-	
-	/// copy constructor
-	HTTPResponse(const HTTPResponse& http_response)
-		: m_status_code(http_response.m_status_code),
-		m_status_message(http_response.m_status_message) {}
-	
 	/**
 	 * constructs a new HTTPResponse object for a particular request
 	 *
 	 * @param http_request the request that this is responding to
 	 */
-	HTTPResponse(const HTTPMessage& http_request)
+	HTTPResponse(const HTTPRequest& http_request)
 		: m_status_code(RESPONSE_CODE_OK),
-		m_status_message(RESPONSE_MESSAGE_OK)
+		m_status_message(RESPONSE_MESSAGE_OK),
+		m_request_method(http_request.getMethod())
 	{
 		if (http_request.getVersionMajor() == 1 && http_request.getVersionMinor() >= 1)
 			setChunksSupported(true);
 	}
 
+	/**
+	 * constructs a new HTTPResponse object for a particular request method
+	 *
+	 * @param request_method the method used by the HTTP request we are responding to
+	 */
+	HTTPResponse(const std::string& request_method)
+		: m_status_code(RESPONSE_CODE_OK), m_status_message(RESPONSE_MESSAGE_OK),
+		m_request_method(request_method)
+	{}
+	
+	/// copy constructor
+	HTTPResponse(const HTTPResponse& http_response)
+		: m_status_code(http_response.m_status_code),
+		m_status_message(http_response.m_status_message)
+	{}
+	
+	/// default constructor: you are strongly encouraged to use one of the other
+	/// constructors, since HTTPResponse parsing is influenced by the request method
+	HTTPResponse(void)
+		: m_status_code(RESPONSE_CODE_OK),
+		m_status_message(RESPONSE_MESSAGE_OK)
+	{}
+	
 	/// virtual destructor
 	virtual ~HTTPResponse() {}
 
@@ -62,6 +77,15 @@ public:
 		m_status_message = RESPONSE_MESSAGE_OK;
 	}
 
+	/// the content length may be implied for certain types of responses
+	virtual bool isContentLengthImplied(void) const {
+		return (m_request_method == REQUEST_METHOD_HEAD				// HEAD responses have no content
+			    || m_status_code >= 100 && m_status_code <= 199		// 1xx responses have no content
+			    || m_status_code == 204	|| m_status_code == 205		// no content & reset content responses
+			    || m_status_code == 304								// not modified responses have no content
+			    );
+	}
+	
 	/// sets the HTTP response status code
 	inline void setStatusCode(unsigned int n) { m_status_code = n; }
 
@@ -176,6 +200,9 @@ private:
 	
 	/// The HTTP response status message
 	std::string				m_status_message;
+	
+	/// HTTP method used by the request
+	std::string				m_request_method;
 };
 
 

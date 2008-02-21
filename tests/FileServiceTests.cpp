@@ -667,7 +667,7 @@ BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
 	BOOST_REQUIRE(!error_code);
 
 	// receive the response from the server
-	HTTPResponse http_response;
+	HTTPResponse http_response(http_request);
 	http_response.receive(tcp_conn, error_code);
 	BOOST_REQUIRE(!error_code);
 

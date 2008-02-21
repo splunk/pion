@@ -117,7 +117,8 @@ void HTTPServer::handleBadRequest(HTTPRequestPtr& http_request,
 		"<h1>Bad Request</h1>\n"
 		"<p>Your browser sent a request that this server could not understand.</p>\n"
 		"</body></html>\n";
-	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request));
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
+															boost::bind(&TCPConnection::finish, tcp_conn)));
 	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_BAD_REQUEST);
 	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_BAD_REQUEST);
 	writer->writeNoCopy(BAD_REQUEST_HTML);
@@ -136,7 +137,8 @@ void HTTPServer::handleNotFoundRequest(HTTPRequestPtr& http_request,
 	static const std::string NOT_FOUND_HTML_FINISH =
 		" was not found on this server.</p>\n"
 		"</body></html>\n";
-	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request));
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
+															boost::bind(&TCPConnection::finish, tcp_conn)));
 	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
 	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
 	writer->writeNoCopy(NOT_FOUND_HTML_START);
@@ -158,7 +160,8 @@ void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
 	static const std::string SERVER_ERROR_HTML_FINISH =
 		"</strong></p>\n"
 		"</body></html>\n";
-	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request));
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
+															boost::bind(&TCPConnection::finish, tcp_conn)));
 	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
 	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR);
 	writer->writeNoCopy(SERVER_ERROR_HTML_START);

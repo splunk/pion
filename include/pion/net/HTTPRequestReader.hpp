@@ -94,6 +94,14 @@ protected:
 														boost::asio::placeholders::bytes_transferred));
 	}
 	
+	/// Reads more payload content bytes from the TCP connection (continue through EOS)
+	virtual void getMoreContentBytes(void) {
+		getTCPConnection()->async_read_some(boost::bind(&HTTPRequestReader::readContentBytesUntilEOS,
+														shared_from_this(),
+														boost::asio::placeholders::error,
+														boost::asio::placeholders::bytes_transferred));
+	}
+	
 	/**
 	 * Reads more payload content bytes from the TCP connection
 	 *

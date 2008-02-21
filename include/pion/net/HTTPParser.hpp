@@ -85,7 +85,16 @@ public:
 	 * @return unsigned long number of content bytes consumed, if any
 	 */
 	std::size_t consumeContent(HTTPMessage& http_msg);
-		
+
+	/**
+	 * consume the bytes available in the read buffer, converting them into
+	 * the next chunk for the HTTP message
+	 *
+	 * @param chunk_buffers buffers to be populated from parsing chunked content
+	 * @return unsigned long number of content bytes consumed, if any
+	 */
+	std::size_t consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers);
+	
 	/**
 	 * finishes an HTTP request message (copies over request-only data)
 	 *

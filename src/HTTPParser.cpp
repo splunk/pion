@@ -582,6 +582,23 @@ std::size_t HTTPParser::consumeContent(HTTPMessage& http_msg)
 	return m_bytes_last_read;
 }
 
+std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers)
+{
+	if (bytes_available() == 0) {
+		m_bytes_last_read = 0;
+	} else {
+		std::vector<char>	next_chunk;
+		while (m_read_ptr < m_read_end_ptr) {
+			next_chunk.push_back(*m_read_ptr);
+			++m_read_ptr;
+		}
+		chunk_buffers.push_back(next_chunk);
+		m_bytes_last_read = next_chunk.size();
+		m_bytes_total_read += m_bytes_last_read;
+	}
+	return m_bytes_last_read;
+}
+	
 boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
 {
 	//

@@ -15,11 +15,14 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 #include <pion/PionPlugin.hpp>
 #include <pion/PionScheduler.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
 #include <pion/net/HTTPRequestWriter.hpp>
+#include <pion/net/HTTPResponseReader.hpp>
 #include <pion/net/WebServer.hpp>
 
 using namespace std;
@@ -328,7 +331,7 @@ public:
 		BOOST_REQUIRE(! error_code);
 
 		// receive the response from the server
-		HTTPResponse http_response;
+		HTTPResponse http_response(http_request);
 		http_response.receive(tcp_conn, error_code);
 		BOOST_REQUIRE(! error_code);
 		
@@ -404,7 +407,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
 	writer->send();
 
 	// receive the response from the server
-	HTTPResponse http_response;
+	HTTPResponse http_response(writer->getRequest());
 	http_response.receive(*tcp_conn, error_code);
 	BOOST_CHECK(!error_code);
 
@@ -435,7 +438,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
 	sender->send();
 
 	// receive the response from the server
-	HTTPResponse http_response;
+	HTTPResponse http_response("GET");
 	http_response.receive(*tcp_conn, error_code);
 	BOOST_CHECK(!error_code);
 
@@ -468,7 +471,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
 	sender->send();
 
 	// receive the response from the server
-	HTTPResponse http_response;
+	HTTPResponse http_response("GET");
 	http_response.receive(*tcp_conn, error_code);
 	BOOST_CHECK(!error_code);
 
@@ -496,7 +499,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
 	sender->send();
 
 	// receive the response from the server
-	HTTPResponse http_response;
+	HTTPResponse http_response("GET");
 	http_response.receive(*tcp_conn, error_code);
 	BOOST_CHECK(!error_code);
 
@@ -588,6 +591,151 @@ BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
 	// send request and check response (docs index page: requires net/doc/html doxygen files!)
 	const boost::regex doc_index_regex(".*<html>.*pion-net\\sDocumentation.*</html>.*");
 	checkWebServerResponseContent(http_stream, "/doc/index.html" , doc_index_regex);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+#define BIG_BUF_SIZE (12 * 1024)
+
+///
+/// ContentResponseWithoutLengthTests_F: 
+/// this uses a "big content buffer" to make sure that reading the response
+/// content works across multiple packets (and asio_read_some() calls)
+/// and when no content-length is specified (it should read through the end)
+/// 
+class ContentResponseWithoutLengthTests_F
+	: public WebServerTests_F
+{
+public:
+	// default constructor and destructor
+	ContentResponseWithoutLengthTests_F() {
+		// fill the buffer with non-random characters
+		for (unsigned long n = 0; n < BIG_BUF_SIZE; ++n) {
+			m_big_buf[n] = char(n);
+		}
+	}
+	virtual ~ContentResponseWithoutLengthTests_F() {}
+	
+	/**
+	 * sends an HTTP response with content, but not content-length provided
+	 *
+	 * @param request the HTTP request to respond to
+	 * @param tcp_conn the TCP connection to send the response over
+	 */
+	void sendResponseWithContentButNoLength(HTTPRequestPtr& request,
+											TCPConnectionPtr& tcp_conn)
+	{
+		// make sure it will get closed when finished
+		tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);
+		
+		// prepare the response headers
+		HTTPResponse http_response(*request);
+		http_response.setDoNotSendContentLength();
+		
+		// send the response headers
+		boost::system::error_code error_code;
+		http_response.send(*tcp_conn, error_code);
+		BOOST_REQUIRE(! error_code);
+		
+		// send the content buffer
+		tcp_conn->write(boost::asio::buffer(m_big_buf, BIG_BUF_SIZE), error_code);
+		BOOST_REQUIRE(! error_code);
+		
+		// finish (and close) the connection
+		tcp_conn->finish();
+	}
+	
+	/// reads in a HTTP response asynchronously
+	void readAsyncResponse(TCPConnectionPtr& tcp_conn)
+	{
+		HTTPRequest http_request("GET");
+		HTTPResponseReaderPtr reader_ptr(HTTPResponseReader::create(tcp_conn, http_request,
+																	boost::bind(&ContentResponseWithoutLengthTests_F::checkResponse,
+																	this, _1, _2)));
+		reader_ptr->receive();
+	}
+
+	/// checks the validity of the HTTP response
+	void checkResponse(const HTTPResponse& http_response)
+	{
+		BOOST_REQUIRE(http_response.getStatusCode() == 200);
+		BOOST_CHECK(! http_response.hasHeader(HTTPTypes::HEADER_CONTENT_LENGTH));
+		BOOST_REQUIRE(http_response.getContentLength() == BIG_BUF_SIZE);
+		BOOST_CHECK_EQUAL(memcmp(http_response.getContent(), m_big_buf, BIG_BUF_SIZE), 0);
+	}
+	
+	/// checks the validity of the HTTP response
+	void checkResponse(HTTPResponsePtr& response_ptr, TCPConnectionPtr& conn_ptr)
+	{
+		checkResponse(*response_ptr);
+		boost::mutex::scoped_lock async_lock(m_mutex);
+		m_async_test_finished.notify_one();
+	}
+
+	/// big data buffer used for the tests
+	char				m_big_buf[BIG_BUF_SIZE];
+	
+	/// signaled after the async response check has finished
+	boost::condition	m_async_test_finished;
+
+	/// used to protect the asynchronous operations
+	boost::mutex		m_mutex;
+};
+
+
+// ContentResponseWithoutLengthTests_F Test Cases
+
+BOOST_FIXTURE_TEST_SUITE(ContentResponseWithoutLengthTests_S, ContentResponseWithoutLengthTests_F)
+
+BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveSyncResponse) {
+	// startup the server 
+	m_server.addResource("/big", boost::bind(&ContentResponseWithoutLengthTests_F::sendResponseWithContentButNoLength,
+											 this, _1, _2));
+	m_server.start();
+	
+	// open a connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+
+	// send an HTTP request
+	HTTPRequest http_request("/big");
+	http_request.send(*tcp_conn, error_code);
+	BOOST_REQUIRE(! error_code);
+	
+	// receive the response from the server
+	HTTPResponse http_response(http_request);
+	http_response.receive(*tcp_conn, error_code);
+	BOOST_REQUIRE(! error_code);
+	
+	// check that the response is OK
+	checkResponse(http_response);
+}
+
+BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveAsyncResponse) {
+	// startup the server 
+	m_server.addResource("/big", boost::bind(&ContentResponseWithoutLengthTests_F::sendResponseWithContentButNoLength,
+											 this, _1, _2));
+	m_server.start();
+	
+	// open a connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+	
+	// send an HTTP request
+	boost::mutex::scoped_lock async_lock(m_mutex);
+	HTTPRequestWriterPtr request_ptr(HTTPRequestWriter::create(tcp_conn,
+									 boost::bind(&ContentResponseWithoutLengthTests_F::readAsyncResponse,
+												 this, tcp_conn)));
+	request_ptr->getRequest().setResource("/big");
+	request_ptr->send();
+	
+	// wait until the test is finished (and async calls have finished)
+	m_async_test_finished.wait(async_lock);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

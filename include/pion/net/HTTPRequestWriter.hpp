@@ -39,28 +39,32 @@ public:
 	 * creates new HTTPRequestWriter objects
 	 *
 	 * @param tcp_conn TCP connection used to send the request
-	 * 
-	 * @return boost::shared_ptr<HTTPRequestWriter> shared pointer to
-	 *         the new writer object that was created
-	 */
-	static inline boost::shared_ptr<HTTPRequestWriter> create(TCPConnectionPtr& tcp_conn)
-	{
-		return boost::shared_ptr<HTTPRequestWriter>(new HTTPRequestWriter(tcp_conn));
-	}
-
-	/**
-	 * creates new HTTPRequestWriter objects
-	 * 
-	 * @param tcp_conn TCP connection used to send the request
-	 * @param http_request pointer to the request that will be sent
+	 * @param handler function called after the request has been sent
 	 * 
 	 * @return boost::shared_ptr<HTTPRequestWriter> shared pointer to
 	 *         the new writer object that was created
 	 */
 	static inline boost::shared_ptr<HTTPRequestWriter> create(TCPConnectionPtr& tcp_conn,
-															  HTTPRequestPtr& http_request)
+															  FinishedHandler handler = FinishedHandler())
 	{
-		return boost::shared_ptr<HTTPRequestWriter>(new HTTPRequestWriter(tcp_conn, http_request));
+		return boost::shared_ptr<HTTPRequestWriter>(new HTTPRequestWriter(tcp_conn, handler));
+	}
+	
+	/**
+	 * creates new HTTPRequestWriter objects
+	 * 
+	 * @param tcp_conn TCP connection used to send the request
+	 * @param http_request pointer to the request that will be sent
+	 * @param handler function called after the request has been sent
+	 * 
+	 * @return boost::shared_ptr<HTTPRequestWriter> shared pointer to
+	 *         the new writer object that was created
+	 */
+	static inline boost::shared_ptr<HTTPRequestWriter> create(TCPConnectionPtr& tcp_conn,
+															  HTTPRequestPtr& http_request,
+															  FinishedHandler handler = FinishedHandler())
+	{
+		return boost::shared_ptr<HTTPRequestWriter>(new HTTPRequestWriter(tcp_conn, http_request, handler));
 	}
 
 	/// returns a non-const reference to the request that will be sent
@@ -74,9 +78,10 @@ protected:
 	 * 
 	 * @param tcp_conn TCP connection used to send the request
 	 * @param http_request pointer to the request that will be sent
+	 * @param handler function called after the request has been sent
 	 */
-	HTTPRequestWriter(TCPConnectionPtr& tcp_conn)
-		: HTTPWriter(tcp_conn), m_http_request(new HTTPRequest)
+	HTTPRequestWriter(TCPConnectionPtr& tcp_conn, FinishedHandler handler)
+		: HTTPWriter(tcp_conn, handler), m_http_request(new HTTPRequest)
 	{
 		setLogger(PION_GET_LOGGER("pion.net.HTTPRequestWriter"));
 	}
@@ -86,18 +91,21 @@ protected:
 	 * 
 	 * @param tcp_conn TCP connection used to send the request
 	 * @param http_request pointer to the request that will be sent
+	 * @param handler function called after the request has been sent
 	 */
-	HTTPRequestWriter(TCPConnectionPtr& tcp_conn, HTTPRequestPtr& http_request)
-		: HTTPWriter(tcp_conn), m_http_request(http_request)
+	HTTPRequestWriter(TCPConnectionPtr& tcp_conn, HTTPRequestPtr& http_request,
+					  FinishedHandler handler)
+		: HTTPWriter(tcp_conn, handler), m_http_request(http_request)
 	{
 		setLogger(PION_GET_LOGGER("pion.net.HTTPRequestWriter"));
 		// check if we should initialize the payload content using
 		// the request's content buffer
-		if (http_request->getContentLength() > 0
-			&& http_request->getContent() != NULL
-			&& http_request->getContent()[0] != '\0')
+		if (m_http_request->getContentLength() > 0
+			&& m_http_request->getContent() != NULL
+			&& m_http_request->getContent()[0] != '\0')
 		{
-			writeNoCopy(http_request->getContent(), http_request->getContentLength());
+			writeNoCopy(m_http_request->getContent(),
+						m_http_request->getContentLength());
 		}
 	}
 
@@ -129,21 +137,21 @@ protected:
 	 * @param bytes_written number of bytes sent by the last write operation
 	 */
 	virtual void handleWrite(const boost::system::error_code& write_error,
-					 std::size_t bytes_written)
+							 std::size_t bytes_written)
 	{
-		PionLogger logger = getLogger();
 		if (write_error) {
 			// encountered error sending request
-			PION_LOG_WARN(logger, "Unable to send HTTP request (" << write_error.message() << ')');
+			PION_LOG_WARN(getLogger(), "Unable to send HTTP request (" << write_error.message() << ')');
 		} else {
 			// request sent OK
 			if (sendingChunkedMessage()) {
-				PION_LOG_DEBUG(logger, "Sent HTTP request chunk of " << bytes_written << " bytes");
+				PION_LOG_DEBUG(getLogger(), "Sent HTTP request chunk of " << bytes_written << " bytes");
 				clear();
 			} else {
-				PION_LOG_DEBUG(logger, "Sent HTTP request of " << bytes_written << " bytes");
+				PION_LOG_DEBUG(getLogger(), "Sent HTTP request of " << bytes_written << " bytes");
 			}
 		}
+		finishedWriting();
 	}
 
 

@@ -41,7 +41,8 @@ void EchoService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
 	static const std::string POST_CONTENT_TEXT("[POST Content]");
 	
 	// Set Content-type to "text/plain" (plain ascii text)
-	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request));
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
+															boost::bind(&TCPConnection::finish, tcp_conn)));
 	writer->getResponse().setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
 	
 	// write request information

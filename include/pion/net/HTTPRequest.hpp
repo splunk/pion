@@ -52,7 +52,9 @@ public:
 		m_cookie_params.clear();
 	}
 
-	
+	/// the content length of the message can never be implied for requests
+	virtual bool isContentLengthImplied(void) const { return false; }
+
 	/// returns the request method (i.e. GET, POST, PUT)
 	inline const std::string& getMethod(void) const { return m_method; }
 	

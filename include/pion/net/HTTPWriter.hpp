@@ -34,6 +34,9 @@ class PION_NET_API HTTPWriter :
 {
 protected:
 	
+	/// function called after the HTTP message has been sent
+	typedef boost::function0<void>	FinishedHandler;
+
 	/// data type for a function that handles write operations
 	typedef boost::function2<void,const boost::system::error_code&,std::size_t>	WriteHandler;
 	
@@ -42,14 +45,13 @@ protected:
 	 * protected constructor: only derived classes may create objects
 	 * 
 	 * @param tcp_conn TCP connection used to send the message
+	 * @param handler function called after the request has been sent
 	 */
-	HTTPWriter(TCPConnectionPtr& tcp_conn)
+	HTTPWriter(TCPConnectionPtr& tcp_conn, FinishedHandler handler)
 		: m_logger(PION_GET_LOGGER("pion.net.HTTPWriter")),
-		m_tcp_conn(tcp_conn),
-		m_content_length(0),
-		m_stream_is_empty(true), 
-		m_client_supports_chunks(true),
-		m_sending_chunks(false), m_sent_headers(false)
+		m_tcp_conn(tcp_conn), m_content_length(0), m_stream_is_empty(true), 
+		m_client_supports_chunks(true), m_sending_chunks(false),
+		m_sent_headers(false), m_finished(handler)
 	{}
 	
 	/**
@@ -71,6 +73,9 @@ protected:
 									  
 	/// returns a function bound to HTTPWriter::handleWrite()
 	virtual WriteHandler bindToWriteHandler(void) = 0;
+	
+	/// called after we have finished sending the HTTP message
+	inline void finishedWriting(void) { if (m_finished) m_finished(); }
 	
 	
 public:
@@ -347,6 +352,9 @@ private:
 	
 	/// true if the HTTP message headers have already been sent
 	bool									m_sent_headers;
+
+	/// function called after the HTTP message has been sent
+	FinishedHandler							m_finished;
 };
 
 

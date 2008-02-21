@@ -562,9 +562,9 @@ public:
 	}	
 	
 	
-	/// This function must be called when a server has finished handling
+	/// This function should be called when a server has finished handling
 	/// the connection
-	inline void finish(void) { m_finished_handler(shared_from_this()); }
+	inline void finish(void) { if (m_finished_handler) m_finished_handler(shared_from_this()); }
 
 	/// returns true if the connection is encrypted using SSL
 	inline bool getSSLFlag(void) const { return m_ssl_flag; }
