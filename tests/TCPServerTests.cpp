@@ -12,7 +12,6 @@
 #include <pion/net/TCPServer.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include <boost/thread/xtime.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/net/HTTPRequest.hpp>
@@ -118,23 +117,6 @@ public:
 	inline TCPServerPtr& getServerPtr(void) { return hello_server_ptr; }
 
 	/**
-	 * put the current thread to sleep for an amount of time
-	 *
-	 * @param nsec number of nanoseconds (10^-9) to sleep for
-	 */
-	inline void sleep_briefly(unsigned long nsec)
-	{
-		boost::xtime stop_time;
-		boost::xtime_get(&stop_time, boost::TIME_UTC);
-		stop_time.nsec += nsec;
-		if (stop_time.nsec >= 1000000000) {
-			stop_time.sec++;
-			stop_time.nsec -= 1000000000;
-		}
-		boost::thread::sleep(stop_time);
-	}
-	
-	/**
 	 * check at 0.1 second intervals for up to one second to see if the number
 	 * of connections is as expected
 	 *
@@ -144,7 +126,7 @@ public:
 	{
 		for (int i = 0; i < 10; ++i) {
 			if (getServerPtr()->getConnections() == expectedNumberOfConnections) break;
-			sleep_briefly(100000000); // 0.1 seconds
+			PionScheduler::sleep(0, 100000000); // 0.1 seconds
 		}
 		BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), expectedNumberOfConnections);
 	}
