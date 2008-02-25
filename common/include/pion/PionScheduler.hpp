@@ -17,6 +17,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/xtime.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/detail/atomic_count.hpp>
 #include <pion/PionConfig.hpp>
@@ -89,13 +90,45 @@ public:
 	template<typename WorkFunction>
 	inline void post(WorkFunction work_func) { getIOService().post(work_func); }
 	
+	/**
+	 * puts the current thread to sleep for a specific period of time
+	 *
+	 * @param sleep_sec number of entire seconds to sleep for
+	 * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
+	 */
+	static void sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec);
+
+	/**
+	 * puts the current thread to sleep for a specific period of time, or until
+	 * a wakeup condition is signaled
+	 *
+	 * @param wakeup_condition if signaled, the condition will wakeup the thread early
+	 * @param wakeup_lock scoped lock protecting the wakeup condition
+	 * @param sleep_sec number of entire seconds to sleep for
+	 * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
+	 */
+	static void sleep(boost::condition& wakeup_condition,
+					  boost::mutex::scoped_lock& wakeup_lock,
+					  boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec);
+	
 	
 private:
 
 	/// start function for worker threads
 	void run(void);
 
+	/**
+	 * calculates a wakeup time in boost::xtime format
+	 *
+	 * @param sleep_sec number of seconds to sleep for
+	 * @param sleep_nsec number of nanoseconds to sleep for
+	 *
+	 * @return boost::xtime time to wake up from sleep
+	 */
+	static boost::xtime getWakeupTime(boost::uint32_t sleep_sec,
+									  boost::uint32_t sleep_nsec);
 
+	
 	/// typedef for a pool of worker threads
 	typedef std::list<boost::shared_ptr<boost::thread> >	ThreadPool;
 

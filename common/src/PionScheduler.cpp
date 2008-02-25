@@ -8,7 +8,6 @@
 //
 
 #include <boost/bind.hpp>
-#include <boost/thread/xtime.hpp>
 #include <pion/PionScheduler.hpp>
 
 namespace pion {	// begin namespace pion
@@ -119,7 +118,6 @@ void PionScheduler::removeActiveUser(void)
 
 void PionScheduler::run(void)
 {
-	boost::xtime wakeup_time;
 	do {
 		// handle I/O events managed by the service
 		++m_running_threads;
@@ -131,16 +129,38 @@ void PionScheduler::run(void)
 		if (--m_running_threads == static_cast<boost::uint32_t>(0)) {
 			m_service.reset();
 		}
-		if (m_is_running) {
-			boost::xtime_get(&wakeup_time, boost::TIME_UTC);
-			wakeup_time.nsec += SLEEP_WHEN_NO_WORK_NSEC;
-			if (static_cast<boost::uint32_t>(wakeup_time.nsec) >= NSEC_IN_SECOND) {
-				wakeup_time.sec++;
-				wakeup_time.nsec -= NSEC_IN_SECOND;
-			}
-			boost::thread::sleep(wakeup_time);
-		}
+		if (m_is_running)
+			sleep(0, SLEEP_WHEN_NO_WORK_NSEC);
 	} while (m_is_running);
 }
 
+void PionScheduler::sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
+{
+	boost::xtime wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
+	boost::thread::sleep(wakeup_time);
+}
+	
+void PionScheduler::sleep(boost::condition& wakeup_condition,
+						  boost::mutex::scoped_lock& wakeup_lock,
+						  boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
+{
+	boost::xtime wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
+	wakeup_condition.timed_wait(wakeup_lock, wakeup_time);
+}
+
+boost::xtime PionScheduler::getWakeupTime(boost::uint32_t sleep_sec,
+										  boost::uint32_t sleep_nsec)
+{
+	boost::xtime wakeup_time;
+	boost::xtime_get(&wakeup_time, boost::TIME_UTC);
+	wakeup_time.sec += sleep_sec;
+	wakeup_time.nsec += sleep_nsec;
+	if (static_cast<boost::uint32_t>(wakeup_time.nsec) >= NSEC_IN_SECOND) {
+		wakeup_time.sec++;
+		wakeup_time.nsec -= NSEC_IN_SECOND;
+	}
+	return wakeup_time;
+}
+							 
+	
 }	// end namespace pion
