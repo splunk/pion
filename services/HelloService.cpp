@@ -13,7 +13,10 @@
 using namespace pion;
 using namespace pion::net;
 
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
 
+	
 // HelloService member functions
 
 /// handles requests for HelloService
@@ -29,15 +32,18 @@ void HelloService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_con
 }
 
 
+}	// end namespace plugins
+}	// end namespace pion
+
+
 /// creates new HelloService objects
-extern "C" PION_SERVICE_API HelloService *pion_create_HelloService(void)
+extern "C" PION_SERVICE_API pion::plugins::HelloService *pion_create_HelloService(void)
 {
-	return new HelloService();
+	return new pion::plugins::HelloService();
 }
 
-
 /// destroys HelloService objects
-extern "C" PION_SERVICE_API void pion_destroy_HelloService(HelloService *service_ptr)
+extern "C" PION_SERVICE_API void pion_destroy_HelloService(pion::plugins::HelloService *service_ptr)
 {
 	delete service_ptr;
 }

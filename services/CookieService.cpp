@@ -13,7 +13,10 @@
 using namespace pion;
 using namespace pion::net;
 
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
 
+	
 // CookieService member functions
 
 /// handles requests for CookieService
@@ -104,15 +107,18 @@ void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_co
 }
 
 
+}	// end namespace plugins
+}	// end namespace pion
+
+
 /// creates new CookieService objects
-extern "C" PION_SERVICE_API CookieService *pion_create_CookieService(void)
+extern "C" PION_SERVICE_API pion::plugins::CookieService *pion_create_CookieService(void)
 {
-	return new CookieService();
+	return new pion::plugins::CookieService();
 }
 
-
 /// destroys CookieService objects
-extern "C" PION_SERVICE_API void pion_destroy_CookieService(CookieService *service_ptr)
+extern "C" PION_SERVICE_API void pion_destroy_CookieService(pion::plugins::CookieService *service_ptr)
 {
 	delete service_ptr;
 }

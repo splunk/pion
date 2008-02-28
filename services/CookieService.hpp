@@ -13,6 +13,9 @@
 #include <pion/net/WebService.hpp>
 
 
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
+
 ///
 /// CookieService: web service that displays and updates cookies
 /// 
@@ -26,4 +29,7 @@ public:
 							pion::net::TCPConnectionPtr& tcp_conn);
 };
 
+}	// end namespace plugins
+}	// end namespace pion
+	
 #endif

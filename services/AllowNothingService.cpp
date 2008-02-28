@@ -14,6 +14,10 @@
 using namespace pion;
 using namespace pion::net;
 
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
+
+	
 void AllowNothingService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	static const std::string DENY_HTML = "<html><body>No, you can't.</body></html>";
@@ -34,14 +38,19 @@ void AllowNothingService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& 
 	writer->send();
 }
 
+	
+}	// end namespace plugins
+}	// end namespace pion
+
+
 /// creates new AllowNothingService objects
-extern "C" PION_SERVICE_API AllowNothingService *pion_create_AllowNothingService(void)
+extern "C" PION_SERVICE_API pion::plugins::AllowNothingService *pion_create_AllowNothingService(void)
 {
-	return new AllowNothingService();
+	return new pion::plugins::AllowNothingService();
 }
 
 /// destroys AllowNothingService objects
-extern "C" PION_SERVICE_API void pion_destroy_AllowNothingService(AllowNothingService *service_ptr)
+extern "C" PION_SERVICE_API void pion_destroy_AllowNothingService(pion::plugins::AllowNothingService *service_ptr)
 {
 	delete service_ptr;
 }

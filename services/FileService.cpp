@@ -21,7 +21,10 @@
 using namespace pion;
 using namespace pion::net;
 
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
 
+	
 // static members of FileService
 
 const std::string			FileService::DEFAULT_MIME_TYPE("application/octet-stream");
@@ -884,16 +887,19 @@ void DiskFileSender::handleWrite(const boost::system::error_code& write_error,
 	}
 }
 
+	
+}	// end namespace plugins
+}	// end namespace pion
+
 
 /// creates new FileService objects
-extern "C" PION_SERVICE_API FileService *pion_create_FileService(void)
+extern "C" PION_SERVICE_API pion::plugins::FileService *pion_create_FileService(void)
 {
-	return new FileService();
+	return new pion::plugins::FileService();
 }
 
-
 /// destroys FileService objects
-extern "C" PION_SERVICE_API void pion_destroy_FileService(FileService *service_ptr)
+extern "C" PION_SERVICE_API void pion_destroy_FileService(pion::plugins::FileService *service_ptr)
 {
 	delete service_ptr;
 }

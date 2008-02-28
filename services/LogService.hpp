@@ -38,6 +38,10 @@
 #endif
 
 
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
+
+	
 ///
 /// LogServiceAppender: caches log events in memory for use by LogService
 /// 
@@ -142,5 +146,9 @@ private:
 	/// map of file extensions to MIME types
 	LogServiceAppender *	m_log_appender_ptr;
 };
+
+	
+}	// end namespace plugins
+}	// end namespace pion
 
 #endif

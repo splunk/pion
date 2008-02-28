@@ -27,6 +27,10 @@
 #include <map>
 
 
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
+	
+
 ///
 /// DiskFile: class used to represent files stored on disk
 /// 
@@ -158,10 +162,10 @@ public:
 	void send(void);
 
 	/// sets the logger to be used
-	inline void setLogger(pion::PionLogger log_ptr) { m_logger = log_ptr; }
+	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
 	
 	/// returns the logger currently in use
-	inline pion::PionLogger getLogger(void) { return m_logger; }
+	inline PionLogger getLogger(void) { return m_logger; }
 	
 		
 protected:
@@ -190,7 +194,7 @@ protected:
 	
 	
 	/// primary logging interface used by this class
-	pion::PionLogger						m_logger;
+	PionLogger								m_logger;
 	
 	
 private:
@@ -234,66 +238,66 @@ class FileService :
 public:
 	
 	/// exception thrown if the directory configured is not found
-	class DirectoryNotFoundException : public pion::PionException {
+	class DirectoryNotFoundException : public PionException {
 	public:
 		DirectoryNotFoundException(const std::string& dir)
-			: pion::PionException("FileService directory not found: ", dir) {}
+			: PionException("FileService directory not found: ", dir) {}
 	};
 
 	/// exception thrown if the directory configuration option is not a directory
-	class NotADirectoryException : public pion::PionException {
+	class NotADirectoryException : public PionException {
 	public:
 		NotADirectoryException(const std::string& dir)
-			: pion::PionException("FileService option is not a directory: ", dir) {}
+			: PionException("FileService option is not a directory: ", dir) {}
 	};
 
 	/// exception thrown if the file configured is not found
-	class FileNotFoundException : public pion::PionException {
+	class FileNotFoundException : public PionException {
 	public:
 		FileNotFoundException(const std::string& file)
-			: pion::PionException("FileService file not found: ", file) {}
+			: PionException("FileService file not found: ", file) {}
 	};
 	
 	/// exception thrown if the file configuration option is not a file
-	class NotAFileException : public pion::PionException {
+	class NotAFileException : public PionException {
 	public:
 		NotAFileException(const std::string& file)
-			: pion::PionException("FileService option is not a file: ", file) {}
+			: PionException("FileService option is not a file: ", file) {}
 	};
 
 	/// exception thrown if the cache option is set to an invalid value
-	class InvalidCacheException : public pion::PionException {
+	class InvalidCacheException : public PionException {
 	public:
 		InvalidCacheException(const std::string& value)
-			: pion::PionException("FileService invalid value for cache option: ", value) {}
+			: PionException("FileService invalid value for cache option: ", value) {}
 	};
 
 	/// exception thrown if the scan option is set to an invalid value
-	class InvalidScanException : public pion::PionException {
+	class InvalidScanException : public PionException {
 	public:
 		InvalidScanException(const std::string& value)
-			: pion::PionException("FileService invalid value for scan option: ", value) {}
+			: PionException("FileService invalid value for scan option: ", value) {}
 	};
 
 	/// exception thrown if an option is set to an invalid value
-	class InvalidOptionValueException : public pion::PionException {
+	class InvalidOptionValueException : public PionException {
 	public:
 		InvalidOptionValueException(const std::string& option, const std::string& value)
-			: pion::PionException("FileService invalid value for " + option + " option: ", value) {}
+			: PionException("FileService invalid value for " + option + " option: ", value) {}
 	};
 
 	/// exception thrown if we are unable to read a file from disk
-	class FileReadException : public pion::PionException {
+	class FileReadException : public PionException {
 	public:
 		FileReadException(const std::string& value)
-			: pion::PionException("FileService unable to read file: ", value) {}
+			: PionException("FileService unable to read file: ", value) {}
 	};
 
 	/// exception thrown if we do not know how to respond (should never happen)
-	class UndefinedResponseException : public pion::PionException {
+	class UndefinedResponseException : public PionException {
 	public:
 		UndefinedResponseException(const std::string& value)
-			: pion::PionException("FileService has an undefined response: ", value) {}
+			: PionException("FileService has an undefined response: ", value) {}
 	};
 	
 	
@@ -324,10 +328,10 @@ public:
 	virtual void stop(void);
 	
 	/// sets the logger to be used
-	inline void setLogger(pion::PionLogger log_ptr) { m_logger = log_ptr; }
+	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
 	
 	/// returns the logger currently in use
-	inline pion::PionLogger getLogger(void) { return m_logger; }
+	inline PionLogger getLogger(void) { return m_logger; }
 
 	
 protected:
@@ -372,7 +376,7 @@ protected:
 							  pion::net::TCPConnectionPtr& tcp_conn);
 	
 	/// primary logging interface used by this class
-	pion::PionLogger			m_logger;
+	PionLogger					m_logger;
 	
 	
 private:
@@ -451,5 +455,8 @@ private:
 	bool						m_writable;
 };
 
+
+}	// end namespace plugins
+}	// end namespace pion
 
 #endif

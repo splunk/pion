@@ -21,9 +21,11 @@
 
 #include <pion/net/HTTPResponseWriter.hpp>
 
-
 using namespace pion;
 using namespace pion::net;
+
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
 
 
 // static members of LogServiceAppender
@@ -154,15 +156,18 @@ void LogService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 }
 
 
+}	// end namespace plugins
+}	// end namespace pion
+
+
 /// creates new LogService objects
-extern "C" PION_SERVICE_API LogService *pion_create_LogService(void)
+extern "C" PION_SERVICE_API pion::plugins::LogService *pion_create_LogService(void)
 {
-	return new LogService();
+	return new pion::plugins::LogService();
 }
 
-
 /// destroys LogService objects
-extern "C" PION_SERVICE_API void pion_destroy_LogService(LogService *service_ptr)
+extern "C" PION_SERVICE_API void pion_destroy_LogService(pion::plugins::LogService *service_ptr)
 {
 	delete service_ptr;
 }

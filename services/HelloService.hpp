@@ -13,6 +13,9 @@
 #include <pion/net/WebService.hpp>
 
 
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
+
 ///
 /// HelloService: web service that responds with "Hello World"
 /// 
@@ -25,5 +28,8 @@ public:
 	virtual void operator()(pion::net::HTTPRequestPtr& request,
 							pion::net::TCPConnectionPtr& tcp_conn);
 };
+
+}	// end namespace plugins
+}	// end namespace pion
 
 #endif

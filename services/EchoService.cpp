@@ -14,7 +14,10 @@
 using namespace pion;
 using namespace pion::net;
 
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
 
+	
 /// used by handleRequest to write dictionary terms
 void writeDictionaryTerm(HTTPResponseWriterPtr& writer,
 						 const HTTPTypes::StringDictionary::value_type& val,
@@ -106,15 +109,18 @@ void EchoService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
 }
 
 
+}	// end namespace plugins
+}	// end namespace pion
+
+
 /// creates new EchoService objects
-extern "C" PION_SERVICE_API EchoService *pion_create_EchoService(void)
+extern "C" PION_SERVICE_API pion::plugins::EchoService *pion_create_EchoService(void)
 {
-	return new EchoService();
+	return new pion::plugins::EchoService();
 }
 
-
 /// destroys EchoService objects
-extern "C" PION_SERVICE_API void pion_destroy_EchoService(EchoService *service_ptr)
+extern "C" PION_SERVICE_API void pion_destroy_EchoService(pion::plugins::EchoService *service_ptr)
 {
 	delete service_ptr;
 }

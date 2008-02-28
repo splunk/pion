@@ -12,6 +12,10 @@
 
 #include <pion/net/WebService.hpp>
 
+
+namespace pion {		// begin namespace pion
+namespace plugins {		// begin namespace plugins
+		
 ///
 /// This class has a corresponding create function (pion_create_AllowNothingService) and
 /// destroy function (pion_destroy_AllowNothingService), as required for use by PionPlugin.
@@ -24,5 +28,8 @@ public:
 	virtual void operator()(pion::net::HTTPRequestPtr& request,
 							pion::net::TCPConnectionPtr& tcp_conn);
 };
+	
+}	// end namespace plugins
+}	// end namespace pion
 
 #endif
