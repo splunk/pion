@@ -115,6 +115,8 @@ and for Library files add "C:\Boost\Lib".
 
 Now you should be able to build the solution file called pion-<PROJECT>.sln.
 
+See platform/server/README.msvc for more information about running Pion.
+
 
 Running the test programs:
 --------------------------
