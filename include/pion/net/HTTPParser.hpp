@@ -28,7 +28,7 @@ class HTTPResponse;
 ///
 /// HTTPParser: parses HTTP messages
 ///
-class HTTPParser :
+class PION_NET_API HTTPParser :
 	private boost::noncopyable
 {
 

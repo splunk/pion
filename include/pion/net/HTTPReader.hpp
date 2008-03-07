@@ -24,7 +24,7 @@ namespace net {		// begin namespace net (Pion Network Library)
 ///
 /// HTTPReader: asynchronously reads and parses HTTP messages
 ///
-class HTTPReader :
+class PION_NET_API HTTPReader :
 	public HTTPParser
 {
 public:
