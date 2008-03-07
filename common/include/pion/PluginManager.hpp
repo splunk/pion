@@ -111,6 +111,14 @@ public:
 	inline const PLUGIN_TYPE *get(const std::string& plugin_id) const;
 	
 	/**
+	 * gets a smart pointer to the plugin shared library for a particular plugin_id (exact match)
+	 *
+	 * @param plugin_id unique identifier associated with the plug-in
+	 * @return PionPluginPtr<PLUGIN_TYPE> pointer to the plugin shared library if found
+	 */
+	inline PionPluginPtr<PLUGIN_TYPE> getLibPtr(const std::string& plugin_id) const;
+	
+	/**
 	 * finds the plug-in object associated with a particular resource (fuzzy match)
 	 *
 	 * @param resource resource identifier (uri-stem) to search for
@@ -252,6 +260,17 @@ inline const PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::get(const std::string& plu
 		plugin_object_ptr = i->second.first;
 	return plugin_object_ptr;
 }
+	
+template <typename PLUGIN_TYPE>
+inline PionPluginPtr<PLUGIN_TYPE> PluginManager<PLUGIN_TYPE>::getLibPtr(const std::string& plugin_id) const
+{
+	PionPluginPtr<PLUGIN_TYPE> plugin_ptr;
+	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
+	typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::const_iterator i = m_plugin_map.find(plugin_id);
+	if (i != m_plugin_map.end())
+		plugin_ptr = i->second.second;
+	return plugin_ptr;
+}		
 
 template <typename PLUGIN_TYPE>
 inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::find(const std::string& resource)

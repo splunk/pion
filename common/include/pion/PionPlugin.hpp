@@ -373,8 +373,7 @@ public:
 	PionPluginPtr(const PionPluginPtr& p) : PionPlugin(p) {}
 
 	/// assignment operator
-	PionPluginPtr& operator=(const PionPluginPtr& p) { return(*this = p); }
-	
+	PionPluginPtr& operator=(const PionPluginPtr& p) { grabData(p); return *this; }
 
 	/// creates a new instance of the plug-in object
 	inline InterfaceClassType *create(void) {
