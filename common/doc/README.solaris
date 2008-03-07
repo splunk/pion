@@ -136,7 +136,7 @@ Now you should be able to build and install Pion:
 
 # gzip -dc pion-<PROJECT>-<VERSION>.tar.gz | tar xvf -
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-openssl] [--with-log4cxx]
+# ./configure [--with-openssl=/usr/local/ssl] [--with-log4cxx]
 # make all
 # make install
 
