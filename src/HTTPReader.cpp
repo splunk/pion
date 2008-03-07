@@ -152,9 +152,12 @@ void HTTPReader::consumeHeaderBytes(void)
 		std::string bad_message;
 		m_read_ptr = m_tcp_conn->getReadBuffer().data();
 		while (m_read_ptr < m_read_end_ptr && bad_message.size() < 50) {
+#ifndef _MSC_VER
+// There's a bug in MSVC's implementation of isprint().
 			if (!isprint(*m_read_ptr) || *m_read_ptr == '\n' || *m_read_ptr=='\r')
 				bad_message += '.';
 			else bad_message += *m_read_ptr;
+#endif
 			++m_read_ptr;
 		}
 		PION_LOG_ERROR(m_logger, "Bad " << (m_is_request ? "request" : "response")
