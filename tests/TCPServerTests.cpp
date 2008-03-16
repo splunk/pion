@@ -281,20 +281,20 @@ private:
 class MockSyncServerTests_F {
 public:
 	MockSyncServerTests_F()
-		: m_scheduler(), sync_server_ptr(new MockSyncServer(m_scheduler, 8080))
+		: m_scheduler(), m_sync_server_ptr(new MockSyncServer(m_scheduler, 8080))
 	{
 		setup_logging_for_unit_tests();
-		sync_server_ptr->start();
+		m_sync_server_ptr->start();
 	}
 	~MockSyncServerTests_F() {
-		sync_server_ptr->stop();
+		m_sync_server_ptr->stop();
 	}
-	inline boost::shared_ptr<MockSyncServer>& getServerPtr(void) { return sync_server_ptr; }
+	inline boost::shared_ptr<MockSyncServer>& getServerPtr(void) { return m_sync_server_ptr; }
 	inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }
 
 private:
-	PionScheduler	m_scheduler;
-	boost::shared_ptr<MockSyncServer>	sync_server_ptr;
+	PionSingleServiceScheduler			m_scheduler;
+	boost::shared_ptr<MockSyncServer>	m_sync_server_ptr;
 };
 
 

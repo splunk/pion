@@ -191,7 +191,7 @@ private:
 	
 	
 	/// the default PionScheduler object used to manage worker threads
-	PionScheduler							m_default_scheduler;
+	PionSingleServiceScheduler				m_default_scheduler;
 
 	/// reference to the active PionScheduler object used to manage worker threads
 	PionScheduler &							m_active_scheduler;

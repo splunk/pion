@@ -73,7 +73,7 @@ public:
 	}
 	
 	/// used to schedule work across multiple threads
-	PionScheduler		m_scheduler;
+	PionSingleServiceScheduler		m_scheduler;
 };
 
 

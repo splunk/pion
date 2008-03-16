@@ -109,8 +109,8 @@ public:
 	
 	inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }
 	
-	PionScheduler	m_scheduler;
-	WebServer		m_server;
+	PionSingleServiceScheduler	m_scheduler;
+	WebServer					m_server;
 };
 
 BOOST_FIXTURE_TEST_SUITE(NewlyLoadedFileService_S, NewlyLoadedFileService_F)
