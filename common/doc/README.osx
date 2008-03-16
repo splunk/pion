@@ -82,33 +82,6 @@ run:
 # make install
 
 
-Updating the UNIX Build Tools:
-------------------------------
-
-The versions of autoconf, automake and libtool that ship with Mac OS X 
-(as of 10.5) are extremely outdated, and will not work with Pion's build 
-configuration files.  If you are building from a tarball, then you can 
-skip this step.  However, if you want to generate new build scripts from 
-a subversion checkout by using the "autogen.sh" script, you will need to 
-update these build tools first.
-
-This is easy to do using MacPorts (http://www.macports.org):
-
-# sudo port update autoconf automake libtool
-
-Note that you need to set /opt/local/bin (or the directoy into which you 
-installed MacPorts) in your PATH before /usr/bin to ensure that the 
-updated build tools are used:
-
-# export PATH=/opt/local/bin:$PATH
-
-Also, you will need to create symbolic links for the updated libtool 
-scripts to remove the "g" prefix that MacPorts adds to their filenames:
-
-# sudo ln -s /opt/local/bin/glibtool /opt/local/bin/libtool
-# sudo ln -s /opt/local/bin/glibtoolize /opt/local/bin/libtoolize
-
-
 Building and installing Pion:
 -----------------------------
 
