@@ -27,7 +27,7 @@ namespace pion {	// begin namespace pion
 /// and Michael L. Scott (1996, Department of Computer Science, University of Rochester).
 /// See http://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf
 /// 
-template <typename T>
+template <typename T, boost::uint32_t MaxSize = 10000, boost::uint32_t SleepNanoSec = 10000000>
 class PionLockedQueue :
 	private boost::noncopyable
 {
@@ -35,7 +35,7 @@ public:
 
 	/// constructs a new PionLockedQueue
 	PionLockedQueue(void)
-		: m_head_ptr(NULL), m_tail_ptr(NULL), m_size(0), m_max_size(0)
+		: m_head_ptr(NULL), m_tail_ptr(NULL), m_size(0)
 	{
 		// initialize with a dummy node since m_head_ptr is always 
 		// pointing to the item before the head of the list
@@ -45,12 +45,6 @@ public:
 	/// virtual destructor
 	virtual ~PionLockedQueue() { clear(); }
 	
-	/// sets the maximum queue size (0 = unlimited; the default setting)
-	inline void max_size(boost::uint32_t n) { m_max_size = n; }
-	
-	/// returns the maximum queue size (0 = unlimited)
-	inline boost::uint32_t max_size(void) const { return m_max_size; }
-
 	/// returns the number of items that are currently in the queue
 	inline boost::uint32_t size(void) const { return m_size; }
 	
@@ -78,9 +72,11 @@ public:
 	 * @param t the item to add to the back of the queue
 	 */
 	inline void push(T& t) {
-		// sleep 1/8 second if max_size is exceeded
-		while (m_max_size > 0 && size() >= m_max_size)
-			PionScheduler::sleep(0, 125000000);
+		// sleep MaxSize is exceeded
+		if (MaxSize > 0) {
+			while (size() >= MaxSize)
+				PionScheduler::sleep(0, SleepNanoSec);
+		}
 		// create a new list node for the queue item
 		QueueNode *node_ptr(new QueueNode(t));
 		boost::mutex::scoped_lock tail_lock(m_tail_mutex);
@@ -167,9 +163,6 @@ private:
 	
 	/// used to keep track of the number of items in the queue
 	boost::detail::atomic_count		m_size;
-	
-	/// the maximum number of elements allowed in the queue before push() blocks
-	boost::uint32_t					m_max_size;
 };
 
 	
