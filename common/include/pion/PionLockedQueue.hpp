@@ -28,7 +28,7 @@ namespace pion {	// begin namespace pion
 /// See http://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf
 /// 
 template <typename T>
-class PION_COMMON_API PionLockedQueue :
+class PionLockedQueue :
 	private boost::noncopyable
 {
 public:

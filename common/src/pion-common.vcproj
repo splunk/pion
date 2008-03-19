@@ -481,6 +481,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\pion\PionLockedQueue.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\include\pion\PionLogger.hpp"
 				>
 			</File>
