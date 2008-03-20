@@ -281,7 +281,7 @@ AC_SUBST(BOOST_SYSTEM_LIB)
 BOOST_TRY_LIB=filesystem
 BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
-LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+LIBS="$LIBS_SAVED $BOOST_SYSTEM_LIB -l${BOOST_TRY_LINK}"
 AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
 AC_TRY_LINK([#include <boost/filesystem/path.hpp>],
 	[ boost::filesystem::path a_path; return 0; ],
