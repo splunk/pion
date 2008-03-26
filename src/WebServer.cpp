@@ -11,6 +11,7 @@
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPRequestReader.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
+#include <pion/net/HTTPBasicAuth.hpp>
 #include <fstream>
 
 
@@ -82,11 +83,13 @@ void WebServer::loadServiceConfig(const std::string& config_name)
 		throw ConfigParsingException(config_name);
 	
 	// parse the contents of the file
+	HTTPAuthPtr auth_ptr;
 	enum ParseState {
-		PARSE_NEWLINE, PARSE_COMMAND, PARSE_RESOURCE, PARSE_VALUE, PARSE_COMMENT
+		PARSE_NEWLINE, PARSE_COMMAND, PARSE_RESOURCE, PARSE_VALUE, PARSE_COMMENT, PARSE_USERNAME
 	} parse_state = PARSE_NEWLINE;
 	std::string command_string;
 	std::string resource_string;
+	std::string username_string;
 	std::string value_string;
 	std::string option_name_string;
 	std::string option_value_string;
@@ -113,12 +116,15 @@ void WebServer::loadServiceConfig(const std::string& config_name)
 			// parsing command portion (or beginning of line)
 			if (c == ' ' || c == '\t') {
 				// command finished -> check if valid
-				if (command_string=="path") {
+				if (command_string=="path" || command_string=="auth" || command_string=="restrict") {
 					value_string.clear();
 					parse_state = PARSE_VALUE;
 				} else if (command_string=="service" || command_string=="option") {
 					resource_string.clear();
 					parse_state = PARSE_RESOURCE;
+				} else if (command_string=="user") {
+					username_string.clear();
+					parse_state = PARSE_USERNAME;
 				} else {
 					throw ConfigParsingException(config_name);
 				}
@@ -149,6 +155,24 @@ void WebServer::loadServiceConfig(const std::string& config_name)
 			}
 			break;
 		
+		case PARSE_USERNAME:
+			// parsing username for user command
+			if (c == ' ' || c == '\t') {
+				// check for leading whitespace
+				if (! username_string.empty()) {
+					// username finished
+					value_string.clear();
+					parse_state = PARSE_VALUE;
+				}
+			} else if (c == '\r' || c == '\n') {
+				// line truncated before value
+				throw AuthConfigException("No username defined for user parameter");
+			} else {
+				// add char to username
+				username_string += c;
+			}
+			break;
+		
 		case PARSE_VALUE:
 			// parsing value portion
 			if (c == '\r' || c == '\n') {
@@ -159,6 +183,26 @@ void WebServer::loadServiceConfig(const std::string& config_name)
 				} else if (command_string == "path") {
 					// finished path command
 					PionPlugin::addPluginDirectory(value_string);
+				} else if (command_string == "auth") {
+					// finished auth command
+					if (value_string != "basic")
+						throw AuthConfigException("Only basic authentication is supported");
+					PionUserManagerPtr user_manager(new PionUserManager);
+					auth_ptr.reset(new HTTPBasicAuth(user_manager));
+				} else if (command_string == "restrict") {
+					// finished restrict command
+					if (! auth_ptr)
+						throw AuthConfigException("Authentication type must be defined before restrict");
+					else if (value_string.empty())
+						throw AuthConfigException("No service defined for restrict parameter");
+					auth_ptr->addResource(value_string);
+				} else if (command_string == "user") {
+					// finished user command
+					if (! auth_ptr)
+						throw AuthConfigException("Authentication type must be defined before users");
+					else if (value_string.empty())
+						throw AuthConfigException("No password defined for user parameter");
+					auth_ptr->addUser(username_string, value_string);
 				} else if (command_string == "service") {
 					// finished service command
 					loadService(resource_string, value_string);
@@ -194,6 +238,9 @@ void WebServer::loadServiceConfig(const std::string& config_name)
 		// read the next character
 		c = config_stream.get();
 	}
+	
+	// update authentication configuration for the server
+	setAuthentication(auth_ptr);
 }
 
 }	// end namespace net

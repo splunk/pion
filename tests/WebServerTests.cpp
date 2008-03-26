@@ -24,6 +24,9 @@
 #include <pion/net/HTTPRequestWriter.hpp>
 #include <pion/net/HTTPResponseReader.hpp>
 #include <pion/net/WebServer.hpp>
+#include <pion/net/PionUser.hpp>
+#include <pion/net/HTTPBasicAuth.hpp>
+
 
 using namespace std;
 using namespace pion;
@@ -591,6 +594,82 @@ BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
 	// send request and check response (docs index page: requires net/doc/html doxygen files!)
 	const boost::regex doc_index_regex(".*<html>.*pion-net\\sDocumentation.*</html>.*");
 	checkWebServerResponseContent(http_stream, "/doc/index.html" , doc_index_regex);
+}
+
+BOOST_AUTO_TEST_CASE(checkAuthServiceFailure) {
+	m_server.loadService("/auth", "EchoService");
+	PionUserManagerPtr userManager(new PionUserManager());
+	HTTPAuthPtr auth_ptr(new HTTPBasicAuth(userManager));
+	m_server.setAuthentication(auth_ptr);
+	auth_ptr->addResource("/auth");
+	auth_ptr->addUser("mike","123456");
+	m_server.start();
+	
+	// open a connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
+	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+	
+	HTTPRequestWriterPtr writer(HTTPRequestWriter::create(tcp_conn));
+	writer->getRequest().setMethod("POST");
+	writer->getRequest().setResource("/auth/something/somewhere");
+	
+	writer << "junk";
+	writer->send();
+	
+	// receive the response from the server
+	HTTPResponse http_response(writer->getRequest());
+	http_response.receive(*tcp_conn, error_code);
+	BOOST_CHECK(!error_code);
+	
+	// check that the response is RESPONSE_MESSAGE_UNAUTHORIZED
+	BOOST_CHECK(http_response.getStatusCode() == 401);
+	BOOST_CHECK(http_response.getContentLength() > 0);
+	
+	// check the post content of the request, by parsing it out of the post content of the response
+	boost::regex post_content(".*\\[POST Content]\\s*junk.*");
+	BOOST_CHECK(!boost::regex_match(http_response.getContent(), post_content));
+}
+
+BOOST_AUTO_TEST_CASE(checkAuthServiceLogin) {
+	m_server.loadService("/auth", "EchoService");
+	PionUserManagerPtr userManager(new PionUserManager());
+	HTTPAuthPtr auth_ptr(new HTTPBasicAuth(userManager));
+	m_server.setAuthentication(auth_ptr);
+	auth_ptr->addResource("/auth");
+	auth_ptr->addUser("mike","123456");
+	m_server.start();
+	
+	// open a connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
+	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+	
+	HTTPRequestWriterPtr writer(HTTPRequestWriter::create(tcp_conn));
+	writer->getRequest().setMethod("POST");
+	writer->getRequest().setResource("/auth/something/somewhere");
+	// add an authentications for "mike:123456"
+	writer->getRequest().addHeader(HTTPTypes::HEADER_AUTHORIZATION,"Basic bWlrZToxMjM0NTY=");
+	
+	writer << "junk";
+	writer->send();
+	
+	// receive the response from the server
+	HTTPResponse http_response(writer->getRequest());
+	http_response.receive(*tcp_conn, error_code);
+	BOOST_CHECK(!error_code);
+	
+	// check that the response is OK
+	BOOST_CHECK(http_response.getStatusCode() == 200);
+	BOOST_CHECK(http_response.getContentLength() > 0);
+	
+	// check the post content of the request, by parsing it out of the post content of the response
+	boost::regex post_content(".*\\[POST Content]\\s*junk.*");
+	BOOST_CHECK(boost::regex_match(http_response.getContent(), post_content));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

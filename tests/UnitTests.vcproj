@@ -117,6 +117,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="EchoService.lib FileService.lib HelloService.lib LogService.lib CookieService.lib"
+				AdditionalLibraryDirectories="&quot;$(InputDir)\..\services\.libs&quot;"
 				SubSystem="1"
 			/>
 			<Tool

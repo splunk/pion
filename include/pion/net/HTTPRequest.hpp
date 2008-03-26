@@ -13,7 +13,7 @@
 #include <boost/shared_ptr.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPMessage.hpp>
-
+#include <pion/net/PionUser.hpp>
 
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)
@@ -155,7 +155,13 @@ public:
 		deleteValue(m_cookie_params, key);
 	}
 	
+	/// sets the user record for HTTP request after authentication
+	inline void setUser(PionUserPtr user) { m_user_record = user; }
 	
+	/// get the user record for HTTP request after authentication
+	inline PionUserPtr getUser() const { return m_user_record; }
+
+
 protected:
 	
 	/// returns a string containing the first line for the HTTP message
@@ -197,6 +203,9 @@ private:
 
 	/// HTTP cookie parameters parsed from the "Cookie" request headers
 	CookieParams					m_cookie_params;
+
+	/// pointer to PionUser record if this request had been authenticated 
+	PionUserPtr                     m_user_record;
 };
 
 

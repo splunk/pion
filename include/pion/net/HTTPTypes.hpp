@@ -45,6 +45,7 @@ struct PION_NET_API HTTPTypes
 	static const std::string	HEADER_IF_MODIFIED_SINCE;
 	static const std::string	HEADER_TRANSFER_ENCODING;
 	static const std::string	HEADER_LOCATION;
+    static const std::string	HEADER_AUTHORIZATION;
 
 	// common HTTP content types
 	static const std::string	CONTENT_TYPE_HTML;
@@ -63,6 +64,7 @@ struct PION_NET_API HTTPTypes
 	static const std::string	RESPONSE_MESSAGE_OK;
 	static const std::string	RESPONSE_MESSAGE_CREATED;
 	static const std::string	RESPONSE_MESSAGE_NO_CONTENT;
+    static const std::string	RESPONSE_MESSAGE_UNAUTHORIZED;
 	static const std::string	RESPONSE_MESSAGE_FORBIDDEN;
 	static const std::string	RESPONSE_MESSAGE_NOT_FOUND;
 	static const std::string	RESPONSE_MESSAGE_METHOD_NOT_ALLOWED;
@@ -75,6 +77,7 @@ struct PION_NET_API HTTPTypes
 	static const unsigned int	RESPONSE_CODE_OK;
 	static const unsigned int	RESPONSE_CODE_CREATED;
 	static const unsigned int	RESPONSE_CODE_NO_CONTENT;
+    static const unsigned int	RESPONSE_CODE_UNAUTHORIZED;
 	static const unsigned int	RESPONSE_CODE_FORBIDDEN;
 	static const unsigned int	RESPONSE_CODE_NOT_FOUND;
 	static const unsigned int	RESPONSE_CODE_METHOD_NOT_ALLOWED;
@@ -152,13 +155,30 @@ struct PION_NET_API HTTPTypes
 	
 	/// data type for HTTP cookie parameters
 	typedef StringDictionary	CookieParams;
+
 	
+	/** base64 decoding , used internally by HTTPBasicAuth
+	 *
+	 * @param input - base64 encoded string
+	 * @param output - decoded string ( may include non-text chars)
+	 * @return true if successful, false if input string contains non-base64 symbols
+	 */
+	static bool base64_decode(std::string const &input, std::string & output);
+
+	/** base64 encoding , used internally by HTTPBasicAuth
+	 *
+	 * @param input - arbitrary string ( may include non-text chars)
+	 * @param output - base64 encoded string
+	 * @return true if successful,
+	 */
+	static bool base64_encode(std::string const &input, std::string & output);
+
 	/// escapes URL-encoded strings (a%20value+with%20spaces)
 	static std::string url_decode(const std::string& str);
 
 	/// encodes strings so that they are safe for URLs (with%20spaces)
 	static std::string url_encode(const std::string& str);
-
+	
 	/// converts time_t format into an HTTP-date string
 	static std::string get_date_string(const time_t t);
 

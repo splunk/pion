@@ -116,6 +116,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				IgnoreDefaultLibraryNames=""
 				SubSystem="1"
 			/>
 			<Tool
@@ -434,11 +435,11 @@
 			>
 		</Filter>
 		<File
-			RelativePath=".\testservices.html"
+			RelativePath=".\testservices.conf"
 			>
 		</File>
 		<File
-			RelativePath=".\vcservices.conf"
+			RelativePath=".\testservices.html"
 			>
 		</File>
 	</Files>

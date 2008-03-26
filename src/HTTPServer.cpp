@@ -37,8 +37,19 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 		
 	PION_LOG_DEBUG(m_logger, "Received a valid HTTP request");
 
-	// strip off trailing slash if the request has one
-	std::string resource_requested(stripTrailingSlash(http_request->getResource()));
+    // strip off trailing slash if the request has one
+    std::string resource_requested(stripTrailingSlash(http_request->getResource()));
+
+	// if authentication activated, check current request
+	if (m_auth) {
+		// try to verify authentication
+		if (! m_auth->handleRequest(http_request, tcp_conn)) {
+			// the HTTP 401 message has already been sent by the authentication object
+			PION_LOG_DEBUG(m_logger, "Authentication required for HTTP resource: "
+				<< resource_requested);
+			return;
+		}
+	}
 	
 	// search for a handler matching the resource requested
 	RequestHandler request_handler;

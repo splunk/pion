@@ -55,6 +55,13 @@ public:
 			: PionException("Unable to parse configuration file: ", file) {}
 	};
 
+	/// exception thrown if there is an error parsing the authorization config
+	class AuthConfigException : public PionException {
+	public:
+		AuthConfigException(const std::string& error_msg)
+			: PionException("Error in web server authorization config: ", error_msg) {}
+	};
+	
 	/// exception used to propagate exceptions thrown by web services
 	class WebServiceException : public PionException {
 	public:

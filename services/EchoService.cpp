@@ -10,6 +10,7 @@
 #include "EchoService.hpp"
 #include <boost/bind.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
+#include <pion/net/PionUser.hpp>
 
 using namespace pion;
 using namespace pion::net;
@@ -42,6 +43,7 @@ void EchoService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
 	static const std::string QUERY_PARAMS_TEXT("[Query Parameters]");
 	static const std::string COOKIE_PARAMS_TEXT("[Cookie Parameters]");
 	static const std::string POST_CONTENT_TEXT("[POST Content]");
+	static const std::string USER_INFO_TEXT("[USER Info]");
 	
 	// Set Content-type to "text/plain" (plain ascii text)
 	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
@@ -104,6 +106,16 @@ void EchoService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
 		writer->writeNoCopy(HTTPTypes::STRING_CRLF);
 	}
 	
+	// if authenticated, write user info
+	PionUserPtr user = request->getUser();
+	if (user) {
+		writer->writeNoCopy(USER_INFO_TEXT);
+		writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+		writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+		writer << "User authenticated, username: " << user->getUsername();
+		writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+	}
+    
 	// send the writer
 	writer->send();
 }

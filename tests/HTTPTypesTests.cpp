@@ -38,4 +38,36 @@ BOOST_AUTO_TEST_CASE(testCaseInsensitiveEqual) {
 	BOOST_CHECK(!CaseInsensitiveEqual()("abc", "ab"));
 }
 
+BOOST_AUTO_TEST_CASE(testBase64Routines) {
+	std::string original;
+	std::string original_base64;
+
+	std::string encoded;
+	std::string decoded;
+
+	original = "mike:123456";
+	original_base64 = "bWlrZToxMjM0NTY=";
+
+	BOOST_CHECK(base64_encode(original,encoded));
+	BOOST_CHECK(encoded == original_base64);
+	BOOST_CHECK(base64_decode(encoded,decoded));
+	BOOST_CHECK(decoded == original);
+
+	original = "mike:12345";
+	BOOST_CHECK(base64_encode(original,encoded));
+	BOOST_CHECK(base64_decode(encoded,decoded));
+	BOOST_CHECK(decoded == original);
+
+	original = "mike:1234";
+	BOOST_CHECK(base64_encode(original,encoded));
+	BOOST_CHECK(base64_decode(encoded,decoded));
+	BOOST_CHECK(decoded == original);
+
+	original = "mike:123";
+	BOOST_CHECK(base64_encode(original,encoded));
+	BOOST_CHECK(base64_decode(encoded,decoded));
+	BOOST_CHECK(decoded == original);
+
+}
+
 BOOST_AUTO_TEST_SUITE_END()

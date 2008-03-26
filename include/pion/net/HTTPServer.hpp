@@ -20,6 +20,7 @@
 #include <pion/net/TCPServer.hpp>
 #include <pion/net/TCPConnection.hpp>
 #include <pion/net/HTTPRequest.hpp>
+#include <pion/net/HTTPAuth.hpp>
 
 
 namespace pion {	// begin namespace pion
@@ -143,8 +144,8 @@ public:
 	/**
 	 * used to send responses when a bad HTTP request is made
 	 *
-     * @param http_request the new HTTP request to handle
-     * @param tcp_conn the TCP connection that has the new request
+	 * @param http_request the new HTTP request to handle
+	 * @param tcp_conn the TCP connection that has the new request
 	 */
 	static void handleBadRequest(HTTPRequestPtr& http_request,
 								 TCPConnectionPtr& tcp_conn);
@@ -152,8 +153,8 @@ public:
 	/**
 	 * used to send responses when no web services can handle the request
 	 *
-     * @param http_request the new HTTP request to handle
-     * @param tcp_conn the TCP connection that has the new request
+	 * @param http_request the new HTTP request to handle
+	 * @param tcp_conn the TCP connection that has the new request
 	 */
 	static void handleNotFoundRequest(HTTPRequestPtr& http_request,
 									  TCPConnectionPtr& tcp_conn);
@@ -161,15 +162,19 @@ public:
 	/**
 	 * used to send responses when a server error occurs
 	 *
-     * @param http_request the new HTTP request to handle
-     * @param tcp_conn the TCP connection that has the new request
+	 * @param http_request the new HTTP request to handle
+	 * @param tcp_conn the TCP connection that has the new request
 	 * @param error_msg message that explains what went wrong
 	 */
 	static void handleServerError(HTTPRequestPtr& http_request,
 								  TCPConnectionPtr& tcp_conn,
 								  const std::string& error_msg);
 
-	
+	/**
+	 * sets the handler object for authentication verification processing
+	 */ 
+	inline void setAuthentication(HTTPAuthPtr auth) { m_auth = auth; }
+
 protected:
 	
 	/**
@@ -217,6 +222,9 @@ private:
 
 	/// mutex used to protect access to the resources
 	mutable boost::mutex		m_resource_mutex;
+
+	/// pointer to authentication handler object
+	HTTPAuthPtr				 m_auth;
 };
 
 
