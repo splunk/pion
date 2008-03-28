@@ -27,7 +27,7 @@ namespace pion {	// begin namespace pion
 /// and Michael L. Scott (1996, Department of Computer Science, University of Rochester).
 /// See http://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf
 /// 
-template <typename T, boost::uint32_t MaxSize = 10000, boost::uint32_t SleepNanoSec = 10000000>
+template <typename T, boost::uint32_t MaxSize = 250000, boost::uint32_t SleepNanoSec = 10000000>
 class PionLockedQueue :
 	private boost::noncopyable
 {
@@ -134,7 +134,7 @@ private:
 		inline void next(QueueNode *ptr) { m_next = ptr; }
 		
 		/// returns a pointer to the next node in the list
-		inline QueueNode *next(void) const { return m_next; }
+		inline QueueNode *next(void) { return m_next; }
 
 		/// returns a reference to the data wrapped by the node
 		inline const T& data(void) const { return m_data; }
