@@ -108,7 +108,7 @@ struct BOOST_AUTO_TC_INVOKER( test_name ) {						\
 	}															\
 };																\
 																\
-BOOST_AUTO_TC_REGISTRAR( test_name )(							\
+BOOST_AUTO_TU_REGISTRAR( test_name )(							\
 	boost::unit_test::ut_detail::template_test_case_gen<		\
 		BOOST_AUTO_TC_INVOKER( test_name ),						\
 		BOOST_AUTO_TEST_CASE_FIXTURE_TYPES >(					\
