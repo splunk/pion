@@ -2,7 +2,7 @@
 # pion-net automake configuration file 
 # ------------------------------------
 
-AM_CPPFLAGS = -I@PION_COMMON_HOME@/include -I../include
+AM_CPPFLAGS = -I@PION_COMMON_HOME@/include -I../include @PION_TESTS_CPPFLAGS@
 
 check_PROGRAMS = PionNetUnitTests
 TESTS = $(check_PROGRAMS)
