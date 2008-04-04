@@ -216,7 +216,7 @@ AC_SUBST(PION_SSL_LIB)
 
 
 # Check for Boost
-AX_BOOST_BASE([1.34])
+AX_BOOST_BASE([1.35])
 # AC_MSG_NOTICE(Boost home directory: $BOOST_HOME_DIR)
 CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
 LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
@@ -235,10 +235,6 @@ if test "x$BOOST_LIB_EXTENSION" = "x"; then
 fi
 AC_MSG_RESULT($BOOST_LIB_EXTENSION)
 AC_SUBST(BOOST_LIB_EXTENSION)
-
-
-# Check for Boost ASIO library
-AC_CHECK_HEADERS([boost/asio.hpp],,AC_MSG_ERROR(Unable to find the boost::asio headers))
 
 
 # Check for Boost Thread library

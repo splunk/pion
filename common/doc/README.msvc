@@ -49,22 +49,18 @@ copy the entire boost/ directory into C:\Boost\Include.
 
 Step-by-step instruction: building Boost with ASIO for VC2005 platform (without using UNIX utilities or commands)
 -------------------------
- - Download Boost 1.34.1 (zip) from http://sourceforge.net/project/showfiles.php?group_id=7586 
- - Download Boost-Asio 0.3.9 (zip) from http://sourceforge.net/project/showfiles.php?group_id=122478&package_id=134200&release_id=560165
+ - Download Boost 1.35.0 (zip) from http://sourceforge.net/project/showfiles.php?group_id=7586 
  - Download BJAM precompiled executable boost-jam-3.1.16-1-ntx86.zip from http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=72941 
- - Unzip boost_1_34_1.zip to C:\boost_1_34_1
- - Unzip bjam.exe from boost-jam-3.1.16-1-ntx86.zip to C:\boost_1_34_1
- - Unzip boost and libs directories from boost_asio_0_3_9.zip to C:\boost_1_34_1
- - Apply emergency patch from http://svn.boost.org/trac/boost/ticket/1260 :
-		copy *.hpp files from http://www.boost.org/function-1-34-fix/ into C:\boost_1_34_1\boost\function
+ - Unzip boost_1_35_0.zip to C:\boost_1_35_0
+ - Unzip bjam.exe from boost-jam-3.1.16-1-ntx86.zip to C:\boost_1_35_0
  - Open MSVC command line  
  - In MSVC command line:
-		cd c:\boost_1_34_1
+		cd c:\boost_1_35_0
 		bjam install
  - Drink lot of coffee
  .....
  - Drink lot of coffee
- - Update VC2005 settings for includes (C:\Boost\include\boost-1_34_1) and libraries (C:\Boost\lib) paths with locations of installed Boost headers and libraries
+ - Update VC2005 settings for includes (C:\Boost\include\boost-1_35_0) and libraries (C:\Boost\lib) paths with locations of installed Boost headers and libraries
     (Main Menu->Tools->Options->Projects and Solutions->VC++ Directories)
 
 

@@ -1,58 +1,26 @@
 Installing Boost with ASIO
 ==========================
 
-Starting with 0.4.0, Pion requires Boost 1.34.1 with ASIO 0.3.9 (or
-later). Since these are both fairly recent releases, none of our
-supported platforms currently have pre-built versions available of these
-libraries.  Therefore, you will likely need to download, compile and
-install Boost and ASIO using the source tarballs.
-
-Note that although the ASIO library is not currently included in the
-Boost distribution, it has been accepted into the library and will be
-included in a future release (most likely 1.35.0).  You can use it with
-the current Boost release by just copying ASIO's files into the Boost
-source tree.
+Starting with 0.6.0, Pion requires Boost 1.35.0 (or later). Since this is
+still a fairly recent release, none of our supported platforms currently have
+pre-built versions available of these libraries.  Therefore, you will likely
+need to download, compile and install Boost and ASIO using the source code
+tarballs.
 
 
-Obtaining Boost with ASIO (the easy way):
-=========================================
+Obtaining Boost:
+================
 
-Atomic Labs provides a source code tarball for Boost with ASIO, including all
-the necessary patches available for download on the "Third Party Libraries"
-page of our website.  We recommend that you download and uncompress this
-file.  However, if you'd prefer to prepare everything yourself, here is what
-you need to do:
+First, download the latest tarball from SourceForge.net:
 
+# wget http://downloads.sourceforge.net/boost/boost_1_35_0.tar.bz2
 
-Obtaining Boost with ASIO (the hard way):
-=========================================
+Next, uncompress the tarball into a new directory:
 
-First, download the latest tarballs from SourceForge.net:
+# bzip2 -dc boost_1_35_0.tar.bz2 | tar xvf -
 
-# wget http://downloads.sourceforge.net/boost/boost_1_34_1.tar.bz2
-# wget http://downloads.sourceforge.net/asio/boost_asio_0_3_9.tar.bz2
-
-Next, uncompress the tarballs and copy the ASIO files into the Boost
-directory:
-
-# bzip2 -dc boost_1_34_1.tar.bz2 | tar xvf -
-# bzip2 -dc boost_asio_0_3_9.tar.bz2 | tar xvf -
-# tar cvf - -C boost_asio_0_3_9 boost libs | tar xf - -C boost_1_34_1
-
-(If you are using a graphical tool, make sure that you copy all of the
-ASIO files into the same directory that you extracted Boost into --
-select "Yes to All" for replacing existing files).
-
-Boost 1.34.1 includes a bug (Boost ticket #1062) that you will need to 
-patch before building it under Cygwin.  There is also a thread safety bug
-which has been identified within the Boost.Function library (Boost ticket
-# 1260).  A patch file to fix both of these bugs is included in the
-"<PROJECT_ROOT>/common/doc" directory:
-
-# patch -p0 < <PROJECT_ROOT>/common/doc/boost_1_34_1.patch
-
-Finally, configure, build and install the Boost libraries (now with
-ASIO). You have two options:
+Finally, configure, build and install the Boost libraries. You have two
+options:
 
 
 Build using the configure script:
@@ -66,7 +34,7 @@ only six of them).  Building Boost with the configure script also requires
 that you have a UNIX shell interpreter (/bin/sh) and the make utility
 installed on your system.
 
-# cd boost_1_34_1
+# cd boost_1_35_0
 # ./configure
 # make all
 # make install  (this may require superuser/Administrator privileges)
