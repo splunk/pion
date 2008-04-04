@@ -359,8 +359,15 @@ if test "x$enable_tests" == "xno"; then
 else
 	BOOST_TRY_LIB=unit_test_framework
 	BOOST_TRY_LINK="$BOOST_HOME_DIR/lib/libboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}.a"
+	# check if static version of lib is available
+	if !(test -r "$BOOST_TRY_LINK"); then
+	    BOOST_TRY_LINK="-lboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
+	    PION_TESTS_CPPFLAGS="-DBOOST_TEST_DYN_LINK"
+	fi
 	LIBS_SAVED="$LIBS"
 	LIBS="$LIBS_SAVED ${BOOST_TRY_LINK}"
+	CPPFLAGS_SAVED="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS ${PION_TESTS_CPPFLAGS}"
 	AC_MSG_CHECKING([for boost::test library])
 	AC_TRY_LINK([#include <boost/test/unit_test.hpp>
 		using namespace boost::unit_test;
@@ -374,10 +381,12 @@ else
 		  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
 		])
 	LIBS="$LIBS_SAVED"
+	CPPFLAGS="$CPPFLAGS_SAVED"
 	PION_TESTS_MAKEDIRS="tests"
 fi
 AC_SUBST(BOOST_TEST_LIB)
 AC_SUBST(PION_TESTS_MAKEDIRS)
+AC_SUBST(PION_TESTS_CPPFLAGS)
 
 
 # Check for logging support
