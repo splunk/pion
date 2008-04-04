@@ -55,12 +55,14 @@ Step-by-step instruction: building Boost with ASIO for VC2005 platform (without 
  - Unzip bjam.exe from boost-jam-3.1.16-1-ntx86.zip to C:\boost_1_35_0
  - Open MSVC command line  
  - In MSVC command line:
-		cd c:\boost_1_35_0
+		cd C:\boost_1_35_0
 		bjam install
  - Drink lot of coffee
  .....
  - Drink lot of coffee
- - Update VC2005 settings for includes (C:\Boost\include\boost-1_35_0) and libraries (C:\Boost\lib) paths with locations of installed Boost headers and libraries
+ - If you also want the debug versions of the Boost libraries, run:
+		bjam debug install
+ - Update VC2005 settings for includes (C:\Boost\include\boost-1_35) and libraries (C:\Boost\lib) paths with locations of installed Boost headers and libraries
     (Main Menu->Tools->Options->Projects and Solutions->VC++ Directories)
 
 
