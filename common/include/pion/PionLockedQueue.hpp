@@ -18,14 +18,18 @@
 #include <pion/PionScheduler.hpp>
 
 
+// NOTE: the data structures contained in this file are based upon algorithms
+// published in the paper "Simple, Fast, and Practical Non-Blocking and Blocking
+// Concurrent Queue Algorithms" (1996, Maged M. Michael and Michael L. Scott,
+// Department of Computer Science, University of Rochester).
+// See http://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf
+
+
 namespace pion {	// begin namespace pion
 
 
 ///
-/// PionLockedQueue: a thread-safe, two-lock concurrent FIFO queue.  Based on the paper "Simple,
-/// Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms" by Maged M. Michael
-/// and Michael L. Scott (1996, Department of Computer Science, University of Rochester).
-/// See http://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf
+/// PionLockedQueue: a thread-safe, two-lock concurrent FIFO queue
 /// 
 template <typename T, boost::uint32_t MaxSize = 250000, boost::uint32_t SleepNanoSec = 10000000>
 class PionLockedQueue :
