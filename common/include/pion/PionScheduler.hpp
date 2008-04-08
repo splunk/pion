@@ -44,11 +44,8 @@ public:
 	/// virtual destructor
 	virtual ~PionScheduler() {}
 
-	/// returns an async I/O service used to schedule work
-	virtual boost::asio::io_service& getIOService(void) = 0;
-	
 	/// Starts the thread scheduler (this is called automatically when necessary)
-	virtual void startup(void) = 0;
+	virtual void startup(void) {}
 	
 	/// Stops the thread scheduler (this is called automatically when the program exits)
 	virtual void shutdown(void);
@@ -79,13 +76,17 @@ public:
 	/// returns the logger currently in use
 	inline PionLogger getLogger(void) { return m_logger; }
 	
+	/// returns an async I/O service used to schedule work
+	virtual boost::asio::io_service& getIOService(void) = 0;
+	
 	/**
 	 * schedules work to be performed by one of the pooled threads
 	 *
 	 * @param work_func work function to be executed
 	 */
-	template<typename WorkFunction>
-	inline void post(WorkFunction work_func) { getIOService().post(work_func); }
+	virtual void post(boost::function0<void> work_func) {
+		getIOService().post(work_func);
+	}
 	
 	/**
 	 * thread function used to keep the io_service running
@@ -132,16 +133,16 @@ protected:
 									  boost::uint32_t sleep_nsec);
 
 	/// stops all services used to schedule work
-	virtual void stopServices(void) = 0;
+	virtual void stopServices(void) {}
 	
 	/// stops all threads used to perform work
-	virtual void stopThreads(void) = 0;
+	virtual void stopThreads(void) {}
 
 	/// finishes all services used to schedule work
-	virtual void finishServices(void) = 0;
+	virtual void finishServices(void) {}
 
 	/// finishes all threads used to perform work
-	virtual void finishThreads(void) = 0;
+	virtual void finishThreads(void) {}
 	
 	
 	/// default number of worker threads in the thread pool
@@ -226,7 +227,7 @@ protected:
 	ThreadPool				m_thread_pool;
 };
 	
-
+	
 ///
 /// PionSingleServiceScheduler: uses a single IO service to schedule work
 /// 
@@ -248,7 +249,7 @@ public:
 	
 	/// Starts the thread scheduler (this is called automatically when necessary)
 	virtual void startup(void);
-	
+		
 	
 protected:
 	
