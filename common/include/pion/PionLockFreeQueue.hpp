@@ -15,7 +15,11 @@
 #include <boost/noncopyable.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionScheduler.hpp>
-#include <apr-1/apr_atomic.h>
+#ifdef _MSC_VER
+	#include <apr_atomic.h>
+#else
+	#include <apr-1/apr_atomic.h>
+#endif
 
 
 // NOTE: the data structures contained in this file are based upon algorithms
