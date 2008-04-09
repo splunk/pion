@@ -183,7 +183,10 @@ void WebServer::loadServiceConfig(const std::string& config_name)
 					throw ConfigParsingException(config_name);
 				} else if (command_string == "path") {
 					// finished path command
-					PionPlugin::addPluginDirectory(value_string);
+					try { PionPlugin::addPluginDirectory(value_string); }
+					catch (std::exception& e) {
+						PION_LOG_WARN(m_logger, e.what());
+					}
 				} else if (command_string == "auth") {
 					// finished auth command
 					PionUserManagerPtr user_manager(new PionUserManager);
