@@ -157,6 +157,9 @@ public:
 		}
 	}
 
+	/*
+	Use close instead; basic_socket::cancel is deprecated for Windows XP.
+
 	/// cancels any asynchronous operations pending on the socket
 	inline void cancel(void) {
 #ifdef PION_HAVE_SSL
@@ -166,6 +169,7 @@ public:
 #endif
 			m_tcp_socket.cancel();
 	}
+	*/
 	
 	/// virtual destructor
 	virtual ~TCPConnection() { close(); }

@@ -433,9 +433,13 @@ public:
 	/// closes the tcp connection
 	inline void close(void) { m_tcp_buf.getConnection().close(); }
 
+	/*
+	Use close instead; basic_socket::cancel is deprecated for Windows XP.
+
 	/// cancels any asynchronous operations pending on the tcp connection
 	inline void cancel(void) { m_tcp_buf.getConnection().cancel(); }
-	
+	*/
+
 	/// returns true if the connection is currently open
 	inline bool is_open(void) const { return m_tcp_buf.getConnection().is_open(); }
 	
