@@ -98,20 +98,6 @@ void PionScheduler::removeActiveUser(void)
 		m_no_more_active_users.notify_all();
 }
 
-void PionScheduler::sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
-{
-	boost::xtime wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
-	boost::thread::sleep(wakeup_time);
-}
-	
-void PionScheduler::sleep(boost::condition& wakeup_condition,
-						  boost::mutex::scoped_lock& wakeup_lock,
-						  boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
-{
-	boost::xtime wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
-	wakeup_condition.timed_wait(wakeup_lock, wakeup_time);
-}
-
 boost::xtime PionScheduler::getWakeupTime(boost::uint32_t sleep_sec,
 										  boost::uint32_t sleep_nsec)
 {

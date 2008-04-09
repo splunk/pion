@@ -103,7 +103,10 @@ public:
 	 * @param sleep_sec number of entire seconds to sleep for
 	 * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
 	 */
-	static void sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec);
+	inline static void sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec) {
+		boost::xtime wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
+		boost::thread::sleep(wakeup_time);
+	}
 
 	/**
 	 * puts the current thread to sleep for a specific period of time, or until
@@ -114,9 +117,13 @@ public:
 	 * @param sleep_sec number of entire seconds to sleep for
 	 * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
 	 */
-	static void sleep(boost::condition& wakeup_condition,
-					  boost::mutex::scoped_lock& wakeup_lock,
-					  boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec);
+	template <typename ConditionType, typename LockType>
+	inline static void sleep(ConditionType& wakeup_condition, LockType& wakeup_lock,
+							 boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
+	{
+		boost::xtime wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
+		wakeup_condition.timed_wait(wakeup_lock, wakeup_time);
+	}
 	
 	
 protected:
