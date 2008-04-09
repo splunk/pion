@@ -107,7 +107,7 @@ public:
 	 * @param value the value of the cookie
 	 */
 	inline void setCookie(const std::string& name, const std::string& value) {
-		std::string set_cookie_header(make_set_cookie_header(name, value, ""));
+		std::string set_cookie_header(make_set_cookie_header(name, value, "/"));
 		addHeader(HEADER_SET_COOKIE, set_cookie_header);
 	}
 	
@@ -151,13 +151,13 @@ public:
 	inline void setCookie(const std::string& name, const std::string& value,
 						  const unsigned long max_age)
 	{
-		std::string set_cookie_header(make_set_cookie_header(name, value, "", true, max_age));
+		std::string set_cookie_header(make_set_cookie_header(name, value, "/", true, max_age));
 		addHeader(HEADER_SET_COOKIE, set_cookie_header);
 	}
 	
 	/// deletes cookie called name by adding a Set-Cookie header (cookie has no path)
 	inline void deleteCookie(const std::string& name) {
-		std::string set_cookie_header(make_set_cookie_header(name, "", "", true, 0));
+		std::string set_cookie_header(make_set_cookie_header(name, "", "/", true, 0));
 		addHeader(HEADER_SET_COOKIE, set_cookie_header);
 	}
 	

@@ -79,8 +79,15 @@ public:
 	 *
 	 * @param resource the resource name or uri-stem that requires authentication
 	 */
-	void addResource(const std::string& resource);
+	void addRestrict(const std::string& resource);
 	
+	/**
+	 * adds a resource that does NOT require authentication
+	 *
+	 * @param resource the resource name or uri-stem that does not require authentication
+	 */
+	void addPermit(const std::string& resource);
+
 	/**
 	 * used to add a new user
 	 *
@@ -88,6 +95,15 @@ public:
 	 */
 	virtual bool addUser(std::string const &username, std::string const &password) {
 		return m_user_manager->addUser(username, password);
+	}
+	
+	/**
+	 * update password for given user
+	 *
+	 * @return false if user with such a name doesn't exist
+	 */
+	virtual bool updateUser(std::string const &username, std::string const &password) {
+		return m_user_manager->updateUser(username, password);
 	}
 	
 	/**
@@ -109,6 +125,10 @@ public:
 	
 protected:
 
+	/// data type for a set of resources to be authenticated
+	typedef std::set<std::string>	AuthResourceSet;
+
+	
 	/**
 	 * check if given HTTP request requires authentication
 	 *
@@ -116,12 +136,19 @@ protected:
 	 */
 	bool needAuthentication(HTTPRequestPtr const& http_request) const;
 	
+	/**
+	 * tries to find a resource in a given collection
+	 * 
+	 * @param resource_set the collection of resource to look in
+	 * @param resource the resource to look for
+	 *
+	 * @return true if the resource was found
+	 */
+	bool findResource(const AuthResourceSet& resource_set,
+					  const std::string& resource) const;
+
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
-	
-
-	/// data type for a set of resources to be authenticated
-	typedef std::set<std::string>	AuthResourceSet;
 	
 
 	/// primary logging interface used by this class
@@ -131,7 +158,10 @@ protected:
 	PionUserManagerPtr			m_user_manager;
 	
 	/// collection of resources that require authentication 
-	AuthResourceSet				m_auth_resources;
+	AuthResourceSet				m_restrict_list;
+
+	/// collection of resources that do NOT require authentication 
+	AuthResourceSet				m_white_list;
 
 	/// mutex used to protect access to the resources
 	mutable boost::mutex		m_resource_mutex;

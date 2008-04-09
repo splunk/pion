@@ -18,12 +18,20 @@ namespace net {		// begin namespace net (Pion Network Library)
 
 // HTTPAuth member functions
 
-void HTTPAuth::addResource(const std::string& resource)
+void HTTPAuth::addRestrict(const std::string& resource)
 {
 	boost::mutex::scoped_lock resource_lock(m_resource_mutex);
 	const std::string clean_resource(HTTPServer::stripTrailingSlash(resource));
-	m_auth_resources.insert(clean_resource);
-	PION_LOG_INFO(m_logger, "Set authentication for HTTP resource: " << clean_resource);
+	m_restrict_list.insert(clean_resource);
+	PION_LOG_INFO(m_logger, "Set authentication restrictions for HTTP resource: " << clean_resource);
+}
+
+void HTTPAuth::addPermit(const std::string& resource)
+{
+	boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+	const std::string clean_resource(HTTPServer::stripTrailingSlash(resource));
+	m_white_list.insert(clean_resource);
+	PION_LOG_INFO(m_logger, "Set authentication permission for HTTP resource: " << clean_resource);
 }
 
 bool HTTPAuth::needAuthentication(const HTTPRequestPtr& http_request) const
@@ -31,14 +39,30 @@ bool HTTPAuth::needAuthentication(const HTTPRequestPtr& http_request) const
 	// strip off trailing slash if the request has one
 	std::string resource(HTTPServer::stripTrailingSlash(http_request->getResource()));
 	
-	// first make sure that HTTP resources are registered
 	boost::mutex::scoped_lock resource_lock(m_resource_mutex);
-	if (m_auth_resources.empty())
-		return false;
 	
-	// iterate through each auth resource entry that may match the input resource
-	AuthResourceSet::const_iterator i = m_auth_resources.upper_bound(resource);
-	while (i != m_auth_resources.begin()) {
+	// just return false if restricted list is empty
+	if (m_restrict_list.empty())
+		return false;
+
+	// try to find resource in restricted list
+	if (findResource(m_restrict_list, resource)) {
+		// return true if white list is empty
+		if (m_white_list.empty())
+			return true;
+		// return false if found in white list, or true if not found
+		return ( ! findResource(m_white_list, resource) );
+	}
+	
+	// resource not found in restricted list
+	return false;
+}
+
+bool HTTPAuth::findResource(const AuthResourceSet& resource_set,
+							const std::string& resource) const
+{
+	AuthResourceSet::const_iterator i = resource_set.upper_bound(resource);
+	while (i != resource_set.begin()) {
 		--i;
 		// check for a match if the first part of the strings match
 		if (i->empty() || resource.compare(0, i->size(), *i) == 0) {
@@ -49,7 +73,6 @@ bool HTTPAuth::needAuthentication(const HTTPRequestPtr& http_request) const
 			}
 		}
 	}
-	
 	return false;
 }
 

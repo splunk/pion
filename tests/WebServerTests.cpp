@@ -26,6 +26,7 @@
 #include <pion/net/WebServer.hpp>
 #include <pion/net/PionUser.hpp>
 #include <pion/net/HTTPBasicAuth.hpp>
+#include <pion/net/HTTPCookieAuth.hpp>
 
 
 using namespace std;
@@ -596,12 +597,12 @@ BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
 	checkWebServerResponseContent(http_stream, "/doc/index.html" , doc_index_regex);
 }
 
-BOOST_AUTO_TEST_CASE(checkAuthServiceFailure) {
+BOOST_AUTO_TEST_CASE(checkBasicAuthServiceFailure) {
 	m_server.loadService("/auth", "EchoService");
 	PionUserManagerPtr userManager(new PionUserManager());
 	HTTPAuthPtr auth_ptr(new HTTPBasicAuth(userManager));
 	m_server.setAuthentication(auth_ptr);
-	auth_ptr->addResource("/auth");
+	auth_ptr->addRestrict("/auth");
 	auth_ptr->addUser("mike","123456");
 	m_server.start();
 	
@@ -633,12 +634,12 @@ BOOST_AUTO_TEST_CASE(checkAuthServiceFailure) {
 	BOOST_CHECK(!boost::regex_match(http_response.getContent(), post_content));
 }
 
-BOOST_AUTO_TEST_CASE(checkAuthServiceLogin) {
+BOOST_AUTO_TEST_CASE(checkBasicAuthServiceLogin) {
 	m_server.loadService("/auth", "EchoService");
 	PionUserManagerPtr userManager(new PionUserManager());
 	HTTPAuthPtr auth_ptr(new HTTPBasicAuth(userManager));
 	m_server.setAuthentication(auth_ptr);
-	auth_ptr->addResource("/auth");
+	auth_ptr->addRestrict("/auth");
 	auth_ptr->addUser("mike","123456");
 	m_server.start();
 	
@@ -670,6 +671,104 @@ BOOST_AUTO_TEST_CASE(checkAuthServiceLogin) {
 	// check the post content of the request, by parsing it out of the post content of the response
 	boost::regex post_content(".*\\[POST Content]\\s*junk.*");
 	BOOST_CHECK(boost::regex_match(http_response.getContent(), post_content));
+}
+
+BOOST_AUTO_TEST_CASE(checkCookieAuthServiceFailure) {
+	m_server.loadService("/auth", "EchoService");
+	PionUserManagerPtr userManager(new PionUserManager());
+	HTTPAuthPtr auth_ptr(new HTTPCookieAuth(userManager));
+	m_server.setAuthentication(auth_ptr);
+	auth_ptr->addRestrict("/auth");
+	auth_ptr->addUser("mike","123456");
+	m_server.start();
+
+	// open a connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
+	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+
+	HTTPRequestWriterPtr writer(HTTPRequestWriter::create(tcp_conn));
+	writer->getRequest().setMethod("POST");
+	writer->getRequest().setResource("/auth/something/somewhere");
+
+	writer << "junk";
+	writer->send();
+
+	// receive the response from the server
+	HTTPResponse http_response(writer->getRequest());
+	http_response.receive(*tcp_conn, error_code);
+	BOOST_CHECK(!error_code);
+
+	// check that the response is RESPONSE_MESSAGE_UNAUTHORIZED
+	BOOST_CHECK(http_response.getStatusCode() == 401);
+	BOOST_CHECK(http_response.getContentLength() > 0);
+
+	// check the post content of the request, by parsing it out of the post content of the response
+	boost::regex post_content(".*\\[POST Content]\\s*junk.*");
+	BOOST_CHECK(!boost::regex_match(http_response.getContent(), post_content));
+}
+
+BOOST_AUTO_TEST_CASE(checkCookieAuthServiceLogin) {
+	m_server.loadService("/auth", "EchoService");
+	PionUserManagerPtr userManager(new PionUserManager());
+	HTTPAuthPtr auth_ptr(new HTTPCookieAuth(userManager));
+	m_server.setAuthentication(auth_ptr);
+	auth_ptr->addRestrict("/auth");
+	auth_ptr->addUser("mike","123456");
+	m_server.start();
+
+	// open a login connection
+	TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
+	tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+	boost::system::error_code error_code;
+	error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	BOOST_REQUIRE(!error_code);
+
+	HTTPRequestWriterPtr writer(HTTPRequestWriter::create(tcp_conn));
+	writer->getRequest().setMethod("GET");
+	// login as "mike:123456"
+	writer->getRequest().setResource("/login?user=mike&pass=123456");
+
+	//writer << "junk";
+	writer->send();
+
+	// receive the response from the server
+	HTTPResponse http_response(writer->getRequest());
+	http_response.receive(*tcp_conn, error_code);
+	BOOST_CHECK(!error_code);
+
+	// check that the response is OK
+	BOOST_CHECK(http_response.getStatusCode() == 204);
+	BOOST_CHECK(http_response.getContentLength() == 0);
+	BOOST_CHECK(http_response.hasHeader(HTTPTypes::HEADER_SET_COOKIE));
+	// get Cookies
+	std::string cookie = http_response.getHeader(HTTPTypes::HEADER_SET_COOKIE);
+
+	// now try to connect to protected area using login cookie
+
+	HTTPRequestWriterPtr writer2(HTTPRequestWriter::create(tcp_conn));
+	writer2->getRequest().setMethod("POST");
+	writer2->getRequest().setResource("/auth/something/somewhere");
+	// add an authentications for "mike:123456"
+	writer2->getRequest().addHeader(HTTPTypes::HEADER_COOKIE,cookie);
+
+	writer2 << "junk";
+	writer2->send();
+
+	// receive the response from the server
+	HTTPResponse http_response2(writer2->getRequest());
+	http_response2.receive(*tcp_conn, error_code);
+	BOOST_CHECK(!error_code);
+
+	// check that the response is OK
+	BOOST_CHECK(http_response2.getStatusCode() == 200);
+	BOOST_CHECK(http_response2.getContentLength() > 0);
+
+	// check the post content of the request, by parsing it out of the post content of the response
+	boost::regex post_content(".*\\[POST Content]\\s*junk.*");
+	BOOST_CHECK(boost::regex_match(http_response2.getContent(), post_content));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

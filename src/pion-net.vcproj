@@ -387,6 +387,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HTTPCookieAuth.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HTTPMessage.cpp"
 				>
 			</File>
@@ -430,6 +434,10 @@
 			</File>
 			<File
 				RelativePath="..\include\pion\net\HTTPBasicAuth.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\net\HTTPCookieAuth.hpp"
 				>
 			</File>
 			<File

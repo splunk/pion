@@ -12,6 +12,7 @@
 #include <pion/net/HTTPRequestReader.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
 #include <pion/net/HTTPBasicAuth.hpp>
+#include <pion/net/HTTPCookieAuth.hpp>
 #include <fstream>
 
 
@@ -185,17 +186,23 @@ void WebServer::loadServiceConfig(const std::string& config_name)
 					PionPlugin::addPluginDirectory(value_string);
 				} else if (command_string == "auth") {
 					// finished auth command
-					if (value_string != "basic")
-						throw AuthConfigException("Only basic authentication is supported");
 					PionUserManagerPtr user_manager(new PionUserManager);
-					auth_ptr.reset(new HTTPBasicAuth(user_manager));
+					if (value_string == "basic"){
+						auth_ptr.reset(new HTTPBasicAuth(user_manager));
+					}
+					else if (value_string == "cookie"){
+						auth_ptr.reset(new HTTPCookieAuth(user_manager));
+					}
+					else{
+						throw AuthConfigException("Only basic and cookie authentications are supported");
+					}
 				} else if (command_string == "restrict") {
 					// finished restrict command
 					if (! auth_ptr)
 						throw AuthConfigException("Authentication type must be defined before restrict");
 					else if (value_string.empty())
 						throw AuthConfigException("No service defined for restrict parameter");
-					auth_ptr->addResource(value_string);
+					auth_ptr->addRestrict(value_string);
 				} else if (command_string == "user") {
 					// finished user command
 					if (! auth_ptr)

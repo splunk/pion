@@ -118,6 +118,20 @@ public:
 	}
 	
 	/**
+	 * update password for given user
+	 *
+	 * @return false if user with such a name doesn't exist
+	 */
+	virtual bool updateUser(const std::string &username, const std::string &password) {
+		boost::mutex::scoped_lock lock(m_mutex);
+		UserMap::iterator i = m_users.find(username);
+		if (i==m_users.end())
+			return false;
+		i->second->setPassword(password);
+		return true;
+	}
+
+	/**
 	 * used to remove given user 
 	 *
 	 * @return false if no user with such username
