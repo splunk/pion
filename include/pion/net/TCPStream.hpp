@@ -113,7 +113,7 @@ protected:
 	 * @return int_type the number of bytes sent, or eof() if there was an error
 	 */
 	inline int_type flushOutput(void) {
-		const std::streamsize bytes_to_send = pptr() - pbase();
+		const std::streamsize bytes_to_send = std::streamsize(pptr() - pbase());
 		int_type bytes_sent = 0;
 		if (bytes_to_send > 0) {
 			boost::mutex::scoped_lock async_lock(m_async_mutex);
@@ -142,7 +142,7 @@ protected:
 			return traits_type::to_int_type(*gptr());
 		
 		// calculate the number of bytes we will allow to be put back
-		std::streamsize put_back_num = gptr() - eback();
+		std::streamsize put_back_num = std::streamsize(gptr() - eback());
 		if (put_back_num > PUT_BACK_MAX)
 			put_back_num = PUT_BACK_MAX;
 		
@@ -201,7 +201,7 @@ protected:
 	 * @return std::streamsize number of character written
 	 */
 	virtual std::streamsize xsputn(const char_type *s, std::streamsize n) {
-		const std::streamsize bytes_available = epptr() - pptr();
+		const std::streamsize bytes_available = std::streamsize(epptr() - pptr());
 		std::streamsize bytes_sent = 0;
 		if (bytes_available >= n) {
 			// there is enough room in the buffer -> just put it in there
@@ -252,7 +252,7 @@ protected:
 	virtual std::streamsize xsgetn(char_type *s, std::streamsize n) {
 		std::streamsize bytes_remaining = n;
 		while (bytes_remaining > 0) {
-			const std::streamsize bytes_available = egptr() - gptr();
+			const std::streamsize bytes_available = std::streamsize(egptr() - gptr());
 			const std::streamsize bytes_next_read = ((bytes_available >= bytes_remaining)
 												   ? bytes_remaining : bytes_available);
 			// copy available input data from buffer

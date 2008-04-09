@@ -148,7 +148,7 @@ public:
 	inline bool eof(void) const { return m_read_ptr == NULL || m_read_ptr >= m_read_end_ptr; }
 
 	/// returns the number of bytes available in the read buffer
-	inline unsigned long bytes_available(void) const { return (eof() ? 0 : (m_read_end_ptr - m_read_ptr)); } 
+	inline unsigned long bytes_available(void) const { return (eof() ? 0 : (unsigned long)(m_read_end_ptr - m_read_ptr)); } 
 	
 	/// returns the number of bytes read during the last parse operation
 	inline std::size_t gcount(void) const { return m_bytes_last_read; }
