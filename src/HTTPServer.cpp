@@ -16,7 +16,12 @@
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)
 
-	
+
+// static members of HTTPServer
+
+const unsigned int			HTTPServer::MAX_REDIRECTS = 10;
+
+
 // HTTPServer member functions
 
 void HTTPServer::handleConnection(TCPConnectionPtr& tcp_conn)
@@ -37,8 +42,21 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 		
 	PION_LOG_DEBUG(m_logger, "Received a valid HTTP request");
 
-    // strip off trailing slash if the request has one
-    std::string resource_requested(stripTrailingSlash(http_request->getResource()));
+	// strip off trailing slash if the request has one
+	std::string resource_requested(stripTrailingSlash(http_request->getResource()));
+
+	// apply any redirection
+	RedirectMap::const_iterator it = m_redirects.find(resource_requested);
+	int num_redirects = 0;
+	while (it != m_redirects.end()) {
+		if (++num_redirects > MAX_REDIRECTS) {
+			PION_LOG_ERROR(m_logger, "Maximum number of redirects (HTTPServer::MAX_REDIRECTS) exceeded for requested resource: " << http_request->getResource());
+			m_server_error_handler(http_request, tcp_conn, "Maximum number of redirects (HTTPServer::MAX_REDIRECTS) exceeded for requested resource");
+			return;
+		}
+		resource_requested = it->second;
+		it = m_redirects.find(resource_requested);
+	}
 
 	// if authentication activated, check current request
 	if (m_auth) {
@@ -116,6 +134,16 @@ void HTTPServer::addResource(const std::string& resource,
 	const std::string clean_resource(stripTrailingSlash(resource));
 	m_resources.insert(std::make_pair(clean_resource, request_handler));
 	PION_LOG_INFO(m_logger, "Added request handler for HTTP resource: " << clean_resource);
+}
+
+void HTTPServer::addRedirect(const std::string& requested_resource,
+							 const std::string& new_resource)
+{
+	boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+	const std::string clean_requested_resource(stripTrailingSlash(requested_resource));
+	const std::string clean_new_resource(stripTrailingSlash(new_resource));
+	m_redirects.insert(std::make_pair(clean_requested_resource, clean_new_resource));
+	PION_LOG_INFO(m_logger, "Added redirection for HTTP resource " << clean_requested_resource << " to resource " << clean_new_resource);
 }
 
 void HTTPServer::handleBadRequest(HTTPRequestPtr& http_request,

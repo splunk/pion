@@ -112,6 +112,14 @@ public:
 	 */
 	void addResource(const std::string& resource, RequestHandler request_handler);
 
+	/**
+	 * adds a new resource redirection to the HTTP server
+	 *
+	 * @param requested_resource the resource name or uri-stem that will be redirected
+	 * @param new_resource the resource that requested_resource will be redirected to
+	 */
+	void addRedirect(const std::string& requested_resource, const std::string& new_resource);
+
 	/// sets the function that handles bad HTTP requests
 	inline void setBadRequestHandler(RequestHandler h) { m_bad_request_handler = h; }
 	
@@ -203,13 +211,22 @@ protected:
 	
 		
 private:
-	
+
+	/// maximum number of redirections
+	static const unsigned int	MAX_REDIRECTS;
+
 	/// data type for a map of resources to request handlers
 	typedef std::map<std::string, RequestHandler>	ResourceMap;
-	
-	
+
+	/// data type for a map of requested resources to other resources
+	typedef std::map<std::string, std::string>		RedirectMap;
+
+
 	/// collection of resources that are recognized by this HTTP server
 	ResourceMap					m_resources;
+
+	/// collection of redirections from a requested resource to another resource
+	RedirectMap					m_redirects;
 
 	/// points to a function that handles bad HTTP requests
 	RequestHandler				m_bad_request_handler;
@@ -224,7 +241,7 @@ private:
 	mutable boost::mutex		m_resource_mutex;
 
 	/// pointer to authentication handler object
-	HTTPAuthPtr				 m_auth;
+	HTTPAuthPtr					m_auth;
 };
 
 

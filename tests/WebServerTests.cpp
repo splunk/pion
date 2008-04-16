@@ -424,6 +424,62 @@ BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
 	BOOST_CHECK(boost::regex_match(http_response.getContent(), post_content));
 }
 
+BOOST_AUTO_TEST_CASE(checkRedirectHelloServiceToEchoService) {
+	m_server.loadService("/hello", "HelloService");
+	m_server.loadService("/echo", "EchoService");
+	m_server.start();
+
+	// open a connection
+	tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream http_stream(http_endpoint);
+
+	// send a request to /hello and check that the response is from HelloService
+	checkWebServerResponseContent(http_stream, "/hello", boost::regex(".*Hello\\sWorld.*"));
+
+	m_server.addRedirect("/hello", "/echo");
+
+	// send a request to /hello and check that the response is from EchoService
+	checkWebServerResponseContent(http_stream, "/hello", boost::regex(".*\\[Request\\sEcho\\].*"));
+}
+
+BOOST_AUTO_TEST_CASE(checkRecursiveRedirect) {
+	m_server.loadService("/hello", "HelloService");
+	m_server.loadService("/echo", "EchoService");
+	m_server.loadService("/cookie", "CookieService");
+	m_server.start();
+
+	// open a connection
+	tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream http_stream(http_endpoint);
+
+	m_server.addRedirect("/hello", "/echo");
+	m_server.addRedirect("/echo", "/cookie");
+
+	// send a request to /hello and check that the response is from CookieService
+	checkWebServerResponseContent(http_stream, "/hello", boost::regex(".*<html>.*Cookie\\sService.*</html>.*"));
+}
+
+BOOST_AUTO_TEST_CASE(checkCircularRedirect) {
+	m_server.loadService("/hello", "HelloService");
+	m_server.loadService("/cookie", "CookieService");
+	m_server.loadService("/echo", "EchoService");
+	m_server.start();
+
+	// open a connection
+	tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream http_stream(http_endpoint);
+
+	// set up a circular set of redirects
+	m_server.addRedirect("/hello", "/echo");
+	m_server.addRedirect("/echo", "/cookie");
+	m_server.addRedirect("/cookie", "/hello");
+
+	// send request and check that server returns expected status code and error message
+	checkWebServerResponseContent(http_stream, "/hello",
+								  boost::regex(".*Maximum number of redirects.*exceeded.*"),
+								  HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
+}
+
 BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
 	m_server.loadService("/echo", "EchoService");
 	m_server.start();
@@ -603,7 +659,7 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceFailure) {
 	HTTPAuthPtr auth_ptr(new HTTPBasicAuth(userManager));
 	m_server.setAuthentication(auth_ptr);
 	auth_ptr->addRestrict("/auth");
-	auth_ptr->addUser("mike","123456");
+	auth_ptr->addUser("mike", "123456");
 	m_server.start();
 	
 	// open a connection
@@ -625,8 +681,8 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceFailure) {
 	http_response.receive(*tcp_conn, error_code);
 	BOOST_CHECK(!error_code);
 	
-	// check that the response is RESPONSE_MESSAGE_UNAUTHORIZED
-	BOOST_CHECK(http_response.getStatusCode() == 401);
+	// check that the response is RESPONSE_CODE_UNAUTHORIZED
+	BOOST_CHECK(http_response.getStatusCode() == HTTPTypes::RESPONSE_CODE_UNAUTHORIZED);
 	BOOST_CHECK(http_response.getContentLength() > 0);
 	
 	// check the post content of the request, by parsing it out of the post content of the response
@@ -640,7 +696,7 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceLogin) {
 	HTTPAuthPtr auth_ptr(new HTTPBasicAuth(userManager));
 	m_server.setAuthentication(auth_ptr);
 	auth_ptr->addRestrict("/auth");
-	auth_ptr->addUser("mike","123456");
+	auth_ptr->addUser("mike", "123456");
 	m_server.start();
 	
 	// open a connection
@@ -653,8 +709,8 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceLogin) {
 	HTTPRequestWriterPtr writer(HTTPRequestWriter::create(tcp_conn));
 	writer->getRequest().setMethod("POST");
 	writer->getRequest().setResource("/auth/something/somewhere");
-	// add an authentications for "mike:123456"
-	writer->getRequest().addHeader(HTTPTypes::HEADER_AUTHORIZATION,"Basic bWlrZToxMjM0NTY=");
+	// add an authentication for "mike:123456"
+	writer->getRequest().addHeader(HTTPTypes::HEADER_AUTHORIZATION, "Basic bWlrZToxMjM0NTY=");
 	
 	writer << "junk";
 	writer->send();
@@ -679,7 +735,7 @@ BOOST_AUTO_TEST_CASE(checkCookieAuthServiceFailure) {
 	HTTPAuthPtr auth_ptr(new HTTPCookieAuth(userManager));
 	m_server.setAuthentication(auth_ptr);
 	auth_ptr->addRestrict("/auth");
-	auth_ptr->addUser("mike","123456");
+	auth_ptr->addUser("mike", "123456");
 	m_server.start();
 
 	// open a connection
@@ -701,8 +757,8 @@ BOOST_AUTO_TEST_CASE(checkCookieAuthServiceFailure) {
 	http_response.receive(*tcp_conn, error_code);
 	BOOST_CHECK(!error_code);
 
-	// check that the response is RESPONSE_MESSAGE_UNAUTHORIZED
-	BOOST_CHECK(http_response.getStatusCode() == 401);
+	// check that the response is RESPONSE_CODE_UNAUTHORIZED
+	BOOST_CHECK(http_response.getStatusCode() == HTTPTypes::RESPONSE_CODE_UNAUTHORIZED);
 	BOOST_CHECK(http_response.getContentLength() > 0);
 
 	// check the post content of the request, by parsing it out of the post content of the response
@@ -716,7 +772,7 @@ BOOST_AUTO_TEST_CASE(checkCookieAuthServiceLogin) {
 	HTTPAuthPtr auth_ptr(new HTTPCookieAuth(userManager));
 	m_server.setAuthentication(auth_ptr);
 	auth_ptr->addRestrict("/auth");
-	auth_ptr->addUser("mike","123456");
+	auth_ptr->addUser("mike", "123456");
 	m_server.start();
 
 	// open a login connection
