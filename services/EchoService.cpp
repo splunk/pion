@@ -58,7 +58,10 @@ void EchoService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
 		<< "Request method: "
 		<< request->getMethod()
 		<< HTTPTypes::STRING_CRLF
-		<< "Resource requested: "
+		<< "Resource originally requested: "
+		<< request->getOriginalResource()
+		<< HTTPTypes::STRING_CRLF
+		<< "Resource delivered: "
 		<< request->getResource()
 		<< HTTPTypes::STRING_CRLF
 		<< "Query string: "

@@ -58,9 +58,12 @@ public:
 	/// returns the request method (i.e. GET, POST, PUT)
 	inline const std::string& getMethod(void) const { return m_method; }
 	
-	/// returns the resource uri-stem requested
+	/// returns the resource uri-stem to be delivered (possibly the result of a redirect)
 	inline const std::string& getResource(void) const { return m_resource; }
-	
+
+	/// returns the resource uri-stem originally requested
+	inline const std::string& getOriginalResource(void) const { return m_original_resource; }
+
 	/// returns the uri-query or query string requested
 	inline const std::string& getQueryString(void) const { return m_query_string; }
 	
@@ -100,9 +103,12 @@ public:
 	/// sets the HTTP request method (i.e. GET, POST, PUT)
 	inline void setMethod(const std::string& str) { m_method = str; }
 	
-	/// sets the resource or uri-stem requested
-	inline void setResource(const std::string& str) { m_resource = str; }
-	
+	/// sets the resource or uri-stem originally requested
+	inline void setResource(const std::string& str) { m_resource = m_original_resource = str; }
+
+	/// changes the resource or uri-stem to be delivered (called as the result of a redirect)
+	inline void changeResource(const std::string& str) { m_resource = str; }
+
 	/// sets the uri-query or query string requested
 	inline void setQueryString(const std::string& str) { m_query_string = str; }
 	
@@ -192,9 +198,12 @@ private:
 	/// request method (GET, POST, PUT, etc.)
 	std::string						m_method;
 
-	/// name of the resource being requested, or uri-stem
+	/// name of the resource or uri-stem to be delivered
 	std::string						m_resource;
-	
+
+	/// name of the resource or uri-stem originally requested
+	std::string						m_original_resource;
+
 	/// query string portion of the URI
 	std::string						m_query_string;
 	
@@ -205,7 +214,7 @@ private:
 	CookieParams					m_cookie_params;
 
 	/// pointer to PionUser record if this request had been authenticated 
-	PionUserPtr                     m_user_record;
+	PionUserPtr						m_user_record;
 };
 
 

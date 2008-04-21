@@ -50,11 +50,12 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 	int num_redirects = 0;
 	while (it != m_redirects.end()) {
 		if (++num_redirects > MAX_REDIRECTS) {
-			PION_LOG_ERROR(m_logger, "Maximum number of redirects (HTTPServer::MAX_REDIRECTS) exceeded for requested resource: " << http_request->getResource());
+			PION_LOG_ERROR(m_logger, "Maximum number of redirects (HTTPServer::MAX_REDIRECTS) exceeded for requested resource: " << http_request->getOriginalResource());
 			m_server_error_handler(http_request, tcp_conn, "Maximum number of redirects (HTTPServer::MAX_REDIRECTS) exceeded for requested resource");
 			return;
 		}
 		resource_requested = it->second;
+		http_request->changeResource(resource_requested);
 		it = m_redirects.find(resource_requested);
 	}
 
@@ -65,6 +66,9 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 			// the HTTP 401 message has already been sent by the authentication object
 			PION_LOG_DEBUG(m_logger, "Authentication required for HTTP resource: "
 				<< resource_requested);
+			if (http_request->getResource() != http_request->getOriginalResource()) {
+				PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request->getOriginalResource());
+			}
 			return;
 		}
 	}
@@ -78,6 +82,9 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 			request_handler(http_request, tcp_conn);
 			PION_LOG_DEBUG(m_logger, "Found request handler for HTTP resource: "
 						   << resource_requested);
+			if (http_request->getResource() != http_request->getOriginalResource()) {
+				PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request->getOriginalResource());
+			}
 		} catch (HTTPResponseWriter::LostConnectionException& e) {
 			// the connection was lost while or before sending the response
 			PION_LOG_WARN(m_logger, "HTTP request handler: " << e.what());
@@ -97,6 +104,9 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 		// no web services found that could handle the request
 		PION_LOG_INFO(m_logger, "No HTTP request handlers found for resource: "
 					  << resource_requested);
+		if (http_request->getResource() != http_request->getOriginalResource()) {
+			PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request->getOriginalResource());
+		}
 		m_not_found_handler(http_request, tcp_conn);
 	}
 }

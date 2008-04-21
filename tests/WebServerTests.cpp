@@ -442,6 +442,22 @@ BOOST_AUTO_TEST_CASE(checkRedirectHelloServiceToEchoService) {
 	checkWebServerResponseContent(http_stream, "/hello", boost::regex(".*\\[Request\\sEcho\\].*"));
 }
 
+BOOST_AUTO_TEST_CASE(checkOriginalResourceAvailableAfterRedirect) {
+	m_server.loadService("/hello", "HelloService");
+	m_server.loadService("/echo", "EchoService");
+	m_server.start();
+
+	// open a connection
+	tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream http_stream(http_endpoint);
+
+	m_server.addRedirect("/hello", "/echo");
+
+	// send a request to /hello and check the reported values of the original resource and the delivered resource
+	boost::regex regex_expected_content(".*Resource\\soriginally\\srequested:\\s/hello.*Resource\\sdelivered:\\s/echo.*");
+	checkWebServerResponseContent(http_stream, "/hello", regex_expected_content);
+}
+
 BOOST_AUTO_TEST_CASE(checkRecursiveRedirect) {
 	m_server.loadService("/hello", "HelloService");
 	m_server.loadService("/echo", "EchoService");
