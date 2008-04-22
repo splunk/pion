@@ -47,7 +47,7 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 
 	// apply any redirection
 	RedirectMap::const_iterator it = m_redirects.find(resource_requested);
-	int num_redirects = 0;
+	unsigned int num_redirects = 0;
 	while (it != m_redirects.end()) {
 		if (++num_redirects > MAX_REDIRECTS) {
 			PION_LOG_ERROR(m_logger, "Maximum number of redirects (HTTPServer::MAX_REDIRECTS) exceeded for requested resource: " << http_request->getOriginalResource());
