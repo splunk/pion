@@ -237,11 +237,29 @@ AC_MSG_RESULT($BOOST_LIB_EXTENSION)
 AC_SUBST(BOOST_LIB_EXTENSION)
 
 
+# Check for Boost Date Time library
+BOOST_TRY_LIB=date_time
+BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
+LIBS_SAVED="$LIBS"
+LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
+AC_TRY_LINK([#include <boost/date_time/gregorian/greg_date.hpp>],
+	[ boost::gregorian::date d(2007, 11, 11); return 0; ],
+	[ AC_MSG_RESULT(ok)
+	  BOOST_DATE_TIME_LIB="-l${BOOST_TRY_LINK}"
+	],
+	[ AC_MSG_RESULT(not found)
+	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+	])
+LIBS="$LIBS_SAVED"
+AC_SUBST(BOOST_DATE_TIME_LIB)
+
+
 # Check for Boost Thread library
 BOOST_TRY_LIB=thread
 BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
-LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK} ${BOOST_DATE_TIME_LIB}"
 AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
 AC_TRY_LINK([#include <boost/thread/thread.hpp>],
 	[ boost::thread current_thread; return 0; ],
@@ -307,24 +325,6 @@ AC_TRY_LINK([#include <boost/regex.hpp>],
 	])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_REGEX_LIB)
-
-
-# Check for Boost Date Time library
-BOOST_TRY_LIB=date_time
-BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
-LIBS_SAVED="$LIBS"
-LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
-AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
-AC_TRY_LINK([#include <boost/date_time/gregorian/greg_date.hpp>],
-	[ boost::gregorian::date d(2007, 11, 11); return 0; ],
-	[ AC_MSG_RESULT(ok)
-	  BOOST_DATE_TIME_LIB="-l${BOOST_TRY_LINK}"
-	],
-	[ AC_MSG_RESULT(not found)
-	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
-	])
-LIBS="$LIBS_SAVED"
-AC_SUBST(BOOST_DATE_TIME_LIB)
 
 
 # Check for Boost Signals library
