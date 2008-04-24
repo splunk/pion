@@ -121,7 +121,7 @@ bool HTTPCookieAuth::processLogin(HTTPRequestPtr& http_request, TCPConnectionPtr
 		PionUserPtr user=m_user_manager->getUser(username,password);
 		if (!user) { // authentication failed, process as in case of failed authentication...
 			handleUnauthorized(http_request,tcp_conn);
-			return false;
+			return true;
 		}
 		// ok we have a new user session, create  a new cookie, add to cache
 
