@@ -63,7 +63,7 @@ public:
 			return ::malloc(n);
 		FixedSizeAlloc *pool_ptr = getPool(n); 
 		boost::unique_lock<boost::mutex> pool_lock(pool_ptr->m_mutex);
-		return getPool(n)->m_pool.malloc();
+		return pool_ptr->m_pool.malloc();
 	}
 
 	/**
@@ -75,11 +75,13 @@ public:
 	inline void free(void *ptr, std::size_t n)
 	{
 		// check for size greater than MaxSize
-		if (n > MaxSize)
-			return ::free(ptr);
+		if (n > MaxSize) {
+			::free(ptr);
+			return;
+		}
 		FixedSizeAlloc *pool_ptr = getPool(n); 
 		boost::unique_lock<boost::mutex> pool_lock(pool_ptr->m_mutex);
-		return getPool(n)->m_pool.free(ptr);
+		return pool_ptr->m_pool.free(ptr);
 	}
 	
 	/**
@@ -89,7 +91,7 @@ public:
 	 */
 	inline bool release_memory(void)
 	{
-		bool result;
+		bool result = false;
 		for (std::size_t n = 0; n < NumberOfAllocs; ++n) {
 			boost::unique_lock<boost::mutex> pool_lock(m_pools[n]->m_mutex);
 			if (m_pools[n]->m_pool.release_memory())
