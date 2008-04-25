@@ -90,7 +90,7 @@ public:
 		m_password.clear();
 		char buf[3];
 		for (unsigned int n = 0; n < SHA_DIGEST_LENGTH; ++n) {
-			sprintf(buf, "%2x", static_cast<unsigned int>(m_password_hash[n]));
+			sprintf(buf, "%.2x", static_cast<unsigned int>(m_password_hash[n]));
 			m_password += buf;
 		}
 #else

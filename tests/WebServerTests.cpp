@@ -669,6 +669,23 @@ BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
 	checkWebServerResponseContent(http_stream, "/doc/index.html" , doc_index_regex);
 }
 
+BOOST_AUTO_TEST_CASE(checkPionUserPasswordSanity) {
+	const std::string clear_pw("deadmeat");
+	PionUser u("test-user");
+	u.setPassword(clear_pw);
+	BOOST_CHECK(u.matchPassword(clear_pw));
+
+#ifdef PION_HAVE_SSL
+	std::string encrypted_pw = u.getPassword();
+	BOOST_CHECK_EQUAL(encrypted_pw.size(), static_cast<unsigned int>(SHA_DIGEST_LENGTH * 2));
+	BOOST_CHECK(clear_pw != encrypted_pw);
+	
+	u.setPasswordHash(encrypted_pw);
+	BOOST_CHECK_EQUAL(encrypted_pw, u.getPassword());	// should still be identical
+	BOOST_CHECK(u.matchPassword(clear_pw));
+#endif
+}
+
 BOOST_AUTO_TEST_CASE(checkBasicAuthServiceFailure) {
 	m_server.loadService("/auth", "EchoService");
 	PionUserManagerPtr userManager(new PionUserManager());

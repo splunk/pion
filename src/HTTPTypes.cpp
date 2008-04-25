@@ -268,7 +268,7 @@ std::string HTTPTypes::url_encode(const std::string& str)
 		case '>': case '#': case '%': case '{': case '}': case '|':
 		case '\\': case '^': case '~': case '[': case ']': case '`':
 			// the character needs to be encoded
-			sprintf(encode_buf+1, "%2X", str[pos]);
+			sprintf(encode_buf+1, "%.2X", str[pos]);
 			result += encode_buf;
 			break;
 		}
