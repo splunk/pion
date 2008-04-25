@@ -13,6 +13,7 @@
 #include <boost/array.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/static_assert.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionScheduler.hpp>
 #ifdef _MSC_VER
@@ -33,13 +34,17 @@ namespace pion {	// begin namespace pion
 
 
 ///
-/// PionLockFreeQueue: a FIFO queue that is thread-safe, lock-free and uses fixed memory
+/// PionLockFreeQueue: a FIFO queue that is thread-safe, lock-free and uses fixed memory.
+///                    WARNING: T::operator=() must be thread safe!
 /// 
 template <typename T, boost::uint16_t MaxSize = 50000, boost::uint32_t SleepNanoSec = 100000>
 class PionLockFreeQueue :
 	private boost::noncopyable
 {
-protected:	
+protected:
+
+	/// make sure that the type used for CAS is at least as large as our structure
+	BOOST_STATIC_ASSERT(sizeof(apr_uint32_t) >= (sizeof(boost::uint16_t) * 2));
 
 	/// an object used to point to a QueueNode
 	union QueueNodePtr {
@@ -51,7 +56,7 @@ protected:
 			boost::uint16_t		counter;
 		} data;
 		/// the 32-bit value of the QueueNode object, used for CAS operations
-		apr_uint32_t			value;
+		apr_uint32_t	value;
 	};	
 
 	/// an object used to wrap each item in the queue
@@ -72,7 +77,7 @@ protected:
 	 * @return QueueNode& reference to the QueueNode object
 	 */
 	inline QueueNode& getQueueNode(QueueNodePtr node_ptr) {
-		return m_index_table[node_ptr.data.index];
+		return m_nodes[node_ptr.data.index];
 	}
 	
 	/**
@@ -92,66 +97,62 @@ protected:
 		new_value.data.counter = old_ptr.data.counter + 1;
 		return (apr_atomic_cas32(&(cur_ptr.value), new_value.value, old_ptr.value) == old_ptr.value);
 	}
-
+	
 	/// returns the index position for a QueueNode that is available for use (may block)
 	inline boost::uint16_t acquireNode(void) {
-		QueueNodePtr	current_idx_ptr;
-		boost::uint16_t	new_index;
-		boost::uint16_t	result_index;
+		QueueNodePtr	current_free_ptr;
+		boost::uint16_t	new_free_index;
+		boost::uint16_t	avail_index;
 
 		while (true) {
 			while (true) {
-				// get current avail_index value
-				current_idx_ptr.value = m_avail_index.value;
-				// sleep if current avail_index value == 0
-				if (current_idx_ptr.data.index > 0)
+				// get current free_ptr value
+				current_free_ptr.value = m_free_ptr.value;
+				// sleep if current free_ptr value == 0
+				if (current_free_ptr.data.index > 0)
 					break;
 				PionScheduler::sleep(0, SleepNanoSec);
 			}
-			
-			// prepare what will become the new avail_index value
-			new_index = current_idx_ptr.value - 1;
-			
-			// fetch the result value optimistically
-			result_index = m_nodes_avail[new_index].data.index;
 
-			// use cas operation to update avail_index value
-			if (cas(m_avail_index, current_idx_ptr, new_index))
+			// prepare what will become the new free_ptr index value
+			new_free_index = current_free_ptr.data.index - 1;
+			
+			// optimisticly get the next available node index
+			avail_index = m_free_nodes[new_free_index];
+
+			// use cas operation to update free_ptr value
+			if (avail_index != 0
+				&& cas(m_free_ptr, current_free_ptr, new_free_index))
+			{
+				m_free_nodes[new_free_index] = 0;
 				break;	// cas successful - all done!
+			}
 		}
 		
-		return result_index;
+		return avail_index;
 	}
 
 	/// releases a QueueNode that is no longer in use
 	inline void releaseNode(const boost::uint16_t node_index) {
-		QueueNodePtr	current_idx_ptr;
-		QueueNodePtr	current_node_ptr;
-		
+		QueueNodePtr	current_free_ptr;
+		boost::uint16_t	new_free_index;
+
 		while (true) {
-			while (true) {
-				// get current avail_index value
-				current_idx_ptr.value = m_avail_index.value;
-				// sleep until current avail_index value is < MaxSize
-				if (current_idx_ptr.data.index < MaxSize)
-					break;
-				// this should never be possible
-				PION_ASSERT(false);
-			};
+			// get current free_ptr value
+			current_free_ptr.value = m_free_ptr.value;
 
-			// get value for the next available index position
-			current_node_ptr.value = m_nodes_avail[current_idx_ptr.data.index].value;
+			// prepare what will become the new free_ptr index value
+			new_free_index = current_free_ptr.data.index + 1;
 
-			// re-check current avail_index to avoid unnecessary cas calls
-			if (current_idx_ptr.value == m_avail_index.value) {
-				// use cas operation to optimistically assign the new node_index value
-				if (cas(m_nodes_avail[current_idx_ptr.data.index],
-					current_node_ptr, node_index))
-				{
-					// use cas operation to update avail_index value
-					if (cas(m_avail_index, current_idx_ptr, current_idx_ptr.data.index + 1))
-						break;	// both cas were successful - all done!
-				}
+			// use cas operation to update free_ptr value
+			if (m_free_nodes[current_free_ptr.data.index] == 0
+				&& cas(m_free_ptr, current_free_ptr, new_free_index))
+			{
+				// push the available index value into the next free position
+				m_free_nodes[current_free_ptr.data.index] = node_index;
+				
+				// all done!
+				break;
 			}
 		}
 	}
@@ -159,33 +160,33 @@ protected:
 
 public:
 
+	/// virtual destructor
+	virtual ~PionLockFreeQueue() {}
+
 	/// constructs a new PionLockFreeQueue
 	PionLockFreeQueue(void)
 	{
 		// point head and tail to the node at index 1 (0 is reserved for NULL)
 		m_head_ptr.data.index = m_tail_ptr.data.index = 1;
 		m_head_ptr.data.counter = m_tail_ptr.data.counter = 0;
-		// initialize avail_index to zero
-		m_avail_index.value = 0;
-		// initialize nodes_avil to zero
+		// initialize free_ptr to zero
+		m_free_ptr.value = 0;
+		// initialize free_nodes to zero
 		for (boost::uint16_t n = 0; n < MaxSize; ++n)
-			m_nodes_avail[n].value = 0;
+			m_free_nodes[n] = 0;
 		// initialize next values to zero
 		for (boost::uint16_t n = 0; n < MaxSize+2; ++n)
-			m_index_table[n].m_next.value = 0;
+			m_nodes[n].m_next.value = 0;
 		// push everything but the first two nodes into the available stack
 		for (boost::uint16_t n = 2; n < MaxSize+2; ++n)
 			releaseNode(n);
 	}
 	
-	/// virtual destructor
-	virtual ~PionLockFreeQueue() {}
-		
-	/// returns the number of items that are currently in the queue
-	inline boost::uint16_t size(void) const { return m_avail_index.data.index; }
-	
 	/// returns true if the queue is empty; false if it is not
-	inline bool is_empty(void) const { return m_avail_index.data.index == 0; }
+	inline bool empty(void) const { return m_free_ptr.data.index == 0; }
+
+	/// returns the number of items that are currently in the queue
+	inline boost::uint16_t size(void) const { return m_free_ptr.data.index; }
 	
 	/**
 	 * pushes a new item into the back of the queue
@@ -197,7 +198,7 @@ public:
 		const boost::uint16_t node_index(acquireNode());
 
 		// prepare it to be added to the list
-		QueueNode& node_ref = m_index_table[node_index];
+		QueueNode& node_ref = m_nodes[node_index];
 		node_ref.m_data = t;
 		node_ref.m_next.data.index = 0;
 
@@ -272,10 +273,10 @@ public:
 private:
 	
 	/// lookup table that maps uint16 index numbers to QueueNode pointers
-	boost::array<QueueNode, MaxSize+2>		m_index_table;
+	boost::array<QueueNode, MaxSize+2>		m_nodes;
 	
 	/// keeps track of all the QueueNode objects that are available for use
-	boost::array<QueueNodePtr, MaxSize>		m_nodes_avail;
+	boost::array<volatile boost::uint16_t, MaxSize>	m_free_nodes;
 	
 	/// pointer to the first item in the list
 	volatile QueueNodePtr					m_head_ptr;
@@ -284,7 +285,7 @@ private:
 	volatile QueueNodePtr					m_tail_ptr;
 
 	/// index pointer to the next QueueNode object that is available for use
-	volatile QueueNodePtr					m_avail_index;
+	volatile QueueNodePtr					m_free_ptr;
 };
 
 
