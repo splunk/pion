@@ -85,14 +85,12 @@ public:
 #ifdef PION_HAVE_SSL
 		// store encrypted hash value
 		SHA1((const unsigned char *)password.data(), password.size(), m_password_hash);
-		m_password_hash[SHA_DIGEST_LENGTH] = '\0';
 
 		// update password string (convert binary to hex)
 		m_password.clear();
 		char buf[3];
-		buf[2] = '\0';
 		for (unsigned int n = 0; n < SHA_DIGEST_LENGTH; ++n) {
-			sprintf(buf, "%2X", static_cast<unsigned int>(m_password_hash[n]));
+			sprintf(buf, "%2x", static_cast<unsigned int>(m_password_hash[n]));
 			m_password += buf;
 		}
 #else

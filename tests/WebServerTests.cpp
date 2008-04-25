@@ -43,7 +43,7 @@ PION_DECLARE_PLUGIN(CookieService)
 #if defined(PION_XCODE)
 	static const std::string PATH_TO_PLUGINS(".");
 	static const std::string SSL_PEM_FILE("../../net/utils/sslkey.pem");
-	static const std::string SERVICES_CONFIG_FILE("../../net/utils/xcodeservices.conf");
+	static const std::string SERVICES_CONFIG_FILE("../../net/utils/testservices.conf");
 #else
 	// same for Unix and Windows
 	static const std::string PATH_TO_PLUGINS("../services/.libs");
