@@ -16,6 +16,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
+#include <pion/PionConfig.hpp>
+#include <pion/PionException.hpp>
 
 #ifdef PION_HAVE_SSL
     #include <openssl/sha.h>
@@ -33,6 +35,20 @@ class PionUser :
 {
 public:
 
+	/// exception thrown if a bad password hash is given to setPasswordHash()
+	class BadPasswordHash : public std::exception {
+	public:
+		virtual const char* what() const throw() {
+			return "Invalid password hash provided";
+		}
+	};
+
+
+	/// construct a new PionUser object
+	PionUser(std::string const &username) :
+		m_username(username)
+	{}
+	
 	/// construct a new PionUser object
 	PionUser(std::string const &username, std::string const &password) :
 		m_username(username)
@@ -45,6 +61,9 @@ public:
 	
 	/// returns user name as a string
 	std::string const & getUsername() const { return m_username; }
+	
+	/// returns password for the user (encrypted if SSL is enabled)
+	std::string const & getPassword() const { return m_password; }
 	
 	/**
 	 * matches password credential for given user
@@ -64,23 +83,58 @@ public:
 	/// sets password credentials for given user
 	virtual void setPassword(const std::string& password) { 
 #ifdef PION_HAVE_SSL
+		// store encrypted hash value
 		SHA1((const unsigned char *)password.data(), password.size(), m_password_hash);
+		m_password_hash[SHA_DIGEST_LENGTH] = '\0';
+
+		// update password string (convert binary to hex)
+		m_password.clear();
+		char buf[3];
+		buf[2] = '\0';
+		for (unsigned int n = 0; n < SHA_DIGEST_LENGTH; ++n) {
+			sprintf(buf, "%2X", static_cast<unsigned int>(m_password_hash[n]));
+			m_password += buf;
+		}
 #else
 		m_password = password; 
 #endif
 	}
+
+#ifdef PION_HAVE_SSL
+	/// sets encrypted password credentials for given user
+	virtual void setPasswordHash(const std::string& password_hash) {
+		// update password string representation
+		if (password_hash.size() != SHA_DIGEST_LENGTH*2)
+			throw BadPasswordHash();
+		m_password = password_hash;
+
+		// convert string from hex to binary value
+		char buf[3];
+		buf[2] = '\0';
+		unsigned int hash_pos = 0;
+		std::string::iterator str_it = m_password.begin();
+		while (str_it != m_password.end()) {
+			buf[0] = *str_it;
+			++str_it;
+			buf[1] = *str_it;
+			++str_it;
+			m_password_hash[hash_pos++] = strtoul(buf, 0, 16);
+		}
+	}
+#endif
+
 	
 protected:
 
 	/// username string
 	const std::string   m_username;
 	
+	/// password string (actual contents depends on implementation)
+	std::string         m_password;
+
 #ifdef PION_HAVE_SSL
 	/// SHA1 hash of the password
 	unsigned char       m_password_hash[SHA_DIGEST_LENGTH];
-#else
-	/// password string (actual contents depends on implementation)
-	std::string         m_password;
 #endif
 };
 
@@ -103,16 +157,21 @@ public:
 	virtual ~PionUserManager() {}
 	
 	/**
-	 * used to add a new user
+	 * used to add a new user with plaintext password
+	 *
+	 * @param username name or identifier of the user to add
+	 * @param password plaintext password of the user to add
 	 *
 	 * @return false if user with such a name already exists
 	 */
-	virtual bool addUser(const std::string &username, const std::string &password) {
+	virtual bool addUser(const std::string &username,
+		const std::string &password)
+	{
 		boost::mutex::scoped_lock lock(m_mutex);
 		UserMap::iterator i = m_users.find(username);
 		if (i!=m_users.end())
 			return false;
-		PionUserPtr user(new PionUser(username,password));
+		PionUserPtr user(new PionUser(username, password));
 		m_users.insert(std::make_pair(username, user));
 		return true;
 	}
@@ -120,9 +179,14 @@ public:
 	/**
 	 * update password for given user
 	 *
+	 * @param username name or identifier of the user to update
+	 * @param password plaintext password of the user to update
+	 *
 	 * @return false if user with such a name doesn't exist
 	 */
-	virtual bool updateUser(const std::string &username, const std::string &password) {
+	virtual bool updateUser(const std::string &username,
+		const std::string &password)
+	{
 		boost::mutex::scoped_lock lock(m_mutex);
 		UserMap::iterator i = m_users.find(username);
 		if (i==m_users.end())
@@ -130,6 +194,48 @@ public:
 		i->second->setPassword(password);
 		return true;
 	}
+
+#ifdef PION_HAVE_SSL
+	/**
+	 * used to add a new user with encrypted password
+	 *
+	 * @param username name or identifier of the user to add
+	 * @param password_hash encrypted password of the user to add
+	 *
+	 * @return false if user with such a name already exists
+	 */
+	virtual bool addUserHash(const std::string &username,
+		const std::string &password_hash)
+	{
+		boost::mutex::scoped_lock lock(m_mutex);
+		UserMap::iterator i = m_users.find(username);
+		if (i!=m_users.end())
+			return false;
+		PionUserPtr user(new PionUser(username));
+		user->setPasswordHash(password_hash);
+		m_users.insert(std::make_pair(username, user));
+		return true;
+	}
+	
+	/**
+	 * update password for given user with encrypted password
+	 *
+	 * @param username name or identifier of the user to update
+	 * @param password_hash encrypted password of the user to update
+	 *
+	 * @return false if user with such a name doesn't exist
+	 */
+	virtual bool updateUserHash(const std::string &username,
+		const std::string &password_hash)
+	{
+		boost::mutex::scoped_lock lock(m_mutex);
+		UserMap::iterator i = m_users.find(username);
+		if (i==m_users.end())
+			return false;
+		i->second->setPasswordHash(password_hash);
+		return true;
+	}
+#endif
 
 	/**
 	 * used to remove given user 
