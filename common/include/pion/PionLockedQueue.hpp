@@ -10,12 +10,17 @@
 #ifndef __PION_PIONLOCKEDQUEUE_HEADER__
 #define __PION_PIONLOCKEDQUEUE_HEADER__
 
+#include <new>
 #include <boost/cstdint.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/pool/pool.hpp>
+#include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 #include <boost/detail/atomic_count.hpp>
 #include <pion/PionConfig.hpp>
-#include <pion/PionScheduler.hpp>
+#include <pion/PionException.hpp>
+#include <pion/PionPoolAllocator.hpp>
 
 
 // NOTE: the data structures contained in this file are based upon algorithms
@@ -25,47 +30,132 @@
 // See http://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf
 
 
+/// the following enables the PionLockedQueue to use an allocator class for
+/// node item memory operations; otherwise, it will use new/delete
+//#define PION_LOCKEDQUEUE_USE_ALLOCATOR
+
+
 namespace pion {	// begin namespace pion
 
 
 ///
 /// PionLockedQueue: a thread-safe, two-lock concurrent FIFO queue
 /// 
-template <typename T, boost::uint32_t MaxSize = 250000, boost::uint32_t SleepNanoSec = 10000000>
+template <typename T,
+	boost::uint32_t MaxSize = 250000,
+	boost::uint32_t SleepMilliSec = 10,
+	typename AllocatorType = pion::PionPoolAllocator<> >
 class PionLockedQueue :
 	private boost::noncopyable
 {
+protected:
+
+	/// data structure used to wrap each item in the queue
+	struct QueueNode {
+		T		data;		//< data wrapped by the node item
+		QueueNode *	next;		//< points to the next node in the queue
+		boost::uint32_t	version;	//< the node item's version number
+	};
+
+	/// returns a new queue node item for use in the queue
+	inline QueueNode *createNode(void) {
+#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
+		void *mem_ptr = m_alloc.malloc(sizeof(QueueNode));
+		if (mem_ptr == NULL)
+			throw std::bad_alloc();
+		return new (mem_ptr) QueueNode();
+#else
+		return new QueueNode();
+#endif
+	}
+
+	/// frees memory for an existing queue node item
+	inline void destroyNode(QueueNode *node_ptr) {
+#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
+		node_ptr->~QueueNode();
+		m_alloc.free(node_ptr, sizeof(QueueNode));
+#else
+		delete node_ptr;
+#endif
+	}
+	
+	/**
+	 * dequeues the next item from the top of the queue
+	 *
+	 * @param t assigned to the item at the top of the queue, if it is not empty
+	 *
+	 * @return boost::uint32_t version number of the item retrieved; zero if none
+	 */
+	inline boost::uint32_t dequeue(T& t) {
+		// just return if the list is empty
+		boost::mutex::scoped_lock head_lock(m_head_mutex);
+		QueueNode *new_head_ptr = m_head_ptr->next;
+		if (! new_head_ptr)
+			return 0;
+
+		// get a copy of the item at the head of the list
+		boost::uint32_t version = new_head_ptr->version;
+		t = new_head_ptr->data;
+
+		// update the pointer to the head of the list
+		QueueNode *old_head_ptr = m_head_ptr;
+		m_head_ptr = new_head_ptr;
+		head_lock.unlock();
+
+		// free the QueueNode for the old head of the list
+		destroyNode(old_head_ptr);
+
+		// only track size if MaxSize > 0
+		if (MaxSize > 0)
+			--m_size;
+
+		// item successfully dequeued
+		return version;
+	}
+
+
 public:
+
+	/// data structure used to manage idle thread signaling
+	struct IdleThreadInfo {
+		boost::condition	wakeup_event;	//< triggered when a new item is available
+		IdleThreadInfo *	next;		//< pointer to the next idle thread
+	};
+
 
 	/// constructs a new PionLockedQueue
 	PionLockedQueue(void)
-		: m_head_ptr(NULL), m_tail_ptr(NULL), m_size(0)
+		: m_head_ptr(NULL), m_tail_ptr(NULL), m_idle_ptr(NULL),
+		m_next_version(1), m_size(0)
 	{
 		// initialize with a dummy node since m_head_ptr is always 
 		// pointing to the item before the head of the list
-		m_head_ptr = m_tail_ptr = new QueueNode();
+		m_head_ptr = m_tail_ptr = createNode();
+		m_head_ptr->next = NULL;
+		m_head_ptr->version = 0;
 	}
 	
 	/// virtual destructor
 	virtual ~PionLockedQueue() { clear(); }
 	
-	/// returns the number of items that are currently in the queue
-	inline boost::uint32_t size(void) const { return m_size; }
-	
 	/// returns true if the queue is empty; false if it is not
-	inline bool is_empty(void) const {
-		boost::mutex::scoped_lock head_lock(m_head_mutex);
-		return (m_head_ptr->next() != NULL);
+	inline bool empty(void) const { return (m_head_ptr->next == NULL); }
+	
+	/// returns the number of items that are currently in the queue
+	std::size_t size(void) const {
+		// only enable size() if MaxSize > 0
+		PION_ASSERT(MaxSize > 0);
+		return m_size;
 	}
 	
 	/// clears the list by removing all remaining items
-	inline void clear(void) {
+	void clear(void) {
 		boost::mutex::scoped_lock tail_lock(m_tail_mutex);
 		boost::mutex::scoped_lock head_lock(m_head_mutex);
-		while (m_head_ptr->next()) {
+		while (m_head_ptr->next) {
 			m_tail_ptr = m_head_ptr;
-			m_head_ptr = m_head_ptr->next();
-			delete m_tail_ptr;
+			m_head_ptr = m_head_ptr->next;
+			destroyNode(m_tail_ptr);
 		}
 		m_tail_ptr = m_head_ptr;
 	}
@@ -75,23 +165,70 @@ public:
 	 *
 	 * @param t the item to add to the back of the queue
 	 */
-	inline void push(T& t) {
-		// sleep MaxSize is exceeded
+	void push(T& t) {
+		// sleep while MaxSize is exceeded
 		if (MaxSize > 0) {
-			while (size() >= MaxSize)
-				PionScheduler::sleep(0, SleepNanoSec);
+			boost::system_time wakeup_time;
+			while (size() >= MaxSize) {
+				wakeup_time = boost::get_system_time()
+					+ boost::posix_time::millisec(SleepMilliSec);
+				boost::thread::sleep(wakeup_time);
+			}
 		}
+
 		// create a new list node for the queue item
-		QueueNode *node_ptr(new QueueNode(t));
-		boost::mutex::scoped_lock tail_lock(m_tail_mutex);
+		QueueNode *node_ptr = createNode();
+		node_ptr->data = t;
+		node_ptr->next = NULL;
+		node_ptr->version = 0;
+
 		// append node to the end of the list
-		m_tail_ptr->next(node_ptr);
+		boost::mutex::scoped_lock tail_lock(m_tail_mutex);
+		node_ptr->version = (m_next_version += 2);
+		m_tail_ptr->next = node_ptr;
+
 		// update the tail pointer for the new node
 		m_tail_ptr = node_ptr;
-		tail_lock.unlock();
-		++m_size;
+
+		// only track size if MaxSize > 0
+		if (MaxSize > 0)
+			++m_size;
+
+		// wake up an idle thread (if any)
+		if (m_idle_ptr) {
+			IdleThreadInfo *idle_ptr = m_idle_ptr;
+			m_idle_ptr = m_idle_ptr->next;
+			idle_ptr->wakeup_event.notify_one();
+		}
 	}
 	
+	/**
+	 * pops the next item from the top of the queue.  this may cause the calling
+	 * thread to sleep until an item is available, and will only return when an
+	 * item has been successfully retrieved.
+	 *
+	 * @param t assigned to the item at the top of the queue
+	 * @param thread_info IdleThreadInfo object used to manage the thread
+	 */
+	void pop(T& t, IdleThreadInfo& thread_info) {
+		boost::uint32_t last_known_version;
+		while (true) {
+			// try to get the next value
+			if ( (last_known_version = dequeue(t)) )
+				break;	// got an item
+
+			// queue is empty
+			boost::mutex::scoped_lock tail_lock(m_tail_mutex);
+			if (m_tail_ptr->version == last_known_version) {
+				// still empty after acquiring lock
+				thread_info.next = m_idle_ptr;
+				m_idle_ptr = & thread_info;
+				// wait for an item to become available
+				thread_info.wakeup_event.wait(tail_lock);
+			}
+		}
+	}
+
 	/**
 	 * pops the next item from the top of the queue
 	 *
@@ -99,71 +236,31 @@ public:
 	 *
 	 * @return true if an item was retrieved, false if the queue is empty
 	 */
-	inline bool pop(T& t) {
-		boost::mutex::scoped_lock head_lock(m_head_mutex);
-		// throw if the list is empty
-		if (m_head_ptr->next() == NULL)
-			return false;
-		// get a copy of the item at the head of the list
-		t = m_head_ptr->next()->data();
-		// update the pointer to the head of the list
-		QueueNode *old_head_ptr(m_head_ptr);
-		m_head_ptr = m_head_ptr->next();
-		head_lock.unlock();
-		// free the QueueNode for the old head of the list
-		delete old_head_ptr;
-		// item successfully retrieved
-		--m_size;
-		return true;
-	}
+	inline bool pop(T& t) { return dequeue(t); }
 	
 
 private:
-	
-	///
-	/// QueueNode: an object used to wrap each item in the queue
-	/// 
-	class QueueNode :
-		private boost::noncopyable
-	{
-	public:
-	
-		/// default constructor used for base QueueNode
-		QueueNode(void) : m_next(NULL) {}
-		
-		/// constructs a QueueNode object
-		QueueNode(T& t) : m_data(t), m_next(NULL) {}
-		
-		/// sets the next pointer for the node
-		inline void next(QueueNode *ptr) { m_next = ptr; }
-		
-		/// returns a pointer to the next node in the list
-		inline QueueNode *next(void) { return m_next; }
 
-		/// returns a reference to the data wrapped by the node
-		inline const T& data(void) const { return m_data; }
-
-	private:
-	
-		/// the data wrapped by the node object
-		T				m_data;
-		
-		/// points to the next node in the list
-		QueueNode *		m_next;
-	};
-
-	
 	/// mutex used to protect the head pointer to the first item
 	boost::mutex					m_head_mutex;
 
 	/// mutex used to protect the tail pointer to the last item
 	boost::mutex					m_tail_mutex;
+
+	/// allocator used to manage memory for node items
+	AllocatorType					m_alloc;
 	
 	/// pointer to the first item in the list
 	QueueNode *						m_head_ptr;
 
 	/// pointer to the last item in the list
 	QueueNode *						m_tail_ptr;
+
+	/// pointer to a list of idle threads waiting for work
+	IdleThreadInfo *				m_idle_ptr;
+
+	/// value of the next tail version number
+	boost::uint32_t					m_next_version;
 	
 	/// used to keep track of the number of items in the queue
 	boost::detail::atomic_count		m_size;
