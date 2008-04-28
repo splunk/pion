@@ -385,6 +385,16 @@ AC_SUBST(PION_TESTS_MAKEDIRS)
 AC_SUBST(PION_TESTS_CPPFLAGS)
 
 
+# Check for boost::lockfree library
+AC_MSG_CHECKING([for boost::lockfree library])
+AC_TRY_LINK([#include <boost/lockfree/tagged_ptr.hpp>],
+	[ boost::lockfree::tagged_ptr<int> ptr; return 0; ],
+	[ AC_MSG_RESULT(ok)
+	  AC_DEFINE([PION_HAVE_LOCKFREE],[1],[Define to 1 if you have the `boost.lockfree' library.])
+	],
+	[ AC_MSG_RESULT(not found) ])
+
+
 # Check for logging support
 AC_ARG_ENABLE([logging],
     AC_HELP_STRING([--disable-logging],[disable all logging support (including ostream)]),

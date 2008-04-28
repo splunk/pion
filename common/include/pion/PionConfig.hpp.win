@@ -71,6 +71,9 @@
 /* Define to 1 if you have the `zlib' library. */
 #undef PION_HAVE_ZLIB
 
+/* Define to 1 if you have the `boost.lockfree' library. */
+//#define PION_HAVE_LOCKFREE
+
 /* If you have the `OpenSSL' library installed, include PION_HAVE_SSL or PION_FULL
    in Preprocessor Definitions, or uncomment the following line, to use SSL. */
 //#define PION_HAVE_SSL
