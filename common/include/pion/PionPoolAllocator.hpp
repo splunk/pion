@@ -20,6 +20,12 @@
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
 
+/// the following enables use of the lock-free cache
+#ifdef PION_HAVE_LOCKFREE
+	#include <boost/lockfree/tagged_ptr.hpp>
+	#include <boost/lockfree/atomic_int.hpp>
+#endif
+
 
 namespace pion {	// begin namespace pion
 
@@ -31,7 +37,7 @@ namespace pion {	// begin namespace pion
 ///                    lock-free caches to achieve nearly wait-free, constant 
 ///                    time performance when used for an extended period of time
 ///
-template <std::size_t MinSize = 8, std::size_t MaxSize = 128>
+template <std::size_t MinSize = 16, std::size_t MaxSize = 256>
 class PionPoolAllocator
 	: private boost::noncopyable
 {
@@ -61,7 +67,25 @@ public:
 		// check for size greater than MaxSize
 		if (n > MaxSize)
 			return ::malloc(n);
-		FixedSizeAlloc *pool_ptr = getPool(n); 
+		FixedSizeAlloc *pool_ptr = getPool(n);
+
+#ifdef PION_HAVE_LOCKFREE
+		while (true) {
+			// get copy of free list pointer
+			FreeListPtr old_free_ptr(pool_ptr->m_free_ptr);
+			if (! old_free_ptr)
+				break;	// use pool alloc if free list is empty
+			
+			// prepare a new free list pointer
+			FreeListPtr new_free_ptr(old_free_ptr->next);
+			new_free_ptr.set_tag(old_free_ptr.get_tag() + 1);
+			
+			// use CAS operation to swap the free list pointer
+			if (pool_ptr->m_free_ptr.CAS(old_free_ptr, new_free_ptr))
+				return reinterpret_cast<void*>(old_free_ptr.get_ptr());
+		}
+#endif
+
 		boost::unique_lock<boost::mutex> pool_lock(pool_ptr->m_mutex);
 		return pool_ptr->m_pool.malloc();
 	}
@@ -79,9 +103,28 @@ public:
 			::free(ptr);
 			return;
 		}
-		FixedSizeAlloc *pool_ptr = getPool(n); 
+		FixedSizeAlloc *pool_ptr = getPool(n);
+#ifdef PION_HAVE_LOCKFREE
+		while (true) {
+			// get copy of free list pointer
+			FreeListPtr old_free_ptr(pool_ptr->m_free_ptr);
+			
+			// cast memory being released to a free list node
+			// and point its next pointer to the current free list
+			FreeListNode *node_ptr = reinterpret_cast<FreeListNode*>(ptr);
+			node_ptr->next.set_ptr(old_free_ptr.get_ptr());
+			
+			// create a temporary new pointer for the CAS operation
+			FreeListPtr new_free_ptr(node_ptr, old_free_ptr.get_tag() + 1);
+
+			// use CAS operation to swap the free list pointer
+			if (pool_ptr->m_free_ptr.CAS(old_free_ptr, new_free_ptr))
+				break;
+		}
+#else
 		boost::unique_lock<boost::mutex> pool_lock(pool_ptr->m_mutex);
 		return pool_ptr->m_pool.free(ptr);
+#endif
 	}
 	
 	/**
@@ -103,14 +146,28 @@ public:
 
 protected:
 
+#ifdef PION_HAVE_LOCKFREE
+	/// data structure used to represent a free node
+	struct FreeListNode {
+		boost::lockfree::tagged_ptr<struct FreeListNode>	next;
+	};
+	
+	/// data type for a tagged free-list pointer
+	typedef boost::lockfree::tagged_ptr<struct FreeListNode>	FreeListPtr;
+#else
+	typedef void *	FreeListPtr;
+#endif
+	
 	/// ensure that:
-	///   a) MinSize >= sizeof(void*)  [usually 4]
-	///   b) MaxSize >= MinSize
-	///   c) MaxSize is a multiple of MinSize
-	BOOST_STATIC_ASSERT( (MinSize >= sizeof(void*)) 
-		&& (MaxSize >= MinSize)
-		&& (MaxSize % MinSize == 0) );
-
+	///   a) MaxSize >= MinSize
+	///   b) MaxSize is a multiple of MinSize
+	///   c) MinSize >= sizeof(FreeNodePtr)  [usually 16]
+	BOOST_STATIC_ASSERT(MaxSize >= MinSize);
+	BOOST_STATIC_ASSERT(MaxSize % MinSize == 0);
+#ifdef PION_HAVE_LOCKFREE
+	BOOST_STATIC_ASSERT(MinSize >= sizeof(FreeListNode));
+#endif
+	
 	/// constant representing the number of fixed-size pool allocators
 	enum { NumberOfAllocs = ((MaxSize-1) / MinSize) + 1 };
 
@@ -126,17 +183,20 @@ protected:
 		 * @param size size of memory blocks managed by this allocator, in bytes
 		 */
 		FixedSizeAlloc(std::size_t size)
-			: m_size(size), m_pool(size)
+			: m_size(size), m_pool(size), m_free_ptr(NULL)
 		{}
 		
+		/// used to protect access to the memory pool
+		boost::mutex		m_mutex;
+
 		/// size of memory blocks managed by this allocator, in bytes
-		std::size_t		m_size;
+		std::size_t			m_size;
 		
 		/// underlying pool allocator used for memory management
-		boost::pool<>	m_pool;
-		
-		/// used to protect access to the memory pool
-		boost::mutex	m_mutex;
+		boost::pool<>		m_pool;
+
+		/// pointer to a list of free nodes (for lock-free cache)
+		FreeListPtr			m_free_ptr;		
 	};
 	
 
