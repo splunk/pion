@@ -44,7 +44,7 @@ case "$build_os" in
 	# -pthread is implied (automatically set by compiler)
 	CPPFLAGS="$CPPFLAGS -D_REENTRANT"
 	#LDFLAGS="$LDFLAGS"
-	PION_OPT_FLAGS="-fast -Wall -Wno-strict-aliasing -DNDEBUG"
+	PION_OPT_FLAGS="-arch x86_64 -fast -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
 	PION_EXTERNAL_LIBS="-ldl"
 	;;
@@ -82,9 +82,11 @@ AC_ARG_WITH([debug],
     [with_debug=no])
 if test "$with_debug" = "no"; then
 	AC_MSG_RESULT(no)
+	CFLAGS="$CFLAGS $PION_OPT_FLAGS"
 	CXXFLAGS="$CXXFLAGS $PION_OPT_FLAGS"
 else
 	AC_MSG_RESULT(yes)
+	CFLAGS="$CFLAGS $PION_DEBUG_FLAGS"
 	CXXFLAGS="$CXXFLAGS $PION_DEBUG_FLAGS"
 fi
 
