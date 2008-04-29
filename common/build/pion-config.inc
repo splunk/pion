@@ -388,13 +388,21 @@ AC_SUBST(PION_TESTS_CPPFLAGS)
 
 
 # Check for boost::lockfree library
+AC_ARG_ENABLE([lockfree],
+    AC_HELP_STRING([--disable-lockfree],[disable lock-free support]),
+    [enable_lockfree=$enableval], [enable_lockfree=yes])
 AC_MSG_CHECKING([for boost::lockfree library])
-AC_TRY_LINK([#include <boost/lockfree/tagged_ptr.hpp>],
-	[ boost::lockfree::tagged_ptr<int> ptr; return 0; ],
-	[ AC_MSG_RESULT(ok)
-	  AC_DEFINE([PION_HAVE_LOCKFREE],[1],[Define to 1 if you have the `boost.lockfree' library.])
-	],
-	[ AC_MSG_RESULT(not found) ])
+if test "x$enable_lockfree" == "xno"; then
+	# Display notice if lock-free is disabled
+	AC_MSG_RESULT(disabled)
+else
+	AC_TRY_LINK([#include <boost/lockfree/tagged_ptr.hpp>],
+		[ boost::lockfree::tagged_ptr<int> ptr; return 0; ],
+		[ AC_MSG_RESULT(ok)
+		  AC_DEFINE([PION_HAVE_LOCKFREE],[1],[Define to 1 if you have the `boost.lockfree' library.])
+		],
+		[ AC_MSG_RESULT(no) ])
+fi
 
 
 # Check for logging support
