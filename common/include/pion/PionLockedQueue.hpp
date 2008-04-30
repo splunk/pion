@@ -13,14 +13,12 @@
 #include <new>
 #include <boost/cstdint.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/pool/pool.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/detail/atomic_count.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
-#include <pion/PionPoolAllocator.hpp>
 
 
 // NOTE: the data structures contained in this file are based upon algorithms
@@ -34,6 +32,9 @@
 /// node item memory operations; otherwise, it will use new/delete
 //#define PION_LOCKEDQUEUE_USE_ALLOCATOR
 
+#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
+	#include <pion/PionPoolAllocator.hpp>
+#endif
 
 namespace pion {	// begin namespace pion
 
@@ -43,8 +44,11 @@ namespace pion {	// begin namespace pion
 /// 
 template <typename T,
 	boost::uint32_t MaxSize = 250000,
-	boost::uint32_t SleepMilliSec = 10,
-	typename AllocatorType = pion::PionPoolAllocator<> >
+	boost::uint32_t SleepMilliSec = 10
+#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
+	, typename AllocatorType = pion::PionPoolAllocator<>
+#endif
+	>
 class PionLockedQueue :
 	private boost::noncopyable
 {
@@ -165,7 +169,7 @@ public:
 	 *
 	 * @param t the item to add to the back of the queue
 	 */
-	void push(T& t) {
+	void push(const T& t) {
 		// sleep while MaxSize is exceeded
 		if (MaxSize > 0) {
 			boost::system_time wakeup_time;
@@ -247,8 +251,10 @@ private:
 	/// mutex used to protect the tail pointer to the last item
 	boost::mutex					m_tail_mutex;
 
+#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
 	/// allocator used to manage memory for node items
 	AllocatorType					m_alloc;
+#endif
 	
 	/// pointer to the first item in the list
 	QueueNode *						m_head_ptr;
