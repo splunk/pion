@@ -20,8 +20,15 @@
 
 	// log4cxx headers
 	#include <log4cxx/logger.h>
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
+#endif
 	#include <log4cxx/basicconfigurator.h>
 	#include <log4cxx/propertyconfigurator.h>
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 	#if defined _MSC_VER
 		#if defined _DEBUG

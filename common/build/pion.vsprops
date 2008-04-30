@@ -22,7 +22,7 @@
 	/>
 	<UserMacro
 		Name="LOG4CXX_HOME"
-		Value="C:\log4cxx"
+		Value="C:\apache\apache-log4cxx-0.10.0"
 	/>
 	<UserMacro
 		Name="OPENSSL_HOME"
