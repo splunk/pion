@@ -236,7 +236,7 @@ public:
 	 *
 	 * @return true if an item was retrieved, false if the queue is empty
 	 */
-	inline bool pop(T& t) { return dequeue(t); }
+	inline bool pop(T& t) { return dequeue(t) != 0; }
 	
 
 private:

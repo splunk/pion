@@ -22,7 +22,14 @@
 
 /// the following enables use of the lock-free cache
 #ifdef PION_HAVE_LOCKFREE
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4800) // forcing value to bool 'true' or 'false' (performance warning)
+#endif
 	#include <boost/lockfree/tagged_ptr.hpp>
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 	#include <boost/lockfree/atomic_int.hpp>
 #endif
 
