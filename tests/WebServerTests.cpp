@@ -665,7 +665,7 @@ BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
 	checkWebServerResponseContent(http_stream, "/index.html" , index_page_regex);
 
 	// send request and check response (docs index page: requires net/doc/html doxygen files!)
-	const boost::regex doc_index_regex(".*<html>.*pion-net\\sDocumentation.*</html>.*");
+	const boost::regex doc_index_regex(".*<html>.*pion-.*Documentation.*</html>.*");
 	checkWebServerResponseContent(http_stream, "/doc/index.html" , doc_index_regex);
 }
 
