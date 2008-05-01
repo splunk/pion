@@ -176,7 +176,5 @@ LIBXML
  - open it into C:\libxml2-2.6.30\
 
 SQLite
- - download http://www.sqlite.org/sqlite-amalgamation-3_5_6.zip
- - copy sqlite3.h and sqlite3ext.h from ZIP to C:\SQLite\include
- - download http://www.sqlite.org/sqlitedll-3_5_6.zip
- - copy sqlite3.dll to C:\SQLite\bin
+ - download http://www.pion.org/files/SQLite-3.5.8.win32.zip
+ - open it into C:\sqlite3-3.5.8\

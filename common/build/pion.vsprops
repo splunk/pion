@@ -38,7 +38,7 @@
 	/>
 	<UserMacro
 		Name="SQLITE_HOME"
-		Value="C:\SQLite"
+		Value="C:\SQLite-3.5.8"
 	/>
 	<UserMacro
 		Name="MYSQL_HOME"
