@@ -106,8 +106,17 @@ Now you should be able to build and install Pion:
 
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-openssl] [--with-log4cxx=/usr/local] [--with-sqlite]
+# ./configure [--with-openssl] [--with-log4cxx=/usr/local] \
+	[--with-sqlite] [--disable-tests]
 # make all
 # make install
 
 To build and run Pion's unit tests, run "make check"
+
+
+Known Problems
+--------------
+
+The Boost.Test library v1.35.0 does not seem to build properly for FreeBSD.
+We recommend that you just disable unit tests using the "--disable-tests"
+configure script option.

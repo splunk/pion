@@ -139,6 +139,10 @@ To build and run Pion's unit tests, run "make check"
 Known Problems
 --------------
 
+Log4cxx v0.10.0 does not seem to build properly with 64-bit RHEL5 due to
+strange incompatibilites with the installed APR libraries.  We recommend
+that you use an earlier version instead.
+
 The Pion executables may complain about loading shared libraries if the
 Boost and/or other libraries are not in your search path.  Try this:
 
