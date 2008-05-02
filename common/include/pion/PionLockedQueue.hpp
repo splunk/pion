@@ -19,7 +19,7 @@
 #include <boost/detail/atomic_count.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
-#ifdef PION_HAVE_LOCKFREE
+#if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
 	#include <boost/lockfree/freelist.hpp>
 #endif
 
@@ -54,7 +54,7 @@ protected:
 
 	/// returns a new queue node item for use in the queue
 	inline QueueNode *createNode(void) {
-#ifdef PION_HAVE_LOCKFREE
+#if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
 		return new (m_free_list.allocate()) QueueNode();
 #else
 		return new QueueNode();
@@ -63,7 +63,7 @@ protected:
 
 	/// frees memory for an existing queue node item
 	inline void destroyNode(QueueNode *node_ptr) {
-#ifdef PION_HAVE_LOCKFREE
+#if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
 		node_ptr->~QueueNode();
 		m_free_list.deallocate(node_ptr);
 #else
@@ -233,7 +233,7 @@ public:
 
 private:
 
-#ifdef PION_HAVE_LOCKFREE
+#if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
 	/// a caching free list of queue nodes used to reduce memory operations
 	boost::lockfree::caching_freelist<QueueNode>	m_free_list;
 #endif

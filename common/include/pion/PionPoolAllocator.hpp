@@ -21,7 +21,7 @@
 #include <pion/PionException.hpp>
 
 /// the following enables use of the lock-free cache
-#ifdef PION_HAVE_LOCKFREE
+#if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
 #ifdef _MSC_VER
 	#pragma warning(push)
 	#pragma warning(disable: 4800) // forcing value to bool 'true' or 'false' (performance warning)
@@ -76,7 +76,7 @@ public:
 			return ::malloc(n);
 		FixedSizeAlloc *pool_ptr = getPool(n);
 
-#ifdef PION_HAVE_LOCKFREE
+#if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
 		while (true) {
 			// get copy of free list pointer
 			FreeListPtr old_free_ptr(pool_ptr->m_free_ptr);
@@ -111,7 +111,7 @@ public:
 			return;
 		}
 		FixedSizeAlloc *pool_ptr = getPool(n);
-#ifdef PION_HAVE_LOCKFREE
+#if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
 		while (true) {
 			// get copy of free list pointer
 			FreeListPtr old_free_ptr(pool_ptr->m_free_ptr);
@@ -153,7 +153,7 @@ public:
 
 protected:
 
-#ifdef PION_HAVE_LOCKFREE
+#if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
 	/// data structure used to represent a free node
 	struct FreeListNode {
 		boost::lockfree::tagged_ptr<struct FreeListNode>	next;
@@ -171,7 +171,7 @@ protected:
 	///   c) MinSize >= sizeof(FreeNodePtr)  [usually 16]
 	BOOST_STATIC_ASSERT(MaxSize >= MinSize);
 	BOOST_STATIC_ASSERT(MaxSize % MinSize == 0);
-#ifdef PION_HAVE_LOCKFREE
+#if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
 	BOOST_STATIC_ASSERT(MinSize >= sizeof(FreeListNode));
 #endif
 	
