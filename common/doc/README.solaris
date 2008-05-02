@@ -141,7 +141,7 @@ Party Libraries" page on our website.  After downloading it, just run:
 
 # tar xvfz sqlite-amalgamation-<version>.tar.gz
 # cd sqlite-amalgamation-<version>
-# ./configure --enable-threads
+# ./configure --enable-threadsafe
 # make all
 # make install
 

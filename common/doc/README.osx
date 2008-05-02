@@ -100,14 +100,12 @@ SQLite version 3 is required to build support for the embedded database
 (the SQLiteDatabase plugin).  You may skip this step if you do not want
 to build support for the embedded database.
 
-You can download the source code tarball for SQLite from the  "Third
-Party Libraries" page on our website.  After downloading it, just run:
+The SQLite library is normally pre-installed on OS X.  If you do not 
+have it already, you should be able to grab the latest source code
+tarball from the "Third Party Libraries" page on our website, or from
+the following site:
 
-# tar xvfz sqlite-amalgamation-<version>.tar.gz
-# cd sqlite-amalgamation-<version>
-# ./configure --enable-threads
-# make all
-# make install
+http://www.sqlite.org
 
 
 Building and installing Pion:
