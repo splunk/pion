@@ -9,4 +9,4 @@ pion_common_include_HEADERS = PionConfig.hpp PionLogger.hpp \
 	PionDateTime.hpp PionLockedQueue.hpp PionLockFreeQueue.hpp \
 	PionPoolAllocator.hpp
 
-EXTRA_DIST = PionConfig.hpp.win
+EXTRA_DIST = PionConfig.hpp.win PionConfig.hpp.xcode
