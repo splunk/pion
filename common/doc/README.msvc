@@ -110,16 +110,9 @@ At this time, log4cxx (http://logging.apache.org/log4cxx) is the only
 supported logging library that builds correctly under Windows.
 
 A binary distribution is available at http://pion.org/files/log4cxx.zip.
-Install it in C:\log4cxx, or change LOG4CXX_HOME accordingly (see below).
-
-You can also download the current source code from 
-http://svn.atomiclabs.com/log4cxx/trunk
-Check out to C:\log4cxx, or change LOG4CXX_HOME accordingly (see below).
-Open log4cxx.sln and build everything (or just the configurations you're 
-interested in).
-
-Macro LOG4CXX_HOME in pion.vsprops is set to C:\log4cxx.  If you installed 
-log4cxx somewhere other than C:\log4cxx, change LOG4CXX_HOME accordingly.
+Install it in C:\apache\apache-log4cxx-0.10.0, or change user macro 
+LOG4CXX_HOME in pion.vsprops, currently set to C:\apache\apache-log4cxx-0.10.0,
+accordingly.
 
 Add <LOG4CXX_HOME>\bin to your path.
 
@@ -166,7 +159,8 @@ Note: If you didn't run Doxygen, create "<PION_NET_HOME>\doc\html\index.html" fi
 Otherwise, PionWebServer and unit tests fail with "no such directory" error.
 
 Additional libraries (required for PLATFORM build)
---------------------------
+--------------------------------------------------
+
 ICONV
  - download http://xmlsoft.org/sources/win32/iconv-1.9.2.win32.zip
  - open it into C:\iconv-1.9.2\
