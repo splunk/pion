@@ -129,6 +129,23 @@ run:
 # make install
 
 
+Installing SQLite:
+------------------
+
+SQLite version 3 is required to build support for the embedded database
+(the SQLiteDatabase plugin).  You may skip this step if you do not want
+to build support for the embedded database.
+
+You can download the source code tarball for SQLite from the  "Third
+Party Libraries" page on our website.  After downloading it, just run:
+
+# tar xvfz sqlite-amalgamation-<version>.tar.gz
+# cd sqlite-amalgamation-<version>
+# ./configure --enable-threads
+# make all
+# make install
+
+
 Building and installing Pion:
 -----------------------------
 
@@ -136,7 +153,7 @@ Now you should be able to build and install Pion:
 
 # gzip -dc pion-<PROJECT>-<VERSION>.tar.gz | tar xvf -
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-openssl=/usr/local/ssl] [--with-log4cxx]
+# ./configure [--with-openssl=/usr/local/ssl] [--with-log4cxx] [--with-sqlite]
 # make all
 # make install
 

@@ -1,7 +1,7 @@
 Installing Boost with ASIO
 ==========================
 
-Starting with 0.6.0, Pion requires Boost 1.35.0 (or later). Since this is
+Starting with 0.5.6, Pion requires Boost 1.35.0 (or later). Since this is
 still a fairly recent release, none of our supported platforms currently have
 pre-built versions available of these libraries.  Therefore, you will likely
 need to download, compile and install Boost and ASIO using the source code
