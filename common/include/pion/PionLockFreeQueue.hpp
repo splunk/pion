@@ -10,17 +10,26 @@
 #ifndef __PION_PIONLOCKFREEQUEUE_HEADER__
 #define __PION_PIONLOCKFREEQUEUE_HEADER__
 
-#include <boost/array.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/static_assert.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionScheduler.hpp>
-#ifdef _MSC_VER
-	#include <apr_atomic.h>
-#else
-	#include <apr-1/apr_atomic.h>
+#ifndef PION_HAVE_LOCKFREE
+	#error "PionLockFreeQueue requires the boost::lockfree library!"
 #endif
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4800) // forcing value to bool 'true' or 'false' (performance warning)
+#endif
+#include <boost/lockfree/tagged_ptr.hpp>
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
+#include <boost/lockfree/cas.hpp>
+#include <boost/lockfree/freelist.hpp>
+#include <boost/lockfree/branch_hints.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/thread/thread.hpp>
+#include <pion/PionConfig.hpp>
+//#include <boost/array.hpp>
+//#include <boost/cstdint.hpp>
+//#include <boost/static_assert.hpp>
 
 
 // NOTE: the data structures contained in this file are based upon algorithms
@@ -34,17 +43,200 @@ namespace pion {	// begin namespace pion
 
 
 ///
+/// PionLockFreeQueue: a FIFO queue that is thread-safe and lock-free
+/// 
+template <typename T>
+class PionLockFreeQueue :
+	private boost::noncopyable
+{
+protected:
+	
+	/// data structure used to wrap each item in the queue
+	struct QueueNode {
+		/// default constructor
+		QueueNode(void) : next(NULL) {}
+		
+		/// constructs QueueNode with a data value
+		QueueNode(const T& d) : next(NULL), data(d) {}
+		
+		/// points to the next node in the queue
+		boost::lockfree::tagged_ptr<QueueNode>	next;
+
+		/// data wrapped by the node item
+		T	data;
+	};
+	
+	/// data type for an atomic QueueNode pointer
+	typedef boost::lockfree::tagged_ptr<QueueNode>	QueueNodePtr;
+	
+	/// returns a new queue node item for use in the queue
+	inline QueueNode *createNode(void) {
+		QueueNode *node_ptr = m_free_list.allocate();
+		new(node_ptr) QueueNode();
+		return node_ptr;
+	}
+	
+	/// frees memory for an existing queue node item
+	inline void destroyNode(QueueNode *node_ptr) {
+		node_ptr->~QueueNode();
+		m_free_list.deallocate(node_ptr);
+	}
+	
+	
+public:
+	
+	/// constructs a new PionLockFreeQueue
+	PionLockFreeQueue(void) {
+		// initialize with a dummy node since m_head_ptr is always 
+		// pointing to the item before the head of the list
+		QueueNode *dummy_ptr = createNode();
+		m_head_ptr.set_ptr(dummy_ptr);
+		m_tail_ptr.set_ptr(dummy_ptr);
+	}
+	
+	/// virtual destructor
+	virtual ~PionLockFreeQueue() {
+		clear();
+		destroyNode(m_head_ptr.get_ptr());
+	}
+	
+	/// returns true if the queue is empty; false if it is not
+	inline bool empty(void) const {
+		return (m_head_ptr.get_ptr() == m_tail_ptr.get_ptr());
+	}
+	
+	/// clears the queue by removing all remaining items
+	/// WARNING: this is NOT thread-safe!
+	volatile void clear(void) {
+		while (! empty()) {
+			QueueNodePtr node_ptr(m_head_ptr);
+			m_head_ptr = m_head_ptr->next;
+			destroyNode(node_ptr.get_ptr());
+		}
+	}
+	
+	/**
+	 * pushes a new item into the back of the queue
+	 *
+	 * @param t the item to add to the back of the queue
+	 */
+	inline void push(const T& t) {
+		// create a new list node for the queue item
+		QueueNode *node_ptr = createNode();
+		node_ptr->data = t;
+		
+		while (true) {
+			// get copy of tail pointer
+			QueueNodePtr tail_ptr(m_tail_ptr);
+			//boost::lockfree::memory_barrier();
+
+			// get copy of tail's next pointer
+			QueueNodePtr next_ptr(tail_ptr->next);
+			boost::lockfree::memory_barrier();
+			
+			// make sure that the tail pointer has not changed since reading next
+			if (boost::lockfree::likely(tail_ptr == m_tail_ptr)) {
+				// check if tail was pointing to the last node
+				if (next_ptr.get_ptr() == NULL) {
+					// try to link the new node at the end of the list
+					if (tail_ptr->next.CAS(next_ptr, node_ptr)) {
+						// done with enqueue; try to swing tail to the inserted node
+						m_tail_ptr.CAS(tail_ptr, node_ptr);
+						break;
+					}
+				} else {
+					// try to swing tail to the next node
+					m_tail_ptr.CAS(tail_ptr, next_ptr.get_ptr());
+				}
+			}
+		}
+	}	
+	
+	/**
+	 * pops the next item from the top of the queue
+	 *
+	 * @param t assigned to the item at the top of the queue, if it is not empty
+	 *
+	 * @return true if an item was retrieved, false if the queue is empty
+	 */
+	inline bool pop(T& t) {
+		while (true) {
+			// get copy of head pointer
+			QueueNodePtr head_ptr(m_head_ptr);
+			//boost::lockfree::memory_barrier();
+
+			// get copy of tail pointer
+			QueueNodePtr tail_ptr(m_tail_ptr);
+			QueueNode *next_ptr = head_ptr->next.get_ptr();
+			boost::lockfree::memory_barrier();
+			
+			// check consistency of head pointer
+			if (boost::lockfree::likely(head_ptr == m_head_ptr)) {
+
+				// check if queue is empty, or tail is falling behind
+				if (head_ptr.get_ptr() == tail_ptr.get_ptr()) {
+					// is queue empty?
+					if (next_ptr == NULL)
+						return false;	// queue is empty
+					
+					// not empty; try to advance tail to catch it up
+					m_tail_ptr.CAS(tail_ptr, next_ptr);
+
+				} else {
+					// tail is OK
+					// read value before CAS, otherwise another dequeue
+					//   might free the next node
+					t = next_ptr->data;
+					
+					// try to swing head to the next node
+					if (m_head_ptr.CAS(head_ptr, next_ptr)) {
+						// success -> nuke the old head item
+						destroyNode(head_ptr.get_ptr());
+						break;	// exit loop
+					}
+				}
+			}
+		}
+		
+		// item successfully retrieved
+		return true;
+	}
+
+	
+private:
+	
+	/// data type for a caching free list of queue nodes
+	typedef boost::lockfree::caching_freelist<QueueNode>	NodeFreeList;
+
+	
+	/// a caching free list of queue nodes used to reduce memory operations
+	NodeFreeList		m_free_list;
+	
+	/// pointer to the first item in the list
+	QueueNodePtr		m_head_ptr;
+	
+	/// pointer to the last item in the list
+	QueueNodePtr		m_tail_ptr __attribute__((aligned(64))); /* force head_ and tail_ to different cache lines! */
+};
+
+
+
+	
+#if 0
+///
 /// PionLockFreeQueue: a FIFO queue that is thread-safe, lock-free and uses fixed memory.
 ///                    WARNING: T::operator=() must be thread safe!
 /// 
-template <typename T, boost::uint16_t MaxSize = 50000, boost::uint32_t SleepNanoSec = 100000>
+template <typename T,
+	boost::uint16_t MaxSize = 50000,
+	boost::uint32_t SleepMilliSec = 10 >
 class PionLockFreeQueue :
 	private boost::noncopyable
 {
 protected:
 
 	/// make sure that the type used for CAS is at least as large as our structure
-	BOOST_STATIC_ASSERT(sizeof(apr_uint32_t) >= (sizeof(boost::uint16_t) * 2));
+	BOOST_STATIC_ASSERT(sizeof(boost::uint32_t) >= (sizeof(boost::uint16_t) * 2));
 
 	/// an object used to point to a QueueNode
 	union QueueNodePtr {
@@ -56,7 +248,7 @@ protected:
 			boost::uint16_t		counter;
 		} data;
 		/// the 32-bit value of the QueueNode object, used for CAS operations
-		apr_uint32_t	value;
+		boost::int32_t		value;
 	};	
 
 	/// an object used to wrap each item in the queue
@@ -92,10 +284,10 @@ protected:
 	static inline bool cas(volatile QueueNodePtr& cur_ptr, QueueNodePtr old_ptr,
 		boost::uint16_t new_index)
 	{
-		QueueNodePtr new_value;
-		new_value.data.index = new_index;
-		new_value.data.counter = old_ptr.data.counter + 1;
-		return (apr_atomic_cas32(&(cur_ptr.value), new_value.value, old_ptr.value) == old_ptr.value);
+		QueueNodePtr new_ptr;
+		new_ptr.data.index = new_index;
+		new_ptr.data.counter = old_ptr.data.counter + 1;
+		return boost::lockfree::CAS(&(cur_ptr.value), old_ptr.value, new_ptr.value);
 	}
 	
 	/// returns the index position for a QueueNode that is available for use (may block)
@@ -108,10 +300,13 @@ protected:
 			while (true) {
 				// get current free_ptr value
 				current_free_ptr.value = m_free_ptr.value;
-				// sleep if current free_ptr value == 0
+				// check if current free_ptr value == 0
 				if (current_free_ptr.data.index > 0)
 					break;
-				PionScheduler::sleep(0, SleepNanoSec);
+				// sleep while MaxSize is exceeded
+				boost::system_time wakeup_time = boost::get_system_time()
+					+ boost::posix_time::millisec(SleepMilliSec);
+				boost::thread::sleep(wakeup_time);
 			}
 
 			// prepare what will become the new free_ptr index value
@@ -193,7 +388,7 @@ public:
 	 *
 	 * @param t the item to add to the back of the queue
 	 */
-	inline void push(T& t) {
+	inline void push(const T& t) {
 		// retrieve a new list node for the queue item
 		const boost::uint16_t node_index(acquireNode());
 
@@ -287,7 +482,7 @@ private:
 	/// index pointer to the next QueueNode object that is available for use
 	volatile QueueNodePtr					m_free_ptr;
 };
-
+#endif
 
 }	// end namespace pion
 

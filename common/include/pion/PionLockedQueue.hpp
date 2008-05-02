@@ -19,6 +19,9 @@
 #include <boost/detail/atomic_count.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
+#ifdef PION_HAVE_LOCKFREE
+	#include <boost/lockfree/freelist.hpp>
+#endif
 
 
 // NOTE: the data structures contained in this file are based upon algorithms
@@ -28,14 +31,6 @@
 // See http://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf
 
 
-/// the following enables the PionLockedQueue to use an allocator class for
-/// node item memory operations; otherwise, it will use new/delete
-//#define PION_LOCKEDQUEUE_USE_ALLOCATOR
-
-#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
-	#include <pion/PionPoolAllocator.hpp>
-#endif
-
 namespace pion {	// begin namespace pion
 
 
@@ -44,11 +39,7 @@ namespace pion {	// begin namespace pion
 /// 
 template <typename T,
 	boost::uint32_t MaxSize = 250000,
-	boost::uint32_t SleepMilliSec = 10
-#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
-	, typename AllocatorType = pion::PionPoolAllocator<>
-#endif
-	>
+	boost::uint32_t SleepMilliSec = 10 >
 class PionLockedQueue :
 	private boost::noncopyable
 {
@@ -63,11 +54,8 @@ protected:
 
 	/// returns a new queue node item for use in the queue
 	inline QueueNode *createNode(void) {
-#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
-		void *mem_ptr = m_alloc.malloc(sizeof(QueueNode));
-		if (mem_ptr == NULL)
-			throw std::bad_alloc();
-		return new (mem_ptr) QueueNode();
+#ifdef PION_HAVE_LOCKFREE
+		return new (m_free_list.allocate()) QueueNode();
 #else
 		return new QueueNode();
 #endif
@@ -75,9 +63,9 @@ protected:
 
 	/// frees memory for an existing queue node item
 	inline void destroyNode(QueueNode *node_ptr) {
-#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
+#ifdef PION_HAVE_LOCKFREE
 		node_ptr->~QueueNode();
-		m_alloc.free(node_ptr, sizeof(QueueNode));
+		m_free_list.deallocate(node_ptr);
 #else
 		delete node_ptr;
 #endif
@@ -245,17 +233,17 @@ public:
 
 private:
 
+#ifdef PION_HAVE_LOCKFREE
+	/// a caching free list of queue nodes used to reduce memory operations
+	boost::lockfree::caching_freelist<QueueNode>	m_free_list;
+#endif
+	
 	/// mutex used to protect the head pointer to the first item
 	boost::mutex					m_head_mutex;
 
 	/// mutex used to protect the tail pointer to the last item
 	boost::mutex					m_tail_mutex;
 
-#ifdef PION_LOCKEDQUEUE_USE_ALLOCATOR
-	/// allocator used to manage memory for node items
-	AllocatorType					m_alloc;
-#endif
-	
 	/// pointer to the first item in the list
 	QueueNode *						m_head_ptr;
 
