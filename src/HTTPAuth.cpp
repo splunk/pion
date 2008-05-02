@@ -36,6 +36,10 @@ void HTTPAuth::addPermit(const std::string& resource)
 
 bool HTTPAuth::needAuthentication(const HTTPRequestPtr& http_request) const
 {
+	// if no users are defined, authentication is never required
+	if (m_user_manager->empty())
+		return false;
+	
 	// strip off trailing slash if the request has one
 	std::string resource(HTTPServer::stripTrailingSlash(http_request->getResource()));
 	

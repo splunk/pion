@@ -154,6 +154,12 @@ public:
 	/// virtual destructor
 	virtual ~PionUserManager() {}
 	
+	/// returns true if no users are defined
+	inline bool empty(void) const {
+		boost::mutex::scoped_lock lock(m_mutex);
+		return m_users.empty();
+	}
+	
 	/**
 	 * used to add a new user with plaintext password
 	 *
