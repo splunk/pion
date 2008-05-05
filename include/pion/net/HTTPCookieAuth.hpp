@@ -15,15 +15,15 @@
 #include <boost/random.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPAuth.hpp>
-#include <pion/PionDateTime.hpp>  // order important , otherwise compiling error under win32
+#include <pion/PionDateTime.hpp>  // order important, otherwise compiling error under win32
 
 
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)
 
 ///
-/// HTTPBasicAuth: a base class for handling HTTP Authentication and session management
-/// in accordance with RFC 2617 http://tools.ietf.org/html/rfc2617 
+/// HTTPCookieAuth: handles HTTP authentication and session management in
+/// accordance with RFC 2617 (http://tools.ietf.org/html/rfc2617 ) using cookies.
 ///
 class PION_NET_API HTTPCookieAuth :
 	public HTTPAuth
@@ -36,7 +36,7 @@ public:
 	 * @param userManager
 	 * @param login - URL resource for login request. Typical login request has format:
 	 *				http://website/login?user="username"&pass="password"&url="redirection_url"
-	 * @param logout - URL resource for logout request. Typical login request has format:
+	 * @param logout - URL resource for logout request. Typical logout request has format:
 	 *				http://website/logout?url="redirection_url"
 	 * @param redirect - if not empty, URL for redirection in case of authentication failure
 	 *					if empty - send code 401 on authentication failure
@@ -73,7 +73,7 @@ public:
 	 * Valid options:
 	 *    - "login" - URL resource for login request. Typical login request has format:
 	 *				http://website/login?user="username"&pass="password"&url="redirection_url"
-	 *    - "logout" - URL resource for logout request. Typical login request has format:
+	 *    - "logout" - URL resource for logout request. Typical logout request has format:
 	 *				http://website/logout?url="redirection_url"
 	 *	  - "redirect" - if not empty, URL for redirection in case of authentication failure
 	 *					if empty - send code 401 on authentication failure
@@ -111,7 +111,7 @@ protected:
 	 * @param tcp_conn the TCP connection that has the new request
 	 */
 	void handleRedirection(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn,
-		const std::string &redirection_url,const std::string &new_cookie="",bool delete_cookie=false);
+		const std::string &redirection_url, const std::string &new_cookie="", bool delete_cookie=false);
 
 	/**
 	 * used to send OK responses with new cookie
@@ -119,8 +119,8 @@ protected:
 	 * @param http_request the new HTTP request to handle
 	 * @param tcp_conn the TCP connection that has the new request
 	 */
-	void handleOk(HTTPRequestPtr& http_request,TCPConnectionPtr& tcp_conn,
-		const std::string &new_cookie="",bool delete_cookie=false);
+	void handleOk(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn,
+		const std::string &new_cookie="", bool delete_cookie=false);
 
 	/**
 	 * Cache expiration cleanup. (Call it periodically)
@@ -131,9 +131,9 @@ protected:
 private:
 	
 	/// data type used to map authentication credentials to PionUser objects
-	typedef std::map<std::string,std::pair<PionDateTime,PionUserPtr> >  PionUserCache;
+	typedef std::map<std::string, std::pair<PionDateTime, PionUserPtr> >  PionUserCache;
 	
-	/// number of seconds after which entires in the user cache will be expired
+	/// number of seconds after which entries in the user cache will be expired
 	static const unsigned int	CACHE_EXPIRATION;
 
 	/// number of random bytes to use for cookie generation

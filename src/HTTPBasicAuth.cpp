@@ -34,7 +34,7 @@ HTTPBasicAuth::HTTPBasicAuth(PionUserManagerPtr userManager, const std::string& 
 bool HTTPBasicAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	if (!needAuthentication(request)) {
-		return true; // this request do not require authentication
+		return true; // this request does not require authentication
 	}
 	
 	PionDateTime time_now(boost::posix_time::second_clock::universal_time());
@@ -61,24 +61,24 @@ bool HTTPBasicAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp
 		if (parseAuthorization(authorization, credentials)) {
 			// to do - use fast cache to match with active credentials
 			boost::mutex::scoped_lock cache_lock(m_cache_mutex);
-			PionUserCache::iterator user_cahe_ptr=m_user_cache.find(credentials);
-			if (user_cahe_ptr!=m_user_cache.end()) {
-				// we find those credential in our cache...
+			PionUserCache::iterator user_cache_ptr=m_user_cache.find(credentials);
+			if (user_cache_ptr!=m_user_cache.end()) {
+				// we found the credentials in our cache...
 				// we can approve authorization now!
-				request->setUser(user_cahe_ptr->second.second);
-				user_cahe_ptr->second.first = time_now;
+				request->setUser(user_cache_ptr->second.second);
+				user_cache_ptr->second.first = time_now;
 				return true;
 			}
 	
 			std::string username;
 			std::string password;
 	
-			if (parseCredentials(credentials,username,password)) {
+			if (parseCredentials(credentials, username, password)) {
 				// match username/password
-				PionUserPtr user=m_user_manager->getUser(username,password);
+				PionUserPtr user=m_user_manager->getUser(username, password);
 				if (user) {
 					// add user to the cache
-					m_user_cache.insert(std::make_pair(credentials,std::make_pair(time_now,user)));
+					m_user_cache.insert(std::make_pair(credentials, std::make_pair(time_now, user)));
 					// add user credentials to the request object
 					request->setUser(user);
 					return true;
@@ -88,7 +88,7 @@ bool HTTPBasicAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp
 	}
 
 	// user not found
-	handleUnauthorized(request,tcp_conn);
+	handleUnauthorized(request, tcp_conn);
 	return false;
 }
 	
@@ -115,7 +115,7 @@ bool HTTPBasicAuth::parseCredentials(const std::string &credentials,
 {
 	std::string user_password;
 	
-	if (! HTTPTypes::base64_decode(credentials,user_password))
+	if (! HTTPTypes::base64_decode(credentials, user_password))
 		return false;
 
 	// find ':' symbol
@@ -123,7 +123,7 @@ bool HTTPBasicAuth::parseCredentials(const std::string &credentials,
 	if (i==0 || i==std::string::npos)
 		return false;
 	
-	username = user_password.substr(0,i);
+	username = user_password.substr(0, i);
 	password = user_password.substr(i+1);
 	
 	return true;
@@ -147,7 +147,7 @@ void HTTPBasicAuth::handleUnauthorized(HTTPRequestPtr& http_request,
 	boost::bind(&TCPConnection::finish, tcp_conn)));
 	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_UNAUTHORIZED);
 	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_UNAUTHORIZED);
-	writer->getResponse().addHeader("WWW-Authenticate","Basic realm=\"" + m_realm +"\"");
+	writer->getResponse().addHeader("WWW-Authenticate", "Basic realm=\"" + m_realm + "\"");
 	writer->writeNoCopy(CONTENT);
 	writer->send();
 }
