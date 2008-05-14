@@ -66,36 +66,53 @@ Step-by-step instruction: building Boost with ASIO for VC2005 platform (without 
     (Main Menu->Tools->Options->Projects and Solutions->VC++ Directories)
 
 
-Installing zlib & OpenSSL:
---------------------------
+Installing OpenSSL:
+-------------------
 
-ASIO requires zlib and OpenSSL for compression and SSL/TLS encryption
-support, respectively.  For MSVC, we recommend that you build and
-install these packages from the source tarballs, available from the
-following sites:
+ASIO requires OpenSSL for SSL/TLS encryption support.
 
-http://www.zlib.net
-http://www.openssl.org
+You can get Win 32 binaries for OpenSSL from:
+http://www.pion.org/files/openssl-0.9.8g.win32.zip
+Unzip directly into C: (or change OPENSSL_HOME accordingly.)
 
-For OpenSSL, build the static versions of ssleay32 and libeay32 (by using
-nt.mak rather than ntdll.mak, as explained in INSTALL.W32).  We recommend
-installing OpenSSL in C:\OpenSSL.
+If you want to build them yourself, you can get the source tarball from:
+http://www.openssl.org/source/openssl-0.9.8g.tar.gz
+Build the static versions of ssleay32 and libeay32 (by using
+nt.mak rather than ntdll.mak, as explained in INSTALL.W32).  Pion expects
+them to be in $(OPENSSL_HOME)\lib, where OPENSSL_HOME is C:\openssl-0.9.8g
+unless you've changed it.  
+Note: While configuring OpenSSL for build, use the following command:
+	perl Configure VC-WIN32 --prefix=C:\\OpenSSL 
+(note double "\\" required by windows )
+
+Pion is currently set up to link to ssleay32d.lib and libeay32d.lib for the 
+debug configuration; the easiest way to get these files is from the above zip 
+file.  Note that if you try to use the release versions of ssleay32.lib and 
+libeay32.lib with a debug configuration of Pion, you will probably have 
+trouble running the unit tests, due to msvcr80.dll and msvcr80d.dll being 
+loaded  at the same time.  (Yes, this is even true for the static versions.)
+
+If you want to use the DLL versions, they are also included in the above zip 
+file.  You will need to add C:\openssl-0.9.8g\bin to your path, and follow
+the instructions in the next section.  (If you build them yourself, the same 
+caveats about the debug versions apply.)
 
 
 Linking with OpenSSL:
 ---------------------
 
-Macro OPENSSL_HOME in pion.vsprops is set to C:\OpenSSL.  If you installed 
-OpenSSL somewhere other than C:\OpenSSL, change OPENSSL_HOME accordingly.
-If you have both the static and dynamic versions of ssleay32 and libeay32,
-make sure OPENSSL_HOME\lib is the directory with the static versions.
+Macro OPENSSL_HOME in pion.vsprops is set to C:\openssl-0.9.8g.  If you 
+installed OpenSSL somewhere other than C:\openssl-0.9.8g, change OPENSSL_HOME 
+accordingly.  By default, Pion links with the static versions, which should be 
+in $(OPENSSL_HOME)\lib.  To link with the DLL versions, you will have to 
+change $(OPENSSL_HOME)\lib to $(OPENSSL_HOME)\bin in 
+common\build\Release_DLL_pion.vsprops, common\build\Debug_DLL_pion.vsprops 
+and platform\server\pion.vcproj.
 
 Include PION_HAVE_SSL or PION_FULL in Preprocessor Definitions for the project,
-or in PionConfig.hpp.win, uncomment '#define PION_HAVE_SSL'.
+or in PionConfig.hpp.win, uncomment '#define PION_HAVE_SSL'.  (The 
+Debug_DLL_full and Release_DLL_full configurations have PION_FULL defined.)
 
-Note: While configuring OpenSSL for build, use the following command:
-	perl Configure VC-WIN32 --prefix=C:\\OpenSSL 
-(note double "\\" required by windows )
 
 Logging frameworks:
 -------------------
@@ -161,14 +178,23 @@ Otherwise, PionWebServer and unit tests fail with "no such directory" error.
 Additional libraries (required for PLATFORM build)
 --------------------------------------------------
 
-ICONV
+zlib:
+ - download http://xmlsoft.org/sources/win32/zlib-1.2.3.win32.zip
+ - open it into C:\zlib-1.2.3
+ - add C:\zlib-1.2.3\bin to your path
+
+iconv:
  - download http://xmlsoft.org/sources/win32/iconv-1.9.2.win32.zip
  - open it into C:\iconv-1.9.2\
+ - add C:\iconv-1.9.2\bin to your path
 
-LIBXML
+libxml:
  - download http://xmlsoft.org/sources/win32/libxml2-2.6.30.win32.zip
  - open it into C:\libxml2-2.6.30\
+ - add C:\libxml2-2.6.30\bin to your path
 
-SQLite
+SQLite:
  - download http://www.pion.org/files/SQLite-3.5.8.win32.zip
  - open it into C:\sqlite3-3.5.8\
+ - add C:\SQLite-3.5.8\lib to your path
+ 
