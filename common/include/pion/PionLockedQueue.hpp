@@ -128,7 +128,10 @@ public:
 	}
 	
 	/// virtual destructor
-	virtual ~PionLockedQueue() { clear(); }
+	virtual ~PionLockedQueue() {
+		clear();
+		destroyNode(m_tail_ptr);
+	}
 	
 	/// returns true if the queue is empty; false if it is not
 	inline bool empty(void) const { return (m_head_ptr->next == NULL); }
@@ -150,7 +153,6 @@ public:
 			destroyNode(m_tail_ptr);
 		}
 		m_tail_ptr = m_head_ptr;
-		destroyNode(m_tail_ptr);
 	}
 
 	/**
