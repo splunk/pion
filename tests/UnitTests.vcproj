@@ -448,6 +448,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TCPStreamTests.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WebServerTests.cpp"
 				>
 			</File>
