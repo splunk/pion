@@ -150,6 +150,7 @@ public:
 			destroyNode(m_tail_ptr);
 		}
 		m_tail_ptr = m_head_ptr;
+		destroyNode(m_tail_ptr);
 	}
 
 	/**
