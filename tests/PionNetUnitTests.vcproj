@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="UnitTests"
+	Name="PionNetUnitTests"
 	ProjectGUID="{5AD25B42-E2C0-4D08-985B-E8F115D19D56}"
-	RootNamespace="UnitTests"
+	RootNamespace="PionNetUnitTests"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
