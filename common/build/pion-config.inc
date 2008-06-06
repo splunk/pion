@@ -223,17 +223,27 @@ AX_BOOST_BASE([1.35])
 CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
 LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
 
-# Determine Boost library extension by looking for thread library (i.e. "-gcc41-mt")
+# Check for Boost library extension
 AC_MSG_CHECKING([boost library extension])
-for boost_thread_library in `ls $BOOST_HOME_DIR/lib/libboost_thread*-mt*{dylib,dll,so,a}* 2>/dev/null` ;
-do
-	if test -r $boost_thread_library ; then
-		BOOST_LIB_EXTENSION=`echo $boost_thread_library | sed 's,.*/,,' | sed -e 's;^libboost_thread\(.*\)\.dylib.*$;\1;' -e 's;^libboost_thread\(.*\)\.dll*$;\1;' -e 's;^libboost_thread\(.*\)\.so.*$;\1;' -e 's;^libboost_thread\(.*\)\.a*$;\1;'`
-		break
-	fi
-done
-if test "x$BOOST_LIB_EXTENSION" = "x"; then
-	AC_MSG_ERROR(Unable to determine Boost library extension)
+AC_ARG_WITH([boost-extension],
+    AC_HELP_STRING([--with-boost-extension@<:@=EXT@:>@],[extension used for boost library files]),
+    [ boost_ext=$withval ], [ detect_boost_ext=true ])
+# Check if openssl location is specified
+if test "$detect_boost_ext" != "true"; then
+    # use provided extension for boost library files
+    BOOST_LIB_EXTENSION="$boost_ext"
+else
+    # Attempt to Autodetect Boost library extension by looking for thread library (i.e. "-gcc41-mt")
+    for boost_thread_library in `ls $BOOST_HOME_DIR/lib/libboost_thread*-mt*{dylib,dll,so,a}* 2>/dev/null` ;
+    do
+        if test -r $boost_thread_library ; then
+            BOOST_LIB_EXTENSION=`echo $boost_thread_library | sed 's,.*/,,' | sed -e 's;^libboost_thread\(.*\)\.dylib.*$;\1;' -e 's;^libboost_thread\(.*\)\.dll*$;\1;' -e 's;^libboost_thread\(.*\)\.so.*$;\1;' -e 's;^libboost_thread\(.*\)\.a*$;\1;'`
+            break
+        fi
+    done
+    if test "x$BOOST_LIB_EXTENSION" = "x"; then
+        AC_MSG_ERROR(Unable to determine Boost library extension)
+    fi
 fi
 AC_MSG_RESULT($BOOST_LIB_EXTENSION)
 AC_SUBST(BOOST_LIB_EXTENSION)
