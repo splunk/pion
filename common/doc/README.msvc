@@ -126,7 +126,7 @@ PionConfig.hpp.win, uncomment '#define PION_DISABLE_LOGGING'.
 At this time, log4cxx (http://logging.apache.org/log4cxx) is the only 
 supported logging library that builds correctly under Windows.
 
-A binary distribution is available at http://pion.org/files/log4cxx.zip.
+A binary distribution is available at http://pion.org/files/apache-log4cxx.win32.zip.
 Install it in C:\apache\apache-log4cxx-0.10.0, or change user macro 
 LOG4CXX_HOME in pion.vsprops, currently set to C:\apache\apache-log4cxx-0.10.0,
 accordingly.
@@ -135,6 +135,32 @@ Add <LOG4CXX_HOME>\bin to your path.
 
 Include PION_USE_LOG4CXX or PION_FULL in Preprocessor Definitions for the project,
 or in PionConfig.hpp.win, uncomment '#define PION_USE_LOG4CXX'.
+
+
+SQLite (optional):
+------------------
+
+Building SQLiteDatabase requires SQLite (http://www.sqlite.org/).
+
+A binary distribution is available at http://www.pion.org/files/SQLite-3.5.8.win32.zip.
+Unzip directly into C: (or change SQLITE_HOME accordingly) and add 
+C:\SQLite-3.5.8\lib to your path
+
+SQLiteDatabase is only built in the Debug_DLL_full and Release_DLL_full 
+configurations of pion-platform.sln.
+
+
+JSON (optional):
+----------------
+
+Building JSONCodec requires YAJL (http://lloydforge.org/projects/yajl/).
+
+A binary distribution is available at http://pion.org/files/yajl-0.4.0.win32.zip.
+Unzip directly into C: (or change JSONCodec.vcproj accordingly) and add 
+C:\yajl-0.4.0\bin to your path
+
+JSONCodec is only built in the Debug_DLL_full and Release_DLL_full 
+configurations of pion-platform.sln.
 
 
 Building and installing Pion:
@@ -192,9 +218,3 @@ libxml:
  - download http://xmlsoft.org/sources/win32/libxml2-2.6.30.win32.zip
  - open it into C:\libxml2-2.6.30\
  - add C:\libxml2-2.6.30\bin to your path
-
-SQLite:
- - download http://www.pion.org/files/SQLite-3.5.8.win32.zip
- - open it into C:\sqlite3-3.5.8\
- - add C:\SQLite-3.5.8\lib to your path
- 
