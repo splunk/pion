@@ -18,7 +18,6 @@
 		<Configuration
 			Name="Debug_DLL|Win32"
 			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\build\pion.vsprops;..\..\build\depth_3_pion-common.vsprops"
 			CharacterSet="0"
@@ -95,7 +94,6 @@
 		<Configuration
 			Name="Release_DLL|Win32"
 			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\build\pion.vsprops;..\..\build\depth_3_pion-common.vsprops"
 			CharacterSet="0"
