@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="pion"
 	OutputDirectory="$(SolutionDir)bin\$(ConfigurationName)"
+	BuildLogFile="BuildLogs\$(IntDir)\$(ProjectName).htm"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
