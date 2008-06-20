@@ -181,25 +181,30 @@ Running the test programs:
 Make sure "C:\Boost\Lib" is on your path.
 
 If you got the source code from the Subversion repository and haven't yet run
-Doxygen, then run Doxygen from "<PION_NET_HOME>\doc\".  (The documentation
-is used as part of the Pion Network Library tests.)
+Doxygen, then create the documentation files (used as part of the Pion Network 
+Library tests) as follows:
 
-To test PionWebServer, try running it from <"PION_NET_HOME>\utils\" with
+cd <PION_NET_HOME>\..
+doxygen net\doc\Doxyfile
+
+Alternatively, just create file "<PION_NET_HOME>\doc\html\index.html":
+	<html>
+		<head>
+			<title>pion-net Documentation</title>
+		</head>
+		<body>
+			<h1>pion-net Documentation</h1>
+		</body>
+	</html>
+Otherwise, PionWebServer and unit tests fail with "no such directory" error.
+
+
+To test PionWebServer, try running it from "<PION_NET_HOME>\utils\" with
 the following command line args: -c vcservices.conf
 
 To run from within the IDE, go to PionWebServer Property Pages ->
 Debugging, and set 'Command Arguments' to the above.
 
-Note: If you didn't run Doxygen, create "<PION_NET_HOME>\doc\html\index.html" file:
-		<html>
-		<head>
-		<title>pion-net Documentation</title>
-		</head>
-		<body>
-			<h1>pion-net Documentation</h1>
-		</body>
-		</html>
-Otherwise, PionWebServer and unit tests fail with "no such directory" error.
 
 Additional libraries (required for PLATFORM build)
 --------------------------------------------------
