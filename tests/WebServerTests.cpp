@@ -17,6 +17,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/filesystem.hpp>
 #include <pion/PionPlugin.hpp>
 #include <pion/PionScheduler.hpp>
 #include <pion/net/HTTPRequest.hpp>
@@ -651,6 +652,8 @@ BOOST_AUTO_TEST_CASE(checkAllowNothingServiceResponseContent) {
 #endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
+	BOOST_REQUIRE_MESSAGE(boost::filesystem::exists("../doc/html"), "running Doxygen should fix this");
+
 	// load multiple services and start the server
 	m_server.loadServiceConfig(SERVICES_CONFIG_FILE);
 	m_server.start();
