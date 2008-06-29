@@ -6,6 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
 //
+
 #ifndef __HTTP_MESSAGE_PARSER_HEADER__
 #define __HTTP_MESSAGE_PARSER_HEADER__
 
@@ -24,8 +25,8 @@ class PION_NET_API HTTPMessageParser : public pion::net::HTTPParser
 public:
 
 	/// constructs HTTPMessageParser object
-	HTTPMessageParser(const bool is_request) : HTTPParser(is_request), m_content_len(-1), 
-			m_content_len_read(0), m_headers_parsed(false) 
+	HTTPMessageParser(const bool is_request) : HTTPParser(is_request), 
+		 m_headers_parsed(false), m_content_len(-1), m_content_len_read(0)
 	{
 	}
 
@@ -42,7 +43,9 @@ public:
 		m_msg_ptr.reset( new HTTPResponse(request_ref) );
 	}
 
+
 private:
+
 	inline bool hasContent() {  return m_msg_ptr->isChunked() || (m_content_len != 0); }
 
 	boost::tribool processHeader(const char *ptr, size_t len);

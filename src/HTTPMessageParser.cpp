@@ -6,6 +6,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
 //
+
+#include <algorithm>
 #include <pion/net/HTTPMessageParser.hpp>
 
 using namespace pion::net;
@@ -83,7 +85,7 @@ boost::tribool HTTPMessageParser::processContent(const char *ptr, size_t len)
 	}
 	else
 	{
-		if(m_content_len == -1)
+		if(m_content_len == static_cast<size_t>(-1))
 		{
 			// content len is unknown, read until EOS
 			// use the HTTPParser to convert the data read into a message chunk
@@ -108,7 +110,7 @@ boost::tribool HTTPMessageParser::addToContentBuffer(const char *ptr, size_t len
 
 	if(m_content_len > m_content_len_read)
 	{
-		memcpy( getMessage().getContent() + m_content_len_read, ptr, min(len, m_content_len - m_content_len_read));
+		memcpy( getMessage().getContent() + m_content_len_read, ptr, std::min(len, m_content_len - m_content_len_read));
 		m_content_len_read += len;
 	}
 	else

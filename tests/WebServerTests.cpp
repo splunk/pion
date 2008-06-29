@@ -652,7 +652,11 @@ BOOST_AUTO_TEST_CASE(checkAllowNothingServiceResponseContent) {
 #endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
+#ifdef PION_XCODE
+	BOOST_REQUIRE_MESSAGE(boost::filesystem::exists("../../net/doc/html"), "running Doxygen should fix this");
+#else
 	BOOST_REQUIRE_MESSAGE(boost::filesystem::exists("../doc/html"), "running Doxygen should fix this");
+#endif
 
 	// load multiple services and start the server
 	m_server.loadServiceConfig(SERVICES_CONFIG_FILE);
