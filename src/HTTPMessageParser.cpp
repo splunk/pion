@@ -110,7 +110,11 @@ boost::tribool HTTPMessageParser::addToContentBuffer(const char *ptr, size_t len
 
 	if(m_content_len > m_content_len_read)
 	{
+#ifdef _MSC_VER
+		memcpy( getMessage().getContent() + m_content_len_read, ptr, min(len, m_content_len - m_content_len_read));
+#else
 		memcpy( getMessage().getContent() + m_content_len_read, ptr, std::min(len, m_content_len - m_content_len_read));
+#endif
 		m_content_len_read += len;
 	}
 	else
