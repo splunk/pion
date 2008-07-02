@@ -256,13 +256,13 @@ std::string HTTPTypes::url_encode(const std::string& str)
 	for (std::string::size_type pos = 0; pos < str.size(); ++pos) {
 		switch(str[pos]) {
 		default:
-			if (str[pos] >= 32 && str[pos] < 127) {
+			if (str[pos] > 32 && str[pos] < 127) {
 				// character does not need to be escaped
 				result += str[pos];
 				break;
 			}
 			// else pass through to next case
-			
+		case ' ':	
 		case '$': case '&': case '+': case ',': case '/': case ':':
 		case ';': case '=': case '?': case '@': case '"': case '<':
 		case '>': case '#': case '%': case '{': case '}': case '|':

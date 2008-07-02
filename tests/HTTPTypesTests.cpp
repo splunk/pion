@@ -38,6 +38,12 @@ BOOST_AUTO_TEST_CASE(testCaseInsensitiveEqual) {
 	BOOST_CHECK(!CaseInsensitiveEqual()("abc", "ab"));
 }
 
+BOOST_AUTO_TEST_CASE(testURLEncoding) {
+	BOOST_CHECK_EQUAL(url_encode("hello world"), "hello%20world");
+	BOOST_CHECK_EQUAL(url_encode("He said, \"Hello, World!\""),
+					  "He%20said%2C%20%22Hello%2C%20World!%22");
+}
+
 BOOST_AUTO_TEST_CASE(testBase64Routines) {
 	std::string original;
 	std::string original_base64;
