@@ -389,10 +389,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\HTTPMessageParser.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\HTTPParser.cpp"
 				>
 			</File>
@@ -440,10 +436,6 @@
 			</File>
 			<File
 				RelativePath="..\include\pion\net\HTTPMessage.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\include\pion\net\HTTPMessageParser.hpp"
 				>
 			</File>
 			<File
