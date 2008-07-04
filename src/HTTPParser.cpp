@@ -35,7 +35,73 @@ const unsigned long	HTTPParser::POST_CONTENT_MAX = 1024 * 1024;	// 1 MB
 	
 // HTTPParser member functions
 
-boost::tribool HTTPParser::parseHTTPHeaders(HTTPMessage& http_msg)
+boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
+{
+	PION_ASSERT(! eof() );
+
+	boost::tribool rc = boost::indeterminate;
+	std::size_t total_bytes_parsed = 0;
+	
+	do {
+		switch (m_message_parse_state) {
+			// just started parsing the HTTP message
+			case PARSE_START:
+				m_message_parse_state = PARSE_HEADERS;
+				// step through to PARSE_HEADERS
+				
+			// parsing the HTTP headers
+			case PARSE_HEADERS:
+				rc = parseHeaders(http_msg);
+				total_bytes_parsed += m_bytes_last_read;
+				// check if we have finished parsing HTTP headers
+				if (rc == true) {
+					// finishHeaderParsing() updates m_message_parse_state
+					rc = finishHeaderParsing(http_msg);
+				}
+				break;
+			
+			// parsing chunked payload content
+			case PARSE_CHUNKS:
+				rc = parseChunks(http_msg.getChunkBuffers());
+				total_bytes_parsed += m_bytes_last_read;
+				// check if we have finished parsing all chunks
+				if (rc == true) {
+					http_msg.concatenateChunks();
+				}
+				break;
+				
+			// parsing regular payload content with a known length
+			case PARSE_CONTENT:
+				rc = consumeContent(http_msg);
+				total_bytes_parsed += m_bytes_last_read;
+				break;
+				
+			// parsing payload content with no length (until EOF)
+			case PARSE_CONTENT_NO_LENGTH:
+				consumeContentAsNextChunk(http_msg.getChunkBuffers());
+				total_bytes_parsed += m_bytes_last_read;
+				break;
+
+			// finished parsing the HTTP message
+			case PARSE_END:
+				rc = true;
+				break;
+		}
+	} while ( boost::indeterminate(rc) && ! eof() );
+
+	// check if we've finished parsing the HTTP message
+	if (rc == true) {
+		m_message_parse_state = PARSE_END;
+		finish(http_msg);
+	}
+	
+	// update bytes last read (aggregate individual operations for caller)
+	m_bytes_last_read = total_bytes_parsed;
+	
+	return rc;
+}
+
+boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 {
 	//
 	// note that boost::tribool may have one of THREE states:
@@ -370,6 +436,65 @@ boost::tribool HTTPParser::parseHTTPHeaders(HTTPMessage& http_msg)
 	return boost::indeterminate;
 }
 
+boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
+{
+	boost::tribool rc = boost::indeterminate;
+	
+	m_bytes_content_read = 0;
+	http_msg.setContentLength(0);
+	http_msg.updateTransferCodingUsingHeader();
+	
+	if (http_msg.isChunked()) {
+		
+		// content is encoded using chunks
+		m_message_parse_state = PARSE_CHUNKS;
+		
+	} else if (http_msg.isContentLengthImplied()) {
+		
+		// content length is implied to be zero
+		m_message_parse_state = PARSE_END;
+		rc = true;
+		
+	} else {
+		// content length should be specified in the headers
+		
+		if (http_msg.hasHeader(HTTPTypes::HEADER_CONTENT_LENGTH)) {
+			
+			// message has a content-length header
+			http_msg.updateContentLengthUsingHeader();
+			
+			// check if content-length header == 0
+			if (http_msg.getContentLength() == 0) {
+				m_message_parse_state = PARSE_END;
+				rc = true;
+			} else {
+				m_message_parse_state = PARSE_CONTENT;
+			}
+			
+		} else {
+			// no content-length specified, and the content length cannot 
+			// otherwise be determined
+			
+			// only if not a request, read through the close of the connection
+			if (! m_is_request) {
+				// clear the chunk buffers before we start
+				http_msg.getChunkBuffers().clear();
+				
+				// continue reading content until there is no more data
+				m_message_parse_state = PARSE_CONTENT_NO_LENGTH;
+			} else {
+				m_message_parse_state = PARSE_END;
+				rc = true;
+			}
+		}
+	}
+	
+	// allocate a buffer for payload content (may be zero-size)
+	http_msg.createContentBuffer();
+	
+	return rc;
+}
+
 bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
 								 const char *ptr, const size_t len)
 {
@@ -548,57 +673,6 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::StringDictionary& dict,
 	return true;
 }
 
-std::size_t HTTPParser::consumeContent(HTTPMessage& http_msg)
-{
-	// get the payload content length from the HTTP headers
-	http_msg.updateContentLengthUsingHeader();
-
-	// read the post content
-	std::size_t content_bytes_to_read = http_msg.getContentLength();
-	char *post_buffer = http_msg.createContentBuffer();
-	
-	if (m_read_ptr < m_read_end_ptr) {
-		// there are extra bytes left from the last read operation
-		// copy them into the beginning of the content buffer
-		const unsigned int bytes_left_in_read_buffer = bytes_available();
-		
-		if (bytes_left_in_read_buffer >= http_msg.getContentLength()) {
-			// the last read operation included all of the payload content
-			memcpy(post_buffer, m_read_ptr, http_msg.getContentLength());
-			content_bytes_to_read = 0;
-			m_read_ptr += http_msg.getContentLength();
-			PION_LOG_DEBUG(m_logger, "Parsed " << http_msg.getContentLength() << " payload content bytes from last read operation (finished)");
-		} else {
-			// only some of the post content has been read so far
-			memcpy(post_buffer, m_read_ptr, bytes_left_in_read_buffer);
-			content_bytes_to_read -= bytes_left_in_read_buffer;
-			m_read_ptr = m_read_end_ptr;
-			PION_LOG_DEBUG(m_logger, "Parsed " << bytes_left_in_read_buffer << " payload content bytes from last read operation (partial)");
-		}
-	}
-	
-	m_bytes_last_read = (http_msg.getContentLength() - content_bytes_to_read);
-	m_bytes_total_read += m_bytes_last_read;
-	return m_bytes_last_read;
-}
-
-std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers)
-{
-	if (bytes_available() == 0) {
-		m_bytes_last_read = 0;
-	} else {
-		std::vector<char>	next_chunk;
-		while (m_read_ptr < m_read_end_ptr) {
-			next_chunk.push_back(*m_read_ptr);
-			++m_read_ptr;
-		}
-		chunk_buffers.push_back(next_chunk);
-		m_bytes_last_read = next_chunk.size();
-		m_bytes_total_read += m_bytes_last_read;
-	}
-	return m_bytes_last_read;
-}
-	
 boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
 {
 	//
@@ -731,49 +805,105 @@ boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
 	return boost::indeterminate;
 }
 
-void HTTPParser::finishRequest(HTTPRequest& http_request)
+boost::tribool HTTPParser::consumeContent(HTTPMessage& http_msg)
 {
-	http_request.setIsValid(true);
-	http_request.setMethod(m_method);
-	http_request.setResource(m_resource);
-	http_request.setQueryString(m_query_string);
+	size_t content_bytes_to_read;
+	size_t content_bytes_available = bytes_available();
+	boost::tribool rc = boost::indeterminate;
 	
-	// parse query pairs from the URI query string
-	if (! m_query_string.empty()) {
-		if (! parseURLEncoded(http_request.getQueryParams(),
-							  m_query_string.c_str(),
-							  m_query_string.size())) 
-			PION_LOG_WARN(m_logger, "Request query string parsing failed (URI)");
+	if (http_msg.getContentLength() == 0) {
+		// consume all remaining content and never finish (PARSE_CONTENT_NO_LENGTH)
+		content_bytes_to_read = content_bytes_available;
+	} else {
+		content_bytes_to_read = (http_msg.getContentLength() - m_bytes_content_read);
+		if (content_bytes_available >= content_bytes_to_read) {
+			// we have all of the remaining payload content
+			rc = true;
+		} else {
+			// only some of the payload content is available
+			content_bytes_to_read = content_bytes_available;
+		}
 	}
 	
-	// parse query pairs from post content (x-www-form-urlencoded)
-	if (http_request.getHeader(HTTPTypes::HEADER_CONTENT_TYPE) ==
-		HTTPTypes::CONTENT_TYPE_URLENCODED)
-	{
-		if (! parseURLEncoded(http_request.getQueryParams(),
-							  http_request.getContent(),
-							  http_request.getContentLength())) 
-			PION_LOG_WARN(m_logger, "Request query string parsing failed (POST content)");
-	}
+	memcpy(http_msg.getContent() + m_bytes_content_read, m_read_ptr, content_bytes_to_read);
+	m_bytes_content_read += content_bytes_to_read;
+	m_read_ptr += content_bytes_to_read;
+	m_bytes_last_read = content_bytes_to_read;
+	m_bytes_total_read += m_bytes_last_read;
 	
-	// parse "Cookie" headers
-	std::pair<HTTPTypes::Headers::const_iterator, HTTPTypes::Headers::const_iterator>
-		cookie_pair = http_request.getHeaders().equal_range(HTTPTypes::HEADER_COOKIE);
-	for (HTTPTypes::Headers::const_iterator cookie_iterator = cookie_pair.first;
-		 cookie_iterator != http_request.getHeaders().end()
-		 && cookie_iterator != cookie_pair.second; ++cookie_iterator)
-	{
-		if (! parseCookieHeader(http_request.getCookieParams(),
-								cookie_iterator->second) )
-			PION_LOG_WARN(m_logger, "Cookie header parsing failed");
-	}
+	return rc;
 }
 
-void HTTPParser::finishResponse(HTTPResponse& http_response)
+std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers)
 {
-	http_response.setIsValid(true);
-	http_response.setStatusCode(m_status_code);
-	http_response.setStatusMessage(m_status_message);
+	if (bytes_available() == 0) {
+		m_bytes_last_read = 0;
+	} else {
+		std::vector<char>	next_chunk;
+		while (m_read_ptr < m_read_end_ptr) {
+			next_chunk.push_back(*m_read_ptr);
+			++m_read_ptr;
+		}
+		chunk_buffers.push_back(next_chunk);
+		m_bytes_last_read = next_chunk.size();
+		m_bytes_total_read += m_bytes_last_read;
+		m_bytes_content_read += m_bytes_last_read;
+	}
+	return m_bytes_last_read;
+}
+
+void HTTPParser::finish(HTTPMessage& http_msg) const
+{
+	// mark the message as being valid
+	http_msg.setIsValid(true);
+
+	if (isParsingRequest()) {
+
+		// finish an HTTP request message
+		
+		HTTPRequest& http_request(dynamic_cast<HTTPRequest&>(http_msg));
+		http_request.setMethod(m_method);
+		http_request.setResource(m_resource);
+		http_request.setQueryString(m_query_string);
+		
+		// parse query pairs from the URI query string
+		if (! m_query_string.empty()) {
+			if (! parseURLEncoded(http_request.getQueryParams(),
+								  m_query_string.c_str(),
+								  m_query_string.size())) 
+				PION_LOG_WARN(m_logger, "Request query string parsing failed (URI)");
+		}
+		
+		// parse query pairs from post content (x-www-form-urlencoded)
+		if (http_request.getHeader(HTTPTypes::HEADER_CONTENT_TYPE) ==
+			HTTPTypes::CONTENT_TYPE_URLENCODED)
+		{
+			if (! parseURLEncoded(http_request.getQueryParams(),
+								  http_request.getContent(),
+								  http_request.getContentLength())) 
+				PION_LOG_WARN(m_logger, "Request query string parsing failed (POST content)");
+		}
+		
+		// parse "Cookie" headers
+		std::pair<HTTPTypes::Headers::const_iterator, HTTPTypes::Headers::const_iterator>
+		cookie_pair = http_request.getHeaders().equal_range(HTTPTypes::HEADER_COOKIE);
+		for (HTTPTypes::Headers::const_iterator cookie_iterator = cookie_pair.first;
+			 cookie_iterator != http_request.getHeaders().end()
+			 && cookie_iterator != cookie_pair.second; ++cookie_iterator)
+		{
+			if (! parseCookieHeader(http_request.getCookieParams(),
+									cookie_iterator->second) )
+				PION_LOG_WARN(m_logger, "Cookie header parsing failed");
+		}
+		
+	} else {
+		
+		// finish an HTTP response message
+		
+		HTTPResponse& http_response(dynamic_cast<HTTPResponse&>(http_msg));
+		http_response.setStatusCode(m_status_code);
+		http_response.setStatusMessage(m_status_message);
+	}
 }
 
 }	// end namespace net

@@ -8,38 +8,50 @@
 //
 
 #include <boost/test/unit_test.hpp>
-#include <pion/net/HTTPMessageParser.hpp>
+#include <pion/net/HTTPParser.hpp>
+#include <pion/net/HTTPRequest.hpp>
+#include <pion/net/HTTPResponse.hpp>
 
 #include "HTTPParserTestsData.inc"
 
 using namespace pion::net;
 
-BOOST_AUTO_TEST_CASE(testHTTPMessageParser)
+BOOST_AUTO_TEST_CASE(testHTTPParserSimpleRequest)
 {
-	HTTPMessageParser request_parser(true);
-	BOOST_CHECK(request_parser.readNext((const char*)request_data_1, sizeof(request_data_1)));
+	HTTPParser request_parser(true);
+    request_parser.setReadBuffer((const char*)request_data_1, sizeof(request_data_1));
 
-	HTTPMessageParser response_parser(false);
-	BOOST_CHECK(response_parser.readNext((const char*)response_data_1, sizeof(response_data_1)));
+    HTTPRequest http_request;
+	BOOST_CHECK(request_parser.parse(http_request));
 }
 
-BOOST_AUTO_TEST_CASE(testHTTPMessageParser_MultiFrame)
+BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
 {
-	HTTPMessageParser request_parser(true);
-	BOOST_CHECK(request_parser.readNext((const char*)request_data_1, sizeof(request_data_1)));
+    HTTPParser response_parser(false);
+    response_parser.setReadBuffer((const char*)response_data_1, sizeof(response_data_1));
 
-	HTTPMessageParser response_parser(false);
+    HTTPResponse http_response;
+    BOOST_CHECK(response_parser.parse(http_response));
+}
+
+BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
+{
 	const unsigned char* frames[] = { resp2_frame0, resp2_frame1, resp2_frame2, 
 			resp2_frame3, resp2_frame4, resp2_frame5, resp2_frame6 };
 
 	size_t sizes[] = { sizeof(resp2_frame0), sizeof(resp2_frame1), sizeof(resp2_frame2), 
 			sizeof(resp2_frame3), sizeof(resp2_frame4), sizeof(resp2_frame5), sizeof(resp2_frame6) };
+
 	int frame_cnt = sizeof(frames)/sizeof(frames[0]);
 
-	for(int i=0; i <  frame_cnt - 1; i++ )
-	{
-		BOOST_CHECK( boost::indeterminate(response_parser.readNext((const char*)frames[i], sizes[i])) );
+    HTTPParser response_parser(false);
+    HTTPResponse http_response;
+
+    for (int i=0; i <  frame_cnt - 1; i++ ) {
+        response_parser.setReadBuffer((const char*)frames[i], sizes[i]);
+		BOOST_CHECK( boost::indeterminate(response_parser.parse(http_response)) );
 	}
 
-	BOOST_CHECK( response_parser.readNext((const char*)frames[frame_cnt - 1], sizes[frame_cnt - 1]) );
+    response_parser.setReadBuffer((const char*)frames[frame_cnt - 1], sizes[frame_cnt - 1]);
+    BOOST_CHECK( response_parser.parse(http_response) );
 }

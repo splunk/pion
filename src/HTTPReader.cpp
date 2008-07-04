@@ -25,16 +25,16 @@ void HTTPReader::receive(void)
 		// there are pipelined messages available in the connection's read buffer
 		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// default to close the connection
 		m_tcp_conn->loadReadPosition(m_read_ptr, m_read_end_ptr);
-		consumeHeaderBytes();
+		consumeBytes();
 	} else {
 		// no pipelined messages available in the read buffer -> read bytes from the socket
 		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// default to close the connection
-		getMoreHeaderBytes();
+		readBytes();
 	}
 }
 
-void HTTPReader::readHeaderBytes(const boost::system::error_code& read_error,
-								 std::size_t bytes_read)
+void HTTPReader::consumeBytes(const boost::system::error_code& read_error,
+							  std::size_t bytes_read)
 {
 	if (read_error) {
 		// a read error occured
@@ -43,16 +43,16 @@ void HTTPReader::readHeaderBytes(const boost::system::error_code& read_error,
 	}
 	
 	PION_LOG_DEBUG(m_logger, "Read " << bytes_read << " bytes from HTTP "
-				   << (m_is_request ? "request" : "response"));
+				   << (isParsingRequest() ? "request" : "response"));
 
 	// set pointers for new HTTP header data to be consumed
 	setReadBuffer(m_tcp_conn->getReadBuffer().data(), bytes_read);
 
-	// consume the new HTTP header bytes available
-	consumeHeaderBytes();
+	consumeBytes();
 }
 
-void HTTPReader::consumeHeaderBytes(void)
+
+void HTTPReader::consumeBytes(void)
 {
 	// parse the bytes read from the last operation
 	//
@@ -62,89 +62,42 @@ void HTTPReader::consumeHeaderBytes(void)
 	// true: finished successfully parsing the message
 	// indeterminate: parsed bytes, but the message is not yet finished
 	//
-	boost::tribool result = parseHTTPHeaders(getMessage());
+	boost::tribool result = parse(getMessage());
 	
 	if (gcount() > 0) {
 		// parsed > 0 bytes in HTTP headers
-		PION_LOG_DEBUG(m_logger, "Parsed " << gcount() << " HTTP header bytes");
+		PION_LOG_DEBUG(m_logger, "Parsed " << gcount() << " HTTP bytes");
 	}
 
-	if (result) {
-		// finished reading HTTP headers and they are valid
+	if (result == true) {
+		// finished reading HTTP message and it is valid
 
-		// check if we have payload content to read
-		getMessage().updateTransferCodingUsingHeader();
-
-		if (getMessage().isChunked()) {
-			// message content is encoded using chunks
-
-			if (m_read_ptr < m_read_end_ptr) {
-				result = parseChunks(getMessage().getChunkBuffers());
-				if (boost::indeterminate(result)) {
-					// read more bytes from the connection
-					getMoreChunkedContentBytes();
-				} else if (!result) {
-					// the message is invalid or an error occured
-					m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
-					getMessage().setIsValid(false);
-					finishedReading();
-				} else {
-					// finished parsing all chunks
-					getMessage().concatenateChunks();
-					readContentBytes(0);
-				}
+		// set the connection's lifecycle type
+		if (getMessage().checkKeepAlive()) {
+			if ( eof() ) {
+				// the connection should be kept alive, but does not have pipelined messages
+				m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
 			} else {
-				getMoreChunkedContentBytes();
-			}
-			
-		} else if (! getMessage().isContentLengthImplied()) {
-			// we cannot assume that the message has no content
+				// the connection has pipelined messages
+				m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_PIPELINED);
 
-			if (getMessage().hasHeader(HTTPTypes::HEADER_CONTENT_LENGTH)) {
-				// message has a content-length header
+				// save the read position as a bookmark so that it can be retrieved
+				// by a new HTTP parser, which will be created after the current
+				// message has been handled
+				m_tcp_conn->saveReadPosition(m_read_ptr, m_read_end_ptr);
 
-				consumeContent(getMessage());
-				const std::size_t content_bytes_to_read = getMessage().getContentLength() - gcount();
-				if (content_bytes_to_read == 0) {
-					// read all of the content from the last read operation
-					readContentBytes(0);
-				} else {
-					// read the rest of the payload content into the buffer
-					// and only return after we've finished or an error occurs
-					getMoreContentBytes(content_bytes_to_read);
-				}
-				
-			} else {
-				// no content-length specified, and the content length cannot 
-				// otherwise be determined
-
-				// only if not a request, read through the close of the connection
-				if (dynamic_cast<HTTPRequest*>(&getMessage()) == NULL) {
-					// clear the chunk buffers before we start
-					getMessage().getChunkBuffers().clear();
-					
-					// read in the remaining data available in the HTTPParser read buffer
-					HTTPParser::consumeContentAsNextChunk(getMessage().getChunkBuffers());
-					
-					// continue reading from the TCP connection until it is closed
-					getMoreContentBytes();
-				} else {
-					// the message has no content
-					
-					getMessage().setContentLength(0);
-					getMessage().createContentBuffer();
-					readContentBytes(0);
-				}
+				PION_LOG_DEBUG(m_logger, "HTTP pipelined "
+							   << (isParsingRequest() ? "request (" : "response (")
+							   << bytes_available() << " bytes available)");
 			}
 		} else {
-			// the message has no content
-			
-			getMessage().setContentLength(0);
-			getMessage().createContentBuffer();
-			readContentBytes(0);
+			m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);
 		}
-		
-	} else if (!result) {
+
+		// we have finished parsing the HTTP message
+		finishedReading();
+
+	} else if (result == false) {
 		// the message is invalid or an error occured
 
 	#ifndef NDEBUG
@@ -160,7 +113,7 @@ void HTTPReader::consumeHeaderBytes(void)
 #endif
 			++m_read_ptr;
 		}
-		PION_LOG_ERROR(m_logger, "Bad " << (m_is_request ? "request" : "response")
+		PION_LOG_ERROR(m_logger, "Bad " << (isParsingRequest() ? "request" : "response")
 					   << " debug: " << bad_message);
 	#endif
 
@@ -171,116 +124,35 @@ void HTTPReader::consumeHeaderBytes(void)
 	} else {
 		// not yet finished parsing the message -> read more data
 		
-		receive();
-	}
-}
-
-void HTTPReader::readContentBytes(const boost::system::error_code& read_error,
-								  std::size_t bytes_read)
-{
-	// check if a read error occured
-	if (read_error)
-		handleReadError(read_error);
-	else
-		readContentBytes(bytes_read);
-}
-	
-void HTTPReader::readContentBytes(std::size_t bytes_read)
-{
-	// the message is valid: finish it
-	finishMessage();
-
-	// set the connection's lifecycle type
-	if (getMessage().checkKeepAlive()) {
-		if ( eof() ) {
-			// the connection should be kept alive, but does not have pipelined messages
-			m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
-		} else {
-			// the connection has pipelined messages
-			m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_PIPELINED);
-
-			// save the read position as a bookmark so that it can be retrieved
-			// by a new HTTP parser, which will be created after the current
-			// message has been handled
-			m_tcp_conn->saveReadPosition(m_read_ptr, m_read_end_ptr);
-			
-			PION_LOG_DEBUG(m_logger, "HTTP pipelined "
-						   << (m_is_request ? "request (" : "response (")
-						   << bytes_available() << " bytes available)");
-		}
-	} else {
-		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);
-	}
-
-	// we have finished parsing the HTTP message
-	finishedReading();
-}
-
-void HTTPReader::readContentBytesUntilEOS(const boost::system::error_code& read_error,
-										  std::size_t bytes_read)
-{
-	if (read_error || bytes_read == 0) {
-		// connection closed -> finish the HTTP message
-		getMessage().concatenateChunks();
-		finishMessage();
-		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);
-		finishedReading();
-		return;
-	}
-
-	// use the HTTPParser to convert the data read into a message chunk
-	HTTPParser::setReadBuffer(m_tcp_conn->getReadBuffer().data(), bytes_read);
-	HTTPParser::consumeContentAsNextChunk(getMessage().getChunkBuffers());
-	
-	// continue reading from the TCP connection
-	getMoreContentBytes();
-}
-	
-void HTTPReader::readChunkedContentBytes(const boost::system::error_code& read_error,
-										 std::size_t bytes_read)
-{
-	if (read_error) {
-		// a read error occured
-		handleReadError(read_error);
-		return;
-	}
-
-	// set pointers for new HTTP content data to be consumed
-	setReadBuffer(m_tcp_conn->getReadBuffer().data(), bytes_read);
-
-	boost::tribool result = parseChunks(getMessage().getChunkBuffers());
-	if (boost::indeterminate(result)) {
-		// read more bytes from the connection
-		getMoreChunkedContentBytes();
-	} else if (!result) {
-		// the message is invalid or an error occured
-		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
-		getMessage().setIsValid(false);
-		finishedReading();
-	} else {
-		// finished parsing all chunks
-		getMessage().concatenateChunks();
-		const boost::system::error_code no_error;
-		readContentBytes(no_error, 0);
+		readBytes();
 	}
 }
 
 void HTTPReader::handleReadError(const boost::system::error_code& read_error)
 {
+	// close the connection, forcing the client to establish a new one
+	m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+
+	// check if this is just a message with unknown content length
+	if (! checkPrematureEOF(getMessage())) {
+		finishedReading();
+		return;
+	}
+	
 	// only log errors if the parsing has already begun
 	if (getTotalBytesRead() > 0) {
 		if (read_error == boost::asio::error::operation_aborted) {
 			// if the operation was aborted, the acceptor was stopped,
 			// which means another thread is shutting-down the server
-			PION_LOG_INFO(m_logger, "HTTP " << (m_is_request ? "request" : "response")
+			PION_LOG_INFO(m_logger, "HTTP " << (isParsingRequest() ? "request" : "response")
 						  << " parsing aborted (shutting down)");
 		} else {
-			PION_LOG_INFO(m_logger, "HTTP " << (m_is_request ? "request" : "response")
+			PION_LOG_INFO(m_logger, "HTTP " << (isParsingRequest() ? "request" : "response")
 						  << " parsing aborted (" << read_error.message() << ')');
 		}
 	}
-	// close the connection, forcing the client to establish a new one
-	m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+
+	// do not trigger the callback when there are errors -> currently no way to propagate them
 	m_tcp_conn->finish();
 }
 

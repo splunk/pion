@@ -36,11 +36,9 @@ public:
 	 */
 	HTTPResponse(const HTTPRequest& http_request)
 		: m_status_code(RESPONSE_CODE_OK),
-		m_status_message(RESPONSE_MESSAGE_OK),
-		m_request_method(http_request.getMethod())
+		m_status_message(RESPONSE_MESSAGE_OK)
 	{
-		if (http_request.getVersionMajor() == 1 && http_request.getVersionMinor() >= 1)
-			setChunksSupported(true);
+		updateRequestInfo(http_request);
 	}
 
 	/**
@@ -84,6 +82,18 @@ public:
 			    || m_status_code == 204	|| m_status_code == 205		// no content & reset content responses
 			    || m_status_code == 304								// not modified responses have no content
 			    );
+	}
+
+	/**
+	 * Updates HTTP request information for the response object (use 
+	 * this if the response cannot be constructed using the request)
+	 *
+	 * @param http_request the request that this is responding to
+	 */
+	inline void updateRequestInfo(const HTTPRequest& http_request) {
+		m_request_method = http_request.getMethod();
+		if (http_request.getVersionMajor() == 1 && http_request.getVersionMinor() >= 1)
+			setChunksSupported(true);
 	}
 	
 	/// sets the HTTP response status code

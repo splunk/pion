@@ -75,10 +75,12 @@ protected:
 		setLogger(PION_GET_LOGGER("pion.net.HTTPResponseReader"));
 	}
 		
-
-	/// Finishes updating the HTTP message we are parsing
-	virtual void finishMessage(void) {
-		finishResponse(*m_http_msg);
+	/// Reads more bytes from the TCP connection
+	virtual void readBytes(void) {
+		getTCPConnection()->async_read_some(boost::bind(&HTTPResponseReader::consumeBytes,
+														shared_from_this(),
+														boost::asio::placeholders::error,
+														boost::asio::placeholders::bytes_transferred));
 	}
 
 	/// Called after we have finished reading/parsing the HTTP message
@@ -90,44 +92,6 @@ protected:
 	/// Returns a reference to the HTTP message being parsed
 	virtual HTTPMessage& getMessage(void) { return *m_http_msg; }
 
-	/// Reads more HTTP header bytes from the TCP connection
-	virtual void getMoreHeaderBytes(void) {
-		getTCPConnection()->async_read_some(boost::bind(&HTTPResponseReader::readHeaderBytes,
-														shared_from_this(),
-														boost::asio::placeholders::error,
-														boost::asio::placeholders::bytes_transferred));
-	}
-	
-	/// Reads more payload content bytes from the TCP connection (continue through EOS)
-	virtual void getMoreContentBytes(void) {
-		getTCPConnection()->async_read_some(boost::bind(&HTTPResponseReader::readContentBytesUntilEOS,
-														shared_from_this(),
-														boost::asio::placeholders::error,
-														boost::asio::placeholders::bytes_transferred));
-	}
-
-	/**
-	 * Reads more payload content bytes from the TCP connection
-	 *
-	 * @param bytes_to_read number of bytes to read from the connection
-	 */
-	virtual void getMoreContentBytes(const std::size_t bytes_to_read) {
-		getTCPConnection()->async_read(boost::asio::buffer(m_http_msg->getContent() + gcount(), bytes_to_read),
-									   boost::asio::transfer_at_least(bytes_to_read),
-									   boost::bind(&HTTPResponseReader::readContentBytes,
-												   shared_from_this(),
-												   boost::asio::placeholders::error,
-												   boost::asio::placeholders::bytes_transferred));
-	}
-
-	/// Reads more HTTP chunked content bytes from the TCP connection
-	virtual void getMoreChunkedContentBytes(void) {
-		getTCPConnection()->async_read_some(boost::bind(&HTTPResponseReader::readChunkedContentBytes,
-														shared_from_this(),
-														boost::asio::placeholders::error,
-														boost::asio::placeholders::bytes_transferred));
-	}
-	
 	
 	/// The new HTTP message container being created
 	HTTPResponsePtr				m_http_msg;

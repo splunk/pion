@@ -52,81 +52,28 @@ protected:
 		: HTTPParser(is_request), m_tcp_conn(tcp_conn) {}	
 	
 	/**
-	 * Called after new HTTP header bytes have been read
+	 * Consumes bytes that have been read using an HTTP parser
 	 * 
 	 * @param read_error error status from the last read operation
 	 * @param bytes_read number of bytes consumed by the last read operation
 	 */
-	void readHeaderBytes(const boost::system::error_code& read_error,
-						 std::size_t bytes_read);
+	void consumeBytes(const boost::system::error_code& read_error,
+                      std::size_t bytes_read);
 
-	/**
-	 * Called after new payload content bytes have been read (with error code to check)
-	 * 
-	 * @param read_error error status from the last read operation
-	 * @param bytes_read number of bytes consumed by the last read operation
-	 */
-	void readContentBytes(const boost::system::error_code& read_error,
-						  std::size_t bytes_read);
+    /// Consumes bytes that have been read using an HTTP parser
+    void consumeBytes(void);
+	
+	/// Reads more bytes from the TCP connection
+	virtual void readBytes(void) = 0;
 
-	/**
-	 * Called after new payload content bytes have been read
-	 * 
-	 * @param bytes_read number of bytes consumed by the last read operation
-	 */
-	void readContentBytes(std::size_t bytes_read);
-	
-	/**
-	 * Called after new payload content bytes have been read (continue through EOS)
-	 * 
-	 * @param read_error error status from the last read operation
-	 * @param bytes_read number of bytes consumed by the last read operation
-	 */
-	void readContentBytesUntilEOS(const boost::system::error_code& read_error,
-								  std::size_t bytes_read);
-	
-	/**
-	 * Called after new chunked payload content bytes have been read
-	 * 
-	 * @param read_error error status from the last read operation
-	 * @param bytes_read number of bytes consumed by the last read operation
-	 */
-	void readChunkedContentBytes(const boost::system::error_code& read_error,
-								 std::size_t bytes_read);
+    /// Called after we have finished reading/parsing the HTTP message
+    virtual void finishedReading(void) = 0;
 
-	/// Finishes updating the HTTP message we are parsing
-	virtual void finishMessage(void) = 0;
-	
-	/// Called after we have finished reading/parsing the HTTP message
-	virtual void finishedReading(void) = 0;
-	
-	/// Returns a reference to the HTTP message being parsed
-	virtual HTTPMessage& getMessage(void) = 0;
-	
-	/// Reads more HTTP header bytes from the TCP connection
-	virtual void getMoreHeaderBytes(void) = 0;
+    /// Returns a reference to the HTTP message being parsed
+    virtual HTTPMessage& getMessage(void) = 0;
 
-	/// Reads more payload content bytes from the TCP connection (continue through EOS)
-	virtual void getMoreContentBytes(void) = 0;
-	
-	/**
-	 * Reads more payload content bytes from the TCP connection
-	 *
-	 * @param bytes_to_read number of bytes to read from the connection
-	 */
-	virtual void getMoreContentBytes(const std::size_t bytes_to_read) = 0;
-	
-	/**
-	 * Reads more payload content bytes from the TCP connection
-	 */
-	virtual void getMoreChunkedContentBytes(void) = 0;
 
 private:
-
-	/**
-	 * Consumes HTTP header bytes available in the read buffer
-	 */
-	void consumeHeaderBytes(void);
 
 	/**
 	 * Handles errors that occur during read operations

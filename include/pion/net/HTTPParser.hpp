@@ -42,73 +42,27 @@ public:
 	 */
 	HTTPParser(const bool is_request)
 		: m_logger(PION_GET_LOGGER("pion.net.HTTPParser")), m_is_request(is_request),
-		m_read_ptr(NULL), m_read_end_ptr(NULL),
+		m_read_ptr(NULL), m_read_end_ptr(NULL), m_message_parse_state(PARSE_START),
 		m_headers_parse_state(is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H),
-		m_chunked_content_parse_state(PARSE_CHUNK_SIZE_START),
-		m_status_code(0), m_bytes_last_read(0), m_bytes_total_read(0)
+		m_chunked_content_parse_state(PARSE_CHUNK_SIZE_START), m_status_code(0),
+		m_bytes_content_read(0), m_bytes_last_read(0), m_bytes_total_read(0)
 	{}
 	
-	// default destructor
+	/// default destructor
 	virtual ~HTTPParser() {}
 
-	
 	/**
-	 * parses an HTTP message up to the end of the headers using bytes 
-	 * available in the read buffer
+	 * parses an HTTP message including all payload content it might contain
 	 *
 	 * @param http_msg the HTTP message object to populate from parsing
 	 *
 	 * @return boost::tribool result of parsing:
 	 *                        false = message has an error,
-	 *                        true = finished parsing HTTP headers,
-	 *                        indeterminate = not yet finished parsing HTTP headers
+	 *                        true = finished parsing HTTP message,
+	 *                        indeterminate = not yet finished parsing HTTP message
 	 */
-	boost::tribool parseHTTPHeaders(HTTPMessage& http_msg);
+	boost::tribool parse(HTTPMessage& http_msg);
 	
-	/**
-	 * parses a chunked HTTP message-body using bytes available in the read buffer
-	 *
-	 * @param chunk_buffers buffers to be populated from parsing chunked content
-	 *
-	 * @return boost::tribool result of parsing:
-	 *                        false = message has an error,
-	 *                        true = finished parsing message,
-	 *                        indeterminate = message is not yet finished
-	 */
-	boost::tribool parseChunks(HTTPMessage::ChunkCache& chunk_buffers);
-
-	/**
-	 * prepares the payload content buffer and consumes any content remaining
-	 * in the parser's read buffer
-	 *
-	 * @param http_msg the HTTP message object to consume content for
-	 * @return unsigned long number of content bytes consumed, if any
-	 */
-	std::size_t consumeContent(HTTPMessage& http_msg);
-
-	/**
-	 * consume the bytes available in the read buffer, converting them into
-	 * the next chunk for the HTTP message
-	 *
-	 * @param chunk_buffers buffers to be populated from parsing chunked content
-	 * @return unsigned long number of content bytes consumed, if any
-	 */
-	std::size_t consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers);
-	
-	/**
-	 * finishes an HTTP request message (copies over request-only data)
-	 *
-	 * @param http_request the HTTP request object to finish
-	 */
-	void finishRequest(HTTPRequest& http_request);
-	
-	/**
-	 * finishes an HTTP response message (copies over response-only data)
-	 *
-	 * @param http_request the HTTP response object to finish
-	 */
-	void finishResponse(HTTPResponse& http_response);
-
 	/**
 	 * resets the location and size of the read buffer
 	 *
@@ -131,8 +85,27 @@ public:
 		read_end_ptr = m_read_end_ptr;
 	}
 	
+	/**
+	 * checks to see if a premature EOF was encountered while parsing.  This
+	 * should be called if there is no more data to parse, and if the last
+	 * call to the parse() function returned boost::indeterminate
+	 *
+     * @param http_mhttp://start.fedoraproject.org/sg the HTTP 
+     *                  message object being parsed
+	 * @return true if premature EOF, false if message is OK & finished parsing
+	 */
+	inline bool checkPrematureEOF(HTTPMessage& http_msg) {
+		if (m_message_parse_state != PARSE_CONTENT_NO_LENGTH)
+			return true;
+		m_message_parse_state = PARSE_END;
+		http_msg.concatenateChunks();
+		finish(http_msg);
+		return false;
+	}
+	
 	/// resets the parser to its initial state
 	inline void reset(void) {
+		m_message_parse_state = PARSE_START;
 		m_headers_parse_state = (m_is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H);
 		m_chunked_content_parse_state = PARSE_CHUNK_SIZE_START;
 		m_status_code = 0;
@@ -141,9 +114,9 @@ public:
 		m_resource.erase();
 		m_query_string.erase();
 		m_current_chunk.clear();
-		m_bytes_last_read = m_bytes_total_read = 0;
+		m_bytes_content_read = m_bytes_last_read = m_bytes_total_read = 0;
 	}
-
+	
 	/// returns true if there are no more bytes available in the read buffer
 	inline bool eof(void) const { return m_read_ptr == NULL || m_read_ptr >= m_read_end_ptr; }
 
@@ -155,7 +128,16 @@ public:
 	
 	/// returns the total number of bytes read while parsing the HTTP message
 	inline std::size_t getTotalBytesRead(void) const { return m_bytes_total_read; }
+	
+	/// returns the total number of bytes read while parsing the payload content
+	inline std::size_t getContentBytesRead(void) const { return m_bytes_content_read; }
+	
+	/// returns true if the parser is being used to parse an HTTP request
+	inline bool isParsingRequest(void) const { return m_is_request; }
 
+	/// returns true if the parser is being used to parse an HTTP response
+	inline bool isParsingResponse(void) const { return ! m_is_request; }
+	
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
 	
@@ -165,6 +147,72 @@ public:
 	
 protected:
 		
+	/**
+	 * parses an HTTP message up to the end of the headers using bytes 
+	 * available in the read buffer
+	 *
+	 * @param http_msg the HTTP message object to populate from parsing
+	 *
+	 * @return boost::tribool result of parsing:
+	 *                        false = message has an error,
+	 *                        true = finished parsing HTTP headers,
+	 *                        indeterminate = not yet finished parsing HTTP headers
+	 */
+	boost::tribool parseHeaders(HTTPMessage& http_msg);
+	
+	/**
+	 * should be called after parsing HTTP headers, to prepare for payload content parsing
+	 * available in the read buffer
+	 *
+	 * @param http_msg the HTTP message object to populate from parsing
+	 *
+	 * @return boost::tribool result of parsing:
+	 *                        false = message has an error,
+	 *                        true = finished parsing HTTP message (no content),
+	 *                        indeterminate = payload content is available to be parsed
+	 */
+	boost::tribool finishHeaderParsing(HTTPMessage& http_msg);
+	
+	/**
+	 * parses a chunked HTTP message-body using bytes available in the read buffer
+	 *
+	 * @param chunk_buffers buffers to be populated from parsing chunked content
+	 *
+	 * @return boost::tribool result of parsing:
+	 *                        false = message has an error,
+	 *                        true = finished parsing message,
+	 *                        indeterminate = message is not yet finished
+	 */
+	boost::tribool parseChunks(HTTPMessage::ChunkCache& chunk_buffers);
+	
+	/**
+	 * consumes payload content in the parser's read buffer 
+	 *
+	 * @param http_msg the HTTP message object to consume content for
+	 *  
+	 * @return boost::tribool result of parsing:
+	 *                        false = message has an error,
+	 *                        true = finished parsing message,
+	 *                        indeterminate = message is not yet finished
+	 */
+	boost::tribool consumeContent(HTTPMessage& http_msg);
+	
+	/**
+	 * consume the bytes available in the read buffer, converting them into
+	 * the next chunk for the HTTP message
+	 *
+	 * @param chunk_buffers buffers to be populated from parsing chunked content
+	 * @return unsigned long number of content bytes consumed, if any
+	 */
+	std::size_t consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers);
+
+	/**
+	 * finishes parsing an HTTP response message
+	 *
+	 * @param http_msg the HTTP message object to finish
+	 */
+	void finish(HTTPMessage& http_msg) const;
+	
 	/**
 	 * parse key-value pairs out of a url-encoded string
 	 * (i.e. this=that&a=value)
@@ -190,7 +238,7 @@ protected:
 	static bool parseCookieHeader(HTTPTypes::StringDictionary& dict,
 								  const std::string& cookie_header);
 
-	// misc functions used by parseRequest()
+	// misc functions used by the parsing functions
 	inline static bool isChar(int c);
 	inline static bool isControl(int c);
 	inline static bool isSpecial(int c);
@@ -247,7 +295,14 @@ protected:
 	
 private:
 
+	/// state used to keep track of where we are in parsing the HTTP message
+	enum MessageParseState {
+		PARSE_START, PARSE_HEADERS, PARSE_CONTENT,
+		PARSE_CONTENT_NO_LENGTH, PARSE_CHUNKS, PARSE_END
+	};
+	
 	/// state used to keep track of where we are in parsing the HTTP headers
+	/// (only used if MessageParseState == PARSE_HEADERS)
 	enum HeadersParseState {
 		PARSE_METHOD_START, PARSE_METHOD, PARSE_URI_STEM, PARSE_URI_QUERY,
 		PARSE_HTTP_VERSION_H, PARSE_HTTP_VERSION_T_1, PARSE_HTTP_VERSION_T_2,
@@ -262,6 +317,7 @@ private:
 	};
 
 	/// state used to keep track of where we are in parsing chunked content
+	/// (only used if MessageParseState == PARSE_CHUNKS)
 	enum ChunkedContentParseState {
 		PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE, 
 		PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE,
@@ -271,6 +327,10 @@ private:
 		PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK
 	};
 
+	
+	/// the current state of parsing HTTP headers
+	MessageParseState					m_message_parse_state;
+	
 	/// the current state of parsing HTTP headers
 	HeadersParseState					m_headers_parse_state;
 
@@ -310,6 +370,9 @@ private:
 	/// number of bytes read so far in the chunk currently being parsed
 	std::size_t 						m_bytes_read_in_current_chunk;
 
+	/// number of bytes read so far into the message's payload content
+	std::size_t 						m_bytes_content_read;
+	
 	/// number of bytes read during last parse operation
 	std::size_t 						m_bytes_last_read;
 	
