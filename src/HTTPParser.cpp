@@ -852,6 +852,35 @@ std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk
 	return m_bytes_last_read;
 }
 
+// Examples of valid Content-Type headers for which true should be returned:
+//      Content-Type: application/x-www-form-urlencoded
+//      Content-Type: application/x-www-form-urlencoded; charset=UTF-8; some-attribute = some-value
+bool HTTPParser::contentTypeIsUrlEncoded(HTTPRequest& http_request)
+{
+	// 'token' as defined in section 3.6 of RFC 2616
+	static const std::string token = "[^\\x00-\\x20()<>@,;:\\\\\"/\\[\\]\\?={}]+";
+
+	// 'parameter' as defined in section 3.6 of RFC 2616
+	static const std::string parameter = "\\s*" + token + "\\s*=\\s*" + token + "\\s*";
+
+	// see 'media-type' as defined in section 3.7 of RFC 2616
+	static const boost::regex url_encoded_content_type_header("\\s*" + HTTPTypes::CONTENT_TYPE_URLENCODED 
+															  + "\\s*(;" + parameter + ")*",
+															  boost::regex::icase);
+
+	std::string const& content_type_header = http_request.getHeader(HTTPTypes::HEADER_CONTENT_TYPE);
+	if (! boost::regex_match(content_type_header.c_str(), url_encoded_content_type_header))
+		return false;
+
+	static const boost::regex parameter_with_charset_attribute(";\\s*charset\\s*=\\s*(" + token + ")", boost::regex::icase);
+	boost::cmatch match_results;
+	if (boost::regex_search(content_type_header.c_str(), match_results, parameter_with_charset_attribute)) {
+		http_request.setCharset(match_results[1].str());
+	}
+
+	return true;
+}
+
 void HTTPParser::finish(HTTPMessage& http_msg) const
 {
 	// mark the message as being valid
@@ -875,9 +904,7 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 		}
 		
 		// parse query pairs from post content (x-www-form-urlencoded)
-		if (http_request.getHeader(HTTPTypes::HEADER_CONTENT_TYPE) ==
-			HTTPTypes::CONTENT_TYPE_URLENCODED)
-		{
+		if (contentTypeIsUrlEncoded(http_request)) {
 			if (! parseURLEncoded(http_request.getQueryParams(),
 								  http_request.getContent(),
 								  http_request.getContentLength())) 

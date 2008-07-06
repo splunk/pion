@@ -253,6 +253,9 @@ public:
 		}
 		BOOST_CHECK_EQUAL(m_expectedContent, http_request.getContent());
 
+		if (m_additional_request_test)
+			BOOST_CHECK(m_additional_request_test(http_request));
+
 		// send a simple response as evidence that this part of the code was reached
 		static const std::string GOODBYE_MESSAGE("Goodbye!\n");
 		tcp_conn->write(boost::asio::buffer(GOODBYE_MESSAGE), error_code);
@@ -263,15 +266,18 @@ public:
 	}
 
 	void setExpectations(const std::map<std::string, std::string>& expectedHeaders, 
-						 const std::string& expectedContent)
+						 const std::string& expectedContent,
+						 boost::function1<bool, HTTPRequest&> additional_request_test = NULL)
 	{
 		m_expectedHeaders = expectedHeaders;
 		m_expectedContent = expectedContent;
+		m_additional_request_test = additional_request_test;
 	}
 
 private:
 	std::map<std::string, std::string> m_expectedHeaders;
 	std::string m_expectedContent;
+	boost::function1<bool, HTTPRequest&> m_additional_request_test;
 };
 
 
@@ -427,6 +433,35 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
 	tcp_conn.read_some(error_code);
 	BOOST_CHECK(!error_code);
 	BOOST_CHECK(strncmp(tcp_conn.getReadBuffer().data(), "Goodbye!", strlen("Goodbye!")) == 0);
+}
+
+bool charsetIsEcmaCyrillic(HTTPRequest& http_request) {
+	return http_request.getCharset() == "ECMA-cyrillic";
+}
+
+BOOST_AUTO_TEST_CASE(checkCharsetOfReceivedRequest) {
+	// open a connection
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream tcp_stream(localhost);
+
+	// set expectations for received request
+	std::map<std::string, std::string> expectedHeaders;
+	expectedHeaders[HTTPTypes::HEADER_CONTENT_LENGTH] = "3";
+	getServerPtr()->setExpectations(expectedHeaders, "x=y", charsetIsEcmaCyrillic);
+	
+	// send request to the server
+	tcp_stream << "POST /resource1 HTTP/1.1" << HTTPTypes::STRING_CRLF
+			   << HTTPTypes::HEADER_CONTENT_LENGTH << ": 3" << HTTPTypes::STRING_CRLF
+			   << HTTPTypes::HEADER_CONTENT_TYPE << ": " << HTTPTypes::CONTENT_TYPE_URLENCODED << "; charset=ECMA-cyrillic"
+			   << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF
+			   << "x=y";
+	tcp_stream.flush();
+
+	// receive goodbye from the first server
+	std::string message;
+	std::getline(tcp_stream, message);
+	BOOST_CHECK(message == "Goodbye!");
+	tcp_stream.close();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
