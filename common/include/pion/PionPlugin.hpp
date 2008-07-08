@@ -140,7 +140,10 @@ public:
 	inline std::string getPluginName(void) const {
 		return (is_open() ? m_plugin_data->m_plugin_name : std::string());
 	}
-	
+
+	/// returns a list of all Plugins found in all Plugin directories
+	static void getAllPluginNames(std::vector<std::string>& plugin_names);
+
 	/**
 	 * opens plug-in library within a shared object file.  If the library is
 	 * already being used by another PionPlugin object, then the existing

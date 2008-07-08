@@ -8,6 +8,7 @@
 //
 
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionPlugin.hpp>
@@ -261,6 +262,23 @@ void PionPlugin::openPlugin(const std::string& plugin_file,
 std::string PionPlugin::getPluginName(const std::string& plugin_file)
 {
 	return boost::filesystem::basename(boost::filesystem::path(plugin_file));
+}
+
+void PionPlugin::getAllPluginNames(std::vector<std::string>& plugin_names)
+{
+	// Iterate through all the Plugin directories.
+	std::vector<std::string>::iterator it;
+	for (it = m_plugin_dirs.begin(); it != m_plugin_dirs.end(); ++it) {
+		// Find all shared libraries in the directory and add them to the list of Plugin names.
+		boost::filesystem::directory_iterator end;
+		for (boost::filesystem::directory_iterator it2(*it); it2 != end; ++it2) {
+			if (boost::filesystem::is_regular(*it2)) {
+				if (boost::filesystem::extension(it2->path()) == PionPlugin::PION_PLUGIN_EXTENSION) {
+					plugin_names.push_back(PionPlugin::getPluginName(it2->path().leaf()));
+				}
+			}
+		}
+	}
 }
 
 void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
