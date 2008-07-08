@@ -352,7 +352,7 @@ public:
 		BOOST_REQUIRE(! error_code);
 		http_response.receive(tcp_conn, error_code);
 		BOOST_REQUIRE(! error_code);
-		BOOST_CHECK(http_response.getStatusCode() == 404);
+		BOOST_CHECK_EQUAL(http_response.getStatusCode(), 404U);
 	}
 	
 	inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }

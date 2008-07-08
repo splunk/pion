@@ -17,6 +17,47 @@
 
 using namespace pion::net;
 
+
+BOOST_AUTO_TEST_CASE(checkGetFirstLineForRequest) {
+	HTTPRequest http_request;
+	
+	http_request.setMethod("GET");
+	http_request.setResource("/");
+
+	BOOST_CHECK_EQUAL(http_request.getFirstLine(), "GET / HTTP/1.1");
+	
+	http_request.setMethod("POST");
+
+	BOOST_CHECK_EQUAL(http_request.getFirstLine(), "POST / HTTP/1.1");
+
+	http_request.setResource("/index.html");
+
+	BOOST_CHECK_EQUAL(http_request.getFirstLine(), "POST /index.html HTTP/1.1");
+
+	http_request.setVersionMajor(1);
+	http_request.setVersionMinor(0);
+
+	BOOST_CHECK_EQUAL(http_request.getFirstLine(), "POST /index.html HTTP/1.0");
+}
+
+BOOST_AUTO_TEST_CASE(checkGetFirstLineForResponse) {
+	HTTPResponse http_response;
+	
+	http_response.setStatusCode(HTTPTypes::RESPONSE_CODE_OK);
+	http_response.setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_OK);
+
+	BOOST_CHECK_EQUAL(http_response.getFirstLine(), "HTTP/1.1 200 OK");
+	
+	http_response.setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+
+	BOOST_CHECK_EQUAL(http_response.getFirstLine(), "HTTP/1.1 404 OK");
+
+	http_response.setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+
+	BOOST_CHECK_EQUAL(http_response.getFirstLine(), "HTTP/1.1 404 Not Found");
+}
+
+
 #define FIXTURE_TYPE_LIST(F) boost::mpl::list<F<HTTPRequest>, F<HTTPResponse> >
 
 template<typename ConcreteMessageType>

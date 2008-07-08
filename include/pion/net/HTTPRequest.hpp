@@ -44,12 +44,13 @@ public:
 	/// clears all request data
 	virtual void clear(void) {
 		HTTPMessage::clear();
-		m_first_line.erase();
 		m_method.erase();
 		m_resource.erase();
 		m_query_string.erase();
 		m_query_params.clear();
 		m_cookie_params.clear();
+		m_user_record.reset();
+		m_charset.clear();
 	}
 
 	/// the content length of the message can never be implied for requests
@@ -101,16 +102,25 @@ public:
 	
 	
 	/// sets the HTTP request method (i.e. GET, POST, PUT)
-	inline void setMethod(const std::string& str) { m_method = str; }
+	inline void setMethod(const std::string& str) { 
+		m_method = str;
+		clearFirstLine();
+	}
 	
 	/// sets the resource or uri-stem originally requested
-	inline void setResource(const std::string& str) { m_resource = m_original_resource = str; }
+	inline void setResource(const std::string& str) {
+		m_resource = m_original_resource = str;
+		clearFirstLine();
+	}
 
 	/// changes the resource or uri-stem to be delivered (called as the result of a redirect)
 	inline void changeResource(const std::string& str) { m_resource = str; }
 
 	/// sets the uri-query or query string requested
-	inline void setQueryString(const std::string& str) { m_query_string = str; }
+	inline void setQueryString(const std::string& str) {
+		m_query_string = str;
+		clearFirstLine();
+	}
 	
 	/// adds a value for the query key
 	inline void addQuery(const std::string& key, const std::string& value) {
@@ -129,7 +139,7 @@ public:
 	
 	/// use the query parameters to build a query string for the request
 	inline void useQueryParamsForQueryString(void) {
-		m_query_string = make_query_string(m_query_params);
+		setQueryString(make_query_string(m_query_params));
 	}
 
 	/// use the query parameters to build POST content for the request
@@ -179,10 +189,11 @@ public:
 		m_charset = charset;
 	}
 
+
 protected:
-	
-	/// returns a string containing the first line for the HTTP message
-	virtual const std::string& getFirstLine(void) const {
+
+	/// updates the string containing the first line for the HTTP message
+	virtual void updateFirstLine(void) const {
 		// start out with the request method
 		m_first_line = m_method;
 		m_first_line += ' ';
@@ -195,16 +206,11 @@ protected:
 		}
 		m_first_line += ' ';
 		// append HTTP version
-		m_first_line += STRING_HTTP_VERSION;
-		// return the first request line
-		return m_first_line;
+		m_first_line += getVersionString();
 	}
 	
 	
 private:
-	
-	/// first line sent in a HTTP request (i.e. "GET / HTTP/1.1")
-	mutable std::string				m_first_line;
 
 	/// request method (GET, POST, PUT, etc.)
 	std::string						m_method;

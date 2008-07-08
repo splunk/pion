@@ -70,9 +70,9 @@ public:
 	/// clears all response data
 	virtual void clear(void) {
 		HTTPMessage::clear();
-		m_first_line.erase();
 		m_status_code = RESPONSE_CODE_OK;
 		m_status_message = RESPONSE_MESSAGE_OK;
+		m_request_method.clear();
 	}
 
 	/// the content length may be implied for certain types of responses
@@ -97,10 +97,16 @@ public:
 	}
 	
 	/// sets the HTTP response status code
-	inline void setStatusCode(unsigned int n) { m_status_code = n; }
+	inline void setStatusCode(unsigned int n) {
+		m_status_code = n;
+		clearFirstLine();
+	}
 
 	/// sets the HTTP response status message
-	inline void setStatusMessage(const std::string& msg) { m_status_message = msg; }
+	inline void setStatusMessage(const std::string& msg) {
+		m_status_message = msg;
+		clearFirstLine();
+	}
 	
 	/// returns the HTTP response status code
 	inline unsigned int getStatusCode(void) const { return m_status_code; }
@@ -181,29 +187,24 @@ public:
 	inline void setLastModified(const unsigned long t) {
 		changeHeader(HEADER_LAST_MODIFIED, get_date_string(t));
 	}
-
+	
 	
 protected:
 	
-	/// returns a string containing the first line for the HTTP message
-	virtual const std::string& getFirstLine(void) const {
+	/// updates the string containing the first line for the HTTP message
+	virtual void updateFirstLine(void) const {
 		// start out with the HTTP version
-		m_first_line = STRING_HTTP_VERSION;
+		m_first_line = getVersionString();
 		m_first_line += ' ';
 		// append the response status code
 		m_first_line +=  boost::lexical_cast<std::string>(m_status_code);
 		m_first_line += ' ';
 		// append the response status message
 		m_first_line += m_status_message;
-		// return the first response line
-		return m_first_line;
 	}
 	
 	
 private:
-
-	/// first line sent in a HTTP response (i.e. "HTTP/1.1 200 OK")
-	mutable std::string		m_first_line;
 
 	/// The HTTP response status code
 	unsigned int			m_status_code;

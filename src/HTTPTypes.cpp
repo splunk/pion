@@ -20,7 +20,7 @@ namespace net {		// begin namespace net (Pion Network Library)
 // generic strings used by HTTP
 const std::string	HTTPTypes::STRING_EMPTY;
 const std::string	HTTPTypes::STRING_CRLF("\x0D\x0A");
-const std::string	HTTPTypes::STRING_HTTP_VERSION("HTTP/1.1");
+const std::string	HTTPTypes::STRING_HTTP_VERSION("HTTP/");
 const std::string	HTTPTypes::HEADER_NAME_VALUE_DELIMITER(": ");
 
 // common HTTP header names
@@ -36,6 +36,8 @@ const std::string	HTTPTypes::HEADER_IF_MODIFIED_SINCE("If-Modified-Since");
 const std::string	HTTPTypes::HEADER_TRANSFER_ENCODING("Transfer-Encoding");
 const std::string	HTTPTypes::HEADER_LOCATION("Location");
 const std::string	HTTPTypes::HEADER_AUTHORIZATION("Authorization");
+const std::string	HTTPTypes::HEADER_REFERER("Referer");
+const std::string	HTTPTypes::HEADER_USER_AGENT("User-Agent");
 
 // common HTTP content types
 const std::string	HTTPTypes::CONTENT_TYPE_HTML("text/html");

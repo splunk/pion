@@ -67,12 +67,13 @@ public:
 	HTTPMessage(void)
 		: m_is_valid(false), m_is_chunked(false), m_chunks_supported(false),
 		m_do_not_send_content_length(false),
-		m_version_major(0), m_version_minor(0), m_content_length(0)
+		m_version_major(1), m_version_minor(1), m_content_length(0)
 	{}
 
 	/// copy constructor
 	HTTPMessage(const HTTPMessage& http_msg)
-		: m_is_valid(http_msg.m_is_valid),
+		: m_first_line(http_msg.m_first_line),
+		m_is_valid(http_msg.m_is_valid),
 		m_is_chunked(http_msg.m_is_chunked),
 		m_chunks_supported(http_msg.m_chunks_supported),
 		m_do_not_send_content_length(http_msg.m_do_not_send_content_length),
@@ -94,10 +95,11 @@ public:
 
 	/// clears all message data
 	virtual void clear(void) {
+		clearFirstLine();
 		m_is_valid = m_is_chunked = m_chunks_supported
 			= m_do_not_send_content_length = false;
 		m_remote_ip = boost::asio::ip::address_v4(0);
-		m_version_major = m_version_minor = 0;
+		m_version_major = m_version_minor = 1;
 		m_content_length = 0;
 		m_content_buf.reset();
 		m_chunk_buffers.clear();
@@ -123,6 +125,15 @@ public:
 	
 	/// returns the minor HTTP version number
 	inline unsigned int getVersionMinor(void) const { return m_version_minor; }
+	
+	/// returns a string representation of the HTTP version (i.e. "HTTP/1.1")
+	inline std::string getVersionString(void) const {
+		std::string http_version(STRING_HTTP_VERSION);
+		http_version += boost::lexical_cast<std::string>(getVersionMajor());
+		http_version += '.';
+		http_version += boost::lexical_cast<std::string>(getVersionMinor());
+		return http_version;
+	}
 	
 	/// returns the length of the payload content (in bytes)
 	inline size_t getContentLength(void) const { return m_content_length; }
@@ -154,6 +165,13 @@ public:
 		return(m_headers.find(key) != m_headers.end());
 	}
 	
+	/// returns a string containing the first line for the HTTP message
+	inline const std::string& getFirstLine(void) const {
+		if (m_first_line.empty())
+			updateFirstLine();
+		return m_first_line;
+	}
+	
 	
 	/// sets whether or not the message is valid
 	inline void setIsValid(bool b = true) { m_is_valid = b; }
@@ -165,10 +183,16 @@ public:
 	inline void setRemoteIp(const boost::asio::ip::address& ip) { m_remote_ip = ip; }
 
 	/// sets the major HTTP version number
-	inline void setVersionMajor(const unsigned int n) { m_version_major = n; }
+	inline void setVersionMajor(const unsigned int n) {
+		m_version_major = n;
+		clearFirstLine();
+	}
 
 	/// sets the minor HTTP version number
-	inline void setVersionMinor(const unsigned int n) { m_version_minor = n; }
+	inline void setVersionMinor(const unsigned int n) {
+		m_version_minor = n;
+		clearFirstLine();
+	}
 
 	/// sets the length of the payload content (in bytes)
 	inline void setContentLength(const size_t n) { m_content_length = n; }
@@ -270,6 +294,7 @@ public:
 	 * pieces together all the received chunks
 	 */
 	void concatenateChunks(void);
+	
 	
 protected:
 	
@@ -373,12 +398,23 @@ protected:
 		if (result_pair.first != dict.end())
 			dict.erase(result_pair.first, result_pair.second);
 	}
-
 	
-	/// returns a string containing the first line for the HTTP message
-	virtual const std::string& getFirstLine(void) const = 0;
-
+	/// erases the string containing the first line for the HTTP message
+	/// (it will be updated the next time getFirstLine() is called)
+	inline void clearFirstLine(void) const {
+		if (! m_first_line.empty())
+			m_first_line.clear();
+	}
 	
+	/// updates the string containing the first line for the HTTP message
+	virtual void updateFirstLine(void) const = 0;
+	
+	
+	/// first line sent in an HTTP message
+	/// (i.e. "GET / HTTP/1.1" for request, or "HTTP/1.1 200 OK" for response)
+	mutable std::string				m_first_line;
+
+
 private:
 	
 	/// Regex used to check for the "chunked" transfer encoding header
