@@ -177,18 +177,6 @@ public:
 	/// get the user record for HTTP request after authentication
 	inline PionUserPtr getUser() const { return m_user_record; }
 
-	/// get value that was specified in Content-Type header, e.g.
-	/// "Content-Type: application/x-www-form-urlencoded; charset=<VALUE>"
-	inline const std::string& getCharset(void) const {
-		return m_charset;
-	}
-
-	/// save value from Content-Type header, e.g.
-	/// "Content-Type: application/x-www-form-urlencoded; charset=<VALUE>"
-	void setCharset(const std::string& charset) {
-		m_charset = charset;
-	}
-
 
 protected:
 

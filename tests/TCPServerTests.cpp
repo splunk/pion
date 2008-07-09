@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingStream) {
 	tcp_stream << "12345678";
 	tcp_stream.flush();
 
-	// receive goodbye from the first server
+	// receive goodbye from the server
 	std::string message;
 	std::getline(tcp_stream, message);
 	BOOST_CHECK(message == "Goodbye!");
@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingChunkedStream) {
 	tcp_stream << HTTPTypes::STRING_CRLF;
 	tcp_stream.flush();
 
-	// receive goodbye from the first server
+	// receive goodbye from the server
 	std::string message;
 	std::getline(tcp_stream, message);
 	BOOST_CHECK(message == "Goodbye!");
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingExtraWhiteSpaceAroundChunkSizes) {
 	tcp_stream << HTTPTypes::STRING_CRLF;
 	tcp_stream.flush();
 
-	// receive goodbye from the first server
+	// receive goodbye from the server
 	std::string message;
 	std::getline(tcp_stream, message);
 	BOOST_CHECK(message == "Goodbye!");
@@ -435,6 +435,57 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
 	BOOST_CHECK(strncmp(tcp_conn.getReadBuffer().data(), "Goodbye!", strlen("Goodbye!")) == 0);
 }
 
+bool queryKeyXHasValueY(HTTPRequest& http_request) {
+	return http_request.getQuery("x") == "y";
+}
+
+BOOST_AUTO_TEST_CASE(checkQueryOfReceivedRequestParsed) {
+	// open a connection
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream tcp_stream(localhost);
+
+	// set expectations for received request
+	std::map<std::string, std::string> empty_map;
+	getServerPtr()->setExpectations(empty_map, "", queryKeyXHasValueY);
+	
+	// send request to the server
+	tcp_stream << "GET /resource1?x=y HTTP/1.1" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+	tcp_stream.flush();
+
+	// receive goodbye from the server
+	std::string message;
+	std::getline(tcp_stream, message);
+	BOOST_CHECK(message == "Goodbye!");
+	tcp_stream.close();
+}
+
+BOOST_AUTO_TEST_CASE(checkUrlEncodedQueryInPostContentParsed) {
+	// open a connection
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream tcp_stream(localhost);
+
+	// set expectations for received request
+	std::map<std::string, std::string> expectedHeaders;
+	expectedHeaders[HTTPTypes::HEADER_CONTENT_LENGTH] = "3";
+	getServerPtr()->setExpectations(expectedHeaders, "x=y", queryKeyXHasValueY);
+	
+	// send request to the server
+	tcp_stream << "POST /resource1 HTTP/1.1" << HTTPTypes::STRING_CRLF
+			   << HTTPTypes::HEADER_CONTENT_LENGTH << ": 3" << HTTPTypes::STRING_CRLF
+			   << HTTPTypes::HEADER_CONTENT_TYPE << ": " << HTTPTypes::CONTENT_TYPE_URLENCODED << "; charset=ECMA-cyrillic"
+			   << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF
+			   << "x=y";
+	tcp_stream.flush();
+
+	// receive goodbye from the server
+	std::string message;
+	std::getline(tcp_stream, message);
+	BOOST_CHECK(message == "Goodbye!");
+	tcp_stream.close();
+}
+/*
+Charset parsing removed due to performance concerns, but might be restored later.
+
 bool charsetIsEcmaCyrillic(HTTPRequest& http_request) {
 	return http_request.getCharset() == "ECMA-cyrillic";
 }
@@ -457,11 +508,12 @@ BOOST_AUTO_TEST_CASE(checkCharsetOfReceivedRequest) {
 			   << "x=y";
 	tcp_stream.flush();
 
-	// receive goodbye from the first server
+	// receive goodbye from the server
 	std::string message;
 	std::getline(tcp_stream, message);
 	BOOST_CHECK(message == "Goodbye!");
 	tcp_stream.close();
 }
+*/
 
 BOOST_AUTO_TEST_SUITE_END()
