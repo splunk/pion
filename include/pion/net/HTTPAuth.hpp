@@ -42,10 +42,9 @@ public:
 	
 	/// default constructor
 	HTTPAuth(PionUserManagerPtr userManager) 
-		: m_user_manager(userManager)
-	{
-		setLogger(PION_GET_LOGGER("pion.net.HTTPAuth"));
-	}
+		: m_logger(PION_GET_LOGGER("pion.net.HTTPAuth")),
+		m_user_manager(userManager)
+	{}
 	
 	/// virtual destructor
 	virtual ~HTTPAuth() {}
@@ -152,7 +151,7 @@ protected:
 	
 
 	/// primary logging interface used by this class
-	PionLogger					m_logger;
+	mutable PionLogger				m_logger;
 	
 	/// container used to manager user objects
 	PionUserManagerPtr			m_user_manager;

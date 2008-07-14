@@ -291,7 +291,7 @@ protected:
 	
 	
 	/// primary logging interface used by this class
-	PionLogger							m_logger;
+	mutable PionLogger						m_logger;
 	
 	/// true if the message is an HTTP request; false if it is an HTTP response
 	const bool							m_is_request;
