@@ -15,18 +15,17 @@
 
 
 #if defined(PION_HAVE_UNORDERED_MAP)
-	#include <unordered_map>
+	#include <tr1/unordered_map>
 	#define PION_HASH_MAP std::tr1::unordered_map
 	#define PION_HASH_MULTIMAP std::tr1::unordered_multimap
 	#define PION_HASH_STRING boost::hash<std::string>
 	#define PION_HASH(TYPE) boost::hash<TYPE>
 #elif defined(PION_HAVE_EXT_HASH_MAP)
+	#include <ext/hash_map>
 	#if __GNUC__ >= 3
-		#include <ext/hash_map>
 		#define PION_HASH_MAP __gnu_cxx::hash_map
 		#define PION_HASH_MULTIMAP __gnu_cxx::hash_multimap
 	#else
-		#include <ext/hash_map>
 		#define PION_HASH_MAP hash_map
 		#define PION_HASH_MULTIMAP hash_multimap
 	#endif

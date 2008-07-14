@@ -44,10 +44,29 @@ AC_SUBST(PION_CYGWIN_DIRECTORY)
 
      
 # Check for unordered container support
-AC_CHECK_HEADERS([unordered_map],[unordered_map_type=unordered_map],[])
-AC_CHECK_HEADERS([ext/hash_map],[unordered_map_type=ext_hash_map],[])
-AC_CHECK_HEADERS([hash_map],[unordered_map_type=hash_map],[])
-if test "$unordered_map_type" = "unordered_map"; then
+AC_CHECK_HEADERS([tr1/unordered_map],[unordered_map_type=tr1_unordered_map],[])
+if test "x$unordered_map_type" = "xtr1_unordered_map"; then
+	# test to make sure it's good enough
+	AC_MSG_CHECKING(if unordered_map is ok)
+	AC_TRY_LINK([#include <tr1/unordered_map>],[
+		#if !defined(__GNUC__) || (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
+			return(0);
+		#else
+			#error only use gcc versions 4.1 or greater
+		#endif
+		],
+		[ AC_MSG_RESULT(ok) ],
+		[ AC_MSG_RESULT(failed)
+		  unordered_map_type=""
+		])
+fi
+if test "x$unordered_map_type" = "x"; then
+	AC_CHECK_HEADERS([ext/hash_map],[unordered_map_type=ext_hash_map],[])
+fi
+if test "x$unordered_map_type" = "x"; then
+	AC_CHECK_HEADERS([hash_map],[unordered_map_type=hash_map],[])
+fi
+if test "$unordered_map_type" = "tr1_unordered_map"; then
 	AC_DEFINE([PION_HAVE_UNORDERED_MAP],[1],[Define to 1 if you have the <unordered_map> header file.])
 elif test "$unordered_map_type" = "ext_hash_map"; then
 	AC_DEFINE([PION_HAVE_EXT_HASH_MAP],[1],[Define to 1 if you have the <ext/hash_map> header file.])
