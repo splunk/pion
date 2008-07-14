@@ -78,8 +78,8 @@ public:
 	/// the content length may be implied for certain types of responses
 	virtual bool isContentLengthImplied(void) const {
 		return (m_request_method == REQUEST_METHOD_HEAD				// HEAD responses have no content
-			    || m_status_code >= 100 && m_status_code <= 199		// 1xx responses have no content
-			    || m_status_code == 204	|| m_status_code == 205		// no content & reset content responses
+			    || (m_status_code >= 100 && m_status_code <= 199)		// 1xx responses have no content
+			    || m_status_code == 204 || m_status_code == 205		// no content & reset content responses
 			    || m_status_code == 304								// not modified responses have no content
 			    );
 	}
