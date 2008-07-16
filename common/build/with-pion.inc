@@ -27,9 +27,11 @@ if test -r "$pion_location/pion-platform.pc"; then
 				AC_MSG_RESULT(found source in $pion_location)
 				found_pion_source="true"
 				PION_CPPFLAGS="-I$pion_location/common/include \
-					-I$pion_location/net/include -I$pion_location/platform/include"
+					-I$pion_location/net/include -I$pion_location/platform/include \
+					-I$pion_location/platform/server"
 				PION_LDFLAGS="-L$pion_location/common/src/.libs \
-					-L$pion_location/net/src/.libs -L$pion_location/platform/src/.libs"
+					-L$pion_location/net/src/.libs -L$pion_location/platform/src/.libs\
+					-L$pion_location/platform/server/.libs"
 			fi
 		fi
 	fi
