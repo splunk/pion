@@ -14,4 +14,4 @@ PionNetUnitTests_SOURCES = PionNetUnitTests.cpp HTTPTypesTests.cpp \
 PionNetUnitTests_LDADD = ../src/libpion-net.la @PION_COMMON_LIB@ @PION_EXTERNAL_LIBS@ @BOOST_TEST_LIB@
 PionNetUnitTests_DEPENDENCIES = ../src/libpion-net.la
 
-EXTRA_DIST = *.vcproj
+EXTRA_DIST = *.vcproj HTTPParserTestsData.inc
