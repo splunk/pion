@@ -1,12 +1,6 @@
 Microsoft Visual C++ Build Instructions
 =======================================
 
-For building under Windows, only the Cygwin/GNU C++ compiler (g++) and
-Microsoft's Visual C++ 2005 compiler are currently supported. We plan to
-add support for the MinGW compiler in the near future. Please see
-README.cygwin for instructions on using the Cygwin/GNU C++ compiler.
-
-
 Installing Visual C++ 2005 Express Edition:
 -------------------------------------------
 
