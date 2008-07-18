@@ -22,6 +22,16 @@ and add the following lines at the top, after "@echo off":
 @set LIB=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib;%LIB%
 
 
+The Easy Way:
+-------------
+
+Atomic Labs has a zip file available from the "Third Party Libraries" page
+on our website that contains all of the required libraries to build Pion
+for MSVC 2005.  To get started quickly, just download and uncompress this file
+into your C:\ directory, and you should be able to skip most of the following
+instructions (however, Path and VC++ directory updates are still required).
+
+
 Building Boost:
 ---------------
 
@@ -55,12 +65,11 @@ bjam --toolset=msvc --with-thread --with-system --with-filesystem \
 We recommend that you create a C:\Boost directory with C:\Boost\Lib and
 C:\Boost\Include subdirectories.  To install Boost into these
 directories, just copy the files in stage/lib into C:\Boost\Lib, and
-copy the entire boost/ directory into C:\Boost\Include.
+copy the entire boost/ directory into C:\Boost\include\boost-1_35.
 
-Next, update your Visual C++ settings for Boost:
-
-Add "C:\Boost\Include\boost-1_35" to your include directories.
-Add "C:\Boost\Lib" to your library directories.
+Update the Visual C++ Directories in the Projects and Solutions section
+in the Options dialog box.  For Include files add
+"C:\Boost\Include\boost-1_35", and for Library files add "C:\Boost\Lib".
 
 Finally, we suggest adding C:\Boost\Lib to your Path.
 
@@ -162,12 +171,27 @@ JSONCodec is only built in the Debug_DLL_full and Release_DLL_full
 configurations of pion-platform.sln.
 
 
+Additional libraries (required for PLATFORM build)
+--------------------------------------------------
+
+zlib:
+ - download http://xmlsoft.org/sources/win32/zlib-1.2.3.win32.zip
+ - open it into C:\zlib-1.2.3
+ - add C:\zlib-1.2.3\bin to your path
+
+iconv:
+ - download http://xmlsoft.org/sources/win32/iconv-1.9.2.win32.zip
+ - open it into C:\iconv-1.9.2\
+ - add C:\iconv-1.9.2\bin to your path
+
+libxml:
+ - download http://xmlsoft.org/sources/win32/libxml2-2.6.30.win32.zip
+ - open it into C:\libxml2-2.6.30\
+ - add C:\libxml2-2.6.30\bin to your path
+
+
 Building and installing Pion:
 -----------------------------
-
-Update the Visual C++ Directories in the Projects and Solutions section
-in the Options dialog box.  For Include files add "C:\Boost\Include",
-and for Library files add "C:\Boost\Lib".
 
 Now you should be able to build the solution file called pion-<PROJECT>.sln.
 
@@ -203,22 +227,3 @@ the following command line args: -c vcservices.conf
 
 To run from within the IDE, go to PionWebServer Property Pages ->
 Debugging, and set 'Command Arguments' to the above.
-
-
-Additional libraries (required for PLATFORM build)
---------------------------------------------------
-
-zlib:
- - download http://xmlsoft.org/sources/win32/zlib-1.2.3.win32.zip
- - open it into C:\zlib-1.2.3
- - add C:\zlib-1.2.3\bin to your path
-
-iconv:
- - download http://xmlsoft.org/sources/win32/iconv-1.9.2.win32.zip
- - open it into C:\iconv-1.9.2\
- - add C:\iconv-1.9.2\bin to your path
-
-libxml:
- - download http://xmlsoft.org/sources/win32/libxml2-2.6.30.win32.zip
- - open it into C:\libxml2-2.6.30\
- - add C:\libxml2-2.6.30\bin to your path
