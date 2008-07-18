@@ -37,8 +37,8 @@ versions:
 # apt-get openssl openssl-devel zlib zlib-devel
 
 
-Installing log4cxx (0.10.0):
-----------------------------
+Installing log4cxx:
+-------------------
 
 Note that the use of a logging framework is entirely optional, so you may
 skip this step if you like.
@@ -79,36 +79,19 @@ our website to obtain a source code tarball.  Then, just run:
 # make all
 # make install
 
+log4cxx 0.10.0 does not link properly on the final stage.  If you encounter
+an error while performing the final link, try running the link_log4cxx.sh
+script included with Pion from your log4cxx source directory:
 
-Installing log4cxx (0.9.7):
----------------------------
+# <PION-ROOT>/common/build/link_log4cxx.sh
 
-Note that the use of a logging framework is entirely optional, so you may
-skip this step if you like.
+If this works, you can complete the log4cxx installation manually by using
+the following commands:
 
-The latest version of log4cxx does not seem to work properly on some 64-bit
-versions of Linux (namely, RHEL 5).  If you get an error while trying to build
-Pion about linking with libdb, then you probably need to use an older version
-(such as 0.9.7) instead.
-
-You can download the 0.9.7 version of log4cxx from Apache's website:
-
-# wget http://archive.apache.org/dist/logging/log4cxx/log4cxx-0.9.7.tar.gz
-
-You will also need to apply a patch to get the most recent versions of gcc
-to compile the code (it is very old).  You can download this patch from:
-
-# wget http://pion.org/files/log4cxx-0.9.7.patch
-
-Next, apply the patch, compile and install:
-
-# tar xvfz log4cxx-0.9.7.tar.gz
-# cd log4cxx-0.9.7
-# patch -p1 < ../log4cxx-0.9.7.patch
-# ./autogen.sh
-# ./configure
-# make all
-# make install
+# mv src/main/cpp/.libs/liblog4cxx.so.10.0.0 /usr/local/lib
+# ln -s /usr/local/lib/liblog4cxx.so.10.0.0 /usr/local/lib/liblog4cxx.so.10
+# ln -s /usr/local/lib/liblog4cxx.so.10.0.0 /usr/local/lib/liblog4cxx.so
+# mv src/main/include/log4cxx /usr/local/include
 
 
 Installing libxml2:
