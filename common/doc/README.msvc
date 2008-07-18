@@ -223,7 +223,7 @@ Otherwise, PionWebServer and unit tests fail with "no such directory" error.
 
 
 To test PionWebServer, try running it from "<PION_NET_HOME>\utils\" with
-the following command line args: -c vcservices.conf
+the following command line args: -c testservices.conf
 
 To run from within the IDE, go to PionWebServer Property Pages ->
 Debugging, and set 'Command Arguments' to the above.
