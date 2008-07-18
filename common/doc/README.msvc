@@ -9,7 +9,8 @@ not the free Express edition) installed.
 
 To install Visual C++ 2005 Express Edition and the Microsoft Platform
 SDK, follow the steps described at the following URL:
-http://msdn2.microsoft.com/en-us/express/aa700755.aspx.
+
+http://www.microsoft.com/express/2005/platformsdk/default.aspx
 
 In order for the Visual Studio Command Line Compiler to find the necessary
 Microsoft Platform SDK files, one more file must be modified: open
@@ -21,43 +22,47 @@ and add the following lines at the top, after "@echo off":
 @set LIB=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib;%LIB%
 
 
-Building Boost with ASIO:
--------------------------
+Building Boost:
+---------------
 
-Please see the README.boost file for instructions.
+First, download and unzip the Boost 1.35.0 (or later) source code from:
 
-We recommend that you use the bjam tool to build Boost & ASIO for MSVC. 
-Open the Visual Studio 2005 Command Prompt, change to the Boost build
+http://sourceforge.net/project/showfiles.php?group_id=7586
+
+(Click on boost_1_35_0.zip, or similiar)
+
+We recommend that you use the bjam tool to build Boost for MSVC.  You can
+download the latest bjam executable from:
+
+http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=72941
+
+(Click on boost-jam-3.1.16-1-ntx86.zip, or similar)
+
+Copy the included "bjam" executable into your C:\Windows\System32 directory.
+
+Open the Visual Studio 2005 Command Prompt, change to the Boost source code
 directory, and type:
+
+bjam --toolset=msvc debug release threading=multi stage
+
+Or, if you wish to build only the libraries required by Pion (this saves a
+little time and disk space but not a whole lot):
 
 bjam --toolset=msvc --with-thread --with-system --with-filesystem \
 	--with-regex --with-date_time --with-unit_test_framework \
 	debug release threading=multi stage
-
-You may leave out the "--with" options if you wish to build everything. 
 
 We recommend that you create a C:\Boost directory with C:\Boost\Lib and
 C:\Boost\Include subdirectories.  To install Boost into these
 directories, just copy the files in stage/lib into C:\Boost\Lib, and
 copy the entire boost/ directory into C:\Boost\Include.
 
-Step-by-step instruction: building Boost with ASIO for VC2005 platform (without using UNIX utilities or commands)
--------------------------
- - Download Boost 1.35.0 (zip) from http://sourceforge.net/project/showfiles.php?group_id=7586 
- - Download BJAM precompiled executable boost-jam-3.1.16-1-ntx86.zip from http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=72941 
- - Unzip boost_1_35_0.zip to C:\boost_1_35_0
- - Unzip bjam.exe from boost-jam-3.1.16-1-ntx86.zip to C:\boost_1_35_0
- - Open MSVC command line  
- - In MSVC command line:
-		cd C:\boost_1_35_0
-		bjam install
- - Drink lot of coffee
- .....
- - Drink lot of coffee
- - If you also want the debug versions of the Boost libraries, run:
-		bjam debug install
- - Update VC2005 settings for includes (C:\Boost\include\boost-1_35) and libraries (C:\Boost\lib) paths with locations of installed Boost headers and libraries
-    (Main Menu->Tools->Options->Projects and Solutions->VC++ Directories)
+Next, update your Visual C++ settings for Boost:
+
+Add "C:\Boost\Include\boost-1_35" to your include directories.
+Add "C:\Boost\Lib" to your library directories.
+
+Finally, we suggest adding C:\Boost\Lib to your Path.
 
 
 Installing OpenSSL:
