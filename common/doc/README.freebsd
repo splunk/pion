@@ -99,6 +99,34 @@ Party Libraries" page on our website.  After downloading it, just run:
 # make install
 
 
+Installing YAJL:
+----------------
+
+YAJL ("Yet Another JSON Library") is required to build support for the
+JSONCodec plugin.  You may skip this step if you do not want to build
+support for JSON.
+
+To build YAJL, you must first have CMake installed on your system.  You
+can download the source tarball for CMake from the "Third Party
+Libraries" page on our website, or from the following site:
+
+http://cmake.org
+
+You can download the source code tarball for YAJL from the "Third Party
+Libraries" page on our website.  After downloading it, just run:
+
+# tar xvfz yajl-<version>.tgz
+# cd yajl-<version>
+# ./configure
+# make
+
+To install YAJL, we recommend that you just move the build files in the
+"build/yajl-<version>" subdirectory into /usr/local:
+
+# sudo mv build/yajl-<version>/lib/* /usr/local/lib
+# sudo mv build/yajl-<version>/include/yajl /usr/local/include
+
+
 Building and installing Pion:
 -----------------------------
 
@@ -107,7 +135,7 @@ Now you should be able to build and install Pion:
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
 # ./configure [--with-openssl] [--with-log4cxx=/usr/local] \
-	[--with-sqlite] [--disable-tests]
+	[--with-sqlite] [--with-yajl] [--disable-tests]
 # make all
 # make install
 

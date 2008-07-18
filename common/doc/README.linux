@@ -1,6 +1,16 @@
 Linux Build Instructions
 ========================
 
+The Easy Way:
+-------------
+
+Atomic Labs has a tarball available from the "Third Party Libraries" page
+on our website that contains all of the required libraries to build Pion
+for certain versions of Redhat Linux.  To get started quickly, just download
+and uncompress this file into your /usr/local/ directory, and you should be
+able to skip down to the last step!
+
+
 Building Boost with ASIO:
 -------------------------
 

@@ -10,7 +10,7 @@ future, after support for it is added to the ASIO library.
 
 The easiest way to setup a build environment in Solaris is to download and
 install the following packages from http://www.sunfreeware.com/:
-gcc, zlib and openssl.
+cmake, gcc, zlib and openssl.
 
 Make sure that the "make" and "ar" utilities are in your PATH. 
 Normally, these are installed in the /usr/ccs/bin directory, which for
@@ -146,6 +146,28 @@ Party Libraries" page on our website.  After downloading it, just run:
 # make install
 
 
+Installing YAJL:
+----------------
+
+YAJL ("Yet Another JSON Library") is required to build support for the
+JSONCodec plugin.  You may skip this step if you do not want to build
+support for JSON.
+
+You can download the source code tarball for YAJL from the "Third Party
+Libraries" page on our website.  After downloading it, just run:
+
+# tar xvfz yajl-<version>.tgz
+# cd yajl-<version>
+# cmake .
+# make
+
+To install YAJL, we recommend that you just move the build files in the
+"build/yajl-<version>" subdirectory into /usr/local:
+
+# sudo mv build/yajl-<version>/lib/* /usr/local/lib
+# sudo mv build/yajl-<version>/include/yajl /usr/local/include
+
+
 Building and installing Pion:
 -----------------------------
 
@@ -153,7 +175,8 @@ Now you should be able to build and install Pion:
 
 # gzip -dc pion-<PROJECT>-<VERSION>.tar.gz | tar xvf -
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-openssl=/usr/local/ssl] [--with-log4cxx] [--with-sqlite]
+# ./configure [--with-openssl=/usr/local/ssl] [--with-log4cxx] \
+	[--with-yajl] [--with-sqlite]
 # make all
 # make install
 
