@@ -15,7 +15,7 @@
 	<Tool
 		Name="VCLinkerTool"
 		LinkIncremental="1"
-		AdditionalLibraryDirectories="&quot;$(LOG4CXX_HOME)\bin&quot;;&quot;$(OPENSSL_HOME)\lib&quot;;&quot;$(LIBXML_HOME)\lib&quot;;&quot;$(SQLITE_HOME)\lib&quot;;&quot;$(MYSQL_HOME)\lib\opt&quot;"
+		AdditionalLibraryDirectories="&quot;$(LOG4CXX_HOME)\bin&quot;;&quot;$(OPENSSL_HOME)\lib&quot;;&quot;$(LIBXML_HOME)\lib&quot;;&quot;$(SQLITE_HOME)\lib&quot;"
 		GenerateDebugInformation="true"
 		LinkTimeCodeGeneration="1"
 	/>

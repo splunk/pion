@@ -8,7 +8,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;;&quot;$(LOG4CXX_HOME)\src\main\include&quot;;&quot;$(OPENSSL_HOME)\inc32&quot;;&quot;$(LIBXML_HOME)\include&quot;;&quot;$(ICONV_HOME)\include&quot;;&quot;$(SQLITE_HOME)\include&quot;;&quot;$(MYSQL_HOME)\include&quot;"
+		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;;&quot;$(LOG4CXX_HOME)\src\main\include&quot;;&quot;$(OPENSSL_HOME)\inc32&quot;;&quot;$(LIBXML_HOME)\include&quot;;&quot;$(ICONV_HOME)\include&quot;;&quot;$(SQLITE_HOME)\include&quot;"
 		PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;_UNICODE;UNICODE;_WIN32_WINNT=0x0500;WIN32_LEAN_AND_MEAN"
 		MinimalRebuild="true"
 		UsePrecompiledHeader="0"
@@ -40,9 +40,5 @@
 	<UserMacro
 		Name="SQLITE_HOME"
 		Value="C:\SQLite-3.5.8"
-	/>
-	<UserMacro
-		Name="MYSQL_HOME"
-		Value="C:\Program Files\MySQL\MySQL Server 5.0"
 	/>
 </VisualStudioPropertySheet>
