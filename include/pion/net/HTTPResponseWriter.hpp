@@ -146,16 +146,17 @@ protected:
 	virtual void handleWrite(const boost::system::error_code& write_error,
 							 std::size_t bytes_written)
 	{
+		PionLogger log_ptr(getLogger());
 		if (write_error) {
 			// encountered error sending response
 			getTCPConnection()->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
-			PION_LOG_WARN(getLogger(), "Unable to send HTTP response (" << write_error.message() << ')');
+			PION_LOG_WARN(log_ptr, "Unable to send HTTP response (" << write_error.message() << ')');
 		} else {
 			// response sent OK
 			if (sendingChunkedMessage()) {
-				PION_LOG_DEBUG(getLogger(), "Sent HTTP response chunk of " << bytes_written << " bytes");
+				PION_LOG_DEBUG(log_ptr, "Sent HTTP response chunk of " << bytes_written << " bytes");
 			} else {
-				PION_LOG_DEBUG(getLogger(), "Sent HTTP response of " << bytes_written << " bytes ("
+				PION_LOG_DEBUG(log_ptr, "Sent HTTP response of " << bytes_written << " bytes ("
 							   << (getTCPConnection()->getKeepAlive() ? "keeping alive)" : "closing)"));
 			}
 		}

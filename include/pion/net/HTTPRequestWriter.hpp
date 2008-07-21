@@ -139,16 +139,17 @@ protected:
 	virtual void handleWrite(const boost::system::error_code& write_error,
 							 std::size_t bytes_written)
 	{
+		PionLogger log_ptr(getLogger());
 		if (write_error) {
 			// encountered error sending request
-			PION_LOG_WARN(getLogger(), "Unable to send HTTP request (" << write_error.message() << ')');
+			PION_LOG_WARN(log_ptr, "Unable to send HTTP request (" << write_error.message() << ')');
 		} else {
 			// request sent OK
 			if (sendingChunkedMessage()) {
-				PION_LOG_DEBUG(getLogger(), "Sent HTTP request chunk of " << bytes_written << " bytes");
+				PION_LOG_DEBUG(log_ptr, "Sent HTTP request chunk of " << bytes_written << " bytes");
 				clear();
 			} else {
-				PION_LOG_DEBUG(getLogger(), "Sent HTTP request of " << bytes_written << " bytes");
+				PION_LOG_DEBUG(log_ptr, "Sent HTTP request of " << bytes_written << " bytes");
 			}
 		}
 		finishedWriting();
