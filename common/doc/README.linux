@@ -79,9 +79,11 @@ our website to obtain a source code tarball.  Then, just run:
 # make all
 # make install
 
-log4cxx 0.10.0 does not link properly on the final stage.  If you encounter
-an error while performing the final link, try running the link_log4cxx.sh
-script included with Pion from your log4cxx source directory:
+The final linking stage of building log4cxx 0.10.0 fails for 64-bit 
+versions of Redhat, apparently due to errors with the 64-bit libapr that 
+it includes. If you encounter an error while performing the final link, 
+try running the link_log4cxx.sh script included with Pion from your 
+log4cxx source directory:
 
 # <PION-ROOT>/common/build/link_log4cxx.sh
 
