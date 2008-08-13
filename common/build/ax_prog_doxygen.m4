@@ -262,16 +262,16 @@
 ## ----------##
 
 DX_ENV=""
-AC_DEFUN([DX_FEATURE_doc],  ON)
-AC_DEFUN([DX_FEATURE_dot],  ON)
+AC_DEFUN([DX_FEATURE_doc],  OFF)
+AC_DEFUN([DX_FEATURE_dot],  OFF)
 AC_DEFUN([DX_FEATURE_man],  OFF)
 AC_DEFUN([DX_FEATURE_html], ON)
 AC_DEFUN([DX_FEATURE_chm],  OFF)
 AC_DEFUN([DX_FEATURE_chi],  OFF)
 AC_DEFUN([DX_FEATURE_rtf],  OFF)
 AC_DEFUN([DX_FEATURE_xml],  OFF)
-AC_DEFUN([DX_FEATURE_pdf],  ON)
-AC_DEFUN([DX_FEATURE_ps],   ON)
+AC_DEFUN([DX_FEATURE_pdf],  OFF)
+AC_DEFUN([DX_FEATURE_ps],   OFF)
 
 ## --------------- ##
 ## Private macros. ##
