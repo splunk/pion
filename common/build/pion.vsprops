@@ -41,4 +41,8 @@
 		Name="SQLITE_HOME"
 		Value="C:\SQLite-3.5.8"
 	/>
+	<UserMacro
+		Name="ZLIB_HOME"
+		Value="C:\zlib-1.2.3"
+	/>
 </VisualStudioPropertySheet>

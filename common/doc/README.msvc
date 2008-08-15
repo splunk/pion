@@ -178,6 +178,8 @@ zlib:
  - download http://xmlsoft.org/sources/win32/zlib-1.2.3.win32.zip
  - open it into C:\zlib-1.2.3
  - add C:\zlib-1.2.3\bin to your path
+ - (if installed somewhere other than C:\zlib-1.2.3, change user macro 
+   ZLIB_HOME in pion.vsprops accordingly)
 
 iconv:
  - download http://xmlsoft.org/sources/win32/iconv-1.9.2.win32.zip
@@ -188,6 +190,8 @@ libxml:
  - download http://xmlsoft.org/sources/win32/libxml2-2.6.30.win32.zip
  - open it into C:\libxml2-2.6.30\
  - add C:\libxml2-2.6.30\bin to your path
+ - (if installed somewhere other than C:\libxml2-2.6.30, change user macro 
+   LIBXML_HOME in pion.vsprops accordingly)
 
 
 Building and installing Pion:
