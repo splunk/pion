@@ -142,6 +142,27 @@ LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_SIGNALS_LIB)
 
 
+# Check for Boost Iostreams library
+BOOST_TRY_LIB=iostreams
+BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
+LIBS_SAVED="$LIBS"
+LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
+AC_TRY_LINK([#include <boost/iostreams/filtering_stream.hpp>
+	#include <boost/range/iterator_range.hpp>],
+	[ std::string  input = "Hello World!";
+	  boost::iostreams::filtering_istream  in(boost::make_iterator_range(input));
+	  return 0; ],
+	[ AC_MSG_RESULT(ok)
+	  BOOST_IOSTREAMS_LIB="-l${BOOST_TRY_LINK}"
+	],
+	[ AC_MSG_RESULT(not found)
+	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+	])
+LIBS="$LIBS_SAVED"
+AC_SUBST(BOOST_IOSTREAMS_LIB)
+
+
 # Check for Boost Unit Test Framework
 AC_ARG_ENABLE([tests],
     AC_HELP_STRING([--disable-tests],[do not build and run the unit tests]),

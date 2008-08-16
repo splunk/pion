@@ -23,18 +23,18 @@ confused:
 # rpm -e boost boost-devel
 
 
-Installing zlib & openssl:
---------------------------
+Installing zlib, bzlib & openssl:
+---------------------------------
 
-ASIO requires zlib and openssl for compression and SSL/TLS encryption 
+Pion requires zlib, bzlib and openssl for compression and SSL/TLS encryption
 support, respectively.  These libraries are normally pre-installed on 
 Linux. If you do not have them already, you should be able to use your 
 favorite package manager (yum, up2date or aptget) to install the latest 
 versions:
 
-# yum install openssl openssl-devel zlib zlib-devel
-# up2date openssl openssl-devel zlib zlib-devel
-# apt-get openssl openssl-devel zlib zlib-devel
+# yum install openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
+# up2date openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
+# apt-get openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
 
 
 Installing log4cxx:

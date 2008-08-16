@@ -18,16 +18,17 @@ Building Boost with ASIO:
 Please see the README.boost file for general instructions.
 
 
-Installing zlib & openssl:
---------------------------
+Installing zlib, bzlib & openssl:
+---------------------------------
 
-ASIO requires zlib and openssl for compression and SSL/TLS encryption
+Pion requires zlib, bzlib and openssl for compression and SSL/TLS encryption
 support, respectively.  These libraries are normally pre-installed on
 OS X.  If you do not have them already, you should be able to grab the
 latest source code tarballs from the "Third Party Libraries" page on
 our website, or from the following sites:
 
 http://www.zlib.net
+http://www.bzip.org
 http://www.openssl.org
 
 

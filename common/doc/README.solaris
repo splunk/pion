@@ -49,16 +49,17 @@ line within the "GCC configuration" section):
 using gcc : : g++ : <linker-type>sun ;
 
 
-Installing zlib & openssl:
---------------------------
+Installing zlib, bzlib & openssl:
+---------------------------------
 
-ASIO requires zlib and openssl for compression and SSL/TLS encryption
+Pion requires zlib, bzlib and openssl for compression and SSL/TLS encryption
 support, respectively.  On Solaris, we recommend that you download and
 install the packages available on SunFreeware.com. However, you may
 instead choose to download and install the latest versions from the
 "Third Party Libraries" page on our website, or from the following sites:
 
 http://www.zlib.net
+http://www.bzip.org
 http://www.openssl.org
 
 

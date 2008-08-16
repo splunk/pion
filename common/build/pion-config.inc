@@ -110,6 +110,39 @@ fi
 AC_SUBST(PION_ZLIB)
 
 
+# Check for bzlib
+AC_MSG_CHECKING([for bzip2 compression support (bzlib)])
+AC_ARG_WITH([bzlib], AC_HELP_STRING([--with-bzlib@<:@=DIR@:>@],[location of bzlib library (for bzip2 compression); use --without-bzlib to disable]),
+    [ bzlib_location=$withval ], [ bzlib_location=yes ])
+# Check if bzlib location is specified
+if test "x_$bzlib_location" != "x_no"; then
+	AC_MSG_RESULT(yes)
+	if test "x_$bzlib_location" != "x_yes"; then
+		# alternative location provided
+		CPPFLAGS="$CPPFLAGS -I$bzlib_location/include"
+		LDFLAGS="$LDFLAGS -L$bzlib_location/lib"
+	fi
+	# Check for bzlib headers
+	AC_CHECK_HEADERS([bzlib.h],,AC_MSG_ERROR([Unable to find the bzlib headers]))
+	# Check for bzlib library
+	LIBS="$LIBS_SAVED -lbz2"
+	AC_MSG_CHECKING(linking with bzlib)
+	AC_TRY_LINK([#include <bzlib.h>],[ BZ2_bzlibVersion(); return(0); ],
+		[ AC_MSG_RESULT(ok) ],
+		[ AC_MSG_RESULT(failed)
+		  AC_MSG_ERROR(Unable to link with the bzlib library)
+		])
+	LIBS="$LIBS_SAVED"
+	PION_BZLIB="-lbz2"
+	# Found the bzlib library
+	AC_DEFINE([PION_HAVE_BZLIB],[1],[Define to 1 if you have the `bzlib' library.])
+else
+	# bzlib is disabled
+	AC_MSG_RESULT(no)
+fi
+AC_SUBST(PION_BZLIB)
+
+
 # Check for OpenSSL
 AC_MSG_CHECKING([for SSL support (openssl)])
 AC_ARG_WITH([openssl],
@@ -270,5 +303,5 @@ AC_SUBST(PION_LOG_LIB)
 
 
 # Set external library dependencies
-PION_EXTERNAL_LIBS="$PION_EXTERNAL_LIBS $BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $BOOST_DATE_TIME_LIB $BOOST_SIGNALS_LIB $PION_SSL_LIB $PION_ZLIB $PION_LOG_LIB"
+PION_EXTERNAL_LIBS="$PION_EXTERNAL_LIBS $BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $BOOST_DATE_TIME_LIB $BOOST_SIGNALS_LIB $BOOST_IOSTREAMS_LIB $PION_SSL_LIB $PION_ZLIB $PION_BZLIB $PION_LOG_LIB"
 AC_SUBST(PION_EXTERNAL_LIBS)

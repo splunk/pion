@@ -59,6 +59,9 @@
 /* Define to 1 if you have the `zlib' library. */
 #define PION_HAVE_ZLIB 1
 
+/* Define to 1 if you have the `bzlib' library. */
+#define PION_HAVE_BZLIB 1
+
 /* Define to 1 if you have the `OpenSSL' library. */
 #define PION_HAVE_SSL 1
 
