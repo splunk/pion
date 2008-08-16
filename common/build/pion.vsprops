@@ -45,4 +45,8 @@
 		Name="ZLIB_HOME"
 		Value="C:\zlib-1.2.3"
 	/>
+	<UserMacro
+		Name="BZIP2_HOME"
+		Value="C:\bzip2-1.0.5"
+	/>
 </VisualStudioPropertySheet>
