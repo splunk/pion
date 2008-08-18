@@ -62,6 +62,9 @@ bjam --toolset=msvc --with-thread --with-system --with-filesystem \
 	--with-regex --with-date_time --with-unit_test_framework \
 	debug release threading=multi stage
 
+Boost.Iostreams is also required, but must be compiled separately for
+Windows; see Building Boost.Iostreams below.
+
 We recommend that you create a C:\Boost directory with C:\Boost\Lib and
 C:\Boost\Include subdirectories.  To install Boost into these
 directories, just copy the files in stage/lib into C:\Boost\Lib, and
@@ -72,6 +75,27 @@ in the Options dialog box.  For Include files add
 "C:\Boost\Include\boost-1_35", and for Library files add "C:\Boost\Lib".
 
 Finally, we suggest adding C:\Boost\Lib to your Path.
+
+
+Building Boost.Iostreams:
+-------------------------
+
+Boost.Iostreams is built by default without compression/decompression 
+support on Windows (since zlib and bzip2 aren't installed as part of 
+Windows.)  Since Pion uses boost::iostreams::gzip_decompressor and 
+boost::iostreams::bzip2_decompressor, zlib and bzip2 must be installed
+(see instructions later in this document) and Boost.Iostreams must be
+rebuilt: open a command prompt in ...\boost_1_35_0\libs\iostreams\build,
+and run the following command (changing the paths if you installed zlib 
+and/or bzip2 elsewhere.)
+
+bjam debug release -sZLIB_BINARY=zdll -sZLIB_INCLUDE=C:/zlib-1.2.3/include \
+	-sZLIB_LIBPATH=C:/zlib-1.2.3/lib -sBZIP2_BINARY=bzip2 \
+	-sBZIP2_INCLUDE=C:/bzip2-1.0.5/include -sBZIP2_LIBPATH=C:/bzip2-1.0.5/lib
+
+Then copy boost_iostreams-vc80-mt-gd-1_35.{dll|lib} and 
+boost_iostreams-vc80-mt-1_35.{dll|lib} from 
+...\boost_1_35_0\bin.v2\libs\iostreams\build to C:\Boost\Lib.
 
 
 Installing OpenSSL:
@@ -192,6 +216,13 @@ libxml:
  - add C:\libxml2-2.6.30\bin to your path
  - (if installed somewhere other than C:\libxml2-2.6.30, change user macro 
    LIBXML_HOME in pion.vsprops accordingly)
+
+bzip2:
+ - download http://gnuwin32.sourceforge.net/downlinks/bzip2-bin-zip.php
+ - open it into C:\bzip2-1.0.5
+ - add C:\bzip2-1.0.5\bin to your path
+ - (if installed somewhere other than C:\bzip2-1.0.5, change user macro 
+   BZIP2_HOME in pion.vsprops accordingly)
 
 
 Building and installing Pion:

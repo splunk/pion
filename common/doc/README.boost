@@ -52,9 +52,9 @@ pre-compiled bjam executables from:
 
 http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=72941
 
-You only need to build seven of the Boost libraries for Pion: thread,
+You only need to build eight of the Boost libraries for Pion: thread,
 system, filesystem, regex, date_time, signals, iostreams and
-unit_test_framework. If you wish to only build these seven libraries (this
+unit_test_framework. If you wish to only build these eight libraries (this
 will save you a lot of time), include the following options when running bjam:
 "--with-thread --with-system --with-filesystem --with-regex --with-date_time
 --with-signals --with-iostreams --with-test"
