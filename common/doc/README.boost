@@ -30,7 +30,7 @@ The configure script provides the easiest way to build and install
 Boost. However, with the configure script you cannot specify alternative
 compilers (this is auto-detected) and you also must build all of the
 Boost libraries, which can be very time-consuming (note that Pion requires
-only seven of them).  Building Boost with the configure script also requires
+only eight of them).  Building Boost with the configure script also requires
 that you have a UNIX shell interpreter (/bin/sh) and the make utility
 installed on your system.
 
@@ -69,7 +69,7 @@ For example (when using Microsoft Visual C++):
 	--with-regex --with-date_time --with-signals --with-iostreams --with-test \
 	debug release threading=multi stage
 
-This will build the seven libraries required by Pion and place the
+This will build the eight libraries required by Pion and place the
 files within the stage/ subdirectory of your build directory.
 
 To install, you can now just copy the files in stage/lib into your
