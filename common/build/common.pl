@@ -15,8 +15,7 @@ sub copyDirWithoutDotFiles(@) {
 	my $src_dir = shift();
 	my $dst_dir = shift();
 	
-	# clear out old copy (if one exists)
-	rmtree($dst_dir);
+	# make sure directory exists
 	mkpath($dst_dir);
 
 	# get list of files in source directory
