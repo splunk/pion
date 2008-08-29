@@ -561,7 +561,7 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
 }
 
 bool HTTPParser::parseCookieHeader(HTTPTypes::StringDictionary& dict,
-								   const std::string& cookie_header)
+								   const char *ptr, const size_t len)
 {
 	// BASED ON RFC 2109
 	// 
@@ -574,24 +574,23 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::StringDictionary& dict,
 	} parse_state = COOKIE_PARSE_NAME;
 	
 	// misc other variables used for parsing
+	const char * const end = ptr + len;
 	std::string cookie_name;
 	std::string cookie_value;
 	char value_quote_character = '\0';
 	
 	// iterate through each character
-	for (std::string::const_iterator string_iterator = cookie_header.begin();
-		 string_iterator != cookie_header.end(); ++string_iterator)
-	{
+	while (ptr < end) {
 		switch (parse_state) {
 			
 		case COOKIE_PARSE_NAME:
 			// parsing cookie name
-			if (*string_iterator == '=') {
+			if (*ptr == '=') {
 				// end of name found
 				if (cookie_name.empty()) return false;
 				value_quote_character = '\0';
 				parse_state = COOKIE_PARSE_VALUE;
-			} else if (*string_iterator == ';' || *string_iterator == ',') {
+			} else if (*ptr == ';' || *ptr == ',') {
 				// ignore empty cookie names since this may occur naturally
 				// when quoted values are encountered
 				if (! cookie_name.empty()) {
@@ -600,13 +599,13 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::StringDictionary& dict,
 						dict.insert( std::make_pair(cookie_name, cookie_value) );
 					cookie_name.erase();
 				}
-			} else if (*string_iterator != ' ') {	// ignore whitespace
+			} else if (*ptr != ' ') {	// ignore whitespace
 				// check if control character detected, or max sized exceeded
-				if (isControl(*string_iterator) || cookie_name.size() >= COOKIE_NAME_MAX)
+				if (isControl(*ptr) || cookie_name.size() >= COOKIE_NAME_MAX)
 					return false;
 				// character is part of the name
 				// cookie names are case insensitive -> convert to lowercase
-				cookie_name.push_back( tolower(*string_iterator) );
+				cookie_name.push_back( tolower(*ptr) );
 			}
 			break;
 			
@@ -614,34 +613,34 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::StringDictionary& dict,
 			// parsing cookie value
 			if (value_quote_character == '\0') {
 				// value is not (yet) quoted
-				if (*string_iterator == ';' || *string_iterator == ',') {
+				if (*ptr == ';' || *ptr == ',') {
 					// end of value found (OK if empty)
 					if (cookie_name[0] != '$') 
 						dict.insert( std::make_pair(cookie_name, cookie_value) );
 					cookie_name.erase();
 					cookie_value.erase();
 					parse_state = COOKIE_PARSE_NAME;
-				} else if (*string_iterator == '\'' || *string_iterator == '"') {
+				} else if (*ptr == '\'' || *ptr == '"') {
 					if (cookie_value.empty()) {
 						// begin quoted value
-						value_quote_character = *string_iterator;
+						value_quote_character = *ptr;
 					} else if (cookie_value.size() >= COOKIE_VALUE_MAX) {
 						// max size exceeded
 						return false;
 					} else {
 						// assume character is part of the (unquoted) value
-						cookie_value.push_back(*string_iterator);
+						cookie_value.push_back(*ptr);
 					}
-				} else if (*string_iterator != ' ') {	// ignore unquoted whitespace
+				} else if (*ptr != ' ') {	// ignore unquoted whitespace
 					// check if control character detected, or max sized exceeded
-					if (isControl(*string_iterator) || cookie_value.size() >= COOKIE_VALUE_MAX)
+					if (isControl(*ptr) || cookie_value.size() >= COOKIE_VALUE_MAX)
 						return false;
 					// character is part of the (unquoted) value
-					cookie_value.push_back(*string_iterator);
+					cookie_value.push_back(*ptr);
 				}
 			} else {
 				// value is quoted
-				if (*string_iterator == value_quote_character) {
+				if (*ptr == value_quote_character) {
 					// end of value found (OK if empty)
 					if (cookie_name[0] != '$') 
 						dict.insert( std::make_pair(cookie_name, cookie_value) );
@@ -653,17 +652,19 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::StringDictionary& dict,
 					return false;
 				} else {
 					// character is part of the (quoted) value
-					cookie_value.push_back(*string_iterator);
+					cookie_value.push_back(*ptr);
 				}
 			}
 			break;
 			
 		case COOKIE_PARSE_IGNORE:
 			// ignore everything until we reach a comma "," or semicolon ";"
-			if (*string_iterator == ';' || *string_iterator == ',')
+			if (*ptr == ';' || *ptr == ',')
 				parse_state = COOKIE_PARSE_NAME;
 			break;
 		}
+		
+		++ptr;
 	}
 	
 	// handle last cookie in string
