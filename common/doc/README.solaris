@@ -10,7 +10,7 @@ future, after support for it is added to the ASIO library.
 
 The easiest way to setup a build environment in Solaris is to download and
 install the following packages from http://www.sunfreeware.com/:
-cmake, gcc, zlib and openssl.
+cmake, gcc, zlib, bzip2 and openssl.
 
 Make sure that the "make" and "ar" utilities are in your PATH. 
 Normally, these are installed in the /usr/ccs/bin directory, which for
@@ -194,3 +194,10 @@ variable to include /usr/local/lib/.  You should also include the Boost
 libraries and the logging library (if used) in this path:
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/ssl/lib
+
+Solaris includes some libraries, such as bzlib (bzip2) in shared object format
+located in the /usr/lib directory.  Static versions of these are not provided.
+If you encounter problems while linking static versions of Pion's libraries,
+it may be because none of the required libraries are available in static
+format.  Try using the "--disable-static" configure script flag to only build
+Pion's shared object libraries (the static libraries are not required).
