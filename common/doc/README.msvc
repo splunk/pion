@@ -60,7 +60,7 @@ little time and disk space but not a whole lot):
 
 bjam --toolset=msvc --with-thread --with-system --with-filesystem \
 	--with-regex --with-date_time --with-unit_test_framework \
-	debug release threading=multi stage
+	--with-signals debug release threading=multi stage
 
 Boost.Iostreams is also required, but must be compiled separately for
 Windows; see Building Boost.Iostreams below.
