@@ -61,8 +61,10 @@ print "* Generating RPM spec file..\n";
 # prepare some vars for spec file
 if ($EDITION eq "community") {
 	$spec_license = "GPL";
+	$rpm_extras_dir = "platform/build/rpm";
 } else {
 	$spec_license = "commercial";
+	$rpm_extras_dir = "enterprise/build/rpm";
 }
 @spec_libs = bsd_glob($LIBS_DIR . "/*");
 
@@ -109,6 +111,7 @@ userdel pion
 rm -rf \$RPM_BUILD_ROOT
 mkdir -p \$RPM_BUILD_ROOT/etc/pion
 mkdir -p \$RPM_BUILD_ROOT/etc/pion/vocabularies
+mkdir -p \$RPM_BUILD_ROOT/var/log/pion
 mkdir -p \$RPM_BUILD_ROOT/usr/bin
 mkdir -p \$RPM_BUILD_ROOT/usr/lib
 mkdir -p \$RPM_BUILD_ROOT/usr/share/pion/ui
@@ -159,17 +162,12 @@ close(SPEC_FILE);
 print "* Preparing binary source directory..\n";
 
 copyDirWithoutDotFiles($PACKAGE_DIR, $BIN_SRC_DIR);
-if ($EDITION eq "community") {
-	$rpm_extras_dir = "platform/build/rpm";
-} else {
-	$rpm_extras_dir = "enterprise/build/rpm";
-}
 copyDirWithoutDotFiles($rpm_extras_dir, $BIN_SRC_DIR);
 
 
 print "* Creating RPM files..\n";
 
-`rpmbuild --quiet -bb /tmp/pion-community-0.6.1-fc9.spec`;
+`rpmbuild --quiet -bb $SPEC_FILE_NAME`;
 
 
 print "* Cleaning up..\n";
