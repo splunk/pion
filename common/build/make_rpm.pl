@@ -109,6 +109,7 @@ userdel pion
 
 \%install
 rm -rf \$RPM_BUILD_ROOT
+mkdir -p \$RPM_BUILD_ROOT/etc/rc.d/init.d
 mkdir -p \$RPM_BUILD_ROOT/etc/pion
 mkdir -p \$RPM_BUILD_ROOT/etc/pion/vocabularies
 mkdir -p \$RPM_BUILD_ROOT/var/log/pion
@@ -120,6 +121,7 @@ mkdir -p \$RPM_BUILD_ROOT/usr/share/doc/$PACKAGE_BASE-$VERSION
 
 install -m 660 $BIN_SRC_BASE/config/*.{xml,txt,pem} \$RPM_BUILD_ROOT/etc/pion
 install -m 660 $BIN_SRC_BASE/config/vocabularies/*.xml \$RPM_BUILD_ROOT/etc/pion/vocabularies
+install -m 775 $BIN_SRC_BASE/pion.service \$RPM_BUILD_ROOT/etc/rc.d/init.d/pion
 install -s $BIN_SRC_BASE/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins
 install -s $BIN_SRC_BASE/libs/* \$RPM_BUILD_ROOT/usr/lib
 install -s $BIN_SRC_BASE/pion \$RPM_BUILD_ROOT/usr/bin/pion
@@ -146,6 +148,7 @@ rm -rf \$RPM_BUILD_ROOT
 /usr/share/pion/ui
 
 \%defattr(755,root,root)
+/etc/rc.d/init.d/pion
 /usr/share/pion/plugins
 END_SPEC_FILE
 
@@ -161,6 +164,7 @@ close(SPEC_FILE);
 
 print "* Preparing binary source directory..\n";
 
+`rm -rf $BIN_SRC_DIR`;
 copyDirWithoutDotFiles($PACKAGE_DIR, $BIN_SRC_DIR);
 copyDirWithoutDotFiles($rpm_extras_dir, $BIN_SRC_DIR);
 
@@ -174,7 +178,7 @@ print "* Cleaning up..\n";
 
 `mv $RPMS_DIR/*/* .`;
 `rm $SPEC_FILE_NAME`;
-
+`rm -rf $BIN_SRC_DIR`;
 
 print "* Done.\n";
 
