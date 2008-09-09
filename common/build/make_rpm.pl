@@ -123,7 +123,7 @@ mkdir -p \$RPM_BUILD_ROOT/usr/share/pion/ui
 mkdir -p \$RPM_BUILD_ROOT/usr/share/pion/plugins
 mkdir -p \$RPM_BUILD_ROOT/usr/share/doc/$PACKAGE_BASE-$VERSION
 
-install -m 660 $BIN_SRC_BASE/config/*.{xml,txt,pem} \$RPM_BUILD_ROOT/etc/pion
+install -m 660 $BIN_SRC_BASE/config/*.{xml,txt,pem,cap} \$RPM_BUILD_ROOT/etc/pion
 install -m 660 $BIN_SRC_BASE/config/vocabularies/*.xml \$RPM_BUILD_ROOT/etc/pion/vocabularies
 install -m 775 $BIN_SRC_BASE/pion.service \$RPM_BUILD_ROOT/etc/rc.d/init.d/pion
 install -s $BIN_SRC_BASE/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins
