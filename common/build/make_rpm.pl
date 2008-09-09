@@ -16,14 +16,18 @@ require File::Spec->catfile( ("common", "build"), "common.pl");
 # -----------------------------------
 
 # check command line parameters
-die("usage: make_rpm.pl <VERSION> <ARCH>") if ($#ARGV != 1);
+die("usage: make_rpm.pl <VERSION> <RELEASE.ARCH>") if ($#ARGV != 1);
 
 # must be run as root
 die("This script must be run as root!") if $>!=0;
 
 # set some global variables
 $VERSION = $ARGV[0];
-$ARCH = $ARGV[1];
+$RELEASE = $ARGV[1];
+
+# check validity of RELEASE parameter
+die("Second parameter must be format <RELEASE.ARCH> (i.e. \"1.el5\")")
+	if ($RELEASE !~ m/^\d+\..+$/);
 
 # find binary directory
 $BIN_DIR = "bin";
@@ -35,7 +39,7 @@ die("error: unable to find binary directory") if ($#PACKAGES != 0);
 $EDITION = $PACKAGE_BASE = $PACKAGE_DIR = $PACKAGES[0];
 $PACKAGE_BASE =~ s/.*(pion-[a-z]+)-.*/$1/;
 $EDITION =~ s/.*pion-([a-z]+)-.*/$1/;
-$BIN_SRC_BASE = $PACKAGE_BASE . "-" . $VERSION . "-" . $ARCH;
+$BIN_SRC_BASE = $PACKAGE_BASE . "-" . $VERSION . "-" . $RELEASE;
 $BIN_SRC_DIR = "$BUILD_DIR/$BIN_SRC_BASE";
 $SPEC_FILE_NAME = "/tmp/$BIN_SRC_BASE.spec";
 $CONFIG_DIR = File::Spec->catdir( ($PACKAGE_DIR, "config") );
@@ -74,7 +78,7 @@ print SPEC_FILE << "END_SPEC_FILE";
 Summary: Software for real-time data capture, processing and integration
 Name: $PACKAGE_BASE
 Version: $VERSION
-Release: 1
+Release: $RELEASE
 Vendor: Atomic Labs, Inc.
 License: $spec_license
 Group: System Environment/Daemons
@@ -140,7 +144,7 @@ rm -rf \$RPM_BUILD_ROOT
 \%defattr(-,root,root)
 \%doc $BIN_SRC_BASE/HISTORY.txt $BIN_SRC_BASE/LICENSE.txt $BIN_SRC_BASE/README.txt
 
-\%defattr(4755,root,root)
+\%defattr(755,root,root)
 /usr/bin/pion
 
 \%defattr(-,root,root)
