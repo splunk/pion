@@ -6,8 +6,7 @@ AM_CPPFLAGS = -I@PION_COMMON_HOME@/include -I../include
 
 pion_pluginsdir = @PION_PLUGINS_DIRECTORY@
 pion_plugins_LTLIBRARIES = HelloService.la EchoService.la \
-	CookieService.la LogService.la FileService.la AllowNothingService.la \
-	ReportService.la
+	CookieService.la LogService.la FileService.la AllowNothingService.la
 
 HelloService_la_SOURCES = HelloService.hpp HelloService.cpp
 HelloService_la_LDFLAGS = -no-undefined -module -avoid-version
@@ -38,10 +37,5 @@ AllowNothingService_la_SOURCES = AllowNothingService.hpp AllowNothingService.cpp
 AllowNothingService_la_LDFLAGS = -no-undefined -module -avoid-version
 AllowNothingService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @PION_EXTERNAL_LIBS@
 AllowNothingService_la_DEPENDENCIES = ../src/libpion-net.la
-
-ReportService_la_SOURCES = ReportService.hpp ReportService.cpp
-ReportService_la_LDFLAGS = -no-undefined -module -avoid-version
-ReportService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @PION_EXTERNAL_LIBS@
-ReportService_la_DEPENDENCIES = ../src/libpion-net.la
 
 EXTRA_DIST = *.vcproj
