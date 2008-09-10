@@ -46,6 +46,7 @@ public:
 		HTTPMessage::clear();
 		m_method.erase();
 		m_resource.erase();
+		m_original_resource.erase();
 		m_query_string.erase();
 		m_query_params.clear();
 		m_cookie_params.clear();
