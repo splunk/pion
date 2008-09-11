@@ -22,7 +22,7 @@ namespace pion {	// begin namespace pion
 ///
 /// PionAdminRights: obtains administrative rights for the process
 ///
-class PionAdminRights {
+class PION_COMMON_API PionAdminRights {
 public:
 
 	/// constructs object, obtaining administrative rights; will block
