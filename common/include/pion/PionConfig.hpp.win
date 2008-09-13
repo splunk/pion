@@ -20,7 +20,7 @@
 #endif
 
 /* Define to the version number of pion. */
-#define PION_VERSION "1.0.0"
+#define PION_VERSION "1.0.1"
 
 /* Define to the directory where Pion plug-ins are installed. */
 //#undef PION_PLUGINS_DIRECTORY
