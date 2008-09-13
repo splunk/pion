@@ -105,13 +105,13 @@ intelligence.
 \%build
 
 \%pre
-useradd -r -c "Pion" pion
+useradd -r -c "Pion" pion 2> /dev/null || true
 
 \%post
 /sbin/ldconfig
 
 \%postun
-userdel pion
+#userdel pion 2> /dev/null || true
 
 \%install
 rm -rf \$RPM_BUILD_ROOT
