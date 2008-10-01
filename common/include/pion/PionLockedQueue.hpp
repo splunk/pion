@@ -75,18 +75,21 @@ protected:
 	 * dequeues the next item from the top of the queue
 	 *
 	 * @param t assigned to the item at the top of the queue, if it is not empty
+	 * @param boost::uint32_t version number of the item retrieved, or head node if none
 	 *
-	 * @return boost::uint32_t version number of the item retrieved; zero if none
+	 * @return true if an item was retrieved; false if the queue is empty
 	 */
-	inline boost::uint32_t dequeue(T& t) {
+	inline bool dequeue(T& t, boost::uint32_t& version) {
 		// just return if the list is empty
 		boost::mutex::scoped_lock head_lock(m_head_mutex);
 		QueueNode *new_head_ptr = m_head_ptr->next;
-		if (! new_head_ptr)
-			return 0;
+		if (! new_head_ptr) {
+			version = m_head_ptr->version;
+			return false;
+		}
 
 		// get a copy of the item at the head of the list
-		boost::uint32_t version = new_head_ptr->version;
+		version = new_head_ptr->version;
 		t = new_head_ptr->data;
 
 		// update the pointer to the head of the list
@@ -102,16 +105,33 @@ protected:
 			--m_size;
 
 		// item successfully dequeued
-		return version;
+		return true;
 	}
 
 
 public:
 
-	/// data structure used to manage idle thread signaling
-	struct IdleThreadInfo {
-		boost::condition	wakeup_event;	//< triggered when a new item is available
-		IdleThreadInfo *	next;		//< pointer to the next idle thread
+	/// data structure used to manage idle consumer threads waiting for items
+	class ConsumerThread {
+	public:
+
+		/// constructor assumes thread is active/running
+		ConsumerThread(void) : m_is_running(true), m_next_ptr(NULL) {}
+
+		/// returns true while the consumer thread is active/running
+		inline bool isRunning(void) const { return m_is_running; }
+
+		/// stops the thread -- if waiting on pop() will return immediately
+		inline void stop(void) { m_is_running = false; m_wakeup_event.notify_one(); }
+
+	private:
+
+		/// allow PionLockedQueue direct access to members
+		friend class PionLockedQueue;
+
+		volatile bool		m_is_running;		//< true while the thread is running/active
+		boost::condition	m_wakeup_event;	//< triggered when a new item is available
+		ConsumerThread *	m_next_ptr;		//< pointer to the next idle thread
 	};
 
 
@@ -191,37 +211,40 @@ public:
 
 		// wake up an idle thread (if any)
 		if (m_idle_ptr) {
-			IdleThreadInfo *idle_ptr = m_idle_ptr;
-			m_idle_ptr = m_idle_ptr->next;
-			idle_ptr->wakeup_event.notify_one();
+			ConsumerThread *idle_ptr = m_idle_ptr;
+			m_idle_ptr = m_idle_ptr->m_next_ptr;
+			idle_ptr->m_wakeup_event.notify_one();
 		}
 	}
 	
 	/**
 	 * pops the next item from the top of the queue.  this may cause the calling
 	 * thread to sleep until an item is available, and will only return when an
-	 * item has been successfully retrieved.
+	 * item has been successfully retrieved or when the thread is stopping
 	 *
 	 * @param t assigned to the item at the top of the queue
-	 * @param thread_info IdleThreadInfo object used to manage the thread
+	 * @param thread_info ConsumerThread object used to manage the thread
+	 *
+	 * @return true if an item was retrieved, false if the queue is empty
 	 */
-	void pop(T& t, IdleThreadInfo& thread_info) {
+	bool pop(T& t, ConsumerThread& thread_info) {
 		boost::uint32_t last_known_version;
-		while (true) {
+		while (thread_info.isRunning()) {
 			// try to get the next value
-			if ( (last_known_version = dequeue(t)) )
-				break;	// got an item
+			if ( dequeue(t, last_known_version) )
+				return true;	// got an item
 
 			// queue is empty
 			boost::mutex::scoped_lock tail_lock(m_tail_mutex);
 			if (m_tail_ptr->version == last_known_version) {
 				// still empty after acquiring lock
-				thread_info.next = m_idle_ptr;
+				thread_info.m_next_ptr = m_idle_ptr;
 				m_idle_ptr = & thread_info;
 				// wait for an item to become available
-				thread_info.wakeup_event.wait(tail_lock);
+				thread_info.m_wakeup_event.wait(tail_lock);
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -231,7 +254,7 @@ public:
 	 *
 	 * @return true if an item was retrieved, false if the queue is empty
 	 */
-	inline bool pop(T& t) { return dequeue(t) != 0; }
+	inline bool pop(T& t) { boost::uint32_t version; return dequeue(t, version); }
 	
 
 private:
@@ -254,7 +277,7 @@ private:
 	QueueNode *						m_tail_ptr;
 
 	/// pointer to a list of idle threads waiting for work
-	IdleThreadInfo *				m_idle_ptr;
+	ConsumerThread *				m_idle_ptr;
 
 	/// value of the next tail version number
 	boost::uint32_t					m_next_version;
