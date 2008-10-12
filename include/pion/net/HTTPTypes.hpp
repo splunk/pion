@@ -48,6 +48,7 @@ struct PION_NET_API HTTPTypes
     static const std::string	HEADER_AUTHORIZATION;
     static const std::string	HEADER_REFERER;
     static const std::string	HEADER_USER_AGENT;
+    static const std::string	HEADER_X_FORWARDED_FOR;
 
 	// common HTTP content types
 	static const std::string	CONTENT_TYPE_HTML;

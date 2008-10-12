@@ -29,6 +29,7 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
@@ -291,6 +292,42 @@ public:
 	{
 		boost::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
 		return connect(tcp_endpoint);
+	}
+	
+	/**
+	 * connects to a remote endpoint with hostname lookup
+	 *
+	 * @param remote_server hostname of the remote server to connect to
+	 * @param remote_port remote port number to connect to
+	 * @return boost::system::error_code contains error code if the connection fails
+	 *
+	 * @see boost::asio::basic_socket_acceptor::connect()
+	 */
+	inline boost::system::error_code connect(const std::string& remote_server,
+											 const unsigned int remote_port)
+	{
+		// query a list of matching endpoints
+		boost::system::error_code ec;
+		boost::asio::ip::tcp::resolver resolver(m_tcp_socket.get_io_service());
+		boost::asio::ip::tcp::resolver::query query(remote_server,
+			boost::lexical_cast<std::string>(remote_port),
+			boost::asio::ip::tcp::resolver::query::numeric_service);
+		boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, ec);
+		if (ec)
+			return ec;
+
+		// try each one until we are successful
+		ec = boost::asio::error::host_not_found;
+		boost::asio::ip::tcp::resolver::iterator end;
+		while (ec && endpoint_iterator != end) {
+			boost::asio::ip::tcp::endpoint ep(endpoint_iterator->endpoint());
+			++endpoint_iterator;
+			ec = connect(ep);
+			if (ec)
+				close();
+		}
+
+		return ec;
 	}
 	
 	/**
