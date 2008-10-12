@@ -519,10 +519,12 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
 				if (query_name.empty()) return false;
 				parse_state = QUERY_PARSE_VALUE;
 			} else if (*ptr == '&') {
-				// value is empty (OK)
-				if (query_name.empty()) return false;
-				dict.insert( std::make_pair(query_name, query_value) );
-				query_name.erase();
+				// if query name is empty, just skip it (i.e. "&&")
+				if (! query_name.empty()) {
+					// assume that "=" is missing -- it's OK if the value is empty
+					dict.insert( std::make_pair(query_name, query_value) );
+					query_name.erase();
+				}
 			} else if (isControl(*ptr) || query_name.size() >= QUERY_NAME_MAX) {
 				// control character detected, or max sized exceeded
 				return false;
@@ -872,7 +874,8 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 			if (! parseURLEncoded(http_request.getQueryParams(),
 								  m_query_string.c_str(),
 								  m_query_string.size())) 
-				PION_LOG_WARN(m_logger, "Request query string parsing failed (URI)");
+				PION_LOG_WARN(m_logger, "Request query string parsing failed (URI): \""
+					<< m_query_string << "\"");
 		}
 
 		// Parse query pairs from post content if content type is x-www-form-urlencoded.
@@ -885,7 +888,8 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 			if (! parseURLEncoded(http_request.getQueryParams(),
 								  http_request.getContent(),
 								  http_request.getContentLength())) 
-				PION_LOG_WARN(m_logger, "Request query string parsing failed (POST content)");
+				PION_LOG_WARN(m_logger, "Request query string parsing failed (POST content): \""
+					<< http_request.getContent() << "\"");
 		}
 		
 		// parse "Cookie" headers
