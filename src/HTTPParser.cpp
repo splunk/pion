@@ -562,7 +562,7 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
 	return true;
 }
 
-bool HTTPParser::parseCookieHeader(HTTPTypes::StringDictionary& dict,
+bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 								   const char *ptr, const size_t len)
 {
 	// BASED ON RFC 2109
@@ -606,8 +606,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::StringDictionary& dict,
 				if (isControl(*ptr) || cookie_name.size() >= COOKIE_NAME_MAX)
 					return false;
 				// character is part of the name
-				// cookie names are case insensitive -> convert to lowercase
-				cookie_name.push_back( tolower(*ptr) );
+				cookie_name.push_back(*ptr);
 			}
 			break;
 			

@@ -145,11 +145,13 @@ struct PION_NET_API HTTPTypes
 	};
 #endif
 
-	/// use case-insensitive comparisons for HTTP header names
+	/// use case-insensitive comparisons for HTTP header names and cookie parameters
 #ifdef _MSC_VER
 	typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHashCompare>	Headers;
+	typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHashCompare>	CookieParams;
 #else
 	typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHash, CaseInsensitiveEqual >	Headers;
+	typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHash, CaseInsensitiveEqual >	CookieParams;
 #endif
 
 	/// data type for a dictionary of strings (used for HTTP headers)
@@ -157,9 +159,6 @@ struct PION_NET_API HTTPTypes
 
 	/// data type for HTTP query parameters
 	typedef StringDictionary	QueryParams;
-	
-	/// data type for HTTP cookie parameters
-	typedef StringDictionary	CookieParams;
 
 	
 	/** base64 decoding , used internally by HTTPBasicAuth

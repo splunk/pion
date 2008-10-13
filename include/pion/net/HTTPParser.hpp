@@ -178,7 +178,7 @@ public:
 	 * 
 	 * @return bool true if successful
 	 */
-	static bool parseCookieHeader(HTTPTypes::StringDictionary& dict,
+	static bool parseCookieHeader(HTTPTypes::CookieParams& dict,
 								  const char *ptr, const size_t len);
 
 	/**
@@ -190,10 +190,25 @@ public:
 	 * 
 	 * @return bool true if successful
 	 */
-	static inline bool parseCookieHeader(HTTPTypes::StringDictionary& dict,
+	static inline bool parseCookieHeader(HTTPTypes::CookieParams& dict,
 		const std::string& cookie_header)
 	{
 		return parseCookieHeader(dict, cookie_header.c_str(), cookie_header.size());
+	}
+
+	/**
+	 * parse key-value pairs out of a url-encoded string
+	 * (i.e. this=that&a=value)
+	 * 
+	 * @param dict dictionary for key-values pairs
+	 * @param query the encoded query string to be parsed
+	 * 
+	 * @return bool true if successful
+	 */
+	static inline bool parseURLEncoded(HTTPTypes::StringDictionary& dict,
+		const std::string& query)
+	{
+		return parseURLEncoded(dict, query.c_str(), query.size());
 	}
 
 	

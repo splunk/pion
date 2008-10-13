@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleValues)
 {
 	const std::string QUERY_STRING("test=2&three=%20four%20with%20spaces&five=sixty+two");
 	HTTPTypes::StringDictionary params;
-	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING.c_str(), QUERY_STRING.size()));
+	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING));
 	BOOST_CHECK_EQUAL(params.size(), 3UL);
 
 	HTTPTypes::StringDictionary::const_iterator i = params.find("test");
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithDoubleAmpersand)
 {
 	const std::string QUERY_STRING("a=b&&c=d&e");
 	HTTPTypes::StringDictionary params;
-	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING.c_str(), QUERY_STRING.size()));
+	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING));
 	BOOST_CHECK_EQUAL(params.size(), 3UL);
 
 	HTTPTypes::StringDictionary::const_iterator i = params.find("a");
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithEmptyValues)
 {
 	const std::string QUERY_STRING("a=&b&c=");
 	HTTPTypes::StringDictionary params;
-	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING.c_str(), QUERY_STRING.size()));
+	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING));
 	BOOST_CHECK_EQUAL(params.size(), 3UL);
 
 	HTTPTypes::StringDictionary::const_iterator i = params.find("a");
