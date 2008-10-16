@@ -124,6 +124,9 @@ public:
 		/// stops the thread -- if waiting on pop() will return immediately
 		inline void stop(void) { m_is_running = false; m_wakeup_event.notify_one(); }
 
+		/// stops the thread -- if waiting on pop() will return immediately
+		inline void reset(void) { m_is_running = true; m_next_ptr = NULL; }
+
 	private:
 
 		/// allow PionLockedQueue direct access to members
