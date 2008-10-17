@@ -34,7 +34,7 @@ versions:
 
 # yum install openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
 # up2date openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
-# apt-get openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
+# apt-get install openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
 
 
 Installing log4cxx:
@@ -51,7 +51,7 @@ manager:
 
 # yum install apr apr-devel apr-util apr-util-devel
 # up2date apr apr-devel apr-util apr-util-devel
-# apt-get apr apr-devel apr-util apr-util-devel
+# apt-get install apr apr-devel apr-util apr-util-devel
 
 For Redhat Enterprise and CentOS releases earlier than version 5, you will
 need to download and build the APR libraries from source since the available
@@ -110,7 +110,7 @@ your favorite package manager:
 
 # yum install libxml2 libxml2-devel
 # up2date libxml2 libxml2-devel
-# apt-get libxml2 libxml2-devel
+# apt-get install libxml2 libxml2-devel
 
 
 Installing OSSP uuid:
@@ -145,7 +145,7 @@ manager:
 
 # yum install sqlite sqlite-devel
 # up2date sqlite sqlite-devel
-# apt-get sqlite sqlite-devel
+# apt-get install sqlite sqlite-devel
 
 
 Installing YAJL:
@@ -161,7 +161,7 @@ versions using your favorite package manager:
 
 # yum install ruby cmake
 # up2date ruby cmake
-# apt-get ruby cmake
+# apt-get install ruby cmake
 
 You can download the source code tarball for YAJL from the "Third Party
 Libraries" page on our website.  After downloading it, just run:
