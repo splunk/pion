@@ -10,12 +10,6 @@ AC_DEFINE_UNQUOTED([PION_VERSION],["$PACKAGE_VERSION"],[Define to the version nu
 # Note: AM_CONFIG_HEADER is deprecated
 AC_CONFIG_HEADERS([common/include/pion/PionConfig.hpp])
 
-# Include config to perform basic setup
-m4_include([common/build/pion-setup.inc])
-
-# Include config for Boost libraries
-m4_include([common/build/pion-boost.inc])
-
 
 # Check for --with-cygwin
 AC_MSG_CHECKING([for cygwin directory])

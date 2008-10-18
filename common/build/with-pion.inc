@@ -68,10 +68,12 @@ fi
 
 # Setup compiler flags for Pion libraries
 PION_CPPFLAGS="$PION_CPPFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --cflags pion-platform`"
-PION_LDFLAGS="`PKG_CONFIG_PATH=$pion_location pkg-config --libs pion-platform`"
+PION_LDFLAGS="$PION_LDFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-L pion-platform`"
+PION_LDLIBS="$PION_LDLIBS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-l pion-platform`"
 
 # Substitute variables in Makefiles
 AC_SUBST(PION_CPPFLAGS)
 AC_SUBST(PION_LDFLAGS)
+AC_SUBST(PION_LDLIBS)
 AC_SUBST(PION_LIBS)
 AC_SUBST(PION_SERVER_LIB)
