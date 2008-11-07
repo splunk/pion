@@ -117,8 +117,14 @@ void TCPServer::stop(bool wait_until_finished)
 		}
 	
 		// wait for all pending connections to complete
-		while (! m_conn_pool.empty())
-			m_no_more_connections.wait(server_lock);
+		while (! m_conn_pool.empty()) {
+			// try to prun connections that didn't finish cleanly
+			if (pruneConnections() == 0)
+				break;	// if no more left, then we can stop waiting
+			// sleep for up to a quarter second to give open connections a chance to finish
+			PION_LOG_INFO(m_logger, "Waiting for open connections to finish");
+			PionScheduler::sleep(m_no_more_connections, server_lock, 0, 250000000);
+		}
 		
 		// notify the thread scheduler that we no longer need it
 		m_active_scheduler.removeActiveUser();
@@ -163,6 +169,9 @@ void TCPServer::listen(void)
 															  boost::bind(&TCPServer::finishConnection,
 																		  this, _1)));
 		
+		// prune connections that finished uncleanly
+		pruneConnections();
+
 		// keep track of the object in the server's connection pool
 		m_conn_pool.insert(new_connection);
 		
@@ -244,12 +253,31 @@ void TCPServer::finishConnection(TCPConnectionPtr& tcp_conn)
 	}
 }
 
+std::size_t TCPServer::pruneConnections(void)
+{
+	// assumes that a server lock has already been acquired
+	ConnectionPool::iterator conn_itr = m_conn_pool.begin();
+	while (conn_itr != m_conn_pool.end()) {
+		if (conn_itr->unique()) {
+			PION_LOG_WARN(m_logger, "Closing orphaned connection on port " << getPort());
+			ConnectionPool::iterator erase_itr = conn_itr;
+			++conn_itr;
+			(*erase_itr)->close();
+			m_conn_pool.erase(erase_itr);
+		} else {
+			++conn_itr;
+		}
+	}
+
+	// return the number of connections remaining
+	return m_conn_pool.size();
+}
+
 std::size_t TCPServer::getConnections(void) const
 {
 	boost::mutex::scoped_lock server_lock(m_mutex);
 	return (m_is_listening ? (m_conn_pool.size() - 1) : m_conn_pool.size());
 }
-
 
 }	// end namespace net
 }	// end namespace pion

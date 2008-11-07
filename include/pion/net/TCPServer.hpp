@@ -185,6 +185,9 @@ private:
 	/// connection and remove it from the server's management pool
 	void finishConnection(TCPConnectionPtr& tcp_conn);
 	
+    /// prunes orphaned connections that did not close cleanly
+    /// and returns the remaining number of connections in the pool
+    std::size_t pruneConnections(void);
 	
 	/// data type for a pool of TCP connections
 	typedef std::set<TCPConnectionPtr>		ConnectionPool;

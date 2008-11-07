@@ -90,6 +90,8 @@ private:
 		static const std::string GOODBYE_MESSAGE("Goodbye!\n");
 		if (read_error) {
 			tcp_conn->finish();
+		} else if (bytes_read == 5 && memcmp(tcp_conn->getReadBuffer().data(), "throw", 5) == 0) {
+			throw int(1);
 		} else {
 			tcp_conn->async_write(boost::asio::buffer(GOODBYE_MESSAGE),
 								  boost::bind(&pion::net::TCPConnection::finish, tcp_conn));
@@ -212,6 +214,22 @@ BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
 	std::getline(tcp_stream_b, message);
 	tcp_stream_b.close();
 	BOOST_CHECK(message == "Goodbye!");
+}
+
+BOOST_AUTO_TEST_CASE(checkServerExceptionsGetCaught) {
+	// open a connection
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::iostream tcp_stream_a(localhost);
+
+	// read greeting from the server
+	std::string message;
+	std::getline(tcp_stream_a, message);
+	BOOST_CHECK(message == "Hello there!");
+
+	// send throw request to the server
+	tcp_stream_a << "throw";
+	tcp_stream_a.flush();
+	tcp_stream_a.close();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
