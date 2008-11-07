@@ -111,7 +111,19 @@ boost::xtime PionScheduler::getWakeupTime(boost::uint32_t sleep_sec,
 	}
 	return wakeup_time;
 }
-							 
+					 
+void PionScheduler::processServiceWork(boost::asio::io_service& service) {
+	while (m_is_running) {
+		try {
+			service.run();
+		} catch (std::exception& e) {
+			PION_LOG_ERROR(m_logger, e.what());
+		} catch (...) {
+			PION_LOG_ERROR(m_logger, "caught unrecognized exception");
+		}
+	}	
+}
+					 
 
 // PionSingleServiceScheduler member functions
 
@@ -130,8 +142,8 @@ void PionSingleServiceScheduler::startup(void)
 		
 		// start multiple threads to handle async tasks
 		for (boost::uint32_t n = 0; n < m_num_threads; ++n) {
-			boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&boost::asio::io_service::run,
-																					   boost::ref(m_service)) ));
+			boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&PionScheduler::processServiceWork,
+																					   this, boost::ref(m_service)) ));
 			m_thread_pool.push_back(new_thread);
 		}
 	}
@@ -162,8 +174,8 @@ void PionOneToOneScheduler::startup(void)
 		
 		// start multiple threads to handle async tasks
 		for (boost::uint32_t n = 0; n < m_num_threads; ++n) {
-			boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&boost::asio::io_service::run,
-																					   boost::ref(m_service_pool[n]->first)) ));
+			boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&PionScheduler::processServiceWork,
+																					   this, boost::ref(m_service_pool[n]->first)) ));
 			m_thread_pool.push_back(new_thread);
 		}
 	}

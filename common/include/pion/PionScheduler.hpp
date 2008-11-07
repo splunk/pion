@@ -126,6 +126,10 @@ public:
 	}
 	
 	
+	/// processes work passed to the asio service & handles uncaught exceptions
+	void processServiceWork(boost::asio::io_service& service);
+
+
 protected:
 
 	/**
