@@ -6,6 +6,6 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="$(PION_NET_HOME)\include"
+		AdditionalIncludeDirectories="&quot;$(PION_NET_HOME)\include&quot;"
 	/>
 </VisualStudioPropertySheet>
