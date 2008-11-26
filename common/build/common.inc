@@ -3,3 +3,5 @@
 # ---------------------------------------
 
 docs: doxygen-doc
+
+clean-docs: doxygen-clean

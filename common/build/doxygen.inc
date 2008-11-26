@@ -132,7 +132,6 @@ endif DX_COND_latex
 
 DX_CLEANFILES = \
 	@DX_DOCDIR@/@PACKAGE@.tag \
-	-r \
 	$(DX_CLEAN_HTML) \
 	$(DX_CLEAN_CHM) \
 	$(DX_CLEAN_CHI) \
@@ -143,7 +142,7 @@ DX_CLEANFILES = \
 	$(DX_CLEAN_PDF) \
 	$(DX_CLEAN_LATEX)
 
-.PHONY: doxygen-run doxygen-doc $(DX_PS_GOAL) $(DX_PDF_GOAL)
+.PHONY: doxygen-run doxygen-doc doxygen-clean $(DX_PS_GOAL) $(DX_PDF_GOAL)
 
 .INTERMEDIATE: doxygen-run $(DX_PS_GOAL) $(DX_PDF_GOAL)
 
@@ -151,8 +150,11 @@ doxygen-run: @DX_DOCDIR@/@PACKAGE@.tag
 
 doxygen-doc: doxygen-run $(DX_PS_GOAL) $(DX_PDF_GOAL)
 
-@DX_DOCDIR@/@PACKAGE@.tag: $(DX_CONFIG) $(pkginclude_HEADERS)
+@DX_DOCDIR@/@PACKAGE@.tag: $(srcdir)/$(DX_CONFIG)
 	rm -rf $(DX_CLEANFILES)
 	$(DX_ENV) $(DX_DOXYGEN) $(srcdir)/$(DX_CONFIG)
+
+doxygen-clean:
+	rm -rf $(DX_CLEANFILES)
 
 endif DX_COND_doc
