@@ -39,13 +39,16 @@ public:
 	 *
 	 * @param is_request if true, the message is parsed as an HTTP request;
 	 *                   if false, the message is parsed as an HTTP response
+	 * @param max_content_length maximum length for HTTP payload content
 	 */
-	HTTPParser(const bool is_request)
+	HTTPParser(const bool is_request, boost::uint64_t max_content_length = DEFAULT_CONTENT_MAX)
 		: m_logger(PION_GET_LOGGER("pion.net.HTTPParser")), m_is_request(is_request),
 		m_read_ptr(NULL), m_read_end_ptr(NULL), m_message_parse_state(PARSE_START),
 		m_headers_parse_state(is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H),
 		m_chunked_content_parse_state(PARSE_CHUNK_SIZE_START), m_status_code(0),
-		m_bytes_content_read(0), m_bytes_last_read(0), m_bytes_total_read(0)
+		m_bytes_content_remaining(0), m_bytes_content_read(0),
+		m_bytes_last_read(0), m_bytes_total_read(0),
+		m_max_content_length(max_content_length)
 	{}
 	
 	/// default destructor
@@ -113,7 +116,6 @@ public:
 		m_method.erase();
 		m_resource.erase();
 		m_query_string.erase();
-		m_current_chunk.clear();
 		m_bytes_content_read = m_bytes_last_read = m_bytes_total_read = 0;
 	}
 	
@@ -121,22 +123,31 @@ public:
 	inline bool eof(void) const { return m_read_ptr == NULL || m_read_ptr >= m_read_end_ptr; }
 
 	/// returns the number of bytes available in the read buffer
-	inline unsigned long bytes_available(void) const { return (eof() ? 0 : (unsigned long)(m_read_end_ptr - m_read_ptr)); } 
+	inline std::size_t bytes_available(void) const { return (eof() ? 0 : (std::size_t)(m_read_end_ptr - m_read_ptr)); } 
 	
 	/// returns the number of bytes read during the last parse operation
 	inline std::size_t gcount(void) const { return m_bytes_last_read; }
 	
 	/// returns the total number of bytes read while parsing the HTTP message
-	inline std::size_t getTotalBytesRead(void) const { return m_bytes_total_read; }
+	inline boost::uint64_t getTotalBytesRead(void) const { return m_bytes_total_read; }
 	
 	/// returns the total number of bytes read while parsing the payload content
-	inline std::size_t getContentBytesRead(void) const { return m_bytes_content_read; }
+	inline boost::uint64_t getContentBytesRead(void) const { return m_bytes_content_read; }
+	
+	/// returns the maximum length for HTTP payload content
+	inline boost::uint64_t getMaxContentLength(void) const { return m_max_content_length; }
 	
 	/// returns true if the parser is being used to parse an HTTP request
 	inline bool isParsingRequest(void) const { return m_is_request; }
 
 	/// returns true if the parser is being used to parse an HTTP response
 	inline bool isParsingResponse(void) const { return ! m_is_request; }
+
+	/// sets the maximum length for HTTP payload content
+	inline void setMaxContentLength(boost::uint64_t n) { m_max_content_length = n; }
+	
+	/// resets the maximum length for HTTP payload content to the default value
+	inline void resetMaxContentLength(void) { m_max_content_length = DEFAULT_CONTENT_MAX; }
 	
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
@@ -269,7 +280,7 @@ protected:
 	 * the next chunk for the HTTP message
 	 *
 	 * @param chunk_buffers buffers to be populated from parsing chunked content
-	 * @return unsigned long number of content bytes consumed, if any
+	 * @return std::size_t number of content bytes consumed, if any
 	 */
 	std::size_t consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers);
 
@@ -289,41 +300,41 @@ protected:
 
 	
 	/// maximum length for response status message
-	static const unsigned long			STATUS_MESSAGE_MAX;
+	static const boost::uint32_t		STATUS_MESSAGE_MAX;
 	
 	/// maximum length for the request method
-	static const unsigned long			METHOD_MAX;
+	static const boost::uint32_t		METHOD_MAX;
 	
 	/// maximum length for the resource requested
-	static const unsigned long			RESOURCE_MAX;
+	static const boost::uint32_t		RESOURCE_MAX;
 	
 	/// maximum length for the query string
-	static const unsigned long			QUERY_STRING_MAX;
+	static const boost::uint32_t		QUERY_STRING_MAX;
 	
 	/// maximum length for an HTTP header name
-	static const unsigned long			HEADER_NAME_MAX;
+	static const boost::uint32_t		HEADER_NAME_MAX;
 	
 	/// maximum length for an HTTP header value
-	static const unsigned long			HEADER_VALUE_MAX;
+	static const boost::uint32_t		HEADER_VALUE_MAX;
 	
 	/// maximum length for the name of a query string variable
-	static const unsigned long			QUERY_NAME_MAX;
+	static const boost::uint32_t		QUERY_NAME_MAX;
 	
 	/// maximum length for the value of a query string variable
-	static const unsigned long			QUERY_VALUE_MAX;
+	static const boost::uint32_t		QUERY_VALUE_MAX;
 	
 	/// maximum length for the name of a cookie name
-	static const unsigned long			COOKIE_NAME_MAX;
+	static const boost::uint32_t		COOKIE_NAME_MAX;
 	
 	/// maximum length for the value of a cookie; also used for path and domain
-	static const unsigned long			COOKIE_VALUE_MAX;
+	static const boost::uint32_t		COOKIE_VALUE_MAX;
 	
-	/// maximum length for HTTP post content
-	static const unsigned long			POST_CONTENT_MAX;
+	/// maximum length for HTTP payload content
+	static const boost::uint64_t		DEFAULT_CONTENT_MAX;
 	
 	
 	/// primary logging interface used by this class
-	mutable PionLogger						m_logger;
+	mutable PionLogger					m_logger;
 	
 	/// true if the message is an HTTP request; false if it is an HTTP response
 	const bool							m_is_request;
@@ -380,7 +391,7 @@ private:
 	ChunkedContentParseState			m_chunked_content_parse_state;
 
 	/// Used for parsing the HTTP response status code
-	unsigned int						m_status_code;
+	boost::uint16_t						m_status_code;
 	
 	/// Used for parsing the HTTP response status message
 	std::string							m_status_message;
@@ -403,23 +414,26 @@ private:
 	/// Used for parsing the chunk size
 	std::string							m_chunk_size_str;
 
-	/// Used for parsing the current chunk
-	std::vector<char>					m_current_chunk;
-
 	/// number of bytes in the chunk currently being parsed
 	std::size_t 						m_size_of_current_chunk;
 
 	/// number of bytes read so far in the chunk currently being parsed
 	std::size_t 						m_bytes_read_in_current_chunk;
 
+	/// number of payload content bytes that have not yet been read
+	boost::uint64_t						m_bytes_content_remaining;
+	
 	/// number of bytes read so far into the message's payload content
-	std::size_t 						m_bytes_content_read;
+	boost::uint64_t						m_bytes_content_read;
 	
 	/// number of bytes read during last parse operation
-	std::size_t 						m_bytes_last_read;
+	boost::uint64_t						m_bytes_last_read;
 	
 	/// total number of bytes read while parsing the HTTP message
-	std::size_t 						m_bytes_total_read;
+	boost::uint64_t						m_bytes_total_read;
+
+	/// maximum length for HTTP payload content
+	boost::uint64_t						m_max_content_length;
 };
 
 

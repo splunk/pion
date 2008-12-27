@@ -7,6 +7,7 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <cstdlib>
 #include <boost/logic/tribool.hpp>
 #include <pion/net/HTTPParser.hpp>
 #include <pion/net/HTTPRequest.hpp>
@@ -20,17 +21,17 @@ namespace net {		// begin namespace net (Pion Network Library)
 	
 // static members of HTTPParser
 
-const unsigned long	HTTPParser::STATUS_MESSAGE_MAX = 1024;	// 1 KB
-const unsigned long	HTTPParser::METHOD_MAX = 1024;	// 1 KB
-const unsigned long	HTTPParser::RESOURCE_MAX = 256 * 1024;	// 256 KB
-const unsigned long	HTTPParser::QUERY_STRING_MAX = 1024 * 1024;	// 1 MB
-const unsigned long	HTTPParser::HEADER_NAME_MAX = 1024;	// 1 KB
-const unsigned long	HTTPParser::HEADER_VALUE_MAX = 1024 * 1024;	// 1 MB
-const unsigned long	HTTPParser::QUERY_NAME_MAX = 1024;	// 1 KB
-const unsigned long	HTTPParser::QUERY_VALUE_MAX = 1024 * 1024;	// 1 MB
-const unsigned long	HTTPParser::COOKIE_NAME_MAX = 1024;	// 1 KB
-const unsigned long	HTTPParser::COOKIE_VALUE_MAX = 1024 * 1024;	// 1 MB
-const unsigned long	HTTPParser::POST_CONTENT_MAX = 1024 * 1024;	// 1 MB
+const boost::uint32_t	HTTPParser::STATUS_MESSAGE_MAX = 1024;	// 1 KB
+const boost::uint32_t	HTTPParser::METHOD_MAX = 1024;	// 1 KB
+const boost::uint32_t	HTTPParser::RESOURCE_MAX = 256 * 1024;	// 256 KB
+const boost::uint32_t	HTTPParser::QUERY_STRING_MAX = 1024 * 1024;	// 1 MB
+const boost::uint32_t	HTTPParser::HEADER_NAME_MAX = 1024;	// 1 KB
+const boost::uint32_t	HTTPParser::HEADER_VALUE_MAX = 1024 * 1024;	// 1 MB
+const boost::uint32_t	HTTPParser::QUERY_NAME_MAX = 1024;	// 1 KB
+const boost::uint32_t	HTTPParser::QUERY_VALUE_MAX = 1024 * 1024;	// 1 MB
+const boost::uint32_t	HTTPParser::COOKIE_NAME_MAX = 1024;	// 1 KB
+const boost::uint32_t	HTTPParser::COOKIE_VALUE_MAX = 1024 * 1024;	// 1 MB
+const boost::uint64_t	HTTPParser::DEFAULT_CONTENT_MAX = 1024 * 1024;	// 1 MB
 	
 	
 // HTTPParser member functions
@@ -62,7 +63,7 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
 			
 			// parsing chunked payload content
 			case PARSE_CHUNKS:
-				rc = parseChunks(http_msg.getChunkBuffers());
+				rc = parseChunks(http_msg.getChunkCache());
 				total_bytes_parsed += m_bytes_last_read;
 				// check if we have finished parsing all chunks
 				if (rc == true) {
@@ -78,7 +79,7 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
 				
 			// parsing payload content with no length (until EOF)
 			case PARSE_CONTENT_NO_LENGTH:
-				consumeContentAsNextChunk(http_msg.getChunkBuffers());
+				consumeContentAsNextChunk(http_msg.getChunkCache());
 				total_bytes_parsed += m_bytes_last_read;
 				break;
 
@@ -440,7 +441,7 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 {
 	boost::tribool rc = boost::indeterminate;
 	
-	m_bytes_content_read = 0;
+	m_bytes_content_remaining = m_bytes_content_read = 0;
 	http_msg.setContentLength(0);
 	http_msg.updateTransferCodingUsingHeader();
 	
@@ -469,6 +470,11 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 				rc = true;
 			} else {
 				m_message_parse_state = PARSE_CONTENT;
+				m_bytes_content_remaining = http_msg.getContentLength();
+
+				// check if content-length exceeds maximum allowed
+				if (m_bytes_content_remaining > m_max_content_length)
+					http_msg.setContentLength(m_max_content_length);
 			}
 			
 		} else {
@@ -478,7 +484,7 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 			// only if not a request, read through the close of the connection
 			if (! m_is_request) {
 				// clear the chunk buffers before we start
-				http_msg.getChunkBuffers().clear();
+				http_msg.getChunkCache().clear();
 				
 				// continue reading content until there is no more data
 				m_message_parse_state = PARSE_CONTENT_NO_LENGTH;
@@ -491,7 +497,7 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 	
 	// allocate a buffer for payload content (may be zero-size)
 	http_msg.createContentBuffer();
-	
+
 	return rc;
 }
 
@@ -675,7 +681,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 	return true;
 }
 
-boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
+boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_cache)
 {
 	//
 	// note that boost::tribool may have one of THREE states:
@@ -739,7 +745,6 @@ boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
 				if (m_size_of_current_chunk == 0) {
 					m_chunked_content_parse_state = PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK;
 				} else {
-					m_current_chunk.clear();
 					m_chunked_content_parse_state = PARSE_CHUNK;
 				}
 			} else {
@@ -749,12 +754,11 @@ boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
 
 		case PARSE_CHUNK:
 			if (m_bytes_read_in_current_chunk < m_size_of_current_chunk) {
-				m_current_chunk.push_back(*m_read_ptr);
+				if (chunk_cache.size() < m_max_content_length)
+					chunk_cache.push_back(*m_read_ptr);
 				m_bytes_read_in_current_chunk++;
 			}
 			if (m_bytes_read_in_current_chunk == m_size_of_current_chunk) {
-				chunk_buffers.push_back(m_current_chunk);
-				m_current_chunk.clear();
 				m_chunked_content_parse_state = PARSE_EXPECTING_CR_AFTER_CHUNK;
 			}
 			break;
@@ -804,6 +808,7 @@ boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_buffers)
 
 	m_bytes_last_read = (m_read_ptr - read_start_ptr);
 	m_bytes_total_read += m_bytes_last_read;
+	m_bytes_content_read += m_bytes_last_read;
 	return boost::indeterminate;
 }
 
@@ -813,41 +818,53 @@ boost::tribool HTTPParser::consumeContent(HTTPMessage& http_msg)
 	size_t content_bytes_available = bytes_available();
 	boost::tribool rc = boost::indeterminate;
 	
-	if (http_msg.getContentLength() == 0) {
-		// consume all remaining content and never finish (PARSE_CONTENT_NO_LENGTH)
-		content_bytes_to_read = content_bytes_available;
+	if (m_bytes_content_remaining == 0) {
+		// we have all of the remaining payload content
+		return true;
 	} else {
-		content_bytes_to_read = (http_msg.getContentLength() - m_bytes_content_read);
-		if (content_bytes_available >= content_bytes_to_read) {
+		if (content_bytes_available >= m_bytes_content_remaining) {
 			// we have all of the remaining payload content
 			rc = true;
+			content_bytes_to_read = m_bytes_content_remaining;
 		} else {
 			// only some of the payload content is available
 			content_bytes_to_read = content_bytes_available;
 		}
+		m_bytes_content_remaining -= content_bytes_to_read;
 	}
 	
-	memcpy(http_msg.getContent() + m_bytes_content_read, m_read_ptr, content_bytes_to_read);
-	m_bytes_content_read += content_bytes_to_read;
+	// make sure content buffer is not already full
+	if (m_bytes_content_read < m_max_content_length) {
+		if (m_bytes_content_read + content_bytes_to_read > m_max_content_length) {
+			// read would exceed maximum size for content buffer
+			// copy only enough bytes to fill up the content buffer
+			memcpy(http_msg.getContent() + m_bytes_content_read, m_read_ptr, 
+				m_max_content_length - m_bytes_content_read);
+		} else {
+			// copy all bytes available
+			memcpy(http_msg.getContent() + m_bytes_content_read, m_read_ptr, content_bytes_to_read);
+		}
+	}
+
 	m_read_ptr += content_bytes_to_read;
+	m_bytes_content_read += content_bytes_to_read;
+	m_bytes_total_read += content_bytes_to_read;
 	m_bytes_last_read = content_bytes_to_read;
-	m_bytes_total_read += m_bytes_last_read;
 	
 	return rc;
 }
 
-std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers)
+std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_cache)
 {
 	if (bytes_available() == 0) {
 		m_bytes_last_read = 0;
 	} else {
-		std::vector<char>	next_chunk;
+		m_bytes_last_read = (m_read_end_ptr - m_read_ptr);
 		while (m_read_ptr < m_read_end_ptr) {
-			next_chunk.push_back(*m_read_ptr);
+			if (chunk_cache.size() < m_max_content_length)
+				chunk_cache.push_back(*m_read_ptr);
 			++m_read_ptr;
 		}
-		chunk_buffers.push_back(next_chunk);
-		m_bytes_last_read = next_chunk.size();
 		m_bytes_total_read += m_bytes_last_read;
 		m_bytes_content_read += m_bytes_last_read;
 	}

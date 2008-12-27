@@ -10,8 +10,8 @@
 #ifndef __PION_HTTPMESSAGE_HEADER__
 #define __PION_HTTPMESSAGE_HEADER__
 
-#include <cstdlib>
 #include <vector>
+#include <boost/cstdint.hpp>
 #include <boost/asio.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
@@ -40,7 +40,7 @@ public:
 	typedef std::vector<boost::asio::const_buffer>	WriteBuffers;
 	
 	/// used to cache chunked data
-	typedef std::list<std::vector<char> >			ChunkCache;
+	typedef std::vector<char>	ChunkCache;
 
 	/// data type for library errors returned during receive() operations
 	struct ReceiveError
@@ -81,7 +81,7 @@ public:
 		m_version_major(http_msg.m_version_major),
 		m_version_minor(http_msg.m_version_minor),
 		m_content_length(http_msg.m_content_length),
-		m_chunk_buffers(http_msg.m_chunk_buffers),
+		m_chunk_cache(http_msg.m_chunk_cache),
 		m_headers(http_msg.m_headers)
 	{
 		if (http_msg.m_content_buf) {
@@ -102,7 +102,7 @@ public:
 		m_version_major = m_version_minor = 1;
 		m_content_length = 0;
 		m_content_buf.reset();
-		m_chunk_buffers.clear();
+		m_chunk_cache.clear();
 		m_headers.clear();
 	}
 	
@@ -121,10 +121,10 @@ public:
 	}
 
 	/// returns the major HTTP version number
-	inline unsigned int getVersionMajor(void) const { return m_version_major; }
+	inline boost::uint16_t getVersionMajor(void) const { return m_version_major; }
 	
 	/// returns the minor HTTP version number
-	inline unsigned int getVersionMinor(void) const { return m_version_minor; }
+	inline boost::uint16_t getVersionMinor(void) const { return m_version_minor; }
 	
 	/// returns a string representation of the HTTP version (i.e. "HTTP/1.1")
 	inline std::string getVersionString(void) const {
@@ -136,7 +136,7 @@ public:
 	}
 	
 	/// returns the length of the payload content (in bytes)
-	inline size_t getContentLength(void) const { return m_content_length; }
+	inline boost::uint64_t getContentLength(void) const { return m_content_length; }
 
 	/// returns true if the message content is chunked
 	inline bool isChunked(void) const { return m_is_chunked; }
@@ -147,8 +147,8 @@ public:
 	/// returns a const pointer to the payload content, or NULL if there is none
 	inline const char *getContent(void) const { return m_content_buf.get(); }
 	
-	/// returns a reference to the chunk buffers
-	inline ChunkCache& getChunkBuffers(void) { return m_chunk_buffers; }
+	/// returns a reference to the chunk cache
+	inline ChunkCache& getChunkCache(void) { return m_chunk_cache; }
 
 	/// returns a value for the header if any are defined; otherwise, an empty string
 	inline const std::string& getHeader(const std::string& key) const {
@@ -183,19 +183,19 @@ public:
 	inline void setRemoteIp(const boost::asio::ip::address& ip) { m_remote_ip = ip; }
 
 	/// sets the major HTTP version number
-	inline void setVersionMajor(const unsigned int n) {
+	inline void setVersionMajor(const boost::uint16_t n) {
 		m_version_major = n;
 		clearFirstLine();
 	}
 
 	/// sets the minor HTTP version number
-	inline void setVersionMinor(const unsigned int n) {
+	inline void setVersionMinor(const boost::uint16_t n) {
 		m_version_minor = n;
 		clearFirstLine();
 	}
 
 	/// sets the length of the payload content (in bytes)
-	inline void setContentLength(const size_t n) { m_content_length = n; }
+	inline void setContentLength(const boost::uint64_t n) { m_content_length = n; }
 
 	/// if called, the content-length will not be sent in the HTTP headers
 	inline void setDoNotSendContentLength(void) { m_do_not_send_content_length = true; }
@@ -204,7 +204,7 @@ public:
 	inline void updateContentLengthUsingHeader(void) {
 		Headers::const_iterator i = m_headers.find(HEADER_CONTENT_LENGTH);
 		if (i == m_headers.end()) m_content_length = 0;
-		else m_content_length = strtoul(i->second.c_str(), 0, 10);
+		else m_content_length = boost::lexical_cast<boost::uint64_t>(i->second);
 	}
 	
 	/// sets the transfer coding using the Transfer-Encoding header
@@ -218,7 +218,7 @@ public:
 		}
 	}
 	
-	/// creates a payload content buffer of size m_content_length and returns
+	///creates a payload content buffer of size m_content_length and returns
 	/// a pointer to the new buffer (memory is managed by HTTPMessage class)
 	inline char *createContentBuffer(void) {
 		m_content_buf.reset(new char[m_content_length + 1]);
@@ -436,19 +436,19 @@ private:
 	boost::asio::ip::address		m_remote_ip;
 
 	/// HTTP major version number
-	unsigned int					m_version_major;
+	boost::uint16_t					m_version_major;
 
 	/// HTTP major version number
-	unsigned int					m_version_minor;
+	boost::uint16_t					m_version_minor;
 	
 	/// the length of the payload content (in bytes)
-	size_t							m_content_length;
+	boost::uint64_t					m_content_length;
 
 	/// the payload content, if any was sent with the message
 	boost::scoped_array<char>		m_content_buf;
 
 	/// buffers for holding chunked data
-	ChunkCache						m_chunk_buffers;
+	ChunkCache						m_chunk_cache;
 	
 	/// HTTP message headers
 	Headers							m_headers;

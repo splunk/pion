@@ -7,6 +7,7 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <algorithm>
 #include <boost/asio.hpp>
 #include <boost/regex.hpp>
 #include <boost/logic/tribool.hpp>
@@ -133,19 +134,10 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 	
 void HTTPMessage::concatenateChunks(void)
 {
-	std::size_t sumOfChunkSizes = 0;
-	ChunkCache::const_iterator i;
-	for (i = m_chunk_buffers.begin(); i != m_chunk_buffers.end(); ++i) {
-		sumOfChunkSizes += i->size();
-	}
-	setContentLength(sumOfChunkSizes);
-	if (sumOfChunkSizes > 0) {
-		char *post_buffer = createContentBuffer();
-		for (i = m_chunk_buffers.begin(); i != m_chunk_buffers.end(); ++i) {
-			memcpy(post_buffer, &((*i)[0]), i->size());
-			post_buffer += i->size();
-		}
-	}
+	setContentLength(m_chunk_cache.size());
+	char *post_buffer = createContentBuffer();
+	if (m_chunk_cache.size() > 0)
+		std::copy(m_chunk_cache.begin(), m_chunk_cache.end(), post_buffer);
 }
 	
 }	// end namespace net

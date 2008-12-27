@@ -10,6 +10,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread/mutex.hpp>
+#include <pion/PionAdminRights.hpp>
 #include <pion/net/TCPServer.hpp>
 
 using boost::asio::ip::tcp;
@@ -80,11 +81,18 @@ void TCPServer::start(void)
 		beforeStarting();
 
 		// configure the acceptor service
-		m_tcp_acceptor.open(m_endpoint.protocol());
-		// allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
-		m_tcp_acceptor.set_option(tcp::acceptor::reuse_address(true));
-		m_tcp_acceptor.bind(m_endpoint);
-		m_tcp_acceptor.listen();
+		try {
+			// get admin permissions in case we're binding to a privileged port
+			pion::PionAdminRights use_admin_rights(getPort() < 1024);
+			m_tcp_acceptor.open(m_endpoint.protocol());
+			// allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
+			m_tcp_acceptor.set_option(tcp::acceptor::reuse_address(true));
+			m_tcp_acceptor.bind(m_endpoint);
+			m_tcp_acceptor.listen();
+		} catch (std::exception& e) {
+			PION_LOG_ERROR(m_logger, "Unable to bind to port " << getPort() << ": " << e.what());
+			throw;
+		}
 
 		m_is_listening = true;
 

@@ -89,6 +89,10 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleRequest)
 
     HTTPRequest http_request;
 	BOOST_CHECK(request_parser.parse(http_request));
+
+	BOOST_CHECK_EQUAL(http_request.getContentLength(), 0UL);
+	BOOST_CHECK_EQUAL(request_parser.getTotalBytesRead(), sizeof(request_data_1));
+	BOOST_CHECK_EQUAL(request_parser.getContentBytesRead(), 0UL);
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
@@ -98,6 +102,46 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
 
     HTTPResponse http_response;
     BOOST_CHECK(response_parser.parse(http_response));
+
+	BOOST_CHECK_EQUAL(http_response.getContentLength(), 117UL);
+	BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), sizeof(response_data_1));
+	BOOST_CHECK_EQUAL(response_parser.getContentBytesRead(), 117UL);
+
+	boost::regex content_regex("^GIF89a.*");
+	BOOST_CHECK(boost::regex_match(http_response.getContent(), content_regex));
+}
+
+BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithSmallerMaxSize)
+{
+    HTTPParser response_parser(false);
+    response_parser.setReadBuffer((const char*)response_data_1, sizeof(response_data_1));
+	response_parser.setMaxContentLength(4);
+
+    HTTPResponse http_response;
+    BOOST_CHECK(response_parser.parse(http_response));
+
+	BOOST_CHECK_EQUAL(http_response.getContentLength(), 4UL);
+	BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), sizeof(response_data_1));
+	BOOST_CHECK_EQUAL(response_parser.getContentBytesRead(), 117UL);
+
+	std::string content_str("GIF8");
+	BOOST_CHECK_EQUAL(content_str, http_response.getContent());
+}
+
+BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithZeroMaxSize)
+{
+    HTTPParser response_parser(false);
+    response_parser.setReadBuffer((const char*)response_data_1, sizeof(response_data_1));
+	response_parser.setMaxContentLength(0);
+
+    HTTPResponse http_response;
+    BOOST_CHECK(response_parser.parse(http_response));
+
+	BOOST_CHECK_EQUAL(http_response.getContentLength(), 0UL);
+	BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), sizeof(response_data_1));
+	BOOST_CHECK_EQUAL(response_parser.getContentBytesRead(), 117UL);
+
+	BOOST_CHECK_EQUAL(http_response.getContent()[0], '\0');
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
@@ -113,11 +157,21 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
     HTTPParser response_parser(false);
     HTTPResponse http_response;
 
+	boost::uint64_t total_bytes = 0;
     for (int i=0; i <  frame_cnt - 1; i++ ) {
         response_parser.setReadBuffer((const char*)frames[i], sizes[i]);
 		BOOST_CHECK( boost::indeterminate(response_parser.parse(http_response)) );
+		total_bytes += sizes[i];
 	}
 
     response_parser.setReadBuffer((const char*)frames[frame_cnt - 1], sizes[frame_cnt - 1]);
     BOOST_CHECK( response_parser.parse(http_response) );
+	total_bytes += sizes[frame_cnt - 1];
+
+	BOOST_CHECK_EQUAL(http_response.getContentLength(), 4712UL);
+	BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), total_bytes);
+	BOOST_CHECK_EQUAL(response_parser.getContentBytesRead(), 4712UL);
+
+	boost::regex content_regex(".*<title>Atomic\\sLabs:.*");
+	BOOST_CHECK(boost::regex_match(http_response.getContent(), content_regex));
 }
