@@ -26,19 +26,21 @@ boost::mutex					PionAdminRights::m_mutex;
 
 // PionAdminRights member functions
 
-PionAdminRights::PionAdminRights(void)
+PionAdminRights::PionAdminRights(bool use_log)
 	: m_logger(PION_GET_LOGGER("pion.PionAdminRights")),
-	m_lock(m_mutex), m_user_id(-1), m_has_rights(false)
+	m_lock(m_mutex), m_user_id(-1), m_has_rights(false), m_use_log(use_log)
 {
 #ifndef _MSC_VER
 	m_user_id = geteuid();
 	if ( seteuid(ADMIN_USER_ID) != 0 ) {
-		PION_LOG_ERROR(m_logger, "Unable to upgrade to administrative rights");
+		if (m_use_log)
+			PION_LOG_ERROR(m_logger, "Unable to upgrade to administrative rights");
 		m_lock.unlock();
 		return;
 	} else {
 		m_has_rights = true;
-		PION_LOG_DEBUG(m_logger, "Upgraded to administrative rights");
+		if (m_use_log)
+			PION_LOG_DEBUG(m_logger, "Upgraded to administrative rights");
 	}
 #endif
 }
@@ -48,9 +50,11 @@ void PionAdminRights::release(void)
 #ifndef _MSC_VER
 	if (m_has_rights) {
 		if ( seteuid(m_user_id) == 0 ) {
-			PION_LOG_DEBUG(m_logger, "Released administrative rights");
+			if (m_use_log)
+				PION_LOG_DEBUG(m_logger, "Released administrative rights");
 		} else {
-			PION_LOG_ERROR(m_logger, "Unable to release administrative rights");
+			if (m_use_log)
+				PION_LOG_ERROR(m_logger, "Unable to release administrative rights");
 		}
 		m_has_rights = false;
 		m_lock.unlock();

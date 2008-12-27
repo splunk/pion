@@ -25,9 +25,13 @@ namespace pion {	// begin namespace pion
 class PION_COMMON_API PionAdminRights {
 public:
 
-	/// constructs object, obtaining administrative rights; will block
-	/// if another thread has already obtained rights
-	PionAdminRights(void);
+	/**
+	 * constructs object, obtaining administrative rights; will block
+	 * if another thread has already obtained rights
+	 *
+	 * @param use_log if false, then no logging will be performed
+	 */
+	PionAdminRights(bool use_log = true);
 
 	/// destructor releases administrative rights
 	virtual ~PionAdminRights() { release(); }
@@ -55,6 +59,9 @@ private:
 
 	/// true if the class currently holds administrative rights
 	bool								m_has_rights;
+
+	/// if false, then no logging will be performed
+	bool								m_use_log;
 };
 
 
