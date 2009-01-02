@@ -300,7 +300,9 @@ AC_DEFUN([DX_REQUIRE_PROG], [
 AC_PATH_TOOL([$1], [$2])
 if test "$DX_FLAG_[]DX_CURRENT_FEATURE$$1" = 1; then
     AC_MSG_WARN([$2 not found - will not DX_CURRENT_DESCRIPTION])
-    AC_SUBST([DX_FLAG_[]DX_CURRENT_FEATURE], 0)
+# Fixing for autoconf 2.59 and above -- TaO090102
+    AC_SUBST([DX_FLAG_]DX_CURRENT_FEATURE, 0)
+#    AC_SUBST([DX_FLAG_[]DX_CURRENT_FEATURE], 0)
 fi
 ])
 
