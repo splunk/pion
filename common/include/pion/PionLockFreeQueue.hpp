@@ -216,7 +216,12 @@ private:
 	QueueNodePtr		m_head_ptr;
 	
 	/// pointer to the last item in the list
+#ifdef _MSC_VER
+	#pragma pack(8) /* force head_ and tail_ to different cache lines! */
+	QueueNodePtr		m_tail_ptr;
+#else
 	QueueNodePtr		m_tail_ptr __attribute__((aligned(64))); /* force head_ and tail_ to different cache lines! */
+#endif
 };
 
 
