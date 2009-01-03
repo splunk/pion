@@ -199,6 +199,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\pion\PionLockFreeQueue.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\include\pion\PionLogger.hpp"
 				>
 			</File>

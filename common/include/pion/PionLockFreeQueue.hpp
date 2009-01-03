@@ -14,6 +14,7 @@
 	#error "PionLockFreeQueue requires the boost::lockfree library!"
 #endif
 #ifdef _MSC_VER
+	#include <iso646.h>
 	#pragma warning(push)
 	#pragma warning(disable: 4800) // forcing value to bool 'true' or 'false' (performance warning)
 #endif
