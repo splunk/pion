@@ -85,6 +85,22 @@ public:
 	inline void remove(const std::string& plugin_id);
 	
 	/**
+	 * replaces an existing plug-in object with a new one
+	 *
+	 * @param plugin_id unique identifier associated with the plug-in
+	 * @param plugin_ptr pointer to the new plug-in object which will replace the old one
+	 */
+	inline void replace(const std::string& plugin_id, PLUGIN_TYPE *plugin_ptr);
+	
+	/**
+	 * clones an existing plug-in object (creates a new one of the same type)
+	 *
+	 * @param plugin_id unique identifier associated with the plug-in
+	 * @return PLUGIN_TYPE* pointer to the new plug-in object
+	 */
+	inline PLUGIN_TYPE *clone(const std::string& plugin_id);
+
+	/**
 	 * loads a new plug-in object
 	 *
 	 * @param plugin_id unique identifier associated with the plug-in
@@ -203,6 +219,32 @@ inline void PluginManager<PLUGIN_TYPE>::remove(const std::string& plugin_id)
 		delete i->second.first;
 	}
 	m_plugin_map.erase(i);
+}
+
+template <typename PLUGIN_TYPE>
+inline void PluginManager<PLUGIN_TYPE>::replace(const std::string& plugin_id, PLUGIN_TYPE *plugin_ptr)
+{
+	PION_ASSERT(plugin_ptr);
+	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
+	typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i = m_plugin_map.find(plugin_id);
+	if (i == m_plugin_map.end())
+		throw PluginNotFoundException(plugin_id);
+	if (i->second.second.is_open()) {
+		i->second.second.destroy(i->second.first);
+	} else {
+		delete i->second.first;
+	}
+	i->second.first = plugin_ptr;
+}
+
+template <typename PLUGIN_TYPE>
+inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::clone(const std::string& plugin_id)
+{
+	boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
+	typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i = m_plugin_map.find(plugin_id);
+	if (i == m_plugin_map.end())
+		throw PluginNotFoundException(plugin_id);
+	return i->second.second.create();
 }
 
 template <typename PLUGIN_TYPE>
