@@ -67,6 +67,26 @@ public:
 	boost::tribool parse(HTTPMessage& http_msg);
 	
 	/**
+	 * attempts to continue parsing despite having missed data (length is known but content is not)
+	 *
+	 * @param http_msg the HTTP message object to populate from parsing
+	 * @param len the length in bytes of the missing data
+	 *
+	 * @return boost::tribool result of parsing:
+	 *                        false = message has an error,
+	 *                        true = finished parsing HTTP message,
+	 *                        indeterminate = not yet finished parsing HTTP message
+	 */
+	boost::tribool parseMissingData(HTTPMessage& http_msg, std::size_t len);
+
+	/**
+	 * finishes parsing an HTTP response message
+	 *
+	 * @param http_msg the HTTP message object to finish
+	 */
+	void finish(HTTPMessage& http_msg) const;
+		
+	/**
 	 * resets the location and size of the read buffer
 	 *
 	 * @param ptr pointer to the first bytes available to be read
@@ -284,13 +304,6 @@ protected:
 	 */
 	std::size_t consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers);
 
-	/**
-	 * finishes parsing an HTTP response message
-	 *
-	 * @param http_msg the HTTP message object to finish
-	 */
-	void finish(HTTPMessage& http_msg) const;
-	
 	// misc functions used by the parsing functions
 	inline static bool isChar(int c);
 	inline static bool isControl(int c);
