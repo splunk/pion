@@ -190,7 +190,10 @@ public:
 		PionPlugin::resetPluginDirectories();
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
 	}
-	~WebServerTests_F() {}
+	~WebServerTests_F() {
+		m_server.stop();
+		m_scheduler.shutdown();
+	}
 	
 	/**
 	 * sends a request to the local HTTP server

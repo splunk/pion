@@ -104,6 +104,8 @@ public:
 		m_server.loadService("/resource1", "FileService");
 	}
 	~NewlyLoadedFileService_F() {
+		m_server.stop();
+		m_scheduler.shutdown();
 		boost::filesystem::remove_all("sandbox");
 	}
 	
