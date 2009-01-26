@@ -211,6 +211,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\pion\PionPoolAllocator.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\include\pion\PionScheduler.hpp"
 				>
 			</File>
