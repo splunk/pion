@@ -77,5 +77,21 @@ library include path, and copy the boost/ directory into your header
 include path.
 
 
+Installing the boost.lockfree library:
+--------------------------------------
+
+Several components within Pion will use Tim Blechmann's "lockfree" 
+library to boost performance if its headers are found within your 
+"boost" include directory. You can obtain the latest version from Tim's 
+Git repository located at: http://tim.klingt.org/git?p=boost_lockfree.git
+
+If you download a "snapshot," uncompress the archive's "boost/lockfree" 
+directory into your "boost" include directory (so that it is located in 
+the same place as Boost's "array.hpp" etc.)  Pion's configure script 
+should detect and use it when available and supported by your target
+platform.
+
+
 Note: Some platforms require additional steps for building Boost & ASIO. 
 Please see the appropriate README.platform file for more information.
+

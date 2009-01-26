@@ -12,10 +12,29 @@ this into your /usr/local/ directory, and you should be able to skip
 down to one of the last two steps!
 
 
-Building Boost with ASIO:
--------------------------
+Installing Boost on OSX:
+------------------------
 
 Please see the README.boost file for general instructions.
+
+To build Universal binaries for OSX, you need to first patch boost to 
+support a new "32_64" address model (still required as of version 1.37):
+
+# cd <boost-source>/tools/build/v2/tools
+# patch -p0 < <pion-source>/common/build/32_64.diff
+
+(this patch is from https://svn.boost.org/trac/boost/ticket/1679)
+
+The bjam command to build Universal binaries for all libraries is:
+
+# bjam --toolset=darwin debug release threading=multi architecture=combined \
+	address-model=32_64 stage
+	
+The Boost.Lockfree library is really only useful on OSX if you're building
+64-bit binaries.  To build 64-bit binaries, run Pion's configure script
+with the "--with-arch=x86_64" option.  Please note that Pion's unit tests
+currently fail when using 64-bit binaries on OSX due to compatibility bugs
+in Boost's unit test framework.
 
 
 Installing zlib, bzlib & openssl:
@@ -153,7 +172,8 @@ Now you should be able to build and install Pion:
 
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-openssl] [--with-log4cxx] [--with-sqlite] [--with-yajl]
+# ./configure [--with-openssl] [--with-log4cxx] [--with-sqlite] \
+	[--with-yajl] [--with-arch=x86_64]
 # make all
 # make install
 

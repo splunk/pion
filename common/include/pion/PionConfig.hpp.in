@@ -67,6 +67,9 @@
 /* Define to 1 if you have the `boost.lockfree' library. */
 #undef PION_HAVE_LOCKFREE
 
+/* Define to 1 if `boost.lockfree' uses the old CAS. */
+#undef PION_LOCKFREE_OLD_CAS
+
 
 /* The following are only used by the Windows projects */
 #define PION_COMMON_API

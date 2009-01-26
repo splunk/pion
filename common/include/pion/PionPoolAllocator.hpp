@@ -82,7 +82,8 @@ public:
 			FreeListPtr old_free_ptr(pool_ptr->m_free_ptr);
 			if (! old_free_ptr)
 				break;	// use pool alloc if free list is empty
-			
+
+#if defined(PION_LOCKFREE_OLD_CAS)
 			// prepare a new free list pointer
 			FreeListPtr new_free_ptr(old_free_ptr->next);
 			new_free_ptr.set_tag(old_free_ptr.get_tag() + 1);
@@ -90,6 +91,11 @@ public:
 			// use CAS operation to swap the free list pointer
 			if (pool_ptr->m_free_ptr.CAS(old_free_ptr, new_free_ptr))
 				return reinterpret_cast<void*>(old_free_ptr.get_ptr());
+#else			
+			// use CAS operation to swap the free list pointer
+			if (pool_ptr->m_free_ptr.CAS(old_free_ptr, old_free_ptr->next.get_ptr()))
+				return reinterpret_cast<void*>(old_free_ptr.get_ptr());
+#endif
 		}
 #endif
 
@@ -121,12 +127,18 @@ public:
 			FreeListNode *node_ptr = reinterpret_cast<FreeListNode*>(ptr);
 			node_ptr->next.set_ptr(old_free_ptr.get_ptr());
 			
+#if defined(PION_LOCKFREE_OLD_CAS)
 			// create a temporary new pointer for the CAS operation
 			FreeListPtr new_free_ptr(node_ptr, old_free_ptr.get_tag() + 1);
 
 			// use CAS operation to swap the free list pointer
 			if (pool_ptr->m_free_ptr.CAS(old_free_ptr, new_free_ptr))
 				break;
+#else
+			// use CAS operation to swap the free list pointer
+			if (pool_ptr->m_free_ptr.CAS(old_free_ptr, node_ptr))
+				break;
+#endif
 		}
 #else
 		boost::unique_lock<boost::mutex> pool_lock(pool_ptr->m_mutex);
