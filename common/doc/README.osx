@@ -77,6 +77,11 @@ the source code tarball for log4cxx.  Then, just run:
 # make all
 # make install
 
+For Universal binaries, use:
+
+# CXXFLAGS="-arch i386 -arch x86_64 -arch ppc -arch ppc64" ./configure \
+	--disable-dependency-tracking
+
 
 Installing libxml2:
 -------------------
@@ -111,6 +116,19 @@ run:
 # ./configure
 # make all
 # make install
+
+For Universal binaries, use:
+
+# LDFLAGS="-arch i386 -arch x86_64 -arch ppc -arch ppc64" \
+	CFLAGS="-arch i386 -arch x86_64 -arch ppc -arch ppc64" ./configure
+
+This will build a Universal static library, but the dynamic library will be
+broken and the final linking of the uuid executable will fail.  Just copy
+the necessary files manually into your /usr/local directories:
+
+# cp .libs/libuuid.a /usr/local/lib
+# cp uuid.h /usr/local/include
+# cp uuid-config /usr/local/bin
 
 
 Installing SQLite:
