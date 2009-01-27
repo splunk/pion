@@ -30,11 +30,10 @@ The bjam command to build Universal binaries for all libraries is:
 # bjam --toolset=darwin debug release threading=multi architecture=combined \
 	address-model=32_64 stage
 	
-The Boost.Lockfree library is really only useful on OSX if you're building
-64-bit binaries.  To build 64-bit binaries, run Pion's configure script
-with the "--with-arch=x86_64" option.  Please note that Pion's unit tests
-currently fail when using 64-bit binaries on OSX due to compatibility bugs
-in Boost's unit test framework.
+To build 64-bit binaries, run Pion's configure script with 
+"--with-arch=x86_64 --with-cpu=nocona".  Please note that Pion's unit 
+tests currently fail when using 64-bit binaries on OSX due to 
+compatibility bugs in Boost's unit test framework.
 
 
 Installing zlib, bzlib & openssl:
@@ -191,7 +190,7 @@ Now you should be able to build and install Pion:
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
 # ./configure [--with-openssl] [--with-log4cxx] [--with-sqlite] \
-	[--with-yajl] [--with-arch=x86_64]
+	[--with-yajl] [--with-arch=x86_64] [--with-cpu=nocona]
 # make all
 # make install
 

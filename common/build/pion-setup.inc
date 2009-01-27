@@ -92,16 +92,26 @@ AC_ARG_WITH([cpu],
 	[with_cpu=default])
 if test "$with_cpu" = "no"; then
 	AC_MSG_RESULT(no)
-elif test "$with_cpu" = "default"; then
-	# default to use "i686" instruction set
-	with_cpu="i686"
-	AC_MSG_RESULT($with_cpu)
-	PION_OPT_FLAGS="$PION_OPT_FLAGS -march=$with_cpu"
-	PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS -march=$with_cpu"
 else
-	AC_MSG_RESULT($with_cpu)
-	PION_OPT_FLAGS="$PION_OPT_FLAGS -march=$with_cpu"
-	PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS -march=$with_cpu"
+	if test "$with_cpu" = "default"; then
+		if test "$ax_cv_cxx_compiler_vendor" = "gnu"; then
+			# check __x86_64__ to determine default
+			AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
+			#if defined(__x86_64__)
+				// x86_64 defined -> nocona
+			#else
+				#error __x86_64__ not defined -> i686
+			#endif
+			]])], [with_cpu="nocona"], [with_cpu="i686"])
+		fi
+	fi
+	if test "$with_cpu" = "default"; then
+		AC_MSG_RESULT(no)
+	else
+		AC_MSG_RESULT($with_cpu)
+		PION_OPT_FLAGS="$PION_OPT_FLAGS -march=$with_cpu"
+		PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS -march=$with_cpu"
+	fi
 fi
 
 
