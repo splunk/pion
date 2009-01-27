@@ -187,7 +187,7 @@ else
 		[ 
 		boost::lockfree::tagged_ptr<int> ptr_a(NULL);
 		boost::lockfree::tagged_ptr<int> ptr_b = ptr_a;
-		int * ptr_c;
+		int * ptr_c = NULL;
 		ptr_a.CAS(ptr_b, ptr_c);
 		return 0;
 		],[ AC_MSG_RESULT(yes)

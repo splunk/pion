@@ -36,7 +36,7 @@ case "$build_os" in
 	# -pthread is implied (automatically set by compiler)
 	CPPFLAGS="$CPPFLAGS -D_REENTRANT"
 	#LDFLAGS="$LDFLAGS"
-	PION_OPT_FLAGS="-fast -Wall -Wno-strict-aliasing -DNDEBUG"
+	PION_OPT_FLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -momit-leaf-frame-pointer -fno-tree-pre -falign-loops -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
 	PION_EXTERNAL_LIBS="-ldl"
 
@@ -82,6 +82,27 @@ case "$build_os" in
 	PION_EXTERNAL_LIBS="-ldl"
 	;;
 esac
+
+
+# Check for --with-cpu (gcc CPU architecture)
+AC_MSG_CHECKING([for specific CPU architecture])
+AC_ARG_WITH([cpu],
+	AC_HELP_STRING([--with-cpu@<:@=MARCH@:>@],[specify specific CPU architecture for gcc]),
+	[with_cpu=$withval],
+	[with_cpu=default])
+if test "$with_cpu" = "no"; then
+	AC_MSG_RESULT(no)
+elif test "$with_cpu" = "default"; then
+	# default to use "i686" instruction set
+	with_cpu="i686"
+	AC_MSG_RESULT($with_cpu)
+	PION_OPT_FLAGS="$PION_OPT_FLAGS -march=$with_cpu"
+	PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS -march=$with_cpu"
+else
+	AC_MSG_RESULT($with_cpu)
+	PION_OPT_FLAGS="$PION_OPT_FLAGS -march=$with_cpu"
+	PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS -march=$with_cpu"
+fi
 
 
 # Check for debug
