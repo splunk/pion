@@ -31,9 +31,9 @@ The bjam command to build Universal binaries for all libraries is:
 	address-model=32_64 stage
 	
 To build 64-bit binaries, run Pion's configure script with 
-"--with-arch=x86_64 --with-cpu=nocona".  Please note that Pion's unit 
-tests currently fail when using 64-bit binaries on OSX due to 
-compatibility bugs in Boost's unit test framework.
+"--with-arch=x86_64".  Please note that Pion's unit tests currently fail
+when using 64-bit binaries on OSX due to compatibility bugs in Boost's
+unit test framework.
 
 
 Installing zlib, bzlib & openssl:

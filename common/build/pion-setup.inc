@@ -94,15 +94,17 @@ if test "$with_cpu" = "no"; then
 	AC_MSG_RESULT(no)
 else
 	if test "$with_cpu" = "default"; then
+		if test "$with_arch" = "no" || test "x$with_arch" = "x" ; then
 		if test "$ax_cv_cxx_compiler_vendor" = "gnu"; then
 			# check __x86_64__ to determine default
 			AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
 			#if defined(__x86_64__)
-				// x86_64 defined -> nocona
+				// x86_64 defined -> leave undefined
 			#else
 				#error __x86_64__ not defined -> i686
 			#endif
-			]])], [with_cpu="nocona"], [with_cpu="i686"])
+			]])], [], [with_cpu="i686"])
+		fi
 		fi
 	fi
 	if test "$with_cpu" = "default"; then
