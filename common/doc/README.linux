@@ -22,6 +22,20 @@ confused:
 
 # rpm -e boost boost-devel
 
+If you're using RHEL/CentOS 4 (or earlier), please note that Boost 1.37.0 does
+not seem to work with gcc 3.x.  You should use gcc4 instead:
+
+# yum install gcc4 gcc4-c++
+
+Before running "make" to build the Boost libraries, edit the user-config.jam
+file and change this:
+
+using gcc ;
+
+to this:
+
+using gcc : : g++4 ;
+
 
 Installing zlib, bzlib & openssl:
 ---------------------------------
@@ -190,6 +204,10 @@ Now you should be able to build and install Pion:
 # make install
 
 To build and run Pion's unit tests, run "make check"
+
+Note: if you're using RHEL/CentOS 4 with Boost 1.37.0 & gcc4, use:
+
+# CC="gcc4" CXX="g++4" ./configure ...
 
 
 Known Problems
