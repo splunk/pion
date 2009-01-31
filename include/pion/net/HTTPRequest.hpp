@@ -153,6 +153,14 @@ public:
 		setMethod(REQUEST_METHOD_POST);
 		setContentType(CONTENT_TYPE_URLENCODED);
 	}
+
+	/// add content (for POST) from string
+	inline void setContent(const std::string &value) {
+		setContentLength(value.size());
+		char *ptr = createContentBuffer();
+		if (! value.empty())
+			memcpy(ptr, value.c_str(), value.size());
+	}
 	
 	/// adds a value for the cookie
 	/// since cookie names are insensitive, key should use lowercase alpha chars
