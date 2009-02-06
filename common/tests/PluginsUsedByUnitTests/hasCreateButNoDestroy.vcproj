@@ -43,7 +43,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy $(TargetPath) bin"
+				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; bin"
 			/>
 		</Configuration>
 		<Configuration
@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy $(TargetPath) bin"
+				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; bin"
 			/>
 		</Configuration>
 	</Configurations>
