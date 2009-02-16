@@ -7,21 +7,31 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <iostream>
 #include <pion/PionConfig.hpp>
 #include <pion/PionLogger.hpp>
 
 #define BOOST_TEST_MODULE pion-net-unit-tests
 #include <boost/test/unit_test.hpp>
 
-/// sets up logging (run once only)
-void setup_logging_for_unit_tests(void)
-{
-	static bool first_run = true;
-	if (first_run) {
-		first_run = false;
-		// configure logging
-		PION_LOG_CONFIG_BASIC;
-		pion::PionLogger log_ptr = PION_GET_LOGGER("pion");
-		PION_LOG_SETLEVEL_WARN(log_ptr);
+#include <pion/PionUnitTestDefs.hpp>
+
+struct PionNetUnitTestsConfig {
+	PionNetUnitTestsConfig() {
+		std::cout << "global setup specific to pion-net\n";
+
+		// argc and argv do not include parameters handled by the boost unit test framework, such as --log_level.
+		int argc = boost::unit_test::framework::master_test_suite().argc;
+		char** argv = boost::unit_test::framework::master_test_suite().argv;
+
+		std::cout << "argc = " << argc << std::endl;
+		for (int i = 0; i < argc; ++i)
+			std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
 	}
-}
+	~PionNetUnitTestsConfig() {
+		std::cout << "global teardown specific to pion-net\n";
+	}
+};
+
+BOOST_GLOBAL_FIXTURE(PionUnitTestsConfig);
+BOOST_GLOBAL_FIXTURE(PionNetUnitTestsConfig);

@@ -53,9 +53,6 @@ PION_DECLARE_PLUGIN(CookieService)
 #endif
 
 
-/// sets up logging (run once only)
-extern void setup_logging_for_unit_tests(void);
-
 /// generates chunked POST requests for testing purposes
 class ChunkedPostRequestSender : 
 	public boost::enable_shared_from_this<ChunkedPostRequestSender>,
@@ -184,8 +181,6 @@ public:
 	
 	// default constructor & destructor
 	WebServerTests_F() : m_scheduler(), m_server(m_scheduler, 8080) {
-		setup_logging_for_unit_tests();
-
 		// initialize the list of directories in which to look for plug-ins
 		PionPlugin::resetPluginDirectories();
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);

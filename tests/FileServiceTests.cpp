@@ -38,15 +38,11 @@ PION_DECLARE_PLUGIN(FileService)
 	static const std::string PATH_TO_PLUGINS("../services/.libs");
 #endif
 
-/// sets up logging (run once only)
-extern void setup_logging_for_unit_tests(void);
-
 
 #ifndef PION_STATIC_LINKING
 
 struct PluginPtrWithPluginLoaded_F : public PionPluginPtr<WebService> {
 	PluginPtrWithPluginLoaded_F() { 
-		setup_logging_for_unit_tests();
 		PionPlugin::resetPluginDirectories();
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
 		s = NULL;

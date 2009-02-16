@@ -21,9 +21,6 @@ using namespace pion;
 using namespace pion::net;
 using boost::asio::ip::tcp;
 
-/// sets up logging (run once only)
-extern void setup_logging_for_unit_tests(void);
-
 
 ///
 /// TCPStreamTests_F: fixture used for performing TCPStream tests
@@ -37,7 +34,6 @@ public:
 	
 	// default constructor and destructor
 	TCPStreamTests_F() {
-		setup_logging_for_unit_tests();
 	}
 	virtual ~TCPStreamTests_F() {}
 	

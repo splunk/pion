@@ -22,9 +22,6 @@ using namespace pion;
 using namespace pion::net;
 using boost::asio::ip::tcp;
 
-/// sets up logging (run once only)
-extern void setup_logging_for_unit_tests(void);
-
 
 ///
 /// HelloServer: simple TCP server that sends "Hello there!" after receiving some data
@@ -109,7 +106,6 @@ public:
 	HelloServerTests_F()
 		: hello_server_ptr(new HelloServer(8080))
 	{
-		setup_logging_for_unit_tests();
 		// start the HTTP server
 		hello_server_ptr->start();
 	}
@@ -307,7 +303,6 @@ public:
 	MockSyncServerTests_F()
 		: m_scheduler(), m_sync_server_ptr(new MockSyncServer(m_scheduler, 8080))
 	{
-		setup_logging_for_unit_tests();
 		m_sync_server_ptr->start();
 	}
 	~MockSyncServerTests_F() {
