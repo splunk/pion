@@ -119,8 +119,8 @@ public:
 			QueueNodePtr node_ptr(m_head_ptr);
 			m_head_ptr = m_head_ptr->next;
 			destroyNode(node_ptr.get_ptr());
+			--m_size;
 		}
-		m_size = 0;
 	}
 	
 	/**
