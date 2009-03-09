@@ -100,9 +100,8 @@ protected:
 		// free the QueueNode for the old head of the list
 		destroyNode(old_head_ptr);
 
-		// only track size if MaxSize > 0
-		if (MaxSize > 0)
-			--m_size;
+		// decrement size
+		--m_size;
 
 		// item successfully dequeued
 		return true;
@@ -161,8 +160,6 @@ public:
 	
 	/// returns the number of items that are currently in the queue
 	std::size_t size(void) const {
-		// only enable size() if MaxSize > 0
-		PION_ASSERT(MaxSize > 0);
 		return m_size;
 	}
 	
@@ -208,9 +205,8 @@ public:
 		// update the tail pointer for the new node
 		m_tail_ptr = node_ptr;
 
-		// only track size if MaxSize > 0
-		if (MaxSize > 0)
-			++m_size;
+		// increment size
+		++m_size;
 
 		// wake up an idle thread (if any)
 		if (m_idle_ptr) {

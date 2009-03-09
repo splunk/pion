@@ -25,6 +25,7 @@
 #include <boost/lockfree/cas.hpp>
 #include <boost/lockfree/freelist.hpp>
 #include <boost/lockfree/branch_hints.hpp>
+#include <boost/detail/atomic_count.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/thread.hpp>
 #include <pion/PionConfig.hpp>
@@ -87,7 +88,7 @@ protected:
 public:
 	
 	/// constructs a new PionLockFreeQueue
-	PionLockFreeQueue(void) {
+	PionLockFreeQueue(void) : m_size(0) {
 		// initialize with a dummy node since m_head_ptr is always 
 		// pointing to the item before the head of the list
 		QueueNode *dummy_ptr = createNode();
@@ -106,6 +107,11 @@ public:
 		return (m_head_ptr.get_ptr() == m_tail_ptr.get_ptr());
 	}
 	
+	/// returns the number of items that are currently in the queue
+	inline std::size_t size(void) const {
+		return m_size;
+	}
+	
 	/// clears the queue by removing all remaining items
 	/// WARNING: this is NOT thread-safe!
 	volatile void clear(void) {
@@ -114,6 +120,7 @@ public:
 			m_head_ptr = m_head_ptr->next;
 			destroyNode(node_ptr.get_ptr());
 		}
+		m_size = 0;
 	}
 	
 	/**
@@ -151,6 +158,9 @@ public:
 				}
 			}
 		}
+
+		// increment size
+		++m_size;
 	}	
 	
 	/**
@@ -199,6 +209,9 @@ public:
 			}
 		}
 		
+		// decrement size
+		--m_size;
+
 		// item successfully retrieved
 		return true;
 	}
@@ -210,6 +223,9 @@ private:
 	typedef boost::lockfree::caching_freelist<QueueNode>	NodeFreeList;
 
 	
+	/// used to keep track of the number of items in the queue
+	boost::detail::atomic_count		m_size;
+
 	/// a caching free list of queue nodes used to reduce memory operations
 	NodeFreeList		m_free_list;
 	
