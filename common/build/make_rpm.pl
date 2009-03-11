@@ -119,6 +119,7 @@ mkdir -p \$RPM_BUILD_ROOT/etc/rc.d/init.d
 mkdir -p \$RPM_BUILD_ROOT/etc/pion
 mkdir -p \$RPM_BUILD_ROOT/etc/pion/vocabularies
 mkdir -p \$RPM_BUILD_ROOT/var/log/pion
+mkdir -p \$RPM_BUILD_ROOT/var/lib/pion
 mkdir -p \$RPM_BUILD_ROOT/usr/bin
 mkdir -p \$RPM_BUILD_ROOT/usr/lib
 mkdir -p \$RPM_BUILD_ROOT/usr/share/pion/ui
@@ -142,6 +143,7 @@ rm -rf \$RPM_BUILD_ROOT
 
 \%defattr(-,pion,pion)
 \%config /etc/pion/
+/var/lib/pion
 
 \%defattr(-,root,root)
 \%doc $BIN_SRC_BASE/HISTORY.txt $BIN_SRC_BASE/LICENSE.txt $BIN_SRC_BASE/README.txt
