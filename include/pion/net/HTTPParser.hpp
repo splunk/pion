@@ -259,6 +259,13 @@ protected:
 	boost::tribool parseHeaders(HTTPMessage& http_msg);
 	
 	/**
+	 * updates an HTTPMessage object with data obtained from parsing headers
+	 *
+	 * @param http_msg the HTTP message object to populate from parsing
+	 */
+	void updateMessageWithHeaderData(HTTPMessage& http_msg) const;
+
+	/**
 	 * should be called after parsing HTTP headers, to prepare for payload content parsing
 	 * available in the read buffer
 	 *

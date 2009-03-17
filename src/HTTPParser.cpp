@@ -529,6 +529,48 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 	return boost::indeterminate;
 }
 
+void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
+{
+	if (isParsingRequest()) {
+
+		// finish an HTTP request message
+		
+		HTTPRequest& http_request(dynamic_cast<HTTPRequest&>(http_msg));
+		http_request.setMethod(m_method);
+		http_request.setResource(m_resource);
+		http_request.setQueryString(m_query_string);
+		
+		// parse query pairs from the URI query string
+		if (! m_query_string.empty()) {
+			if (! parseURLEncoded(http_request.getQueryParams(),
+								  m_query_string.c_str(),
+								  m_query_string.size())) 
+				PION_LOG_WARN(m_logger, "Request query string parsing failed (URI): \""
+					<< m_query_string << "\"");
+		}
+
+		// parse "Cookie" headers
+		std::pair<HTTPTypes::Headers::const_iterator, HTTPTypes::Headers::const_iterator>
+		cookie_pair = http_request.getHeaders().equal_range(HTTPTypes::HEADER_COOKIE);
+		for (HTTPTypes::Headers::const_iterator cookie_iterator = cookie_pair.first;
+			 cookie_iterator != http_request.getHeaders().end()
+			 && cookie_iterator != cookie_pair.second; ++cookie_iterator)
+		{
+			if (! parseCookieHeader(http_request.getCookieParams(),
+									cookie_iterator->second) )
+				PION_LOG_WARN(m_logger, "Cookie header parsing failed");
+		}
+		
+	} else {
+		
+		// finish an HTTP response message
+		
+		HTTPResponse& http_response(dynamic_cast<HTTPResponse&>(http_msg));
+		http_response.setStatusCode(m_status_code);
+		http_response.setStatusMessage(m_status_message);
+	}
+}
+
 boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 {
 	boost::tribool rc = boost::indeterminate;
@@ -536,7 +578,8 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 	m_bytes_content_remaining = m_bytes_content_read = 0;
 	http_msg.setContentLength(0);
 	http_msg.updateTransferCodingUsingHeader();
-	
+	updateMessageWithHeaderData(http_msg);
+
 	if (http_msg.isChunked()) {
 		
 		// content is encoded using chunks
@@ -976,6 +1019,7 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 		break;
 	case PARSE_HEADERS:
 		http_msg.setIsValid(false);
+		updateMessageWithHeaderData(http_msg);
 		http_msg.setContentLength(0);
 		http_msg.createContentBuffer();
 		break;
@@ -994,26 +1038,10 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 	}
 
 	if (isParsingRequest()) {
-
-		// finish an HTTP request message
-		
-		HTTPRequest& http_request(dynamic_cast<HTTPRequest&>(http_msg));
-		http_request.setMethod(m_method);
-		http_request.setResource(m_resource);
-		http_request.setQueryString(m_query_string);
-		
-		// parse query pairs from the URI query string
-		if (! m_query_string.empty()) {
-			if (! parseURLEncoded(http_request.getQueryParams(),
-								  m_query_string.c_str(),
-								  m_query_string.size())) 
-				PION_LOG_WARN(m_logger, "Request query string parsing failed (URI): \""
-					<< m_query_string << "\"");
-		}
-
 		// Parse query pairs from post content if content type is x-www-form-urlencoded.
 		// Type could be followed by parameters (as defined in section 3.6 of RFC 2616)
 		// e.g. Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+		HTTPRequest& http_request(dynamic_cast<HTTPRequest&>(http_msg));
 		const std::string& content_type_header = http_request.getHeader(HTTPTypes::HEADER_CONTENT_TYPE);
 		if (content_type_header.compare(0, HTTPTypes::CONTENT_TYPE_URLENCODED.length(),
 										HTTPTypes::CONTENT_TYPE_URLENCODED) == 0)
@@ -1024,26 +1052,6 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 				PION_LOG_WARN(m_logger, "Request query string parsing failed (POST content): \""
 					<< http_request.getContent() << "\"");
 		}
-		
-		// parse "Cookie" headers
-		std::pair<HTTPTypes::Headers::const_iterator, HTTPTypes::Headers::const_iterator>
-		cookie_pair = http_request.getHeaders().equal_range(HTTPTypes::HEADER_COOKIE);
-		for (HTTPTypes::Headers::const_iterator cookie_iterator = cookie_pair.first;
-			 cookie_iterator != http_request.getHeaders().end()
-			 && cookie_iterator != cookie_pair.second; ++cookie_iterator)
-		{
-			if (! parseCookieHeader(http_request.getCookieParams(),
-									cookie_iterator->second) )
-				PION_LOG_WARN(m_logger, "Cookie header parsing failed");
-		}
-		
-	} else {
-		
-		// finish an HTTP response message
-		
-		HTTPResponse& http_response(dynamic_cast<HTTPResponse&>(http_msg));
-		http_response.setStatusCode(m_status_code);
-		http_response.setStatusMessage(m_status_message);
 	}
 }
 
