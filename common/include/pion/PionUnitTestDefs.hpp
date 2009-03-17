@@ -104,6 +104,54 @@ struct PionUnitTest {
 		// files match
 		return true;
 	}
+
+	static bool check_files_exact_match(const std::string& fileA, const std::string& fileB, bool ignore_line_endings = false) {
+		// open files
+		std::ifstream a_file(fileA.c_str(), std::ios::in | std::ios::binary);
+		BOOST_REQUIRE(a_file.is_open());
+
+		std::ifstream b_file(fileB.c_str(), std::ios::in | std::ios::binary);
+		BOOST_REQUIRE(b_file.is_open());
+
+		// read and compare data in files
+		static const unsigned int BUF_SIZE = 4096;
+		char a_buf[BUF_SIZE];
+		char b_buf[BUF_SIZE];
+
+		if (ignore_line_endings) {
+			while (a_file.getline(a_buf, BUF_SIZE)) {
+				if (! b_file.getline(b_buf, BUF_SIZE))
+					return false;
+				PionUnitTest::trim(a_buf);
+				PionUnitTest::trim(b_buf);
+				if (strlen(a_buf) != strlen(b_buf))
+					return false;
+				if (memcmp(a_buf, b_buf, strlen(a_buf)) != 0)
+					return false;
+			}
+			if (b_file.getline(b_buf, BUF_SIZE))
+				return false;
+		} else {
+			while (a_file.read(a_buf, BUF_SIZE)) {
+				if (! b_file.read(b_buf, BUF_SIZE))
+					return false;
+				if (memcmp(a_buf, b_buf, BUF_SIZE) != 0)
+					return false;
+			}
+			if (b_file.read(b_buf, BUF_SIZE))
+				return false;
+		}
+		if (a_file.gcount() != b_file.gcount())
+			return false;
+		if (memcmp(a_buf, b_buf, a_file.gcount()) != 0)
+			return false;
+
+		a_file.close();
+		b_file.close();
+
+		// files match
+		return true;
+	}
 };
 
 
