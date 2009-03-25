@@ -130,21 +130,6 @@ the necessary files manually into your /usr/local directories:
 # cp uuid-config /usr/local/bin
 
 
-Installing SQLite:
-------------------
-
-SQLite version 3 is required to build support for the embedded database
-(the SQLiteDatabase plugin).  You may skip this step if you do not want
-to build support for the embedded database.
-
-The SQLite library is normally pre-installed on OS X.  If you do not 
-have it already, you should be able to grab the latest source code
-tarball from the "Third Party Libraries" page on our website, or from
-the following site:
-
-http://www.sqlite.org
-
-
 Installing YAJL:
 ----------------
 
@@ -189,7 +174,7 @@ Now you should be able to build and install Pion:
 
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-openssl] [--with-log4cxx] [--with-sqlite] \
+# ./configure [--with-openssl] [--with-log4cxx] \
 	[--with-yajl] [--with-arch=x86_64] [--with-cpu=nocona]
 # make all
 # make install
@@ -202,8 +187,8 @@ Building with XCode:
 
 There is an XCode project included in the root directory of each project
 called "pion-<PROJECT>.xcodeproj".  The XCode project assumes that you have
-the following optional libraries installed: openssl, zlib, log4cxx and
-SQLite.  It also is configured to build a Universal binary with support for
+the following optional libraries installed: openssl, zlib and log4cxx.  It 
+also is configured to build a Universal binary with support for
 the i386 and ppc architectures.  You must have built all the dependency
 libraries with support for both architectures for this to work properly.
 A tarball containing all of these built for both the 32-bit and 64-bit Intel

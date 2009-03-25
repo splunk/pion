@@ -146,22 +146,6 @@ run:
 # make install
 
 
-Installing SQLite:
-------------------
-
-SQLite version 3 is required to build support for the embedded database
-(the SQLiteDatabase plugin).  You may skip this step if you do not want
-to build support for the embedded database.
-
-SQLite is normally pre-installed on Linux.  If you do not  have it already,
-you should be able to grab the latest version using your favorite package
-manager:
-
-# yum install sqlite sqlite-devel
-# up2date sqlite sqlite-devel
-# apt-get install sqlite sqlite-devel
-
-
 Installing YAJL:
 ----------------
 
@@ -199,7 +183,7 @@ Now you should be able to build and install Pion:
 
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-openssl] [--with-log4cxx] [--with-sqlite] [--with-yajl]
+# ./configure [--with-openssl] [--with-log4cxx] [--with-yajl]
 # make all
 # make install
 

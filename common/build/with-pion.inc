@@ -28,11 +28,12 @@ if test -r "$pion_location/pion-platform.pc"; then
 				found_pion_source="true"
 				PION_CPPFLAGS="-I$pion_location/common/include \
 					-I$pion_location/net/include -I$pion_location/platform/include \
-					-I$pion_location/platform/server"
+					-I$pion_location/platform/server -I$pion_location/sqlite"
 				PION_LIBS="$pion_location/common/src/libpion-common.la \
 					$pion_location/net/src/libpion-net.la \
 					$pion_location/platform/src/libpion-platform.la"
 				PION_SERVER_LIB="$pion_location/platform/server/libpion-server.la"
+				PION_SQLITE_LIB="$pion_location/sqlite/libpion-sqlite.la"
 			fi
 		fi
 	fi
@@ -53,6 +54,7 @@ if test "x$found_pion_source" == "x"; then
 							$pion_location/lib/libpion-net.la \
 							$pion_location/lib/libpion-platform.la"
 						PION_SERVER_LIB="$pion_location/lib/libpion-server.la"
+						PION_SQLITE_LIB="$pion_location/lib/libpion-sqlite.la"
 					fi
 				fi
 			fi
@@ -77,3 +79,5 @@ AC_SUBST(PION_LDFLAGS)
 AC_SUBST(PION_LDLIBS)
 AC_SUBST(PION_LIBS)
 AC_SUBST(PION_SERVER_LIB)
+AC_SUBST(PION_SQLITE_LIB)
+
