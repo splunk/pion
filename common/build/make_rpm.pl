@@ -73,14 +73,14 @@ if ($EDITION eq "community") {
 	$config_file_glob = "*.{xml,txt,pem,cap}";
 }
 if ($RELEASE =~ /el5$/i) {
-	$SPEC_POST="/sbin/ldconfig\n"
-		. "rm -f /usr/lib/libsqlite3.so.0\n"
-		. "ln -s /usr/lib/libpion-sqlite-$VERSION.so /usr/lib/libsqlite3.so.0";
-	$SPEC_POSTUN="rm -f /usr/lib/libsqlite3.so.0\n"
-		. "ln -s /usr/lib/libsqlite3.so.0.8.6 /usr/lib/libsqlite3.so.0";
+	$SPEC_POST="rm -f /usr/local/lib/libsqlite3.so.0\n"
+		. "ln -s /usr/lib/libpion-sqlite-$VERSION.so /usr/local/lib/libsqlite3.so.0\n"
+		. "/sbin/ldconfig";
+	$SPEC_POSTUN="rm -f /usr/local/lib/libsqlite3.so.0\n"
+		. "/sbin/ldconfig";
 } else {
 	$SPEC_POST="/sbin/ldconfig";
-	$SPEC_POSTUN="";
+	$SPEC_POSTUN="/sbin/ldconfig";
 }
 @spec_libs = bsd_glob($LIBS_DIR . "/*");
 
