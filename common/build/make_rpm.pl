@@ -72,6 +72,16 @@ if ($EDITION eq "community") {
 	$rpm_extras_dir = "enterprise/build/rpm";
 	$config_file_glob = "*.{xml,txt,pem,cap}";
 }
+if ($RELEASE =~ /el5$/i) {
+	$SPEC_POST="/sbin/ldconfig\n"
+		. "rm -f /usr/lib/libsqlite3.so.0\n"
+		. "ln -s /usr/lib/libpion-sqlite-$VERSION.so /usr/lib/libsqlite3.so.0";
+	$SPEC_POSTUN="rm -f /usr/lib/libsqlite3.so.0\n"
+		. "ln -s /usr/lib/libsqlite3.so.0.8.6 /usr/lib/libsqlite3.so.0";
+} else {
+	$SPEC_POST="/sbin/ldconfig";
+	$SPEC_POSTUN="";
+}
 @spec_libs = bsd_glob($LIBS_DIR . "/*");
 
 # open and write the spec file
@@ -108,14 +118,11 @@ intelligence.
 useradd -r -c "Pion" pion 2> /dev/null || true
 
 \%post
-rm -f /usr/lib/libsqlite3.so.0
-ln -s /usr/lib/libpion-sqlite-$VERSION.so /usr/lib/libsqlite3.so.0
-/sbin/ldconfig
+$SPEC_POST
 
 \%postun
 #userdel pion 2> /dev/null || true
-rm -f /usr/lib/libsqlite3.so.0
-ln -s /usr/lib/libsqlite3.so.0.8.6 /usr/lib/libsqlite3.so.0
+$SPEC_POSTUN
 
 \%install
 rm -rf \$RPM_BUILD_ROOT
@@ -167,8 +174,8 @@ END_SPEC_FILE
 # output library file names
 foreach $_ (@spec_libs) {
 	# remove symbolic link for sqlite before making RPM
-	if ($PLATFORM =~ /el5$/i && /libsqlite3.so/) {
-		`rm -f $BIN_SRC_BASE/libs/libsqlite3.so.0`;
+	if ($RELEASE =~ /el5$/i && $_ =~ /libsqlite3.so/) {
+		`rm -f $LIBS_DIR/libsqlite3.so.0`;
 	} else {
 		s[$LIBS_DIR][/usr/lib];
 		print SPEC_FILE $_ . "\n";
