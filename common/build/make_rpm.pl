@@ -149,7 +149,7 @@ rm -rf \$RPM_BUILD_ROOT
 /var/lib/pion
 
 \%defattr(-,root,root)
-\%doc $BIN_SRC_BASE/HISTORY.txt $BIN_SRC_BASE/LICENSE.txt $BIN_SRC_BASE/README.txt
+\%doc $BIN_SRC_BASE/HISTORY.txt $BIN_SRC_BASE/LICENSE.txt $BIN_SRC_BASE/README.txt $BIN_SRC_BASE/pion-manual.pdf
 
 \%defattr(755,root,root)
 /usr/bin/pion
