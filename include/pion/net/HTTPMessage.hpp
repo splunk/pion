@@ -15,6 +15,7 @@
 #include <boost/asio.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/regex.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPTypes.hpp>
@@ -203,8 +204,13 @@ public:
 	/// sets the length of the payload content using the Content-Length header
 	inline void updateContentLengthUsingHeader(void) {
 		Headers::const_iterator i = m_headers.find(HEADER_CONTENT_LENGTH);
-		if (i == m_headers.end()) m_content_length = 0;
-		else m_content_length = boost::lexical_cast<boost::uint64_t>(i->second);
+		if (i == m_headers.end()) {
+			m_content_length = 0;
+		} else {
+			std::string trimmed_length(i->second);
+			boost::algorithm::trim(trimmed_length);
+			m_content_length = boost::lexical_cast<boost::uint64_t>(trimmed_length);
+		}
 	}
 	
 	/// sets the transfer coding using the Transfer-Encoding header

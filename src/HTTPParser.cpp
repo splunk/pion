@@ -597,8 +597,13 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 		if (http_msg.hasHeader(HTTPTypes::HEADER_CONTENT_LENGTH)) {
 			
 			// message has a content-length header
-			http_msg.updateContentLengthUsingHeader();
-			
+			try {
+				http_msg.updateContentLengthUsingHeader();
+			} catch (...) {
+				PION_LOG_ERROR(m_logger, "Unable to update content length");
+				return false;
+			}
+		
 			// check if content-length header == 0
 			if (http_msg.getContentLength() == 0) {
 				m_message_parse_state = PARSE_END;
