@@ -18,6 +18,50 @@
 using namespace pion::net;
 
 
+BOOST_AUTO_TEST_CASE(checkHTTPRequestCopyConstructor) {
+	HTTPRequest req1;
+	req1.addHeader("Test", "HTTPMessage");
+	req1.setMethod("GET");
+	HTTPRequest req2(req1);
+	BOOST_CHECK_EQUAL(req1.getMethod(), "GET");
+	BOOST_CHECK_EQUAL(req1.getMethod(), req2.getMethod());
+	BOOST_CHECK_EQUAL(req1.getHeader("Test"), "HTTPMessage");
+	BOOST_CHECK_EQUAL(req1.getHeader("Test"), req2.getHeader("Test"));
+}
+
+BOOST_AUTO_TEST_CASE(checkHTTPRequestAssignmentOperator) {
+	HTTPRequest req1, req2;
+	req1.setMethod("GET");
+	req1.addHeader("Test", "HTTPMessage");
+	req2 = req1;
+	BOOST_CHECK_EQUAL(req1.getMethod(), "GET");
+	BOOST_CHECK_EQUAL(req1.getMethod(), req2.getMethod());
+	BOOST_CHECK_EQUAL(req1.getHeader("Test"), "HTTPMessage");
+	BOOST_CHECK_EQUAL(req1.getHeader("Test"), req2.getHeader("Test"));
+}
+
+BOOST_AUTO_TEST_CASE(checkHTTPResponseCopyConstructor) {
+	HTTPResponse rsp1;
+	rsp1.addHeader("Test", "HTTPMessage");
+	rsp1.setStatusCode(199);
+	HTTPResponse rsp2(rsp1);
+	BOOST_CHECK_EQUAL(rsp1.getStatusCode(), 199U);
+	BOOST_CHECK_EQUAL(rsp1.getStatusCode(), rsp2.getStatusCode());
+	BOOST_CHECK_EQUAL(rsp1.getHeader("Test"), "HTTPMessage");
+	BOOST_CHECK_EQUAL(rsp1.getHeader("Test"), rsp2.getHeader("Test"));
+}
+
+BOOST_AUTO_TEST_CASE(checkHTTPResponseAssignmentOperator) {
+	HTTPResponse rsp1, rsp2;
+	rsp1.addHeader("Test", "HTTPMessage");
+	rsp1.setStatusCode(199);
+	rsp2 = rsp1;
+	BOOST_CHECK_EQUAL(rsp1.getStatusCode(), 199U);
+	BOOST_CHECK_EQUAL(rsp1.getStatusCode(), rsp2.getStatusCode());
+	BOOST_CHECK_EQUAL(rsp1.getHeader("Test"), "HTTPMessage");
+	BOOST_CHECK_EQUAL(rsp1.getHeader("Test"), rsp2.getHeader("Test"));
+}
+
 BOOST_AUTO_TEST_CASE(checkGetFirstLineForRequest) {
 	HTTPRequest http_request;
 	

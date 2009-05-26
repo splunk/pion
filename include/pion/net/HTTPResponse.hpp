@@ -53,8 +53,10 @@ public:
 	
 	/// copy constructor
 	HTTPResponse(const HTTPResponse& http_response)
-		: m_status_code(http_response.m_status_code),
-		m_status_message(http_response.m_status_message)
+		: HTTPMessage(http_response),
+		m_status_code(http_response.m_status_code),
+		m_status_message(http_response.m_status_message),
+		m_request_method(http_response.m_request_method)
 	{}
 	
 	/// default constructor: you are strongly encouraged to use one of the other

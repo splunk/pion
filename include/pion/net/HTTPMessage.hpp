@@ -91,6 +91,26 @@ public:
 		}
 	}
 	
+	/// assignment operator
+	inline HTTPMessage& operator=(const HTTPMessage& http_msg) {
+		m_first_line = http_msg.m_first_line;
+		m_is_valid = http_msg.m_is_valid;
+		m_is_chunked = http_msg.m_is_chunked;
+		m_chunks_supported = http_msg.m_chunks_supported;
+		m_do_not_send_content_length = http_msg.m_do_not_send_content_length;
+		m_remote_ip = http_msg.m_remote_ip;
+		m_version_major = http_msg.m_version_major;
+		m_version_minor = http_msg.m_version_minor;
+		m_content_length = http_msg.m_content_length;
+		m_chunk_cache = http_msg.m_chunk_cache;
+		m_headers = http_msg.m_headers;
+		if (http_msg.m_content_buf) {
+			char *ptr = createContentBuffer();
+			memcpy(ptr, http_msg.m_content_buf.get(), m_content_length);
+		}
+		return *this;
+	}
+
 	/// virtual destructor
 	virtual ~HTTPMessage() {}
 
