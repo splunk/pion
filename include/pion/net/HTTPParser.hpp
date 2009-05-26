@@ -34,6 +34,9 @@ class PION_NET_API HTTPParser :
 
 public:
 	
+	/// maximum length for HTTP payload content
+	static const boost::uint64_t		DEFAULT_CONTENT_MAX;
+	
 	/**
 	 * creates new HTTPParser objects
 	 *
@@ -348,9 +351,6 @@ protected:
 	
 	/// maximum length for the value of a cookie; also used for path and domain
 	static const boost::uint32_t		COOKIE_VALUE_MAX;
-	
-	/// maximum length for HTTP payload content
-	static const boost::uint64_t		DEFAULT_CONTENT_MAX;
 	
 	
 	/// primary logging interface used by this class

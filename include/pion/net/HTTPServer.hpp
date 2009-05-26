@@ -21,6 +21,7 @@
 #include <pion/net/TCPConnection.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPAuth.hpp>
+#include <pion/net/HTTPParser.hpp>
 
 
 namespace pion {	// begin namespace pion
@@ -55,7 +56,8 @@ public:
 		: TCPServer(tcp_port),
 		m_bad_request_handler(HTTPServer::handleBadRequest),
 		m_not_found_handler(HTTPServer::handleNotFoundRequest),
-		m_server_error_handler(HTTPServer::handleServerError)
+		m_server_error_handler(HTTPServer::handleServerError),
+		m_max_content_length(HTTPParser::DEFAULT_CONTENT_MAX)
 	{ 
 		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
@@ -69,7 +71,8 @@ public:
 		: TCPServer(endpoint),
 		m_bad_request_handler(HTTPServer::handleBadRequest),
 		m_not_found_handler(HTTPServer::handleNotFoundRequest),
-		m_server_error_handler(HTTPServer::handleServerError)
+		m_server_error_handler(HTTPServer::handleServerError),
+		m_max_content_length(HTTPParser::DEFAULT_CONTENT_MAX)
 	{ 
 		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
@@ -84,7 +87,8 @@ public:
 		: TCPServer(scheduler, tcp_port),
 		m_bad_request_handler(HTTPServer::handleBadRequest),
 		m_not_found_handler(HTTPServer::handleNotFoundRequest),
-		m_server_error_handler(HTTPServer::handleServerError)
+		m_server_error_handler(HTTPServer::handleServerError),
+		m_max_content_length(HTTPParser::DEFAULT_CONTENT_MAX)
 	{ 
 		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
@@ -99,7 +103,8 @@ public:
 		: TCPServer(scheduler, endpoint),
 		m_bad_request_handler(HTTPServer::handleBadRequest),
 		m_not_found_handler(HTTPServer::handleNotFoundRequest),
-		m_server_error_handler(HTTPServer::handleServerError)
+		m_server_error_handler(HTTPServer::handleServerError),
+		m_max_content_length(HTTPParser::DEFAULT_CONTENT_MAX)
 	{ 
 		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
@@ -183,6 +188,9 @@ public:
 	 */ 
 	inline void setAuthentication(HTTPAuthPtr auth) { m_auth = auth; }
 
+	/// sets the maximum length for HTTP request payload content
+	inline void setMaxContentLength(boost::uint64_t n) { m_max_content_length = n; }
+
 protected:
 	
 	/**
@@ -242,6 +250,9 @@ private:
 
 	/// pointer to authentication handler object
 	HTTPAuthPtr					m_auth;
+
+	/// maximum length for HTTP request payload content
+	boost::uint64_t				m_max_content_length;
 };
 
 

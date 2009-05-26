@@ -26,8 +26,11 @@ const unsigned int			HTTPServer::MAX_REDIRECTS = 10;
 
 void HTTPServer::handleConnection(TCPConnectionPtr& tcp_conn)
 {
-	HTTPRequestReader::create(tcp_conn, boost::bind(&HTTPServer::handleRequest,
-													 this, _1, _2)) -> receive();
+	HTTPRequestReaderPtr reader_ptr;
+	reader_ptr = HTTPRequestReader::create(tcp_conn, boost::bind(&HTTPServer::handleRequest,
+										   this, _1, _2));
+	reader_ptr->setMaxContentLength(m_max_content_length);
+	reader_ptr->receive();
 }
 
 void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
