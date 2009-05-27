@@ -68,6 +68,14 @@
 	#include <log4cplus/logger.h>
 	#include <log4cplus/configurator.h>
 
+	#if defined _MSC_VER
+		#if defined _DEBUG
+			#pragma comment(lib, "log4cplusD")
+		#else
+			#pragma comment(lib, "log4cplus")
+		#endif
+	#endif 
+
 	namespace pion {
 		typedef log4cplus::Logger	PionLogger;
 	}

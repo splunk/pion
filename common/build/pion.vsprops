@@ -8,7 +8,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;;&quot;$(BOOST_HOME)&quot;;&quot;$(LOG4CXX_HOME)\src\main\include&quot;;&quot;$(OPENSSL_HOME)\inc32&quot;;&quot;$(LIBXML_HOME)\include&quot;;&quot;$(ICONV_HOME)\include&quot;"
+		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;;&quot;$(BOOST_HOME)&quot;;&quot;$(LOG4CPLUS_HOME)\include&quot;;&quot;$(LOG4CXX_HOME)\src\main\include&quot;;&quot;$(OPENSSL_HOME)\inc32&quot;;&quot;$(LIBXML_HOME)\include&quot;;&quot;$(ICONV_HOME)\include&quot;"
 		PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500;WIN32_LEAN_AND_MEAN"
 		MinimalRebuild="true"
 		UsePrecompiledHeader="0"
@@ -18,13 +18,17 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalLibraryDirectories="&quot;$(BOOST_HOME)\lib&quot;"
+		AdditionalLibraryDirectories="&quot;$(BOOST_HOME)\lib&quot;;&quot;$(LOG4CPLUS_HOME)\bin&quot;"
 		SubSystem="2"
 		TargetMachine="1"
 	/>
 	<UserMacro
 		Name="BOOST_HOME"
 		Value="C:\boost-1.37.0"
+	/>
+	<UserMacro
+		Name="LOG4CPLUS_HOME"
+		Value="C:\log4cplus-1.0.3"
 	/>
 	<UserMacro
 		Name="LOG4CXX_HOME"
