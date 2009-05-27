@@ -126,7 +126,7 @@ if test "x_$bzlib_location" != "x_no"; then
 	AC_TRY_LINK([#include <bzlib.h>],[ BZ2_bzlibVersion(); return(0); ],
 		[ AC_MSG_RESULT(ok) ],
 		[ AC_MSG_RESULT(failed)
-		  AC_MSG_ERROR(Unable to link with the bzlib library)
+		  AC_MSG_ERROR(Unable to link with the bzlib library; use --without-bzlib to disable)
 		])
 	LIBS="$LIBS_SAVED"
 	PION_BZLIB="-lbz2"
@@ -141,13 +141,13 @@ AC_SUBST(PION_BZLIB)
 
 # Check for OpenSSL
 AC_MSG_CHECKING([for SSL support (openssl)])
-AC_ARG_WITH([openssl],
-    AC_HELP_STRING([--with-openssl@<:@=DIR@:>@],[location of OpenSSL library (enables SSL support)]),
-    [ openssl_location=$withval ], [ without_openssl=true ])
+AC_ARG_WITH([openssl], AC_HELP_STRING([--with-openssl@<:@=DIR@:>@],[location of OpenSSL library (enables SSL support); use --without-openssl to disable]),
+    [ openssl_location=$withval ], [ openssl_location=yes ])
 # Check if openssl location is specified
-if test "$without_openssl" != "true"; then
+if test "x_$openssl_location" != "x_no"; then
 	AC_MSG_RESULT(yes)
-	if test "x$openssl_location" != "xyes"; then
+	if test "x_$openssl_location" != "x_yes"; then
+		# alternative location provided
 		CPPFLAGS="$CPPFLAGS -I$openssl_location/include"
 		LDFLAGS="$LDFLAGS -L$openssl_location/lib"
 	fi
@@ -160,7 +160,7 @@ if test "$without_openssl" != "true"; then
 	AC_TRY_LINK([#include <openssl/ssl.h>],[ SSL_library_init(); return(0); ],
 		[ AC_MSG_RESULT(ok) ],
 		[ AC_MSG_RESULT(failed)
-		  AC_MSG_ERROR(Unable to link with the openssl library)
+		  AC_MSG_ERROR(Unable to link with the openssl library; use --without-openssl to disable)
 		])
 	LIBS="$LIBS_SAVED"
 	PION_SSL_LIB="-lssl -lcrypto"
@@ -198,106 +198,120 @@ fi
 
 # Check for logging support
 AC_ARG_ENABLE([logging],
-    AC_HELP_STRING([--disable-logging],[disable all logging support (including ostream)]),
+    AC_HELP_STRING([--disable-logging],[disable all logging support (including std::ostream)]),
     [enable_logging=$enableval], [enable_logging=yes])
-AC_ARG_WITH([log4cxx],
-    AC_HELP_STRING([--with-log4cxx@<:@=DIR@:>@],[location of log4cxx library (recommended)]),
-    [ log4cxx_location=$withval ], [ without_log4cxx=true ])
+AC_ARG_WITH([ostream-logging],
+    AC_HELP_STRING([--with-ostream-logging@<:@=DIR@:>@],[use std::ostream logging instead of an external library]),
+    [ ostream_logging=yes ], [ ostream_logging=no ])
 AC_ARG_WITH([log4cplus],
-    AC_HELP_STRING([--with-log4cplus@<:@=DIR@:>@],[location of log4cplus library]),
-    [ log4cplus_location=$withval ], [ without_log4cplus=true ])
+    AC_HELP_STRING([--with-log4cplus@<:@=DIR@:>@],[location of log4cplus library (recommended)]),
+    [ log4cplus_location=$withval without_log4cxx=true without_log4cpp=true],
+    [])
+AC_ARG_WITH([log4cxx],
+    AC_HELP_STRING([--with-log4cxx@<:@=DIR@:>@],[location of log4cxx library]),
+    [ log4cxx_location=$withval without_log4cplus=true without_log4cpp=true],
+    [])
 AC_ARG_WITH([log4cpp],
     AC_HELP_STRING([--with-log4cpp@<:@=DIR@:>@],[location of log4cpp library]),
-    [ log4cpp_location=$withval ], [ without_log4cpp=true ])
-AC_MSG_CHECKING([for logging support])
+    [ log4cpp_location=$withval without_log4cplus=true without_log4cxx=true],
+    [])
+
 if test "x$enable_logging" == "xno"; then
 	# Display notice if no logging found
-	AC_MSG_RESULT(no)
+	AC_MSG_NOTICE(Logging has been disabled)
 	AC_DEFINE([PION_DISABLE_LOGGING],[1],[Define to 1 to disable logging.])
-elif test "$without_log4cxx" != "true"; then
-	AC_MSG_RESULT(log4cxx)
-
-	# Check if log4cxx location is specified
-	if test "x$log4cxx_location" != "xyes"
-	then
-		CPPFLAGS="$CPPFLAGS -I$log4cxx_location/include"
-		LDFLAGS="$LDFLAGS -L$log4cxx_location/lib"
-	fi
-
-	# Check for log4cxx headers
-	AC_CHECK_HEADERS([log4cxx/logger.h],,AC_MSG_ERROR([Unable to find the log4cxx headers]))
-	
-	# Check for log4cxx library
-	LIBS_SAVED="$LIBS"
-	LIBS="$LIBS_SAVED -llog4cxx"
-	AC_MSG_CHECKING(linking with log4cxx)
-	AC_TRY_LINK([#include <log4cxx/logger.h>],[ log4cxx::Logger::getRootLogger(); return 0; ],
-		[ AC_MSG_RESULT(ok) ],
-		[ AC_MSG_RESULT(failed)
-		  AC_MSG_ERROR(Unable to link with the log4cxx library)
-		])
-	LIBS="$LIBS_SAVED"
-	PION_LOG_LIB="-llog4cxx"
-
-	# Found the log4cxx library
-	AC_DEFINE([PION_USE_LOG4CXX],[1],[Define to 1 if you have the `log4cxx' library (-llog4cxx).])
-elif test "$without_log4cplus" != "true"; then
-	AC_MSG_RESULT(log4cplus)
-
-	# Check if log4cplus location is specified
-	if test "x$log4cplus_location" != "xyes"
-	then
-		CPPFLAGS="$CPPFLAGS -I$log4cplus_location/include"
-		LDFLAGS="$LDFLAGS -L$log4cplus_location/lib"
-	fi
-
-	# Check for log4cplus headers
-	AC_CHECK_HEADERS([log4cplus/logger.h],,AC_MSG_ERROR([Unable to find the log4cplus headers]))
-	
-	# Check for log4cplus library
-	LIBS_SAVED="$LIBS"
-	LIBS="$LIBS_SAVED -llog4cplus"
-	AC_MSG_CHECKING(linking with log4cplus)
-	AC_TRY_LINK([#include <log4cplus/logger.h>],[ log4cplus::Logger::getRoot(); return 0; ],
-		[ AC_MSG_RESULT(ok) ],
-		[ AC_MSG_RESULT(failed)
-		  AC_MSG_ERROR(Unable to link with the log4cplus library)
-		])
-	LIBS="$LIBS_SAVED"
-	PION_LOG_LIB="-llog4cplus"
-
-	# Found the log4cplus library
-	AC_DEFINE([PION_USE_LOG4CPLUS],[1],[Define to 1 if you have the `log4cplus' library (-llog4cplus).])
-elif test "$without_log4cpp" != "true"; then
-	AC_MSG_RESULT(log4cpp)
-
-	# Check if log4cpp location is specified
-	if test "x$log4cpp_location" != "xyes"
-	then
-		CPPFLAGS="$CPPFLAGS -I$log4cpp_location/include"
-		LDFLAGS="$LDFLAGS -L$log4cpp_location/lib"
-	fi
-
-	# Check for log4cpp headers
-	AC_CHECK_HEADERS([log4cpp/Category.hh],,AC_MSG_ERROR([Unable to find the log4cpp headers]))
-	
-	# Check for log4cpp library
-	LIBS_SAVED="$LIBS"
-	LIBS="$LIBS_SAVED -llog4cpp"
-	AC_MSG_CHECKING(linking with log4cpp)
-	AC_TRY_LINK([#include <log4cpp/Category.hh>],[ log4cpp::Category::getRoot(); return 0; ],
-		[ AC_MSG_RESULT(ok) ],
-		[ AC_MSG_RESULT(failed)
-		  AC_MSG_ERROR(Unable to link with the log4cpp library)
-		])
-	LIBS="$LIBS_SAVED"
-	PION_LOG_LIB="-llog4cpp"
-
-	# Found the log4cpp library
-	AC_DEFINE([PION_USE_LOG4CPP],[1],[Define to 1 if you have the `log4cpp' library (-llog4cpp).])
-else
-	AC_MSG_RESULT(using std::ostream)
+elif test "x$ostream_logging" == "xyes"; then
+	AC_MSG_NOTICE(Using std::ostream for logging)
 	AC_DEFINE([PION_USE_OSTREAM_LOGGING],[1],[Define to 1 to use std::cout and std::cerr for logging.])
+else
+
+	# check for an available logging library (log4cplus, then log4cxx, then log4cpp)
+
+	# log4cplus
+	if test "$without_log4cplus" != "true"; then
+		# Check if log4cplus location is specified
+		if test "x$log4cplus_location" != "xyes"
+		then
+			CPPFLAGS="$CPPFLAGS -I$log4cplus_location/include"
+			LDFLAGS="$LDFLAGS -L$log4cplus_location/lib"
+		fi
+		# Check for log4cplus library
+		LIBS_SAVED="$LIBS"
+		LIBS="$LIBS_SAVED -llog4cplus"
+		AC_MSG_CHECKING(log4cplus library)
+		AC_TRY_LINK([#include <log4cplus/logger.h>],[ log4cplus::Logger::getRoot(); return 0; ],
+			[ 
+			  # Found the log4cplus library
+			  AC_MSG_RESULT(ok) 
+			  AC_DEFINE([PION_USE_LOG4CPLUS],[1],[Define to 1 if you have the `log4cplus' library (-llog4cplus).])
+			  AC_MSG_NOTICE(Using log4cplus for logging)
+			  without_log4cxx=true without_log4cpp=true
+			  PION_LOG_LIB="-llog4cplus"
+			],
+			[ AC_MSG_RESULT(no) ])
+		LIBS="$LIBS_SAVED"
+	fi
+
+	# log4cxx
+	if test "$without_log4cxx" != "true"; then
+		# Check if log4cxx location is specified
+		if test "x$log4cxx_location" != "xyes"
+		then
+			CPPFLAGS="$CPPFLAGS -I$log4cxx_location/include"
+			LDFLAGS="$LDFLAGS -L$log4cxx_location/lib"
+		fi
+		# Check for log4cxx library
+		LIBS_SAVED="$LIBS"
+		LIBS="$LIBS_SAVED -llog4cxx"
+		AC_MSG_CHECKING(log4cxx library)
+		AC_TRY_LINK([#include <log4cxx/logger.h>],[ log4cxx::Logger::getRootLogger(); return 0; ],
+			[ 
+			  # Found the log4cxx library
+			  AC_MSG_RESULT(ok) 
+			  AC_DEFINE([PION_USE_LOG4CXX],[1],[Define to 1 if you have the `log4cxx' library (-llog4cxx).])
+			  AC_MSG_NOTICE(Using log4cxx for logging)
+			  without_log4cplus=true without_log4cpp=true
+			  PION_LOG_LIB="-llog4cxx"
+			],
+			[ AC_MSG_RESULT(no) ])
+		LIBS="$LIBS_SAVED"
+	fi
+	
+	# log4cpp
+	if test "$without_log4cpp" != "true"; then
+		# Check if log4cpp location is specified
+		if test "x$log4cpp_location" != "xyes"
+		then
+			CPPFLAGS="$CPPFLAGS -I$log4cpp_location/include"
+			LDFLAGS="$LDFLAGS -L$log4cpp_location/lib"
+		fi
+		# Check for log4cpp library
+		LIBS_SAVED="$LIBS"
+		LIBS="$LIBS_SAVED -llog4cpp"
+		AC_MSG_CHECKING(log4cpp library)
+		AC_TRY_LINK([#include <log4cpp/Category.hh>],[ log4cpp::Category::getRoot(); return 0; ],
+			[ 
+			  # Found the log4cpp library
+			  AC_MSG_RESULT(ok) 
+			  AC_DEFINE([PION_USE_LOG4CPP],[1],[Define to 1 if you have the `log4cpp' library (-llog4cpp).])
+			  AC_MSG_NOTICE(Using log4cpp for logging)
+			  without_log4cplus=true without_log4cxx=true
+			  PION_LOG_LIB="-llog4cpp"
+			],
+			[ AC_MSG_RESULT(no) ])
+		LIBS="$LIBS_SAVED"
+	fi
+
+	# no log library found
+	if test "x$PION_LOG_LIB" == "x"; then
+		if test "x$ostream_logging" == "xno"; then
+			AC_MSG_WARN(No logging library found - disabling logging)
+			AC_DEFINE([PION_DISABLE_LOGGING],[1],[Define to 1 to disable logging.])
+		else
+			AC_MSG_WARN(No logging library found - using std::ostream for logging)
+			AC_DEFINE([PION_USE_OSTREAM_LOGGING],[1],[Define to 1 to use std::cout and std::cerr for logging.])
+		fi
+	fi
 fi
 AC_SUBST(PION_LOG_LIB)
 
