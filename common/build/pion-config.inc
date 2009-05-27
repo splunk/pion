@@ -201,7 +201,7 @@ AC_ARG_ENABLE([logging],
     AC_HELP_STRING([--disable-logging],[disable all logging support (including std::ostream)]),
     [enable_logging=$enableval], [enable_logging=yes])
 AC_ARG_WITH([ostream-logging],
-    AC_HELP_STRING([--with-ostream-logging@<:@=DIR@:>@],[use std::ostream logging instead of an external library]),
+    AC_HELP_STRING([--with-ostream-logging],[use std::ostream logging instead of library]),
     [ ostream_logging=yes ], [ ostream_logging=no ])
 AC_ARG_WITH([log4cplus],
     AC_HELP_STRING([--with-log4cplus@<:@=DIR@:>@],[location of log4cplus library (recommended)]),
