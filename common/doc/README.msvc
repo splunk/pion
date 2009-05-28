@@ -155,18 +155,16 @@ and std::cerr will be used for logging.  To disable logging, include
 PION_DISABLE_LOGGING in Preprocessor Definitions for the project, or in 
 PionConfig.hpp.win, uncomment '#define PION_DISABLE_LOGGING'.
 
-At this time, log4cxx (http://logging.apache.org/log4cxx) is the only 
-supported logging library that builds correctly under Windows.
+We recommend log4cplus (http://log4cplus.sourceforge.net/) for logging.
 
-A binary distribution is available at http://pion.org/files/apache-log4cxx.win32.zip.
-Install it in C:\apache\apache-log4cxx-0.10.0, or change user macro 
-LOG4CXX_HOME in pion.vsprops, currently set to C:\apache\apache-log4cxx-0.10.0,
-accordingly.
+A binary distribution is available at http://pion.org/files/log4cplus-1.0.3-win32.zip.
+Extract it into C:\, or change user macro LOG4CPLUS_HOME in pion.vsprops, currently 
+set to C:\log4cplus-1.0.3, accordingly.
 
-Add <LOG4CXX_HOME>\bin to your path.
+Add <LOG4CPLUS_HOME>\bin to your path.
 
-Include PION_USE_LOG4CXX or PION_FULL in Preprocessor Definitions for the project,
-or in PionConfig.hpp.win, uncomment '#define PION_USE_LOG4CXX'.
+Include PION_USE_LOG4CPLUS or PION_FULL in Preprocessor Definitions for the project,
+or in PionConfig.hpp.win, uncomment '#define PION_USE_LOG4CPLUS'.
 
 
 JSON (optional):
