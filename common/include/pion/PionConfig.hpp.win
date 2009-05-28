@@ -54,11 +54,11 @@
    in Preprocessor Definitions, or uncomment the following line. */
 //#define PION_USE_LOG4CPLUS
 
-/* To use the `log4cxx' library for logging, include PION_USE_LOG4CXX or PION_FULL
+/* To use the `log4cxx' library for logging, include PION_USE_LOG4CXX
    in Preprocessor Definitions, or uncomment the following line. */
 //#define PION_USE_LOG4CXX
 
-/* To use the `log4cpp' library for logging, include PION_USE_LOG4CPP
+/* To use the `log4cpp' library for logging, include PION_USE_LOG4CPP or PION_FULL
    in Preprocessor Definitions, or uncomment the following line. */
 //#define PION_USE_LOG4CPP
 

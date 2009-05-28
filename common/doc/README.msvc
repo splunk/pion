@@ -29,17 +29,15 @@ Atomic Labs has a zip file available from the "Third Party Libraries" page
 on our website that contains all of the required libraries to build Pion
 for MSVC 2005.  To get started quickly, just download and uncompress this file
 into your C:\ directory, and you should be able to skip most of the following
-instructions (however, Path and VC++ directory updates are still required).
+instructions (however, Path updates are still required).
 
 
 Building Boost:
 ---------------
 
-First, download and unzip the Boost 1.35.0 (or later) source code from:
+First, download and unzip the Boost 1.37.0 source code from:
 
-http://sourceforge.net/project/showfiles.php?group_id=7586
-
-(Click on boost_1_35_0.zip, or similiar)
+http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=8041&release_id=637761
 
 We recommend that you use the bjam tool to build Boost for MSVC.  You can
 download the latest bjam executable from:
@@ -65,16 +63,12 @@ bjam --toolset=msvc --with-thread --with-system --with-filesystem \
 Boost.Iostreams is also required, but must be compiled separately for
 Windows; see Building Boost.Iostreams below.
 
-We recommend that you create a C:\Boost directory with C:\Boost\Lib and
-C:\Boost\Include subdirectories.  To install Boost into these
-directories, just copy the files in stage/lib into C:\Boost\Lib, and
-copy the entire boost/ directory into C:\Boost\include\boost-1_35.
+We recommend that you create a C:\boost-1.37.0 directory with C:\boost-1.37.0\lib and
+C:\boost-1.37.0\boost subdirectories.  To install boost-1.37.0 into these
+directories, just copy the files in stage\lib into C:\boost-1.37.0\lib, and
+copy the entire boost directory (which contains all the header files) into C:\boost-1.37.0\boost.
 
-Update the Visual C++ Directories in the Projects and Solutions section
-in the Options dialog box.  For Include files add
-"C:\Boost\Include\boost-1_35", and for Library files add "C:\Boost\Lib".
-
-Finally, we suggest adding C:\Boost\Lib to your Path.
+Finally, add C:\boost-1.37.0\lib to your Path.
 
 
 Building Boost.Iostreams:
