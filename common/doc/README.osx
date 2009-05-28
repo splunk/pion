@@ -50,28 +50,18 @@ http://www.bzip.org
 http://www.openssl.org
 
 
-Logging frameworks:
--------------------
+Installing log4cplus:
+---------------------
 
 Note that the use of a logging framework is entirely optional, so you may
 skip this step if you like.
 
-We recommend that you use log4cxx for logging.  Log4cxx requires that 
-you have the Apache Portable Runtime (APR) installed.  This library is 
-normally pre-installed on OS X (make sure that you have "libapr" and
-"libapr-util" dynamic libraries within /usr/lib).
+We recommend that you use log4cplus for logging.  Please visit the
+"Third Party Libraries" page on our website to obtain the source code
+tarball for log4cplus.  Then, just run:
 
-If you do not have APR pre-installed, you should be able to grab the
-latest source code tarballs from the "Third Party Libraries" page on
-our website, or from the following site:
-
-http://apr.apache.org
-
-Please visit the "Third Party Libraries" page on our website to obtain
-the source code tarball for log4cxx.  Then, just run:
-
-# tar xvfj log4cxx-<version>.tar.bz2
-# cd log4cxx-<version>
+# tar xvfj log4cplus-<version>.tar.bz2
+# cd log4cplus-<version>
 # ./configure
 # make all
 # make install
@@ -174,8 +164,7 @@ Now you should be able to build and install Pion:
 
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-openssl] [--with-log4cxx] \
-	[--with-yajl] [--with-arch=x86_64] [--with-cpu=nocona]
+# ./configure [--with-arch=x86_64] [--with-cpu=nocona]
 # make all
 # make install
 

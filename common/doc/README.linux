@@ -51,63 +51,21 @@ versions:
 # apt-get install openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
 
 
-Installing log4cxx:
--------------------
+Installing log4cplus:
+---------------------
 
 Note that the use of a logging framework is entirely optional, so you may
 skip this step if you like.
 
-We recommend that you use log4cxx for logging.  Log4cxx 0.10.0 and later
-requires that you have the Apache Portable Runtime (APR) installed.  This
-library is normally pre-installed on Linux.  If you do not have it already,
-you should be able to grab the latest version using your favorite package 
-manager:
+We recommend that you use log4cplus for logging.  Please visit the
+"Third Party Libraries" page on our website to obtain the source code
+tarball for log4cplus.  Then, just run:
 
-# yum install apr apr-devel apr-util apr-util-devel
-# up2date apr apr-devel apr-util apr-util-devel
-# apt-get install apr apr-devel apr-util apr-util-devel
-
-For Redhat Enterprise and CentOS releases earlier than version 5, you will
-need to download and build the APR libraries from source since the available
-RPMs are incompatible with log4cxx.  You can download the latest source code
-tarballs from the "Third Party Libraries" page on our website, or from the
-following site:
-
-http://apr.apache.org
-
-You will need to install both the "apr" and the "apr-util" packages.  For
-each, just download the source and run:
-
-# bzip2 -dc apr-<version>.tar.bz2 | tar xvf -
-# cd apr-<version>
-# ./configure --prefix=/usr/local --enable-threads --with-apr=/usr/local
-# make all
-# make install
-
-After installing APR, please visit the "Third Party Libraries" page on 
-our website to obtain a source code tarball.  Then, just run:
-
-# tar xvfj log4cxx-<version>.tar.bz2
-# cd log4cxx-<version>
+# tar xvfj log4cplus-<version>.tar.bz2
+# cd log4cplus-<version>
 # ./configure
 # make all
 # make install
-
-The final linking stage of building log4cxx 0.10.0 fails for 64-bit 
-versions of Redhat, apparently due to errors with the 64-bit libapr that 
-it includes. If you encounter an error while performing the final link, 
-try running the link_log4cxx.sh script included with Pion from your 
-log4cxx source directory:
-
-# <PION-ROOT>/common/build/link_log4cxx.sh
-
-If this works, you can complete the log4cxx installation manually by using
-the following commands:
-
-# mv src/main/cpp/.libs/liblog4cxx.so.10.0.0 /usr/local/lib
-# ln -s /usr/local/lib/liblog4cxx.so.10.0.0 /usr/local/lib/liblog4cxx.so.10
-# ln -s /usr/local/lib/liblog4cxx.so.10.0.0 /usr/local/lib/liblog4cxx.so
-# mv src/main/include/log4cxx /usr/local/include
 
 
 Installing libxml2:
@@ -183,7 +141,7 @@ Now you should be able to build and install Pion:
 
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-openssl] [--with-log4cxx] [--with-yajl]
+# ./configure
 # make all
 # make install
 
