@@ -50,7 +50,7 @@
 // At most one of the logging options below should be defined.  If none of 
 // them are defined, std::cout and std::cerr will be used for logging.
 
-/* To use the `log4cplus' library for logging, include PION_USE_LOG4CPLUS
+/* To use the `log4cplus' library for logging, include PION_USE_LOG4CPLUS or PION_FULL
    in Preprocessor Definitions, or uncomment the following line. */
 //#define PION_USE_LOG4CPLUS
 
@@ -58,7 +58,7 @@
    in Preprocessor Definitions, or uncomment the following line. */
 //#define PION_USE_LOG4CXX
 
-/* To use the `log4cpp' library for logging, include PION_USE_LOG4CPP or PION_FULL
+/* To use the `log4cpp' library for logging, include PION_USE_LOG4CPP
    in Preprocessor Definitions, or uncomment the following line. */
 //#define PION_USE_LOG4CPP
 
