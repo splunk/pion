@@ -17,6 +17,7 @@
 #ifdef PION_FULL
 #define PION_USE_LOG4CPLUS
 #define PION_HAVE_SSL
+#define PION_HAVE_JSON
 #endif
 
 /* Define to the version number of pion. */
@@ -81,6 +82,10 @@
 /* If you have the `OpenSSL' library installed, include PION_HAVE_SSL or PION_FULL
    in Preprocessor Definitions, or uncomment the following line, to use SSL. */
 //#define PION_HAVE_SSL
+
+/* If you have the `yajl' library installed, include PION_HAVE_JSON or PION_FULL
+   in Preprocessor Definitions, or uncomment the following line, to use yajl. */
+//#define PION_HAVE_JSON
 
 
 #ifdef _WIN32
