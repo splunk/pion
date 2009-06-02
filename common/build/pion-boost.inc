@@ -58,7 +58,8 @@ BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 LIBS_SAVED="$LIBS"
 LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK} ${BOOST_DATE_TIME_LIB}"
 AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
-AC_TRY_LINK([#include <boost/thread/thread.hpp>],
+AC_TRY_LINK([#include <boost/thread/thread.hpp>
+	#include <boost/thread/condition.hpp>],
 	[ boost::thread current_thread; return 0; ],
 	[ AC_MSG_RESULT(ok)
 	  BOOST_THREAD_LIB="-l${BOOST_TRY_LINK}"
