@@ -67,10 +67,12 @@ if ($EDITION eq "community") {
 	$spec_license = "GPL";
 	$rpm_extras_dir = "platform/build/rpm";
 	$config_file_glob = "*.{xml,txt,pem}";
+	$install_perl_scripts = "";
 } else {
 	$spec_license = "commercial";
 	$rpm_extras_dir = "enterprise/build/rpm";
 	$config_file_glob = "*.{xml,txt,pem,cap}";
+	$install_perl_scripts = "install -m 660 $BIN_SRC_BASE/config/*.pl \$RPM_BUILD_ROOT/var/lib/pion";
 }
 $SPEC_POST="/sbin/ldconfig";
 $SPEC_POSTUN="/sbin/ldconfig";
@@ -130,6 +132,7 @@ mkdir -p \$RPM_BUILD_ROOT/usr/share/pion/plugins
 mkdir -p \$RPM_BUILD_ROOT/usr/share/doc/$PACKAGE_BASE-$VERSION
 
 install -m 660 $BIN_SRC_BASE/config/$config_file_glob \$RPM_BUILD_ROOT/etc/pion
+$install_perl_scripts
 install -m 660 $BIN_SRC_BASE/config/vocabularies/*.xml \$RPM_BUILD_ROOT/etc/pion/vocabularies
 install -m 775 $BIN_SRC_BASE/pion.service \$RPM_BUILD_ROOT/etc/rc.d/init.d/pion
 install -s $BIN_SRC_BASE/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins

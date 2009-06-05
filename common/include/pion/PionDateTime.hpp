@@ -15,6 +15,7 @@
 #include <ostream>
 #include <sstream>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/greg_date.hpp>
 #include <pion/PionConfig.hpp>
 
 
@@ -24,7 +25,9 @@ namespace pion {	// begin namespace pion
 /// PionDateTime is a typedef for boost::posix_time::ptime
 typedef boost::posix_time::ptime	PionDateTime;
 
-	
+
+
+
 ///
 /// PionTimeFacet: helper class for PionDateTime I/O
 ///
@@ -32,6 +35,16 @@ class PionTimeFacet
 {
 public:
 	
+	// Function that converts a ptime into a time_t
+	// Note: this is quick & dirty -- does not handle invalid dates,
+	//		other calendars, pre-epoch dates, ...
+	static inline boost::uint32_t to_time_t(const PionDateTime& t)
+	{
+		static const boost::posix_time::ptime start(boost::gregorian::date(1970,1,1));
+		return (t-start).total_seconds();
+	}
+
+
 	/// default constructor
 	PionTimeFacet(void) {}
 	
