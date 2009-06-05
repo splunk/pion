@@ -65,18 +65,17 @@ print "* Generating RPM spec file..\n";
 # prepare some vars for spec file
 if ($EDITION eq "community") {
 	$spec_license = "GPL";
-	$rpm_extras_dir = "platform/build/rpm";
 	$config_file_glob = "*.{xml,txt,pem}";
 	$install_perl_scripts = "";
 } else {
 	$spec_license = "commercial";
-	$rpm_extras_dir = "enterprise/build/rpm";
 	$config_file_glob = "*.{xml,txt,pem,cap}";
 	$install_perl_scripts = "install -m 660 $BIN_SRC_BASE/config/*.pl \$RPM_BUILD_ROOT/var/lib/pion";
 }
 $SPEC_POST="/sbin/ldconfig";
 $SPEC_POSTUN="/sbin/ldconfig";
 @spec_libs = bsd_glob($LIBS_DIR . "/*");
+@purge_scripts = bsd_glob($CONFIG_DIR . "/*.pl");
 
 # open and write the spec file
 open(SPEC_FILE, ">$SPEC_FILE_NAME") or die("Unable to open spec file: $SPEC_FILE_NAME");
@@ -149,7 +148,7 @@ rm -rf \$RPM_BUILD_ROOT
 
 \%defattr(-,pion,pion)
 \%config /etc/pion/
-/var/lib/pion
+\%dir /var/lib/pion
 
 \%defattr(-,root,root)
 \%doc $BIN_SRC_BASE/HISTORY.txt $BIN_SRC_BASE/LICENSE.txt $BIN_SRC_BASE/README.txt $BIN_SRC_BASE/pion-manual.pdf
@@ -168,10 +167,16 @@ END_SPEC_FILE
 
 # output library file names
 foreach $_ (@spec_libs) {
-	# remove symbolic link for sqlite before making RPM
 	s[$LIBS_DIR][/usr/lib];
 	print SPEC_FILE $_ . "\n";
 }
+
+# output purge scripts (if any)
+foreach $_ (@purge_scripts) {
+	s[$CONFIG_DIR][/var/lib/pion];
+	print SPEC_FILE $_ . "\n";
+}
+
 
 # close the spec file
 close(SPEC_FILE);
@@ -181,7 +186,12 @@ print "* Preparing binary source directory..\n";
 
 `rm -rf $BIN_SRC_DIR`;
 copyDirWithoutDotFiles($PACKAGE_DIR, $BIN_SRC_DIR);
-copyDirWithoutDotFiles($rpm_extras_dir, $BIN_SRC_DIR);
+if ($EDITION eq "community") {
+	copyDirWithoutDotFiles("platform/build/rpm", $BIN_SRC_DIR);
+} else {
+	copyDirWithoutDotFiles("../pion-platform/platform/build/rpm", $BIN_SRC_DIR);
+	copyDirWithoutDotFiles("enterprise/build/rpm", $BIN_SRC_DIR);
+}
 
 
 print "* Creating RPM files..\n";
