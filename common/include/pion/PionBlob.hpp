@@ -10,6 +10,7 @@
 #ifndef __PION_PIONBLOB_HEADER__
 #define __PION_PIONBLOB_HEADER__
 
+#include <string>
 #include <pion/PionConfig.hpp>
 #include <boost/detail/atomic_count.hpp>
 
@@ -18,7 +19,8 @@ namespace pion {	// begin namespace pion
 
 
 ///
-/// PionBlob: simple reference-counting BLOB class that uses PionAllocator for memory management
+/// PionBlob: a simple, reference-counting BLOB class 
+/// that uses PionPoolAllocator for memory management
 ///
 template <typename CharType, typename AllocType>
 class PionBlob {
@@ -26,11 +28,18 @@ protected:
 
 	/// structure used to store BLOB metadata; payload starts immediately following this
 	struct BlobData {
-		/// constructor takes size (in octets) of BLOB
-		BlobData(const std::size_t len) : m_len(len), m_ref(0) {}
+		/// constructor takes allocator and size (in octets) of BLOB
+		BlobData(AllocType& blob_alloc, const std::size_t len) :
+			m_alloc_ptr(&blob_alloc), m_len(len), m_ref(0)
+		{
+			*((CharType*)(this) + sizeof(struct BlobData) + len) = '\0';
+		}
+		
+		/// pointer to the allocator used by the BLOB
+		AllocType *	const				m_alloc_ptr;
 
 		/// size of the BLOB, in octets
-		std::size_t						m_len;
+		const std::size_t				m_len;
 
 		/// number of references to this BLOB
 		boost::detail::atomic_count		m_ref;
@@ -39,20 +48,19 @@ protected:
 	/// pointer the the BLOB metadata structure (payload follows the structure)
 	BlobData *			m_blob_ptr;
 
-	/// pointer to the allocator used by the BLOB
-	AllocType *			m_alloc_ptr;
-
 
 	/**
 	 * creates a new BLOB reference object
 	 *
 	 * @param len size in octets to allocate for the BLOB
+	 *
+	 * @return BlobData* pointer to the new BLOB data object (with reference incremented)
 	 */
-	inline void create(const std::size_t len) {
-		release();
-		m_blob_ptr = new (m_alloc_ptr->malloc(len+sizeof(struct BlobData)+1)) BlobData(len);
-		++m_blob_ptr->m_ref;
-		get()[len] = '\0';
+	static inline BlobData *create(AllocType& blob_alloc, const std::size_t len) {
+		BlobData *blob_ptr = new (blob_alloc.malloc(len+sizeof(struct BlobData)+1))
+			BlobData(blob_alloc, len);
+		++blob_ptr->m_ref;
+		return blob_ptr;
 	}
 
 	/**
@@ -61,7 +69,7 @@ protected:
 	inline void release(void) {
 		if (m_blob_ptr) {
 			if (--m_blob_ptr->m_ref == 0) {
-				m_alloc_ptr->free(m_blob_ptr, m_blob_ptr->m_len+sizeof(struct BlobData)+1);
+				m_blob_ptr->m_alloc_ptr->free(m_blob_ptr, m_blob_ptr->m_len+sizeof(struct BlobData)+1);
 			}
 			m_blob_ptr = NULL;
 		}
@@ -87,9 +95,9 @@ public:
 		release();
 	}
 
-	/// default constructor (do not call create!)
+	/// default constructor
 	PionBlob(void) :
-		m_blob_ptr(NULL), m_alloc_ptr(NULL)
+		m_blob_ptr(NULL)
 	{}
 
 	/**
@@ -98,7 +106,7 @@ public:
 	 * @param blob grabs reference from this existing blob
 	 */
 	PionBlob(const PionBlob& blob) :
-		m_blob_ptr(blob.grab()), m_alloc_ptr(blob.m_alloc_ptr)
+		m_blob_ptr(blob.grab())
 	{}
 
 	/**
@@ -109,10 +117,23 @@ public:
 	 * @param len size in octets of the memory buffer to copy
 	 */
 	PionBlob(AllocType& blob_alloc, const CharType* ptr, const std::size_t len) :
-		m_blob_ptr(NULL), m_alloc_ptr(&blob_alloc)
+		m_blob_ptr(NULL)
 	{
-		create(len);
+		m_blob_ptr = create(blob_alloc, len);
 		memcpy(get(), ptr, len);
+	}
+
+	/**
+	 * constructs a BLOB using existing string
+	 *
+	 * @param blob_alloc allocator used for memory management
+	 * @param str existing std::string object to copy
+	 */
+	PionBlob(AllocType& blob_alloc, const std::string& str) :
+		m_blob_ptr(NULL)
+	{
+		m_blob_ptr = create(blob_alloc, str.size());
+		memcpy(get(), str.c_str(), str.size());
 	}
 
 	/**
@@ -124,51 +145,20 @@ public:
 	 */
 	void set(AllocType& blob_alloc, const CharType* ptr, const std::size_t len) {
 		release();
-		m_alloc_ptr = &blob_alloc;
-		create(len);
+		m_blob_ptr = create(blob_alloc, len);
 		memcpy(get(), ptr, len);
 	}
 
 	/**
-	 * assignment operator
+	 * assigns BLOB to use an existing string
 	 *
-	 * @param blob grabs reference from this existing blob
+	 * @param blob_alloc allocator used for memory management
+	 * @param str existing std::string object to copy
 	 */
-	PionBlob& operator=(const PionBlob& blob) {
+	void set(AllocType& blob_alloc, const std::string& str) {
 		release();
-		m_blob_ptr = blob.grab();
-		m_alloc_ptr = blob.m_alloc_ptr;
-		return *this;
-	}
-	
-	/**
-	 * comparison operator (equals)
-	 *
-	 * @param blob object to compare this to
-	 *
-	 * @return true if the BLOB matches this one
-	 */
-	inline bool operator==(const PionBlob& blob) const {
-		if (m_blob_ptr == blob.m_blob_ptr)
-			return true;
-		if (m_blob_ptr == NULL || m_blob_ptr->m_len == 0)
-			return (blob.m_blob_ptr == NULL || blob.m_blob_ptr->m_len == 0);
-		if (blob.m_blob_ptr == NULL || blob.m_blob_ptr->m_len == 0)
-			return false;
-		if (m_blob_ptr->m_len != blob.m_blob_ptr->m_len)
-			return false;
-		return memcmp(get(), blob.get(), m_blob_ptr->m_len) == 0;
-	}
-
-	/**
-	 * comparison operator (not equals)
-	 *
-	 * @param blob object to compare this to
-	 *
-	 * @return true if the BLOB does not match this one
-	 */
-	inline bool operator!=(const PionBlob& blob) const {
-		return ! (this->operator==(blob));
+		m_blob_ptr = create(blob_alloc, str.size());
+		memcpy(get(), str.c_str(), str.size());
 	}
 
 	/// returns (non-const) reference to the BLOB payload
@@ -189,6 +179,80 @@ public:
 	/// returns length of the BLOB in octets (alias for size())
 	inline std::size_t length(void) const {
 		return size();
+	}
+	
+	/// returns true if the BLOB is empty (undefined or size == 0)
+	inline bool empty(void) const {
+		return (m_blob_ptr == NULL || m_blob_ptr->m_len == 0);
+	}
+	
+	/// returns the number of copies (or 0 if it is null)
+	inline long use_count(void) const {
+		return (m_blob_ptr == NULL ? 0 : m_blob_ptr->m_ref);
+	}
+
+	/// returns true if this is a unique instance or if this is null
+	inline bool unique(void) const {
+		return (m_blob_ptr == NULL || m_blob_ptr->m_ref < 2);
+	}
+
+	/**
+	 * assignment operator
+	 *
+	 * @param blob grabs reference from this existing blob
+	 */
+	PionBlob& operator=(const PionBlob& blob) {
+		release();
+		m_blob_ptr = blob.grab();
+		return *this;
+	}
+	
+	/**
+	 * comparison operator (equals)
+	 *
+	 * @param blob object to compare this to
+	 *
+	 * @return true if the BLOB matches this one
+	 */
+	inline bool operator==(const PionBlob& blob) const {
+		if (size() != blob.size())
+			return false;
+		return (empty() || m_blob_ptr==blob.m_blob_ptr || memcmp(get(), blob.get(), m_blob_ptr->m_len)==0);
+	}
+
+	/**
+	 * comparison operator (equals string)
+	 *
+	 * @param str std::string to compare this to
+	 *
+	 * @return true if this BLOB matches the std::string
+	 */
+	inline bool operator==(const std::string& str) const {
+		if (size() != str.size())
+			return false;
+		return (empty() || memcmp(get(), str.c_str(), m_blob_ptr->m_len)==0);
+	}
+
+	/**
+	 * comparison operator (not equals)
+	 *
+	 * @param blob object to compare this to
+	 *
+	 * @return true if the BLOB does not match this one
+	 */
+	inline bool operator!=(const PionBlob& blob) const {
+		return ! (this->operator==(blob));
+	}
+
+	/**
+	 * comparison operator (not equals string)
+	 *
+	 * @param str std::string to compare this to
+	 *
+	 * @return true if this BLOB does not match the std::string
+	 */
+	inline bool operator!=(const std::string& str) const {
+		return ! (this->operator==(str));
 	}
 };
 
