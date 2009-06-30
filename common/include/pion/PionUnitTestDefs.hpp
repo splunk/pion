@@ -35,26 +35,9 @@ struct PionUnitTest {
 	static void doNothing(void* ctx, const char* msg, ...) {
 	}
 
-	static void skip_comment_lines(std::ifstream& fs) {
-		int c;
-		while (!fs.eof() && fs.peek() == '#') {
-			while (! fs.eof()) {
-				c = fs.get();
-				if (c == '\n') {
-					if (fs.peek() == '\r')
-						fs.get();
-					break;
-				} else if (c == '\r') {
-					if (fs.peek() == '\n')
-						fs.get();
-					break;
-				}
-			}
-		}
-	}
-
+	// removes line endings from a c-style string
 	static char* trim(char* str) {
-		for (unsigned len = strlen(str) - 1; len > 0; len--) {
+		for (long len = strlen(str) - 1; len >= 0; len--) {
 			if (str[len] == '\n' || str[len] == '\r')
 				str[len] = '\0';
 			else
@@ -63,46 +46,46 @@ struct PionUnitTest {
 		return str;
 	}
 
+	// reads lines from a file, stripping line endings and ignoring blank lines
+	// and comment lines (starting with a '#')
+	static bool read_lines_from_file(const std::string& filename, std::list<std::string>& lines) {
+		// open file
+		std::ifstream a_file(filename.c_str(), std::ios::in | std::ios::binary);
+		if (! a_file.is_open())
+			return false;
+
+		// read data from file
+		static const unsigned int BUF_SIZE = 4096;
+		char *ptr, buf[BUF_SIZE+1];
+		buf[BUF_SIZE] = '\0';
+		lines.clear();
+
+		while (a_file.getline(buf, BUF_SIZE)) {
+			ptr = trim(buf);
+			if (*ptr != '\0' && *ptr != '#')
+				lines.push_back(ptr);
+		}
+
+		// close file
+		a_file.close();
+
+		return true;
+	}
+
 	// Check for file match, use std::list for sorting the files, which will allow
 	// random order matching...
 	static bool check_files_match(const std::string& fileA, const std::string& fileB) {
-		// open files
-		std::ifstream a_file(fileA.c_str(), std::ios::in | std::ios::binary);
-		BOOST_REQUIRE(a_file.is_open());
-
-		std::ifstream b_file(fileB.c_str(), std::ios::in | std::ios::binary);
-		BOOST_REQUIRE(b_file.is_open());
-
-		// skip lines that start with #
-		skip_comment_lines(a_file);
-		skip_comment_lines(b_file);
-
-		// read and compare data in files
-		static const unsigned int BUF_SIZE = 4096;
-		char buf[BUF_SIZE];
+		// open and read data from files
 		std::list<std::string> a_lines, b_lines;
+		BOOST_REQUIRE(read_lines_from_file(fileA, a_lines));
+		BOOST_REQUIRE(read_lines_from_file(fileB, b_lines));
 
-		while (a_file.getline(buf, BUF_SIZE)) {
-			a_lines.push_back(trim(buf));
-			if (! b_file.getline(buf, BUF_SIZE))
-				return false;
-			b_lines.push_back(trim(buf));
-		}
-		if (b_file.getline(buf, BUF_SIZE))
-			return false;
-		if (a_file.gcount() != b_file.gcount())
-			return false;
+		// sort lines read
 		a_lines.sort();
 		b_lines.sort();
 
-		if (a_lines != b_lines)
-			return false;
-
-		a_file.close();
-		b_file.close();
-
-		// files match
-		return true;
+		// files match if lines match
+		return (a_lines == b_lines);
 	}
 
 	static bool check_files_exact_match(const std::string& fileA, const std::string& fileB, bool ignore_line_endings = false) {
