@@ -66,6 +66,26 @@ BOOST_AUTO_TEST_CASE(checkSetAndCompareStringValue) {
 	BOOST_CHECK_EQUAL(b.size(), hello_str.size());
 }
 
+BOOST_AUTO_TEST_CASE(checkSetAndCompareBlobParams) {
+	std::string hello_str("hello");
+	BlobType::BlobParams p1(m_alloc, hello_str.c_str(), hello_str.size());
+	BlobType b1(p1);
+	BOOST_CHECK(! b1.empty());
+	BOOST_CHECK(b1.unique());
+	BOOST_CHECK_EQUAL(b1.use_count(), 1);
+	BOOST_CHECK_EQUAL(b1.size(), 5U);
+	BOOST_CHECK(b1 == hello_str);
+
+	std::string goodbye_str("goodbye");
+	BlobType::BlobParams p2(m_alloc, goodbye_str.c_str(), goodbye_str.size());
+	b1.set(p2);
+	BOOST_CHECK(! b1.empty());
+	BOOST_CHECK(b1.unique());
+	BOOST_CHECK_EQUAL(b1.use_count(), 1);
+	BOOST_CHECK_EQUAL(b1.size(), 7U);
+	BOOST_CHECK(b1 == goodbye_str);
+}
+
 BOOST_AUTO_TEST_CASE(checkSetAndCompareTwoBlobs) {
 	std::string hello_str("hello");
 	std::string goodbye_str("goodbye");
