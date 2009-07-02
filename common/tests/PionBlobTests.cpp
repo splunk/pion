@@ -11,6 +11,7 @@
 #include <pion/PionPoolAllocator.hpp>
 #include <pion/PionBlob.hpp>
 #include <boost/bind.hpp>
+#include <boost/variant.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/thread/thread.hpp>
@@ -66,7 +67,7 @@ BOOST_AUTO_TEST_CASE(checkSetAndCompareStringValue) {
 	BOOST_CHECK_EQUAL(b.size(), hello_str.size());
 }
 
-BOOST_AUTO_TEST_CASE(checkSetAndCompareBlobParams) {
+BOOST_AUTO_TEST_CASE(checkBlobConstructors) {
 	std::string hello_str("hello");
 	BlobType::BlobParams p1(m_alloc, hello_str.c_str(), hello_str.size());
 	BlobType b1(p1);
@@ -84,6 +85,19 @@ BOOST_AUTO_TEST_CASE(checkSetAndCompareBlobParams) {
 	BOOST_CHECK_EQUAL(b1.use_count(), 1);
 	BOOST_CHECK_EQUAL(b1.size(), 7U);
 	BOOST_CHECK(b1 == goodbye_str);
+	
+	boost::variant<int,BlobType> valueA(b1);
+	BOOST_CHECK_EQUAL(goodbye_str, boost::get<BlobType&>(valueA).get());
+	BOOST_CHECK(! b1.unique());
+	BOOST_CHECK_EQUAL(b1.use_count(), 2);
+
+	valueA = 24;
+	BOOST_CHECK(b1.unique());
+	BOOST_CHECK_EQUAL(b1.use_count(), 1);
+	
+	boost::variant<int,BlobType> valueB(p2);
+	BOOST_CHECK_EQUAL(goodbye_str, boost::get<BlobType&>(valueB).get());
+	
 }
 
 BOOST_AUTO_TEST_CASE(checkSetAndCompareTwoBlobs) {

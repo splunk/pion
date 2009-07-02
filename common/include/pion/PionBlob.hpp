@@ -127,7 +127,7 @@ public:
 	 *
 	 * @param p BlobParams contains all parameters used to initialize the BLOB
 	 */
-	PionBlob(BlobParams& p) :
+	PionBlob(const BlobParams& p) :
 		m_blob_ptr(NULL)
 	{
 		m_blob_ptr = create(p.m_alloc, p.m_len);
@@ -166,7 +166,7 @@ public:
 	 *
 	 * @param p BlobParams contains all parameters used to initialize the BLOB
 	 */
-	inline void set(BlobParams& p) {
+	inline void set(const BlobParams& p) {
 		release();
 		m_blob_ptr = create(p.m_alloc, p.m_len);
 		memcpy(get(), p.m_ptr, p.m_len);
@@ -231,6 +231,12 @@ public:
 	inline bool unique(void) const {
 		return (m_blob_ptr == NULL || m_blob_ptr->m_copies == 0);
 	}
+	
+	/// alias for release() -> switch to empty state
+	inline void clear(void) { release(); }
+
+	/// alias for release() -> switch to empty state
+	inline void reset(void) { release(); }
 
 	/**
 	 * assignment operator
