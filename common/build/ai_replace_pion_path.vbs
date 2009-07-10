@@ -6,10 +6,14 @@ Dim fso, f
 Dim appdir
 Dim file
 Dim txt
-
+Dim pos
+Dim custprop
 'on error resume next   
-appdir = Session.Property("CustomActionData")
-file=appdir+"pion_install_service.bat"
+custprop = Session.Property("CustomActionData")
+pos = InStr(custprop,"|")
+appdir=Right(custprop, Len(custprop) - pos)
+
+file=appdir+Left(custprop, pos-1)
 
 'read the file first   
 Set fso = CreateObject("Scripting.FileSystemObject")
