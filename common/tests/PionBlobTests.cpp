@@ -10,6 +10,8 @@
 #include <pion/PionConfig.hpp>
 #include <pion/PionPoolAllocator.hpp>
 #include <pion/PionBlob.hpp>
+#include <pion/PionId.hpp>
+#include <pion/PionHashMap.hpp>
 #include <boost/bind.hpp>
 #include <boost/variant.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -126,6 +128,45 @@ BOOST_AUTO_TEST_CASE(checkSetAndCompareTwoBlobs) {
 	BOOST_CHECK(b2 == hello_str);
 	BOOST_CHECK(b2 != goodbye_str);
 	BOOST_CHECK(b1 == b2);
+}
+
+BOOST_AUTO_TEST_CASE(checkHashValues) {
+	BlobType b1(m_alloc, "hello");
+	BlobType b2(m_alloc, "there");
+	BlobType b3(m_alloc, "world");
+	std::size_t seed1 = hash_value(b1);
+	std::size_t seed2 = hash_value(b2);
+	std::size_t seed3 = hash_value(b3);
+	BOOST_CHECK_NE(seed1, seed2);
+	BOOST_CHECK_NE(seed1, seed3);
+	BOOST_CHECK_NE(seed2, seed3);
+}
+	
+BOOST_AUTO_TEST_CASE(checkHashPionIdBlobValues) {
+	BlobType b1(m_alloc, "bb49b9ca-e733-47c0-9a26-0f8f53ea1660");
+	BlobType b2(m_alloc, "c4b486f3-d13f-4cb9-9b24-5a1050a51dbf");
+	BlobType b3(m_alloc, "2f91a5d5-828f-4884-9f0c-2192fe258f24");
+	HashPionIdBlob hasher;
+	std::size_t seed1 = hasher(b1);
+	std::size_t seed2 = hasher(b2);
+	std::size_t seed3 = hasher(b3);
+	BOOST_CHECK_NE(seed1, seed2);
+	BOOST_CHECK_NE(seed1, seed3);
+	BOOST_CHECK_NE(seed2, seed3);
+}
+
+BOOST_AUTO_TEST_CASE(checkPionBlobHashMap) {
+	typedef PION_HASH_MAP<BlobType, int, PION_HASH(BlobType) >	PionBlobHashMap;
+	PionBlobHashMap blob_map;
+	BlobType b1(m_alloc, "hello");
+	BlobType b2(m_alloc, "there");
+	BlobType b3(m_alloc, "world");
+	blob_map.insert(std::make_pair(b1, 1));
+	blob_map.insert(std::make_pair(b2, 2));
+	blob_map.insert(std::make_pair(b3, 3));
+	BOOST_CHECK_EQUAL(blob_map[b1], 1);
+	BOOST_CHECK_EQUAL(blob_map[b2], 2);
+	BOOST_CHECK_EQUAL(blob_map[b3], 3);
 }
 
 BOOST_AUTO_TEST_CASE(checkCreateLotsOfCopies) {

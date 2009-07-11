@@ -12,6 +12,7 @@
 
 #include <string>
 #include <boost/detail/atomic_count.hpp>
+#include <boost/functional/hash.hpp>
 #include <pion/PionConfig.hpp>
 
 
@@ -162,6 +163,19 @@ public:
 	}
 
 	/**
+	 * assignment operator
+	 *
+	 * @param blob grabs reference from this existing blob
+	 *
+	 * @return reference to this BLOB
+	 */
+	inline PionBlob& operator=(const PionBlob& blob) {
+		release();
+		m_blob_ptr = blob.grab();
+		return *this;
+	}
+	
+	/**
 	 * assigns BLOB to existing memory buffer via BlobParams
 	 *
 	 * @param p BlobParams contains all parameters used to initialize the BLOB
@@ -238,65 +252,171 @@ public:
 	/// alias for release() -> switch to empty state
 	inline void reset(void) { release(); }
 
-	/**
-	 * assignment operator
-	 *
-	 * @param blob grabs reference from this existing blob
-	 */
-	inline PionBlob& operator=(const PionBlob& blob) {
-		release();
-		m_blob_ptr = blob.grab();
-		return *this;
-	}
-	
-	/**
-	 * comparison operator (equals)
-	 *
-	 * @param blob object to compare this to
-	 *
-	 * @return true if the BLOB matches this one
-	 */
+	/// returns true if str is equal to this (BLOB matches string)
 	inline bool operator==(const PionBlob& blob) const {
 		if (size() != blob.size())
 			return false;
 		return (empty() || m_blob_ptr==blob.m_blob_ptr || memcmp(get(), blob.get(), m_blob_ptr->m_len)==0);
 	}
 
-	/**
-	 * comparison operator (equals string)
-	 *
-	 * @param str std::string to compare this to
-	 *
-	 * @return true if this BLOB matches the std::string
-	 */
+	/// returns true if str is equal to this (BLOB matches string)
 	inline bool operator==(const std::string& str) const {
 		if (size() != str.size())
 			return false;
 		return (empty() || memcmp(get(), str.c_str(), m_blob_ptr->m_len)==0);
 	}
 
-	/**
-	 * comparison operator (not equals)
-	 *
-	 * @param blob object to compare this to
-	 *
-	 * @return true if the BLOB does not match this one
-	 */
+	/// returns true if blob is not equal to this (two BLOBs do not match)
 	inline bool operator!=(const PionBlob& blob) const {
 		return ! (this->operator==(blob));
 	}
 
-	/**
-	 * comparison operator (not equals string)
-	 *
-	 * @param str std::string to compare this to
-	 *
-	 * @return true if this BLOB does not match the std::string
-	 */
+	/// returns true if str is not equal to this (BLOB does not match string)
 	inline bool operator!=(const std::string& str) const {
 		return ! (this->operator==(str));
 	}
+
+	/// returns true if blob is less than this
+	inline bool operator<(const PionBlob& blob) const {
+		const std::size_t len = (size() < blob.size() ? size() : blob.size());
+		if (len > 0) {
+			const int val = memcmp(get(), blob.get(), len);
+			if (val < 0)
+				return true;
+			if (val > 0)
+				return false;
+		}
+		return (size() < blob.size());
+	}
+		
+	/// returns true if blob is greater than this
+	inline bool operator>(const PionBlob& blob) const {
+		const std::size_t len = (size() < blob.size() ? size() : blob.size());
+		if (len > 0) {
+			const int val = memcmp(get(), blob.get(), len);
+			if (val > 0)
+				return true;
+			if (val < 0)
+				return false;
+		}
+		return (size() > blob.size());
+	}
+
+	/// returns true if str is less than this
+	inline bool operator<(const std::string& str) const {
+		const std::size_t len = (size() < str.size() ? size() : str.size());
+		if (len > 0) {
+			const int val = memcmp(get(), str.c_str(), len);
+			if (val < 0)
+				return true;
+			if (val > 0)
+				return false;
+		}
+		return (size() < str.size());
+	}
+
+	/// returns true if str is greater than this
+	inline bool operator>(const std::string& str) const {
+		const std::size_t len = (size() < str.size() ? size() : str.size());
+		if (len > 0) {
+			const int val = memcmp(get(), str.c_str(), len);
+			if (val > 0)
+				return true;
+			if (val < 0)
+				return false;
+		}
+		return (size() > str.size());
+	}
 };
+
+
+/// returns hash value for a PionBlob object (used by boost::hash_map)
+template <typename CharType, typename AllocType>
+static inline std::size_t hash_value(const PionBlob<CharType,AllocType>& blob) {
+	return (blob.empty() ? 0 : boost::hash_range(blob.get(), blob.get() + blob.size()));
+}
+
+
+/// optimized hash function object for PionBlob objects which contain PionId string representations (bb49b9ca-e733-47c0-9a26-0f8f53ea1660)
+struct HashPionIdBlob {
+	/// helper for hex->int conversion
+	inline unsigned long getValue(unsigned char c) const {
+		unsigned long result;
+		switch(c) {
+		case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+			result = (c - 48);
+			break;
+		case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+			result = (c - 87);
+			break;
+		case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+			result = (c - 55);
+			break;
+		default:
+			result = 0;
+			break;
+		}
+		return result;
+	}
+
+	/// returns hash value for the blob provided
+	template <typename CharType, typename AllocType>
+	inline std::size_t operator()(const PionBlob<CharType,AllocType>& blob) const {
+		if (blob.size() != 36)	// sanity check
+			return hash_value(blob);
+
+		const char * const data = blob.get();
+		unsigned long n;
+		std::size_t seed = 0;
+
+		// calculate first ulong value
+		n = (getValue(data[0]) << 28);
+		n |= (getValue(data[1]) << 24);
+		n |= (getValue(data[2]) << 20);
+		n |= (getValue(data[3]) << 16);
+		n |= (getValue(data[4]) << 12);
+		n |= (getValue(data[5]) << 8);
+		n |= (getValue(data[6]) << 4);
+		n |= getValue(data[7]);
+		boost::hash_combine(seed, n);
+
+		// calculate second ulong value
+		n = (getValue(data[9]) << 28);
+		n |= (getValue(data[10]) << 24);
+		n |= (getValue(data[11]) << 20);
+		n |= (getValue(data[12]) << 16);
+		n |= (getValue(data[14]) << 12);
+		n |= (getValue(data[15]) << 8);
+		n |= (getValue(data[16]) << 4);
+		n |= getValue(data[17]);
+		boost::hash_combine(seed, n);
+		
+		// calculate third ulong value
+		n = (getValue(data[19]) << 28);
+		n |= (getValue(data[20]) << 24);
+		n |= (getValue(data[21]) << 20);
+		n |= (getValue(data[22]) << 16);
+		n |= (getValue(data[24]) << 12);
+		n |= (getValue(data[25]) << 8);
+		n |= (getValue(data[26]) << 4);
+		n |= getValue(data[27]);
+		boost::hash_combine(seed, n);
+
+		// calculate third ulong value
+		n = (getValue(data[28]) << 28);
+		n |= (getValue(data[29]) << 24);
+		n |= (getValue(data[30]) << 20);
+		n |= (getValue(data[31]) << 16);
+		n |= (getValue(data[32]) << 12);
+		n |= (getValue(data[33]) << 8);
+		n |= (getValue(data[34]) << 4);
+		n |= getValue(data[35]);
+		boost::hash_combine(seed, n);
+
+		return seed;
+	}
+};
+
 
 }	// end namespace pion
 
