@@ -154,7 +154,6 @@ public:
 	static inline boost::uint64_t make_seed(void) {
 		// this could be much better...  and is probably far too trivial...
 		boost::uint64_t seed = boost::posix_time::microsec_clock::local_time().time_of_day().total_microseconds();
-std::cout << seed << std::endl;
 		seed += (time(NULL) * 1000000);
 		return seed;
 	}
