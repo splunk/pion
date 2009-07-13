@@ -173,6 +173,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PionIdTests.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PionPluginPtrTests.cpp"
 				>
 			</File>
