@@ -151,11 +151,17 @@ public:
 	}
 
 	/// return a seed value for random number generators
-	static inline boost::uint64_t make_seed(void) {
-		// this could be much better...  and is probably far too trivial...
-		boost::uint64_t seed = boost::posix_time::microsec_clock::local_time().time_of_day().total_microseconds();
-		seed += (time(NULL) * 1000000);
-		return seed;
+	static inline boost::uint32_t make_seed(void) {
+		// this could probably be much better, but trying to KISS... 
+		typedef boost::mt19937 gen_type;
+		typedef boost::uniform_int<unsigned long> dist_type;
+		typedef boost::variate_generator<gen_type,dist_type> die_type;
+		// initialize a static generator with seed based upon system time
+		static gen_type rng_gen( (time(NULL) * 1000000) + boost::posix_time::microsec_clock::local_time().time_of_day().total_microseconds() );
+		static dist_type rng_dist((std::numeric_limits<unsigned long>::min)(), (std::numeric_limits<unsigned long>::max)());
+		static die_type rng_die(rng_gen, rng_dist);
+		// use the static rng to produce seed values that initialize other generators
+		return rng_die();
 	}
 
 
