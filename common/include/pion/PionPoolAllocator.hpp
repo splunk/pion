@@ -26,7 +26,7 @@
 	#pragma warning(push)
 	#pragma warning(disable: 4800) // forcing value to bool 'true' or 'false' (performance warning)
 #endif
-	#include <boost/lockfree/tagged_ptr.hpp>
+	#include <boost/lockfree/detail/tagged_ptr.hpp>
 #ifdef _MSC_VER
 	#pragma warning(pop)
 #endif
@@ -84,7 +84,7 @@ public:
 				break;	// use pool alloc if free list is empty
 
 			// use CAS operation to swap the free list pointer
-			if (pool_ptr->m_free_ptr.CAS(old_free_ptr, old_free_ptr->next.get_ptr()))
+			if (pool_ptr->m_free_ptr.cas(old_free_ptr, old_free_ptr->next.get_ptr()))
 				return reinterpret_cast<void*>(old_free_ptr.get_ptr());
 		}
 #endif
@@ -118,7 +118,7 @@ public:
 			node_ptr->next.set_ptr(old_free_ptr.get_ptr());
 			
 			// use CAS operation to swap the free list pointer
-			if (pool_ptr->m_free_ptr.CAS(old_free_ptr, node_ptr))
+			if (pool_ptr->m_free_ptr.cas(old_free_ptr, node_ptr))
 				break;
 		}
 #else

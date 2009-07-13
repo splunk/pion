@@ -18,13 +18,13 @@
 	#pragma warning(push)
 	#pragma warning(disable: 4800) // forcing value to bool 'true' or 'false' (performance warning)
 #endif
-#include <boost/lockfree/tagged_ptr.hpp>
+#include <boost/lockfree/detail/tagged_ptr.hpp>
 #ifdef _MSC_VER
 	#pragma warning(pop)
 #endif
-#include <boost/lockfree/cas.hpp>
-#include <boost/lockfree/freelist.hpp>
-#include <boost/lockfree/branch_hints.hpp>
+#include <boost/lockfree/detail/cas.hpp>
+#include <boost/lockfree/detail/freelist.hpp>
+#include <boost/lockfree/detail/branch_hints.hpp>
 #include <boost/detail/atomic_count.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/thread.hpp>
@@ -147,14 +147,14 @@ public:
 				// check if tail was pointing to the last node
 				if (next_ptr.get_ptr() == NULL) {
 					// try to link the new node at the end of the list
-					if (tail_ptr->next.CAS(next_ptr, node_ptr)) {
+					if (tail_ptr->next.cas(next_ptr, node_ptr)) {
 						// done with enqueue; try to swing tail to the inserted node
-						m_tail_ptr.CAS(tail_ptr, node_ptr);
+						m_tail_ptr.cas(tail_ptr, node_ptr);
 						break;
 					}
 				} else {
 					// try to swing tail to the next node
-					m_tail_ptr.CAS(tail_ptr, next_ptr.get_ptr());
+					m_tail_ptr.cas(tail_ptr, next_ptr.get_ptr());
 				}
 			}
 		}
@@ -191,7 +191,7 @@ public:
 						return false;	// queue is empty
 					
 					// not empty; try to advance tail to catch it up
-					m_tail_ptr.CAS(tail_ptr, next_ptr);
+					m_tail_ptr.cas(tail_ptr, next_ptr);
 
 				} else {
 					// tail is OK
@@ -200,7 +200,7 @@ public:
 					t = next_ptr->data;
 					
 					// try to swing head to the next node
-					if (m_head_ptr.CAS(head_ptr, next_ptr)) {
+					if (m_head_ptr.cas(head_ptr, next_ptr)) {
 						// success -> nuke the old head item
 						destroyNode(head_ptr.get_ptr());
 						break;	// exit loop
@@ -309,7 +309,7 @@ protected:
 		QueueNodePtr new_ptr;
 		new_ptr.data.index = new_index;
 		new_ptr.data.counter = old_ptr.data.counter + 1;
-		return boost::lockfree::CAS(&(cur_ptr.value), old_ptr.value, new_ptr.value);
+		return boost::lockfree::cas(&(cur_ptr.value), old_ptr.value, new_ptr.value);
 	}
 	
 	/// returns the index position for a QueueNode that is available for use (may block)

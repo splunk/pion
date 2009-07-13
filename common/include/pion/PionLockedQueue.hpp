@@ -20,7 +20,7 @@
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
 #if defined(PION_HAVE_LOCKFREE) && !defined(_MSC_VER)
-	#include <boost/lockfree/freelist.hpp>
+	#include <boost/lockfree/detail/freelist.hpp>
 #endif
 
 

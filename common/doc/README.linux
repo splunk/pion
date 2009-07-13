@@ -63,7 +63,7 @@ tarball for log4cplus.  Then, just run:
 
 # tar xvfj log4cplus-<version>.tar.bz2
 # cd log4cplus-<version>
-# ./configure
+# ./configure --enable-threads=yes
 # make all
 # make install
 
