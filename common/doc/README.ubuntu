@@ -10,7 +10,7 @@ Installing dependencies:
 
 You can install the development tools required by Pion using apt-get:
 
-# apt-get install autoconf libtool make gcc g++ ruby cmake doxygen
+# apt-get install autoconf libtool make gcc g++ ruby cmake doxygen pkg-config
 
 You can install most of the third-party libraries required by Pion using apt-get:
 
