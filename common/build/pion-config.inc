@@ -183,6 +183,8 @@ if test "x$enable_lockfree" == "xno"; then
 	# Display notice if lock-free is disabled
 	AC_MSG_RESULT(disabled)
 else
+	CPPFLAGS_SAVED="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS -I$PION_COMMON_HOME/include"
 	AC_TRY_LINK([#include <boost/lockfree/detail/tagged_ptr.hpp>],
 		[ 
 		boost::lockfree::tagged_ptr<int> ptr_a(NULL);
@@ -193,6 +195,7 @@ else
 		],[ AC_MSG_RESULT(yes)
 			AC_DEFINE([PION_HAVE_LOCKFREE],[1],[Define to 1 if you have the `boost.lockfree' library.]) ],
 		  [ AC_MSG_RESULT(no) ])
+	CPPFLAGS="$CPPFLAGS_SAVED"
 fi
 
 
