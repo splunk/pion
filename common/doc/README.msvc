@@ -164,11 +164,11 @@ or in PionConfig.hpp.win, uncomment '#define PION_USE_LOG4CPLUS'.
 JSON (optional):
 ----------------
 
-Building JSONCodec requires YAJL (http://lloydforge.org/projects/yajl/).
+Building JSONCodec requires YAJL (http://lloyd.github.com/yajl/).
 
-A binary distribution is available at http://pion.org/files/yajl-0.4.0.win32.zip.
+A binary distribution is available at http://pion.org/files/yajl-1.0.5.win32.zip.
 Unzip directly into C: (or change JSONCodec.vcproj accordingly) and add 
-C:\yajl-0.4.0\bin to your path
+C:\yajl-1.0.5\bin to your path.
 
 JSONCodec is only built in the Debug_DLL_full and Release_DLL_full 
 configurations of pion-platform.sln.
