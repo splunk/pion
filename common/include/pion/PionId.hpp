@@ -210,7 +210,7 @@ static inline std::size_t hash_value(const PionId& id) {
 
 
 ///
-/// PionIdGeneratorBase: class used to generated new PionId's
+/// PionIdGeneratorBase: class used to generate new PionId's
 ///
 template <typename BaseGeneratorType>
 class PionIdGeneratorBase {

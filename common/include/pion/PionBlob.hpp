@@ -46,7 +46,7 @@ protected:
 		boost::detail::atomic_count		m_copies;
 	};
 
-	/// pointer the the BLOB metadata structure (payload follows the structure)
+	/// pointer to the BLOB metadata structure (payload follows the structure)
 	BlobData *			m_blob_ptr;
 
 
@@ -276,7 +276,7 @@ public:
 		return ! (this->operator==(str));
 	}
 
-	/// returns true if blob is less than this
+	/// returns true if this is less than blob
 	inline bool operator<(const PionBlob& blob) const {
 		const std::size_t len = (size() < blob.size() ? size() : blob.size());
 		if (len > 0) {
@@ -289,7 +289,7 @@ public:
 		return (size() < blob.size());
 	}
 		
-	/// returns true if blob is greater than this
+	/// returns true if this is greater than blob
 	inline bool operator>(const PionBlob& blob) const {
 		const std::size_t len = (size() < blob.size() ? size() : blob.size());
 		if (len > 0) {
@@ -302,7 +302,7 @@ public:
 		return (size() > blob.size());
 	}
 
-	/// returns true if str is less than this
+	/// returns true if this is less than str
 	inline bool operator<(const std::string& str) const {
 		const std::size_t len = (size() < str.size() ? size() : str.size());
 		if (len > 0) {
@@ -315,7 +315,7 @@ public:
 		return (size() < str.size());
 	}
 
-	/// returns true if str is greater than this
+	/// returns true if this is greater than str
 	inline bool operator>(const std::string& str) const {
 		const std::size_t len = (size() < str.size() ? size() : str.size());
 		if (len > 0) {
@@ -415,6 +415,20 @@ struct HashPionIdBlob {
 
 		return seed;
 	}
+
+#ifdef _MSC_VER
+	//This code is needed for stdext::hash_map
+
+	enum {
+		bucket_size = 4,	// 0 < bucket_size
+		min_buckets = 8		// min_buckets = 2 ^^ N, 0 < N
+	};
+
+	template <typename CharType, typename AllocType>
+	bool operator()(const PionBlob<CharType, AllocType>& _Keyval1, const PionBlob<CharType, AllocType>& _Keyval2) const {
+		return _Keyval1 < _Keyval2;
+	}
+#endif
 };
 
 

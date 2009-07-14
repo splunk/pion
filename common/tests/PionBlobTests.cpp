@@ -44,6 +44,31 @@ public:
 
 BOOST_FIXTURE_TEST_SUITE(PionBlobTests_S, PionBlobTests_F)
 
+BOOST_AUTO_TEST_CASE(checkOrdering) {
+	BlobType blob_A(m_alloc, "A");
+	BlobType blob_B_1(m_alloc, "B");
+	BlobType blob_B_2(m_alloc, "B");
+	BlobType blob_AA(m_alloc, "AA");
+
+	BOOST_CHECK(blob_A < blob_B_1);
+	BOOST_CHECK(! (blob_A > blob_B_1));
+	BOOST_CHECK(blob_B_1 > blob_A);
+	BOOST_CHECK(! (blob_B_1 < blob_A));
+	BOOST_CHECK(! (blob_B_1 < blob_B_2));
+	BOOST_CHECK(! (blob_B_1 > blob_B_2));
+	BOOST_CHECK(blob_A < blob_AA);
+	BOOST_CHECK(! (blob_A > blob_AA));
+
+	BOOST_CHECK(blob_A < "B");
+	BOOST_CHECK(! (blob_A > "B"));
+	BOOST_CHECK(blob_B_1 > "A");
+	BOOST_CHECK(! (blob_B_1 < "A"));
+	BOOST_CHECK(! (blob_B_1 < "B"));
+	BOOST_CHECK(! (blob_B_1 > "B"));
+	BOOST_CHECK(blob_A < "AA");
+	BOOST_CHECK(! (blob_A > "AA"));
+}
+
 BOOST_AUTO_TEST_CASE(checkSetAndCompareStringValue) {
 	BlobType b;
 	BOOST_CHECK(b.empty());
@@ -167,6 +192,24 @@ BOOST_AUTO_TEST_CASE(checkPionBlobHashMap) {
 	BOOST_CHECK_EQUAL(blob_map[b1], 1);
 	BOOST_CHECK_EQUAL(blob_map[b2], 2);
 	BOOST_CHECK_EQUAL(blob_map[b3], 3);
+}
+
+BOOST_AUTO_TEST_CASE(checkHashPionIdBlobHashMap) {
+	typedef PION_HASH_MAP<BlobType, int, HashPionIdBlob>	PionBlobHashMap;
+	PionBlobHashMap blob_map;
+	BlobType b1(m_alloc, "hello");
+	BlobType b2(m_alloc, "there");
+	BlobType b3(m_alloc, "world");
+	blob_map.insert(std::make_pair(b1, 1));
+	blob_map.insert(std::make_pair(b2, 2));
+	blob_map.insert(std::make_pair(b3, 3));
+	BOOST_CHECK_EQUAL(blob_map[b1], 1);
+	BOOST_CHECK_EQUAL(blob_map[b2], 2);
+	BOOST_CHECK_EQUAL(blob_map[b3], 3);
+
+	// Check that trying to insert a pair with a preexisting key fails, and that the original is unchanged.
+	BOOST_CHECK(! blob_map.insert(std::make_pair(b1, 4)).second);
+	BOOST_CHECK_EQUAL(blob_map[b1], 1);
 }
 
 BOOST_AUTO_TEST_CASE(checkCreateLotsOfCopies) {
