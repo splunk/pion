@@ -36,6 +36,16 @@ protected:
 			*((CharType*)(this) + sizeof(struct BlobData) + len) = '\0';
 		}
 		
+		/// returns (const) reference to the BLOB payload
+		inline const CharType *get(void) const {
+			return ((CharType*)(this) + sizeof(struct BlobData));
+		}
+	
+		/// returns (non-const) reference to the BLOB payload
+		inline CharType *get(void) {
+			return ((CharType*)(this) + sizeof(struct BlobData));
+		}
+	
 		/// pointer to the allocator used by the BLOB
 		AllocType *	const				m_alloc_ptr;
 
@@ -132,7 +142,7 @@ public:
 		m_blob_ptr(NULL)
 	{
 		m_blob_ptr = create(p.m_alloc, p.m_len);
-		memcpy(get(), p.m_ptr, p.m_len);
+		memcpy(m_blob_ptr->get(), p.m_ptr, p.m_len);
 	}
 
 	/**
@@ -146,7 +156,7 @@ public:
 		m_blob_ptr(NULL)
 	{
 		m_blob_ptr = create(blob_alloc, len);
-		memcpy(get(), ptr, len);
+		memcpy(m_blob_ptr->get(), ptr, len);
 	}
 
 	/**
@@ -159,7 +169,7 @@ public:
 		m_blob_ptr(NULL)
 	{
 		m_blob_ptr = create(blob_alloc, str.size());
-		memcpy(get(), str.c_str(), str.size());
+		memcpy(m_blob_ptr->get(), str.c_str(), str.size());
 	}
 
 	/**
@@ -183,7 +193,7 @@ public:
 	inline void set(const BlobParams& p) {
 		release();
 		m_blob_ptr = create(p.m_alloc, p.m_len);
-		memcpy(get(), p.m_ptr, p.m_len);
+		memcpy(m_blob_ptr->get(), p.m_ptr, p.m_len);
 	}
 
 	/**
@@ -196,7 +206,7 @@ public:
 	inline void set(AllocType& blob_alloc, const CharType* ptr, const std::size_t len) {
 		release();
 		m_blob_ptr = create(blob_alloc, len);
-		memcpy(get(), ptr, len);
+		memcpy(m_blob_ptr->get(), ptr, len);
 	}
 
 	/**
@@ -208,17 +218,12 @@ public:
 	inline void set(AllocType& blob_alloc, const std::string& str) {
 		release();
 		m_blob_ptr = create(blob_alloc, str.size());
-		memcpy(get(), str.c_str(), str.size());
-	}
-
-	/// returns (non-const) reference to the BLOB payload
-	inline CharType *get(void) {
-		return (m_blob_ptr ? ((CharType*)m_blob_ptr+sizeof(struct BlobData)) : NULL);
+		memcpy(m_blob_ptr->get(), str.c_str(), str.size());
 	}
 
 	/// returns (const) reference to the BLOB payload
 	inline const CharType *get(void) const {
-		return (m_blob_ptr ? ((CharType*)m_blob_ptr+sizeof(struct BlobData)) : NULL);
+		return (m_blob_ptr ? m_blob_ptr->get() : "");
 	}
 
 	/// returns size of the BLOB in octets
