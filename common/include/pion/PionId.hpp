@@ -20,6 +20,7 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <pion/PionConfig.hpp>
 
 namespace pion {	// begin namespace pion
@@ -33,10 +34,10 @@ public:
 
 	/// data type for iterating PionId byte values
 	typedef unsigned char *			iterator;
-	
+
 	/// const data type for iterating PionId byte values
 	typedef const unsigned char *	const_iterator;
-	
+
 	enum {
 		PION_ID_DATA_BYTES = 16,			//< total number of data bytes
 		PION_ID_HEX_BYTES = 16 * 2 + 4		//< number of bytes in hexadecimal representation
@@ -60,7 +61,7 @@ public:
 	explicit PionId(const std::string& str) {
 		from_string(str.c_str());
 	}
-		
+
 	/// construction using a null-terminated c-style string (bb49b9ca-e733-47c0-9a26-0f8f53ea1660)
 	explicit PionId(const char *str) {
 		from_string(str);
@@ -76,18 +77,18 @@ public:
 	PionId(const PionId& id) {
 		memcpy(m_data, id.m_data, PION_ID_DATA_BYTES);
 	}
-	
+
 	/// assignment operator
 	PionId& operator=(const PionId& id) {
 		memcpy(m_data, id.m_data, PION_ID_DATA_BYTES);
 		return *this;
 	}
-	
+
 	/// returns id value at byte offset
 	inline unsigned char operator[](const std::size_t n) const {
 		return m_data[n];
 	}
-	
+
 	/// returns true if id equals this
 	inline bool operator==(const PionId& id) const {
 		return (memcmp(m_data, id.m_data, PION_ID_DATA_BYTES) == 0);
@@ -102,18 +103,18 @@ public:
 	inline bool operator<(const PionId& id) const {
 		return (memcmp(m_data, id.m_data, PION_ID_DATA_BYTES) < 0);
 	}
-		
+
 	/// returns true if id is greater than this
 	inline bool operator>(const PionId& id) const {
 		return (memcmp(m_data, id.m_data, PION_ID_DATA_BYTES) > 0);
 	}
-	
+
 	/// returns the beginning iterator
 	inline iterator begin(void) { return m_data; }
-	
+
 	/// returns the ending iterator
 	inline iterator end(void) { return m_data + PION_ID_DATA_BYTES; }
-	
+
 	/// returns the beginning iterator (const)
 	inline const_iterator begin(void) const { return m_data; }
 
@@ -144,7 +145,7 @@ public:
 				if (*(++str) == '\0' || !isxdigit(*str))	// sanity check
 					break;
 				buf[1] = *str;
-				m_data[data_pos++] = strtoul(buf, NULL, 16);
+				m_data[data_pos++] = boost::numeric_cast<unsigned char>(strtoul(buf, NULL, 16));
 			}
 			++str;
 		}
@@ -157,7 +158,10 @@ public:
 		typedef boost::uniform_int<unsigned long> dist_type;
 		typedef boost::variate_generator<gen_type,dist_type> die_type;
 		// initialize a static generator with seed based upon system time
-		static gen_type rng_gen( (time(NULL) * 1000000) + boost::posix_time::microsec_clock::local_time().time_of_day().total_microseconds() );
+		static boost::uint64_t seed_seed_64 = (time(NULL) * 1000000) + boost::posix_time::microsec_clock::local_time().time_of_day().total_microseconds();
+		// Convert to 32 bits, keeping most of the available entropy.
+		static gen_type::result_type seed_seed_32 = boost::numeric_cast<gen_type::result_type>((seed_seed_64 >> 32) ^ (seed_seed_64 & 0xFFFFFFFF));
+		static gen_type rng_gen(seed_seed_32);
 		static dist_type rng_dist((std::numeric_limits<unsigned long>::min)(), (std::numeric_limits<unsigned long>::max)());
 		static die_type rng_die(rng_gen, rng_dist);
 		// use the static rng to produce seed values that initialize other generators
@@ -177,20 +181,20 @@ protected:
 	static inline void generate(unsigned char *data, boost::variate_generator<base_generator_type, distribution_type>& rng) {
 		// Note: this code is adapted from the Boost UUID library, (c) 2006 Andy Tompkins
 		for (std::size_t i = 0; i < PION_ID_DATA_BYTES; i += sizeof(unsigned long)) {
-            *reinterpret_cast<unsigned long*>(&data[i]) = rng();
+			*reinterpret_cast<unsigned long*>(&data[i]) = rng();
 		}
 
-        // set variant
-        // should be 0b10xxxxxx
-        data[8] &= 0xBF;
-        data[8] |= 0x80;
+		// set variant
+		// should be 0b10xxxxxx
+		data[8] &= 0xBF;
+		data[8] |= 0x80;
 
-        // set version
-        // should be 0b0100xxxx
-        data[6] &= 0x4F; //0b01001111
-        data[6] |= 0x40; //0b01000000
+		// set version
+		// should be 0b0100xxxx
+		data[6] &= 0x4F; //0b01001111
+		data[6] |= 0x40; //0b01000000
 	}
-	
+
 	/// sequence of bytes representing the unique identifier
 	unsigned char	m_data[PION_ID_DATA_BYTES];
 };
@@ -238,7 +242,7 @@ public:
 
 	/// returns a newly generated PionId object
 	inline PionId operator()(void) { return PionId(m_random_die); }
-	
+
 	/// return random number generator
 	inline gen_type& getRNG(void) { return m_random_die; }
 
