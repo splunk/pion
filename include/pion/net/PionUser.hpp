@@ -16,6 +16,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
 
@@ -48,23 +49,23 @@ public:
 	PionUser(std::string const &username) :
 		m_username(username)
 	{}
-	
+
 	/// construct a new PionUser object
 	PionUser(std::string const &username, std::string const &password) :
 		m_username(username)
 	{
 		setPassword(password);
 	}
-	
+
 	/// virtual destructor
 	virtual ~PionUser() {}
-	
+
 	/// returns user name as a string
 	std::string const & getUsername() const { return m_username; }
-	
+
 	/// returns password for the user (encrypted if SSL is enabled)
 	std::string const & getPassword() const { return m_password; }
-	
+
 	/**
 	 * matches password credential for given user
 	 *
@@ -79,7 +80,7 @@ public:
 		return m_password == password;
 #endif
 	}
-	
+
 	/// sets password credentials for given user
 	virtual void setPassword(const std::string& password) { 
 #ifdef PION_HAVE_SSL
@@ -116,17 +117,17 @@ public:
 			++str_it;
 			buf[1] = *str_it;
 			++str_it;
-			m_password_hash[hash_pos++] = strtoul(buf, 0, 16);
+			m_password_hash[hash_pos++] = boost::numeric_cast<unsigned char>(strtoul(buf, 0, 16));
 		}
 	}
 #endif
 
-	
+
 protected:
 
 	/// username string
 	const std::string   m_username;
-	
+
 	/// password string (actual contents depends on implementation)
 	std::string         m_password;
 
@@ -150,16 +151,16 @@ public:
 
 	/// construct a new PionUserManager object
 	PionUserManager(void) {}
-	
+
 	/// virtual destructor
 	virtual ~PionUserManager() {}
-	
+
 	/// returns true if no users are defined
 	inline bool empty(void) const {
 		boost::mutex::scoped_lock lock(m_mutex);
 		return m_users.empty();
 	}
-	
+
 	/**
 	 * used to add a new user with plaintext password
 	 *
@@ -179,7 +180,7 @@ public:
 		m_users.insert(std::make_pair(username, user));
 		return true;
 	}
-	
+
 	/**
 	 * update password for given user
 	 *
@@ -220,7 +221,7 @@ public:
 		m_users.insert(std::make_pair(username, user));
 		return true;
 	}
-	
+
 	/**
 	 * update password for given user with encrypted password
 	 *
@@ -254,7 +255,7 @@ public:
 		m_users.erase(i);
 		return true;
 	}
-	
+
 	/**
 	 * Used to locate user object by username
 	 */
@@ -266,7 +267,7 @@ public:
 		else
 			return i->second;
 	}
-	
+
 	/**
 	 * Used to locate user object by username and password
 	 */
@@ -279,16 +280,16 @@ public:
 			return i->second;
 	}
 
-	
+
 protected:
 
 	/// data type for a map of usernames to user objects
 	typedef std::map<std::string, PionUserPtr>	UserMap;
-	
-	
+
+
 	/// mutex used to protect access to the user list
 	mutable boost::mutex		m_mutex;
-	
+
 	/// user records container
 	UserMap						m_users;
 };
