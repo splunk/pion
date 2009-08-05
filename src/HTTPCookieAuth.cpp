@@ -38,8 +38,11 @@ HTTPCookieAuth::HTTPCookieAuth(PionUserManagerPtr userManager,
     // set logger for this class
 	setLogger(PION_GET_LOGGER("pion.net.HTTPCookieAuth"));
 
-	// seed random number generator with current time as time_t int value
-	m_random_gen.seed(::time(NULL));
+	// Seed random number generator with current time as time_t int value, cast to the required type.
+	// (Note that boost::mt19937::result_type is boost::uint32_t, and casting to an unsigned n-bit integer is
+	// defined by the standard to keep the lower n bits.  Since ::time() returns seconds since Jan 1, 1970, 
+	// it will be a long time before we lose any entropy here, even if time_t is a 64-bit int.)
+	m_random_gen.seed(static_cast<boost::mt19937::result_type>(::time(NULL)));
 
 	// generate some random numbers to increase entropy of the rng
 	for (unsigned int n = 0; n < 100; ++n)
@@ -49,7 +52,7 @@ HTTPCookieAuth::HTTPCookieAuth(PionUserManagerPtr userManager,
 bool HTTPCookieAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 {
 	if (processLogin(request,tcp_conn)) {
-		return false; // we processed login/logout request, no future processing for this request permited
+		return false; // we processed login/logout request, no future processing for this request permitted
 	}
 
 	if (!needAuthentication(request)) {
