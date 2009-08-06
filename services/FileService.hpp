@@ -29,7 +29,7 @@
 
 namespace pion {		// begin namespace pion
 namespace plugins {		// begin namespace plugins
-	
+
 
 ///
 /// DiskFile: class used to represent files stored on disk
@@ -39,7 +39,7 @@ public:
 	/// default constructor
 	DiskFile(void)
 		: m_file_size(0), m_last_modified(0) {}
-	
+
 	/// used to construct new disk file objects
 	DiskFile(const boost::filesystem::path& path,
 			 char *content, unsigned long size,
@@ -47,81 +47,81 @@ public:
 		: m_file_path(path), m_file_content(content), m_file_size(size),
 		m_last_modified(modified), m_mime_type(mime)
 	{}
-	
+
 	/// copy constructor
 	DiskFile(const DiskFile& f)
 		: m_file_path(f.m_file_path), m_file_content(f.m_file_content),
 		m_file_size(f.m_file_size), m_last_modified(f.m_last_modified),
 		m_last_modified_string(f.m_last_modified_string), m_mime_type(f.m_mime_type)
 	{}
-	
+
 	/// updates the file_size and last_modified timestamp to disk
 	void update(void);
-	
+
 	/// reads content from disk into file_content buffer (may throw)
 	void read(void);
-	
+
 	/**
 	 * checks if the file has been updated and updates vars if it has (may throw)
 	 *
 	 * @return true if the file was updated
 	 */
 	bool checkUpdated(void);
-	
+
 	/// return path to the cached file
 	inline const boost::filesystem::path& getFilePath(void) const { return m_file_path; }
-	
+
 	/// returns content of the cached file
 	inline char *getFileContent(void) { return m_file_content.get(); }
-	
+
 	/// returns true if there is cached file content
 	inline bool hasFileContent(void) const { return m_file_content; }
-	
+
 	/// returns size of the file's content
 	inline unsigned long getFileSize(void) const { return m_file_size; }
-	
+
 	/// returns timestamp that the cached file was last modified (0 = cache disabled)
 	inline std::time_t getLastModified(void) const { return m_last_modified; }
-	
+
 	/// returns timestamp that the cached file was last modified (string format)
 	inline const std::string& getLastModifiedString(void) const { return m_last_modified_string; }
-	
+
 	/// returns mime type for the cached file
 	inline const std::string& getMimeType(void) const { return m_mime_type; }
-	
+
 	/// sets the path to the cached file
 	inline void setFilePath(const boost::filesystem::path& p) { m_file_path = p; }
-	
+
 	/// appends to the path of the cached file
 	inline void appendFilePath(const std::string& p) { m_file_path /= p; }
 
 	/// sets the mime type for the cached file
 	inline void setMimeType(const std::string& t) { m_mime_type = t; }
-	
+
 	/// resets the size of the file content buffer
 	inline void resetFileContent(unsigned long n = 0) {
 		if (n == 0) m_file_content.reset();
 		else m_file_content.reset(new char[n]);
 	}
-	
-	
+
+
 protected:
-		
+
 	/// path to the cached file
 	boost::filesystem::path		m_file_path;
-	
+
 	/// content of the cached file
 	boost::shared_array<char>	m_file_content;
-	
+
 	/// size of the file's content
-	unsigned long				m_file_size;
-	
+	std::streamsize				m_file_size;
+
 	/// timestamp that the cached file was last modified (0 = cache disabled)
 	std::time_t					m_last_modified;
-	
+
 	/// timestamp that the cached file was last modified (string format)
 	std::string					m_last_modified_string;
-	
+
 	/// mime type for the cached file
 	std::string					m_mime_type;
 };
@@ -152,10 +152,10 @@ public:
 		return boost::shared_ptr<DiskFileSender>(new DiskFileSender(file, request,
 																	tcp_conn, max_chunk_size));
 	}
-	
+
 	/// default virtual destructor 
 	virtual ~DiskFileSender() {}
-	
+
 	/// Begins sending the file to the client.  Following a call to this
 	/// function, it is not thread safe to use your reference to the
 	/// DiskFileSender object.
@@ -163,13 +163,13 @@ public:
 
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
-	
+
 	/// returns the logger currently in use
 	inline PionLogger getLogger(void) { return m_logger; }
-	
-		
+
+
 protected:
-	
+
 	/**
 	 * protected constructor restricts creation of objects (use create())
 	 * 
@@ -182,7 +182,7 @@ protected:
 				   pion::net::HTTPRequestPtr& request,
 				   pion::net::TCPConnectionPtr& tcp_conn,
 				   unsigned long max_chunk_size);
-	
+
 	/**
 	 * handler called after a send operation has completed
 	 *
@@ -191,26 +191,26 @@ protected:
 	 */
 	void handleWrite(const boost::system::error_code& write_error,
 					 std::size_t bytes_written);
-	
-	
+
+
 	/// primary logging interface used by this class
 	PionLogger								m_logger;
-	
-	
+
+
 private:
 
 	/// the disk file we are sending
 	DiskFile								m_disk_file;
-	
+
 	/// the HTTP response we are sending
 	pion::net::HTTPResponseWriterPtr		m_writer;
 
 	/// used to read the file from disk if it is not already cached in memory
 	boost::filesystem::ifstream				m_file_stream;
-	
+
 	/// buffer used to send file content
 	boost::shared_array<char>				m_content_buf;
-	
+
 	/**
 	 * maximum chunk size (in bytes): files larger than this size will be
 	 * delivered to clients using HTTP chunked responses.  A value of
@@ -220,7 +220,7 @@ private:
 
 	/// the number of file bytes send in the last operation
 	unsigned long							m_file_bytes_to_send;
-	
+
 	/// the number of bytes we have sent so far
 	unsigned long							m_bytes_sent;
 };
@@ -236,7 +236,7 @@ class FileService :
 	public pion::net::WebService
 {
 public:
-	
+
 	/// exception thrown if the directory configured is not found
 	class DirectoryNotFoundException : public PionException {
 	public:
@@ -257,7 +257,7 @@ public:
 		FileNotFoundException(const std::string& file)
 			: PionException("FileService file not found: ", file) {}
 	};
-	
+
 	/// exception thrown if the file configuration option is not a file
 	class NotAFileException : public PionException {
 	public:
@@ -299,12 +299,12 @@ public:
 		UndefinedResponseException(const std::string& value)
 			: PionException("FileService has an undefined response: ", value) {}
 	};
-	
-	
+
+
 	// default constructor and destructor
 	FileService(void);
 	virtual ~FileService() {}
-	
+
 	/**
 	 * configuration options supported by FileService:
 	 *
@@ -316,39 +316,39 @@ public:
 	 * writable:
 	 */
 	virtual void setOption(const std::string& name, const std::string& value);
-	
+
 	/// handles requests for FileService
 	virtual void operator()(pion::net::HTTPRequestPtr& request,
-							pion::net::TCPConnectionPtr& tcp_conn);	
-	
+							pion::net::TCPConnectionPtr& tcp_conn);
+
 	/// called when the web service's server is starting
 	virtual void start(void);
-	
+
 	/// called when the web service's server is stopping
 	virtual void stop(void);
-	
+
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
-	
+
 	/// returns the logger currently in use
 	inline PionLogger getLogger(void) { return m_logger; }
 
-	
+
 protected:
 
 	/// data type for map of file names to cache entries
 	typedef PION_HASH_MAP<std::string, DiskFile, PION_HASH_STRING >		CacheMap;
-	
+
 	/// data type for map of file extensions to MIME types
 	typedef PION_HASH_MAP<std::string, std::string, PION_HASH_STRING >	MIMETypeMap;
-	
+
 	/**
 	 * adds all files within a directory to the cache
 	 *
 	 * @param dir_path the directory to scan (sub-directories are included)
 	 */
 	void scanDirectory(const boost::filesystem::path& dir_path);
-	
+
 	/**
 	 * adds a single file to the cache
 	 *
@@ -374,51 +374,51 @@ protected:
 
 	void sendNotFoundResponse(pion::net::HTTPRequestPtr& http_request,
 							  pion::net::TCPConnectionPtr& tcp_conn);
-	
+
 	/// primary logging interface used by this class
 	PionLogger					m_logger;
-	
-	
+
+
 private:
-	
+
 	/// function called once to initialize the map of MIME types
 	static void createMIMETypes(void);
-	
-	
+
+
 	/// mime type used if no others are found for the file's extension
 	static const std::string	DEFAULT_MIME_TYPE;
-	
+
 	/// default setting for cache configuration option
 	static const unsigned int	DEFAULT_CACHE_SETTING;
 
 	/// default setting for scan configuration option
 	static const unsigned int	DEFAULT_SCAN_SETTING;
-	
+
 	/// default setting for the maximum cache size option
 	static const unsigned long	DEFAULT_MAX_CACHE_SIZE;
-	
+
 	/// default setting for the maximum chunk size option
 	static const unsigned long	DEFAULT_MAX_CHUNK_SIZE;
-	
+
 	/// flag used to make sure that createMIMETypes() is called only once
 	static boost::once_flag		m_mime_types_init_flag;
-	
+
 	/// map of file extensions to MIME types
 	static MIMETypeMap *		m_mime_types_ptr;
-	
-	
+
+
 	/// directory containing files that will be made available
 	boost::filesystem::path		m_directory;
-	
+
 	/// single file served by the web service
 	boost::filesystem::path		m_file;
-	
+
 	/// used to cache file contents and metadata in memory
 	CacheMap					m_cache_map;
-	
+
 	/// mutex used to make the file cache thread-safe
 	boost::mutex				m_cache_mutex;
-	
+
 	/**
 	 * cache configuration setting:
 	 * 0 = do not cache files in memory
@@ -435,13 +435,13 @@ private:
 	 * 3 = scan directory and pre-populate cache; ignore new files
 	 */
 	unsigned int				m_scan_setting;
-	
+
 	/**
 	 * maximum cache size (in bytes): files larger than this size will never be
 	 * cached in memory.  A value of zero means that the size is unlimited.
 	 */
 	unsigned long				m_max_cache_size;
-	
+
 	/**
 	 * maximum chunk size (in bytes): files larger than this size will be
 	 * delivered to clients using HTTP chunked responses.  A value of
