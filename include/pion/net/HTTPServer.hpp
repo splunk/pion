@@ -42,11 +42,11 @@ public:
 	/// handler for requests that result in "500 Server Error"
 	typedef boost::function3<void, HTTPRequestPtr&, TCPConnectionPtr&,
 		const std::string&>	ServerErrorHandler;
-	
-	
+
+
 	/// default destructor
 	virtual ~HTTPServer() { if (isListening()) stop(); }
-	
+
 	/**
 	 * creates a new HTTPServer object
 	 * 
@@ -61,7 +61,7 @@ public:
 	{ 
 		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
-	
+
 	/**
 	 * creates a new HTTPServer object
 	 * 
@@ -76,7 +76,7 @@ public:
 	{ 
 		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
-	
+
 	/**
 	 * creates a new HTTPServer object
 	 * 
@@ -92,7 +92,7 @@ public:
 	{ 
 		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
-	
+
 	/**
 	 * creates a new HTTPServer object
 	 * 
@@ -108,7 +108,7 @@ public:
 	{ 
 		setLogger(PION_GET_LOGGER("pion.net.HTTPServer"));
 	}
-	
+
 	/**
 	 * adds a new web service to the HTTP server
 	 *
@@ -127,10 +127,10 @@ public:
 
 	/// sets the function that handles bad HTTP requests
 	inline void setBadRequestHandler(RequestHandler h) { m_bad_request_handler = h; }
-	
+
 	/// sets the function that handles requests which match no other web services
 	inline void setNotFoundHandler(RequestHandler h) { m_not_found_handler = h; }
-	
+
 	/// sets the function that handles requests which match no other web services
 	inline void setServerErrorHandler(ServerErrorHandler h) { m_server_error_handler = h; }
 
@@ -140,7 +140,7 @@ public:
 		boost::mutex::scoped_lock resource_lock(m_resource_mutex);
 		m_resources.clear();
 	}
-	
+
 	/**
 	 * strips trailing slash from a string, if one exists
 	 *
@@ -153,7 +153,7 @@ public:
 			result.resize(result.size() - 1);
 		return result;
 	}
-	
+
 	/**
 	 * used to send responses when a bad HTTP request is made
 	 *
@@ -162,7 +162,7 @@ public:
 	 */
 	static void handleBadRequest(HTTPRequestPtr& http_request,
 								 TCPConnectionPtr& tcp_conn);
-	
+
 	/**
 	 * used to send responses when no web services can handle the request
 	 *
@@ -171,7 +171,7 @@ public:
 	 */
 	static void handleNotFoundRequest(HTTPRequestPtr& http_request,
 									  TCPConnectionPtr& tcp_conn);
-	
+
 	/**
 	 * used to send responses when a server error occurs
 	 *
@@ -189,17 +189,17 @@ public:
 	inline void setAuthentication(HTTPAuthPtr auth) { m_auth = auth; }
 
 	/// sets the maximum length for HTTP request payload content
-	inline void setMaxContentLength(boost::uint64_t n) { m_max_content_length = n; }
+	inline void setMaxContentLength(std::size_t n) { m_max_content_length = n; }
 
 protected:
-	
+
 	/**
 	 * handles a new TCP connection
 	 * 
 	 * @param tcp_conn the new TCP connection to handle
 	 */
 	virtual void handleConnection(TCPConnectionPtr& tcp_conn);
-	
+
 	/**
 	 * handles a new HTTP request
 	 *
@@ -207,7 +207,7 @@ protected:
 	 * @param tcp_conn TCP connection containing a new request
 	 */
 	void handleRequest(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn);
-	
+
 	/**
 	 * searches for the appropriate request handler to use for a given resource
 	 *
@@ -216,8 +216,8 @@ protected:
 	 */
 	bool findRequestHandler(const std::string& resource,
 							RequestHandler& request_handler) const;
-	
-		
+
+
 private:
 
 	/// maximum number of redirections
@@ -238,7 +238,7 @@ private:
 
 	/// points to a function that handles bad HTTP requests
 	RequestHandler				m_bad_request_handler;
-	
+
 	/// points to a function that handles requests which match no web services
 	RequestHandler				m_not_found_handler;
 
@@ -252,7 +252,7 @@ private:
 	HTTPAuthPtr					m_auth;
 
 	/// maximum length for HTTP request payload content
-	boost::uint64_t				m_max_content_length;
+	std::size_t					m_max_content_length;
 };
 
 

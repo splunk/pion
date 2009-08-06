@@ -18,7 +18,7 @@
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)
 
-	
+
 // static members of HTTPParser
 
 const boost::uint32_t	HTTPParser::STATUS_MESSAGE_MAX = 1024;	// 1 KB
@@ -31,9 +31,9 @@ const boost::uint32_t	HTTPParser::QUERY_NAME_MAX = 1024;	// 1 KB
 const boost::uint32_t	HTTPParser::QUERY_VALUE_MAX = 1024 * 1024;	// 1 MB
 const boost::uint32_t	HTTPParser::COOKIE_NAME_MAX = 1024;	// 1 KB
 const boost::uint32_t	HTTPParser::COOKIE_VALUE_MAX = 1024 * 1024;	// 1 MB
-const boost::uint64_t	HTTPParser::DEFAULT_CONTENT_MAX = 1024 * 1024;	// 1 MB
-	
-	
+const std::size_t		HTTPParser::DEFAULT_CONTENT_MAX = 1024 * 1024;	// 1 MB
+
+
 // HTTPParser member functions
 
 boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
@@ -42,14 +42,14 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
 
 	boost::tribool rc = boost::indeterminate;
 	std::size_t total_bytes_parsed = 0;
-	
+
 	do {
 		switch (m_message_parse_state) {
 			// just started parsing the HTTP message
 			case PARSE_START:
 				m_message_parse_state = PARSE_HEADERS;
 				// step through to PARSE_HEADERS
-				
+
 			// parsing the HTTP headers
 			case PARSE_HEADERS:
 				rc = parseHeaders(http_msg);
@@ -60,7 +60,7 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
 					rc = finishHeaderParsing(http_msg);
 				}
 				break;
-			
+
 			// parsing chunked payload content
 			case PARSE_CHUNKS:
 				rc = parseChunks(http_msg.getChunkCache());
@@ -70,13 +70,13 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
 					http_msg.concatenateChunks();
 				}
 				break;
-				
+
 			// parsing regular payload content with a known length
 			case PARSE_CONTENT:
 				rc = consumeContent(http_msg);
 				total_bytes_parsed += m_bytes_last_read;
 				break;
-				
+
 			// parsing payload content with no length (until EOF)
 			case PARSE_CONTENT_NO_LENGTH:
 				consumeContentAsNextChunk(http_msg.getChunkCache());
@@ -95,10 +95,10 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
 		m_message_parse_state = PARSE_END;
 		finish(http_msg);
 	}
-	
+
 	// update bytes last read (aggregate individual operations for caller)
 	m_bytes_last_read = total_bytes_parsed;
-	
+
 	return rc;
 }
 
@@ -106,15 +106,15 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg, std::size_t l
 {
 	static const char MISSING_DATA_CHAR = 'X';
 	boost::tribool rc = boost::indeterminate;
-	
+
 	switch (m_message_parse_state) {
-	
+
 		// cannot recover from missing data while parsing HTTP headers
 		case PARSE_START:
 		case PARSE_HEADERS:
 			rc = false;
 			break;
-		
+
 		// parsing chunked payload content
 		case PARSE_CHUNKS:
 			// parsing chunk data -> we can only recover if data fits into current chunk
@@ -139,7 +139,7 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg, std::size_t l
 				rc = false;
 			}
 			break;
-			
+
 		// parsing regular payload content with a known length
 		case PARSE_CONTENT:
 			// parsing content (with length) -> we can only recover if data fits into content
@@ -163,12 +163,12 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg, std::size_t l
 				m_bytes_content_remaining -= len;
 				m_bytes_total_read += len;
 				m_bytes_last_read = len;
-				
+
 				if (m_bytes_content_remaining == 0)
 					rc = true;
 			}
 			break;
-			
+
 		// parsing payload content with no length (until EOF)
 		case PARSE_CONTENT_NO_LENGTH:
 			// use dummy content for missing data
@@ -184,13 +184,13 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg, std::size_t l
 			rc = true;
 			break;
 	}
-	
+
 	// check if we've finished parsing the HTTP message
 	if (rc == true) {
 		m_message_parse_state = PARSE_END;
 		finish(http_msg);
 	}
-	
+
 	return rc;
 }
 
@@ -261,7 +261,7 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 				m_query_string.push_back(*m_read_ptr);
 			}
 			break;
-			
+
 		case PARSE_HTTP_VERSION_H:
 			// parsing "HTTP"
 			if (*m_read_ptr != 'H') return false;
@@ -346,7 +346,7 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 			m_status_code = (*m_read_ptr - '0');
 			m_headers_parse_state = PARSE_STATUS_CODE;
 			break;
-			
+
 		case PARSE_STATUS_CODE:
 			// parsing the response status code (not first digit)
 			if (*m_read_ptr == ' ') {
@@ -358,7 +358,7 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 				return false;
 			}
 			break;
-			
+
 		case PARSE_STATUS_MESSAGE:
 			// parsing the response status message
 			if (*m_read_ptr == '\r') {
@@ -534,12 +534,12 @@ void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
 	if (isParsingRequest()) {
 
 		// finish an HTTP request message
-		
+
 		HTTPRequest& http_request(dynamic_cast<HTTPRequest&>(http_msg));
 		http_request.setMethod(m_method);
 		http_request.setResource(m_resource);
 		http_request.setQueryString(m_query_string);
-		
+
 		// parse query pairs from the URI query string
 		if (! m_query_string.empty()) {
 			if (! parseURLEncoded(http_request.getQueryParams(),
@@ -560,11 +560,11 @@ void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
 									cookie_iterator->second) )
 				PION_LOG_WARN(m_logger, "Cookie header parsing failed");
 		}
-		
+
 	} else {
-		
+
 		// finish an HTTP response message
-		
+
 		HTTPResponse& http_response(dynamic_cast<HTTPResponse&>(http_msg));
 		http_response.setStatusCode(m_status_code);
 		http_response.setStatusMessage(m_status_message);
@@ -574,28 +574,28 @@ void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
 boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 {
 	boost::tribool rc = boost::indeterminate;
-	
+
 	m_bytes_content_remaining = m_bytes_content_read = 0;
 	http_msg.setContentLength(0);
 	http_msg.updateTransferCodingUsingHeader();
 	updateMessageWithHeaderData(http_msg);
 
 	if (http_msg.isChunked()) {
-		
+
 		// content is encoded using chunks
 		m_message_parse_state = PARSE_CHUNKS;
-		
+
 	} else if (http_msg.isContentLengthImplied()) {
-		
+
 		// content length is implied to be zero
 		m_message_parse_state = PARSE_END;
 		rc = true;
-		
+
 	} else {
 		// content length should be specified in the headers
-		
+
 		if (http_msg.hasHeader(HTTPTypes::HEADER_CONTENT_LENGTH)) {
-			
+
 			// message has a content-length header
 			try {
 				http_msg.updateContentLengthUsingHeader();
@@ -603,7 +603,7 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 				PION_LOG_ERROR(m_logger, "Unable to update content length");
 				return false;
 			}
-		
+
 			// check if content-length header == 0
 			if (http_msg.getContentLength() == 0) {
 				m_message_parse_state = PARSE_END;
@@ -616,16 +616,16 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 				if (m_bytes_content_remaining > m_max_content_length)
 					http_msg.setContentLength(m_max_content_length);
 			}
-			
+
 		} else {
 			// no content-length specified, and the content length cannot 
 			// otherwise be determined
-			
+
 			// only if not a request, read through the close of the connection
 			if (! m_is_request) {
 				// clear the chunk buffers before we start
 				http_msg.getChunkCache().clear();
-				
+
 				// continue reading content until there is no more data
 				m_message_parse_state = PARSE_CONTENT_NO_LENGTH;
 			} else {
@@ -634,7 +634,7 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 			}
 		}
 	}
-	
+
 	// allocate a buffer for payload content (may be zero-size)
 	http_msg.createContentBuffer();
 
@@ -653,11 +653,11 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
 	const char * const end = ptr + len;
 	std::string query_name;
 	std::string query_value;
-	
+
 	// iterate through each encoded character
 	while (ptr < end) {
 		switch (parse_state) {
-		
+
 		case QUERY_PARSE_NAME:
 			// parsing query name
 			if (*ptr == '=') {
@@ -697,14 +697,14 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
 			}
 			break;
 		}
-		
+
 		++ptr;
 	}
-	
+
 	// handle last pair in string
 	if (! query_name.empty())
 		dict.insert( std::make_pair(query_name, query_value) );
-	
+
 	return true;
 }
 
@@ -720,17 +720,17 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 	enum CookieParseState {
 		COOKIE_PARSE_NAME, COOKIE_PARSE_VALUE, COOKIE_PARSE_IGNORE
 	} parse_state = COOKIE_PARSE_NAME;
-	
+
 	// misc other variables used for parsing
 	const char * const end = ptr + len;
 	std::string cookie_name;
 	std::string cookie_value;
 	char value_quote_character = '\0';
-	
+
 	// iterate through each character
 	while (ptr < end) {
 		switch (parse_state) {
-			
+
 		case COOKIE_PARSE_NAME:
 			// parsing cookie name
 			if (*ptr == '=') {
@@ -755,7 +755,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 				cookie_name.push_back(*ptr);
 			}
 			break;
-			
+
 		case COOKIE_PARSE_VALUE:
 			// parsing cookie value
 			if (value_quote_character == '\0') {
@@ -803,21 +803,21 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 				}
 			}
 			break;
-			
+
 		case COOKIE_PARSE_IGNORE:
 			// ignore everything until we reach a comma "," or semicolon ";"
 			if (*ptr == ';' || *ptr == ',')
 				parse_state = COOKIE_PARSE_NAME;
 			break;
 		}
-		
+
 		++ptr;
 	}
-	
+
 	// handle last cookie in string
 	if (! cookie_name.empty() && cookie_name[0] != '$')
 		dict.insert( std::make_pair(cookie_name, cookie_value) );
-	
+
 	return true;
 }
 
@@ -957,7 +957,7 @@ boost::tribool HTTPParser::consumeContent(HTTPMessage& http_msg)
 	size_t content_bytes_to_read;
 	size_t content_bytes_available = bytes_available();
 	boost::tribool rc = boost::indeterminate;
-	
+
 	if (m_bytes_content_remaining == 0) {
 		// we have all of the remaining payload content
 		return true;
@@ -972,7 +972,7 @@ boost::tribool HTTPParser::consumeContent(HTTPMessage& http_msg)
 		}
 		m_bytes_content_remaining -= content_bytes_to_read;
 	}
-	
+
 	// make sure content buffer is not already full
 	if (m_bytes_content_read < m_max_content_length) {
 		if (m_bytes_content_read + content_bytes_to_read > m_max_content_length) {
@@ -990,7 +990,7 @@ boost::tribool HTTPParser::consumeContent(HTTPMessage& http_msg)
 	m_bytes_content_read += content_bytes_to_read;
 	m_bytes_total_read += content_bytes_to_read;
 	m_bytes_last_read = content_bytes_to_read;
-	
+
 	return rc;
 }
 

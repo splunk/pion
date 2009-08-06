@@ -36,10 +36,10 @@ class PION_NET_API HTTPMessage
 	: public HTTPTypes
 {
 public:
-	
+
 	/// data type for I/O write buffers (these wrap existing data to be sent)
 	typedef std::vector<boost::asio::const_buffer>	WriteBuffers;
-	
+
 	/// used to cache chunked data
 	typedef std::vector<char>	ChunkCache;
 
@@ -62,7 +62,7 @@ public:
 			return result;
 		}
 	};
-		
+
 
 	/// constructs a new HTTP message object
 	HTTPMessage(void)
@@ -90,7 +90,7 @@ public:
 			memcpy(ptr, http_msg.m_content_buf.get(), m_content_length);
 		}
 	}
-	
+
 	/// assignment operator
 	inline HTTPMessage& operator=(const HTTPMessage& http_msg) {
 		m_first_line = http_msg.m_first_line;
@@ -126,13 +126,13 @@ public:
 		m_chunk_cache.clear();
 		m_headers.clear();
 	}
-	
+
 	/// should return true if the content length can be implied without headers
 	virtual bool isContentLengthImplied(void) const = 0;
-	
+
 	/// returns true if the message is valid
 	inline bool isValid(void) const { return m_is_valid; }
-	
+
 	/// returns true if chunked transfer encodings are supported
 	inline bool getChunksSupported(void) const { return m_chunks_supported; }
 
@@ -143,10 +143,10 @@ public:
 
 	/// returns the major HTTP version number
 	inline boost::uint16_t getVersionMajor(void) const { return m_version_major; }
-	
+
 	/// returns the minor HTTP version number
 	inline boost::uint16_t getVersionMinor(void) const { return m_version_minor; }
-	
+
 	/// returns a string representation of the HTTP version (i.e. "HTTP/1.1")
 	inline std::string getVersionString(void) const {
 		std::string http_version(STRING_HTTP_VERSION);
@@ -155,19 +155,19 @@ public:
 		http_version += boost::lexical_cast<std::string>(getVersionMinor());
 		return http_version;
 	}
-	
+
 	/// returns the length of the payload content (in bytes)
-	inline boost::uint64_t getContentLength(void) const { return m_content_length; }
+	inline std::size_t getContentLength(void) const { return m_content_length; }
 
 	/// returns true if the message content is chunked
 	inline bool isChunked(void) const { return m_is_chunked; }
-	
+
 	/// returns a pointer to the payload content, or NULL if there is none
 	inline char *getContent(void) { return m_content_buf.get(); }
-	
+
 	/// returns a const pointer to the payload content, or NULL if there is none
 	inline const char *getContent(void) const { return m_content_buf.get(); }
-	
+
 	/// returns a reference to the chunk cache
 	inline ChunkCache& getChunkCache(void) { return m_chunk_cache; }
 
@@ -175,31 +175,31 @@ public:
 	inline const std::string& getHeader(const std::string& key) const {
 		return getValue(m_headers, key);
 	}
-	
+
 	/// returns a reference to the HTTP headers
 	inline Headers& getHeaders(void) {
 		return m_headers;
 	}
-	
+
 	/// returns true if at least one value for the header is defined
 	inline bool hasHeader(const std::string& key) const {
 		return(m_headers.find(key) != m_headers.end());
 	}
-	
+
 	/// returns a string containing the first line for the HTTP message
 	inline const std::string& getFirstLine(void) const {
 		if (m_first_line.empty())
 			updateFirstLine();
 		return m_first_line;
 	}
-	
-	
+
+
 	/// sets whether or not the message is valid
 	inline void setIsValid(bool b = true) { m_is_valid = b; }
-	
+
 	/// set to true if chunked transfer encodings are supported
 	inline void setChunksSupported(bool b) { m_chunks_supported = b; }
-	
+
 	/// sets IP address of the remote endpoint
 	inline void setRemoteIp(const boost::asio::ip::address& ip) { m_remote_ip = ip; }
 
@@ -216,11 +216,11 @@ public:
 	}
 
 	/// sets the length of the payload content (in bytes)
-	inline void setContentLength(const boost::uint64_t n) { m_content_length = n; }
+	inline void setContentLength(const std::size_t n) { m_content_length = n; }
 
 	/// if called, the content-length will not be sent in the HTTP headers
 	inline void setDoNotSendContentLength(void) { m_do_not_send_content_length = true; }
-	
+
 	/// sets the length of the payload content using the Content-Length header
 	inline void updateContentLengthUsingHeader(void) {
 		Headers::const_iterator i = m_headers.find(HEADER_CONTENT_LENGTH);
@@ -229,10 +229,10 @@ public:
 		} else {
 			std::string trimmed_length(i->second);
 			boost::algorithm::trim(trimmed_length);
-			m_content_length = boost::lexical_cast<boost::uint64_t>(trimmed_length);
+			m_content_length = boost::lexical_cast<std::size_t>(trimmed_length);
 		}
 	}
-	
+
 	/// sets the transfer coding using the Transfer-Encoding header
 	inline void updateTransferCodingUsingHeader(void) {
 		m_is_chunked = false;
@@ -243,7 +243,7 @@ public:
 			// ignoring other possible values for now
 		}
 	}
-	
+
 	///creates a payload content buffer of size m_content_length and returns
 	/// a pointer to the new buffer (memory is managed by HTTPMessage class)
 	inline char *createContentBuffer(void) {
@@ -251,12 +251,12 @@ public:
 		m_content_buf[m_content_length] = '\0';
 		return m_content_buf.get();
 	}
-	
+
 	/// sets the content type for the message payload
 	inline void setContentType(const std::string& type) {
 		changeValue(m_headers, HEADER_CONTENT_TYPE, type);
 	}
-	
+
 	/// adds a value for the HTTP header named key
 	inline void addHeader(const std::string& key, const std::string& value) {
 		m_headers.insert(std::make_pair(key, value));
@@ -266,19 +266,19 @@ public:
 	inline void changeHeader(const std::string& key, const std::string& value) {
 		changeValue(m_headers, key, value);
 	}
-	
+
 	/// removes all values for the HTTP header named key
 	inline void deleteHeader(const std::string& key) {
 		deleteValue(m_headers, key);
 	}
-	
+
 	/// returns true if the HTTP connection may be kept alive
 	inline bool checkKeepAlive(void) const {
 		return (getHeader(HEADER_CONNECTION) != "close"
 				&& (getVersionMajor() > 1
 					|| (getVersionMajor() >= 1 && getVersionMinor() >= 1)) );
-	}	
-		
+	}
+
 	/**
 	 * initializes a vector of write buffers with the HTTP message information
 	 *
@@ -297,9 +297,9 @@ public:
 		write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
 		// append HTTP headers
 		appendHeaders(write_buffers);
-	}		
-	
-	
+	}
+
+
 	/**
 	 * sends the message over a TCP connection (blocks until finished)
 	 *
@@ -307,7 +307,7 @@ public:
 	 * @return std::size_t number of bytes written to the connection
 	 */
 	std::size_t send(TCPConnection& tcp_conn, boost::system::error_code& ec);
-	
+
 	/**
 	 * receives a new message from a TCP connection (blocks until finished)
 	 *
@@ -320,10 +320,10 @@ public:
 	 * pieces together all the received chunks
 	 */
 	void concatenateChunks(void);
-	
-	
+
+
 protected:
-	
+
 	/**
 	 * prepares HTTP headers for a send operation
 	 *
@@ -341,7 +341,7 @@ protected:
 			changeHeader(HEADER_CONTENT_LENGTH, boost::lexical_cast<std::string>(getContentLength()));
 		}
 	}
-	
+
 	/**
 	 * appends the message's HTTP headers to a vector of write buffers
 	 *
@@ -357,8 +357,8 @@ protected:
 		}
 		// add an extra CRLF to end HTTP headers
 		write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
-	}	
-	
+	}
+
 	/**
 	 * Returns the first value in a dictionary if key is found; or an empty
 	 * string if no values are found
@@ -408,7 +408,7 @@ protected:
 			}
 		}
 	}
-	
+
 	/**
 	 * Deletes all values for a key
 	 *
@@ -424,25 +424,25 @@ protected:
 		if (result_pair.first != dict.end())
 			dict.erase(result_pair.first, result_pair.second);
 	}
-	
+
 	/// erases the string containing the first line for the HTTP message
 	/// (it will be updated the next time getFirstLine() is called)
 	inline void clearFirstLine(void) const {
 		if (! m_first_line.empty())
 			m_first_line.clear();
 	}
-	
+
 	/// updates the string containing the first line for the HTTP message
 	virtual void updateFirstLine(void) const = 0;
-	
-	
+
+
 	/// first line sent in an HTTP message
 	/// (i.e. "GET / HTTP/1.1" for request, or "HTTP/1.1 200 OK" for response)
 	mutable std::string				m_first_line;
 
 
 private:
-	
+
 	/// Regex used to check for the "chunked" transfer encoding header
 	static const boost::regex		REGEX_ICASE_CHUNKED;
 
@@ -451,13 +451,13 @@ private:
 
 	/// whether the message body is chunked
 	bool							m_is_chunked;
-	
+
 	/// true if chunked transfer encodings are supported
 	bool							m_chunks_supported;
-	
+
 	/// if true, the content length will not be sent in the HTTP headers
 	bool							m_do_not_send_content_length;
-	
+
 	/// IP address of the remote endpoint
 	boost::asio::ip::address		m_remote_ip;
 
@@ -466,16 +466,16 @@ private:
 
 	/// HTTP major version number
 	boost::uint16_t					m_version_minor;
-	
+
 	/// the length of the payload content (in bytes)
-	boost::uint64_t					m_content_length;
+	std::size_t						m_content_length;
 
 	/// the payload content, if any was sent with the message
 	boost::scoped_array<char>		m_content_buf;
 
 	/// buffers for holding chunked data
 	ChunkCache						m_chunk_cache;
-	
+
 	/// HTTP message headers
 	Headers							m_headers;
 };
