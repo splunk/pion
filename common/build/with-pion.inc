@@ -12,11 +12,19 @@ AC_ARG_WITH([pion],
     [ pion_location=$withval ], [ pion_location="" ] )
 
 # Determine which directory to look in
-if test "x$pion_location" == "xyes"; then
-	pion_location="`pwd`/../pion-platform"
-elif test "x$pion_location" == "x"; then
-	pion_location="`pwd`/../pion-platform"
+if (test "x$pion_location" == "xyes") || (test "x$pion_location" == "x"); then
+	pion_location=""
+	if test `pwd | grep 'pion-.*-\(.*\)'`; then
+		pion_location=`pwd | sed 's,/$,,' | sed 's;pion-.*-\(.*\);pion-platform-\1;'`;
+		if ! test -r "$pion_location"; then
+			pion_location=""
+		fi
+	fi
+	if test "x$pion_location" == "x"; then
+		pion_location="`pwd | sed 's,/$,,' | sed 's,\(.*/\).*,\1pion-platform,'`"
+	fi
 fi
+PION_PLATFORM_PATH="$pion_location"
 
 # Check if the directory is a source code distribution (assumes that it is pre-built)
 if test -r "$pion_location/pion-platform.pc"; then
@@ -80,4 +88,5 @@ AC_SUBST(PION_LDLIBS)
 AC_SUBST(PION_LIBS)
 AC_SUBST(PION_SERVER_LIB)
 AC_SUBST(PION_SQLITE_LIB)
+AC_SUBST(PION_PLATFORM_PATH)
 
