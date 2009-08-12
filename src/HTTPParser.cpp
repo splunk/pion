@@ -671,6 +671,8 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
 					dict.insert( std::make_pair(query_name, query_value) );
 					query_name.erase();
 				}
+			} else if (*ptr == '\r' || *ptr == '\n') {
+				// ignore linefeeds and carriage returns (normally within POST content)
 			} else if (isControl(*ptr) || query_name.size() >= QUERY_NAME_MAX) {
 				// control character detected, or max sized exceeded
 				return false;
@@ -688,6 +690,8 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
 				query_name.erase();
 				query_value.erase();
 				parse_state = QUERY_PARSE_NAME;
+			} else if (*ptr == '\r' || *ptr == '\n') {
+				// ignore linefeeds and carriage returns (normally within POST content)
 			} else if (isControl(*ptr) || query_value.size() >= QUERY_VALUE_MAX) {
 				// control character detected, or max sized exceeded
 				return false;
