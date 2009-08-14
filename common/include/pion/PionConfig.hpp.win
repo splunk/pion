@@ -18,6 +18,7 @@
 #define PION_USE_LOG4CPLUS
 #define PION_HAVE_SSL
 #define PION_HAVE_JSON
+#define PION_HAVE_PYTHON
 #endif
 
 /* Define to the version number of pion. */
@@ -86,6 +87,10 @@
 /* If you have the `yajl' library installed, include PION_HAVE_JSON or PION_FULL
    in Preprocessor Definitions, or uncomment the following line, to use yajl. */
 //#define PION_HAVE_JSON
+
+/* If you have the `python' library installed, include PION_HAVE_PYTHON or PION_FULL
+   in Preprocessor Definitions, or uncomment the following line, to use python. */
+//#define PION_HAVE_PYTHON
 
 
 #ifdef _WIN32

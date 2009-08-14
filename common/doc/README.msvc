@@ -174,6 +174,24 @@ JSONCodec is only built in the Debug_DLL_full and Release_DLL_full
 configurations of pion-platform.sln.
 
 
+Python (optional):
+------------------
+
+Building PythonReactor requires python to be installed.
+
+A Windows installer is available at http://www.python.org/ftp/python/3.1/python-3.1.msi.
+Install it in the default location (or change PythonReactor.vcproj accordingly).
+Unfortunately, the installer doesn't include the debug version of the library, so you 
+will need to build python31_d yourself in order to build the debug version of PythonReactor.
+The source code is available at http://www.python.org/ftp/python/3.1/Python-3.1.tar.bz2:
+open pcbuild.sln, build the debug version of python.vcproj, then copy python31_d.lib to
+C:\Python31\libs and python31_d.dll to C:\Windows\SysWOW64 (or wherever the installer put
+python31.lib and python31.dll, respectively).
+
+PythonReactor is only built in the Debug_DLL_full and Release_DLL_full configurations of 
+pion-platform.sln.
+
+
 Additional libraries (required for PLATFORM build)
 --------------------------------------------------
 
