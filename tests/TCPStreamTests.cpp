@@ -45,7 +45,7 @@ public:
 	void acceptConnection(ConnectionHandler conn_handler) {
 		// configure the acceptor service
 		tcp::acceptor	tcp_acceptor(m_scheduler.getIOService());
-		tcp::endpoint	tcp_endpoint(tcp::v4(), 8080);
+		tcp::endpoint	tcp_endpoint(tcp::v4(), 0);
 		tcp_acceptor.open(tcp_endpoint.protocol());
 
 		// allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
@@ -58,6 +58,7 @@ public:
 			// wait for test thread to be waiting on the signal
 			boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
 			// trigger signal to wake test thread
+			m_port = tcp_acceptor.local_endpoint().port();
 			m_accept_ready.notify_one();
 		}
 
@@ -77,6 +78,9 @@ public:
 		str.flush();
 	}
 	
+	/// port where acceptor listens
+	int		m_port;
+
 	/// used to schedule work across multiple threads
 	PionSingleServiceScheduler		m_scheduler;
 
@@ -105,7 +109,7 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
 	// connect to the listener
 	TCPStream client_str(m_scheduler.getIOService());
 	boost::system::error_code ec;
-	ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
 	BOOST_REQUIRE(! ec);
 	
 	// get the hello message
@@ -162,7 +166,7 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
 	// connect to the listener
 	TCPStream client_str(m_scheduler.getIOService());
 	boost::system::error_code ec;
-	ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
 	BOOST_REQUIRE(! ec);
 	
 	// read the big buffer contents

@@ -37,7 +37,7 @@ public:
 	 *
 	 * @param tcp_port port number used to listen for new connections (IPv4)
 	 */
-	HelloServer(const unsigned int tcp_port) : pion::net::TCPServer(tcp_port) {}
+	HelloServer(const unsigned int tcp_port = 0) : pion::net::TCPServer(tcp_port) {}
 	
 	/**
 	 * handles a new TCP connection
@@ -104,7 +104,7 @@ class HelloServerTests_F {
 public:
 	// default constructor and destructor
 	HelloServerTests_F()
-		: hello_server_ptr(new HelloServer(8080))
+		: hello_server_ptr(new HelloServer)
 	{
 		// start the HTTP server
 		hello_server_ptr->start();
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(checkNumberOfActiveServerConnections) {
 	checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(0));
 
 	// open a connection
-	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	tcp::iostream tcp_stream_a(localhost);
 	// we need to wait for the server to accept the connection since it happens
 	// in another thread.  This should always take less than one second.
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(checkNumberOfActiveServerConnections) {
 
 BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
 	// open a connection
-	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	tcp::iostream tcp_stream_a(localhost);
 
 	// read greeting from the server
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
 
 BOOST_AUTO_TEST_CASE(checkServerExceptionsGetCaught) {
 	// open a connection
-	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	tcp::iostream tcp_stream_a(localhost);
 
 	// read greeting from the server
@@ -244,7 +244,7 @@ public:
 	 * @param scheduler the PionScheduler that will be used to manage worker threads
 	 * @param tcp_port port number used to listen for new connections (IPv4)
 	 */
-	MockSyncServer(PionScheduler& scheduler, const unsigned int tcp_port)
+	MockSyncServer(PionScheduler& scheduler, const unsigned int tcp_port = 0)
 		: pion::net::TCPServer(scheduler, tcp_port) {}
 	
 	virtual ~MockSyncServer() {}
@@ -301,7 +301,7 @@ private:
 class MockSyncServerTests_F {
 public:
 	MockSyncServerTests_F()
-		: m_scheduler(), m_sync_server_ptr(new MockSyncServer(m_scheduler, 8080))
+		: m_scheduler(), m_sync_server_ptr(new MockSyncServer(m_scheduler))
 	{
 		m_sync_server_ptr->start();
 	}
@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE(checkMockSyncServerIsListening) {
 
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingStream) {
 	// open a connection
-	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	tcp::iostream tcp_stream(localhost);
 
 	// set expectations for received request
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingStream) {
 
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingChunkedStream) {
 	// open a connection
-	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	tcp::iostream tcp_stream(localhost);
 
 	// set expectations for received request
@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingChunkedStream) {
 
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingExtraWhiteSpaceAroundChunkSizes) {
 	// open a connection
-	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	tcp::iostream tcp_stream(localhost);
 
 	// set expectations for received request
@@ -424,7 +424,7 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
 	// open a connection
 	TCPConnection tcp_conn(getIOService());
 	boost::system::error_code error_code;
-	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	BOOST_REQUIRE(!error_code);
 
 	std::map<std::string, std::string> expectedHeaders;
@@ -454,7 +454,7 @@ bool queryKeyXHasValueY(HTTPRequest& http_request) {
 
 BOOST_AUTO_TEST_CASE(checkQueryOfReceivedRequestParsed) {
 	// open a connection
-	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	tcp::iostream tcp_stream(localhost);
 
 	// set expectations for received request
@@ -474,7 +474,7 @@ BOOST_AUTO_TEST_CASE(checkQueryOfReceivedRequestParsed) {
 
 BOOST_AUTO_TEST_CASE(checkUrlEncodedQueryInPostContentParsed) {
 	// open a connection
-	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	tcp::iostream tcp_stream(localhost);
 
 	// set expectations for received request
@@ -505,7 +505,7 @@ bool charsetIsEcmaCyrillic(HTTPRequest& http_request) {
 
 BOOST_AUTO_TEST_CASE(checkCharsetOfReceivedRequest) {
 	// open a connection
-	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
 	tcp::iostream tcp_stream(localhost);
 
 	// set expectations for received request

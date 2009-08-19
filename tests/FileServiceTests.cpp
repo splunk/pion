@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 class NewlyLoadedFileService_F {
 public:
-	NewlyLoadedFileService_F() : m_scheduler(), m_server(m_scheduler, 8080) {
+	NewlyLoadedFileService_F() : m_scheduler(), m_server(m_scheduler) {
 		PionPlugin::resetPluginDirectories();
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
 
@@ -172,7 +172,7 @@ public:
 		m_server.start();
 
 		// open a connection
-		tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+		tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
 		m_http_stream.connect(http_endpoint);
 	}
 	~RunningFileService_F() {
@@ -656,7 +656,7 @@ BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
 	// open (another) connection
 	TCPConnection tcp_conn(getIOService());
 	boost::system::error_code error_code;
-	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), 8080);
+	error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
 	BOOST_REQUIRE(!error_code);
 
 	// send request to the server

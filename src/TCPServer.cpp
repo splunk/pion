@@ -88,6 +88,10 @@ void TCPServer::start(void)
 			// allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
 			m_tcp_acceptor.set_option(tcp::acceptor::reuse_address(true));
 			m_tcp_acceptor.bind(m_endpoint);
+			if (m_endpoint.port() == 0) {
+				// update the endpoint to reflect the port chosen by bind
+				m_endpoint = m_tcp_acceptor.local_endpoint();
+			}
 			m_tcp_acceptor.listen();
 		} catch (std::exception& e) {
 			PION_LOG_ERROR(m_logger, "Unable to bind to port " << getPort() << ": " << e.what());
