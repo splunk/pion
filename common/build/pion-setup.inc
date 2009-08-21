@@ -142,9 +142,9 @@ AC_ARG_WITH([plugins],
     [with_plugins=no])
 if test "$with_plugins" = "no"; then
 	if test "x$prefix" = "xNONE"; then
-		PION_PLUGINS_DIRECTORY=/usr/local/lib/pion/plugins
+		PION_PLUGINS_DIRECTORY=/usr/local/share/pion/plugins
 	else
-		PION_PLUGINS_DIRECTORY=${prefix}/lib/pion/plugins
+		PION_PLUGINS_DIRECTORY=${prefix}/share/pion/plugins
 	fi
 else
 	PION_PLUGINS_DIRECTORY=$with_plugins
