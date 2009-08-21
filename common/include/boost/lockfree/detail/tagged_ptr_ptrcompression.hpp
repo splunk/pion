@@ -62,6 +62,8 @@ private:
     }
 
 public:
+    static const bool is_lockfree = boost::lockfree::atomic_cas<compressed_ptr_t>::is_lockfree;
+
     /** uninitialized constructor */
     tagged_ptr(void)//: ptr(0), tag(0)
     {}
@@ -153,7 +155,7 @@ public:
 private:
     bool cas(compressed_ptr_t const & oldval, compressed_ptr_t const & newval)
     {
-        return boost::lockfree::atomic_cas(&(this->ptr), oldval, newval);
+        return boost::lockfree::atomic_cas<compressed_ptr_t>::cas(&(this->ptr), oldval, newval);
     }
 
 public:
@@ -166,7 +168,7 @@ public:
     bool cas(tagged_ptr const & oldval, T * newptr, tag_t t)
     {
         compressed_ptr_t new_compressed_ptr = pack_ptr(newptr, t);
-        return boost::lockfree::atomic_cas(&(this->ptr), oldval.ptr, new_compressed_ptr);
+        return boost::lockfree::atomic_cas<compressed_ptr_t>::cas(&(this->ptr), oldval.ptr, new_compressed_ptr);
     }
     /* @} */
 

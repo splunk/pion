@@ -186,7 +186,8 @@ else
 	CPPFLAGS_SAVED="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS -I$PION_COMMON_HOME/include"
 	AC_TRY_LINK([#include <boost/lockfree/detail/tagged_ptr.hpp>],
-		[ 
+		[
+		BOOST_STATIC_ASSERT(boost::lockfree::tagged_ptr<int>::is_lockfree);
 		boost::lockfree::tagged_ptr<int> ptr_a(NULL);
 		boost::lockfree::tagged_ptr<int> ptr_b = ptr_a;
 		int * ptr_c = NULL;

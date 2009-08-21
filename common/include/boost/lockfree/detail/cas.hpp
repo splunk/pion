@@ -10,20 +10,37 @@
 #define BOOST_LOCKFREE_CAS_HPP_INCLUDED
 
 #include <boost/lockfree/detail/prefix.hpp>
+#include <boost/interprocess/detail/atomic.hpp>
 #include <boost/detail/lightweight_mutex.hpp>
 #include <boost/static_assert.hpp>
 
 #include <boost/cstdint.hpp>
+
+#include <boost/mpl/map.hpp>
+#include <boost/mpl/at.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/long.hpp>
+
+#ifdef __SSE2__
+#include "emmintrin.h"
+#endif
 
 namespace boost
 {
 namespace lockfree
 {
 
-inline void memory_barrier()
+inline void memory_barrier(void)
 {
-#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) ) || defined(__INTEL_COMPILER)
+#if defined(__SSE2__)
+    _mm_mfence();
+
+#elif defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) &&      \
+                                                (__GNUC_MINOR__ >= 1))) \
+    || defined(__INTEL_COMPILER)
     __sync_synchronize();
+#elif defined(__GNUC__) && defined (__i386__)
+    asm volatile("lock; addl $0,0(%%esp)":::"memory");
 #elif defined(_MSC_VER) && (_MSC_VER >= 1300)
     _ReadWriteBarrier();
 #elif defined(__APPLE__)
@@ -35,202 +52,171 @@ inline void memory_barrier()
 #endif
 }
 
-template <typename C>
-inline bool atomic_cas_emulation(volatile C * addr, C old, C nw)
+inline void read_memory_barrier(void)
 {
-    static boost::detail::lightweight_mutex guard;
-    boost::detail::lightweight_mutex::scoped_lock lock(guard);
+#if defined(__SSE2__)
+    _mm_lfence();
+#else
+    memory_barrier();
+#endif
+}
 
-    if (*addr == old)
+template <typename C>
+struct atomic_cas_emulator
+{
+    static inline bool cas(C * addr, C old, C nw)
     {
-        *addr = nw;
-        return true;
+        static boost::detail::lightweight_mutex guard;
+        boost::detail::lightweight_mutex::scoped_lock lock(guard);
+
+        if (*addr == old)
+        {
+            *addr = nw;
+            return true;
+        }
+        else
+            return false;
     }
-    else
-        return false;
+
+    typedef C cas_type;
+};
+
+
+template <typename C>
+inline bool atomic_cas_emulation(C * addr, C old, C nw)
+{
+    return atomic_cas_emulator<C>::cas(addr, old, nw);
 }
 
 using boost::uint32_t;
 using boost::uint64_t;
 
-inline bool atomic_cas32(volatile uint32_t *  addr, uint32_t old, uint32_t nw)
+struct atomic_cas32
 {
+    static inline bool cas(volatile uint32_t * addr,
+                           uint64_t const & old,
+                           uint64_t const & nw)
+    {
 #if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) ) || defined(__INTEL_COMPILER)
-    return __sync_bool_compare_and_swap(addr, old, nw);
+        return __sync_bool_compare_and_swap(addr, old, nw);
 #else
-    return boost::interprocess::detail::atomic_cas32(addr, old, nw) == old;
+        return boost::interprocess::detail::atomic_cas32(addr, old, nw) == old;
 #endif
-}
+    }
+    typedef uint32_t cas_type;
 
-inline bool atomic_cas64(volatile uint64_t * addr, uint64_t old, uint64_t nw)
+    static const bool is_lockfree = true;
+};
+
+struct atomic_cas64
 {
-#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) ) || defined(__INTEL_COMPILER)
-    return __sync_bool_compare_and_swap(addr, old, nw);
+    typedef uint64_t cas_type;
+
+    static inline bool cas(volatile uint64_t * addr,
+                           uint64_t const & old,
+                           uint64_t const & nw)
+    {
+#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 1)) ) || defined(__INTEL_COMPILER)
+        return __sync_bool_compare_and_swap(addr, old, nw);
 #elif defined(_M_IX86)
-    return InterlockedCompareExchange(reinterpret_cast<volatile LONG*>(addr),
-                                      reinterpret_cast<LONG>(nw),
-                                      reinterpret_cast<LONG>(old)) == old;
+        return InterlockedCompareExchange(reinterpret_cast<volatile LONG*>(addr),
+                                          reinterpret_cast<LONG>(nw),
+                                          reinterpret_cast<LONG>(old)) == old;
 #elif defined(_M_X64)
-    return InterlockedCompareExchange(reinterpret_cast<volatile LONG*>(addr),
-                                      reinterpret_cast<LONG>(nw),
-                                      reinterpret_cast<LONG>(old)) == old;
+        return InterlockedCompareExchange(reinterpret_cast<volatile LONG*>(addr),
+                                          reinterpret_cast<LONG>(nw),
+                                          reinterpret_cast<LONG>(old)) == old;
 #else
+#define CAS_BLOCKING
 #warning ("blocking CAS emulation")
-    return atomic_cas_emulation(addr, old, nw);
+        return atomic_cas_emulation((uint64_t *)addr, old, nw);
 #endif
-}
-
-template <class C>
-inline bool atomic_cas(volatile C * addr, C old, C nw)
-{
-    if (sizeof(C) == 4)
-        return atomic_cas32((volatile uint32_t *)addr, (uint32_t)old, (uint32_t)nw);
-    else if (sizeof(C) == 8)
-        return atomic_cas64((volatile uint64_t *)addr, (uint64_t)old, (uint64_t)nw);
-    else
-        return atomic_cas_emulation(addr, old, nw);
-}
-
-
-template <class C, class D, class E>
-inline bool atomic_cas2(volatile C * addr, D old1, E old2, D new1, E new2)
-{
-#if defined(__GNUC__) && ((__GNUC__ >  4) || ( (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 2) ) ) && defined(__i386__) && \
-    (defined(__i686__) || defined(__pentiumpro__) || defined(__nocona__ ) || \
-     defined (__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8))
-
-    struct packed_c
-    {
-        D d;
-        E e;
-    };
-
-    union cu
-    {
-        packed_c c;
-        long long l;
-    };
-
-    cu old;
-    old.c.d = old1;
-    old.c.e = old2;
-
-    cu nw;
-    nw.c.d = new1;
-    nw.c.e = new2;
-
-    return __sync_bool_compare_and_swap_8(reinterpret_cast<volatile long long*>(addr),
-                                          old.l,
-                                          nw.l);
-#elif defined(_M_IX86)
-    bool ok;
-    __asm {
-        mov eax,[old1]
-            mov edx,[old2]
-            mov ebx,[new1]
-            mov ecx,[new2]
-            mov edi,[addr]
-            lock cmpxchg8b [edi]
-            setz [ok]
-            }
-    return ok;
-#elif defined(__GNUC__) && (defined(__i686__) || defined(__pentiumpro__) || defined(__nocona__ ))
-    char result;
-#ifndef __PIC__
-    __asm__ __volatile__("lock; cmpxchg8b %0; setz %1"
-                         : "=m"(*addr), "=q"(result)
-                         : "m"(*addr), "d" (old1), "a" (old2),
-                           "c" (new1), "b" (new2) : "memory");
-#else
-    __asm__ __volatile__("push %%ebx; movl %6,%%ebx; lock; cmpxchg8b %0; setz %1; pop %%ebx"
-                         : "=m"(*addr), "=q"(result)
-                         : "m"(*addr), "d" (old1), "a" (old2),
-                           "c" (new1), "m" (new2) : "memory");
-#endif
-    return result != 0;
-#elif defined(AO_HAVE_double_compare_and_swap_full)
-    if (sizeof(D) != sizeof(AO_t) || sizeof(E) != sizeof(AO_t)) {
-        assert(false);
-        return false;
     }
 
-    return AO_compare_double_and_swap_double_full(
-        reinterpret_cast<volatile AO_double_t*>(addr),
-        static_cast<AO_t>(old2),
-        reinterpret_cast<AO_t>(old1),
-        static_cast<AO_t>(new2),
-        reinterpret_cast<AO_t>(new1)
-        );
-
-#elif defined(__GNUC__) && defined(__x86_64__) &&                       \
-    ( __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16 ) ||                          \
-    ( (__GNUC__ >  4) || ( (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 2) ) && defined(__nocona__ ))
-
-    struct packed_c
-    {
-        long d;
-        long e;
-    };
-
-    typedef int TItype __attribute__ ((mode (TI)));
-
-    BOOST_STATIC_ASSERT(sizeof(packed_c) == sizeof(TItype));
-
-    union cu
-    {
-        packed_c c;
-        TItype l;
-    };
-
-    cu old;
-    old.c.d = (long)old1;
-    old.c.e = (long)old2;
-
-    cu nw;
-    nw.c.d = (long)new1;
-    nw.c.e = (long)new2;
-
-    return __sync_bool_compare_and_swap_16(reinterpret_cast<volatile TItype*>(addr),
-                                           old.l,
-                                           nw.l);
-
-#elif defined(__GNUC__) && defined(__x86_64__)
-    /* handcoded asm, will crash on early amd processors */
-    char result;
-    __asm__ __volatile__("lock; cmpxchg16b %0; setz %1"
-                         : "=m"(*addr), "=q"(result)
-                         : "m"(*addr), "d" (old2), "a" (old1),
-                           "c" (new2), "b" (new1) : "memory");
-    return result != 0;
+#ifdef CAS_BLOCKING
+#undef CAS_BLOCKING
+    static const bool is_lockfree = false;
 #else
+    static const bool is_lockfree = true;
+#endif
+};
 
-#ifdef _MSC_VER
-#pragma message ("blocking CAS2 emulation")
+struct atomic_cas128
+{
+#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
+    typedef int cas_type __attribute__ ((mode (TI)));
 #else
-#warning ("blocking CAS2 emulation")
+    struct cas_type
+    {
+        bool operator==(cas_type const & rhs)
+        {
+            return (data[0] == rhs.data[0]) &&
+                (data[1] == rhs.data[1]);
+        }
+
+        uint64_t data[2];
+    };
 #endif
 
-    struct packed_c
+    static inline bool cas(volatile cas_type * addr, cas_type const & old, cas_type const & nw)
     {
-        D d;
-        E e;
-    };
-
-    volatile packed_c * packed_addr = reinterpret_cast<volatile packed_c*>(addr);
-
-    static boost::detail::lightweight_mutex guard;
-    boost::detail::lightweight_mutex::scoped_lock lock(guard);
-
-    if (packed_addr->d == old1 &&
-        packed_addr->e == old2)
-    {
-        packed_addr->d = new1;
-        packed_addr->e = new2;
-        return true;
+#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
+        return __sync_bool_compare_and_swap_16(addr, old, nw);
+#else
+#define CAS_BLOCKING
+//#warning ("blocking CAS emulation")
+        return atomic_cas_emulation((cas_type*)addr, old, nw);
+#endif
     }
-    else
-        return false;
+
+#ifdef CAS_BLOCKING
+#undef CAS_BLOCKING
+    static const bool is_lockfree = false;
+#else
+    static const bool is_lockfree = true;
 #endif
+};
+
+namespace detail
+{
+using namespace boost::mpl;
+
+template<typename C>
+struct atomic_cas
+{
+private:
+    typedef map3<pair<long_<4>, atomic_cas32>,
+        pair<long_<8>, atomic_cas64>,
+        pair<long_<16>, atomic_cas128>
+        > cas_map;
+
+    typedef typename at<cas_map, long_<sizeof(C)> >::type atomic_cas_t;
+
+    typedef typename if_<has_key<cas_map, long_<sizeof(C)> >,
+        atomic_cas_t,
+        atomic_cas_emulator<C> >::type cas_t;
+
+    typedef typename cas_t::cas_type cas_value_t;
+
+public:
+    static inline bool cas(volatile C * addr, C const & old, C const & nw)
+    {
+        return cas_t::cas((volatile cas_value_t*)addr,
+                          *(cas_value_t*)&old,
+                          *(cas_value_t*)&nw);
+    }
+
+    static const bool is_lockfree = cas_t::is_lockfree;
+};
+
+} /* namespace detail */
+
+using detail::atomic_cas;
+
+template <typename C>
+inline bool cas(volatile C * addr, C const & old, C const & nw)
+{
+    return atomic_cas<C>::cas(addr, old, nw);
 }
 
 } /* namespace lockfree */

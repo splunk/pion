@@ -43,6 +43,8 @@ class fifo:
 
     struct BOOST_LOCKFREE_CACHELINE_ALIGNMENT node
     {
+        typedef tagged_ptr<node> tagged_ptr_t;
+
         node(T const & v):
             data(v)
         {
@@ -53,7 +55,7 @@ class fifo:
             next(NULL)
         {}
 
-        tagged_ptr<node> next;
+        tagged_ptr_t next;
         T data;
     };
 
@@ -68,6 +70,8 @@ class fifo:
                                      >::type pool_t;
 
 public:
+    static const bool is_lockfree = node::tagged_ptr_t::is_lockfree;
+
     fifo(void):
         pool(128)
     {
@@ -105,9 +109,8 @@ public:
         for (;;)
         {
             atomic_node_ptr tail (tail_);
-            memory_barrier();
+            read_memory_barrier();
             atomic_node_ptr next (tail->next);
-            memory_barrier();
 
             if (likely(tail == tail_))
             {
@@ -130,11 +133,10 @@ public:
         for (;;)
         {
             atomic_node_ptr head (head_);
-            memory_barrier();
+            read_memory_barrier();
 
             atomic_node_ptr tail(tail_);
             node * next = head->next.get_ptr();
-            memory_barrier();
 
             if (likely(head == head_))
             {
@@ -181,7 +183,11 @@ private:
     }
 
     atomic_node_ptr head_;
-    atomic_node_ptr BOOST_LOCKFREE_CACHELINE_ALIGNMENT tail_; /* force head_ and tail_ to different cache lines! */
+    static const int padding_size = 64 - sizeof(atomic_node_ptr); /* cache lines on current cpus seem to
+                                                                   * be 64 byte */
+    char padding1[padding_size];
+    atomic_node_ptr tail_;
+    char padding2[padding_size];
 
     pool_t pool;
 };

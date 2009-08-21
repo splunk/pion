@@ -27,6 +27,8 @@ class BOOST_LOCKFREE_DCAS_ALIGNMENT tagged_ptr
 public:
     typedef std::size_t tag_t;
 
+    static const bool is_lockfree = boost::lockfree::atomic_cas<tagged_ptr>::is_lockfree;
+
     /** uninitialized constructor */
     tagged_ptr(void)//: ptr(0), tag(0)
     {}
@@ -45,7 +47,7 @@ public:
     /* @{ */
     void operator= (tagged_ptr const & p)
     {
-        atomic_set(p);
+        set(p);
     }
 
     void atomic_set(tagged_ptr const & p)
@@ -130,12 +132,13 @@ public:
     /* @{ */
     bool cas(tagged_ptr const & oldval, T * newptr)
     {
-        return boost::lockfree::atomic_cas2(this, oldval.ptr, oldval.tag, newptr, oldval.tag + 1);
+        return cas(oldval, newptr, oldval.tag + 1);
     }
 
     bool cas(tagged_ptr const & oldval, T * newptr, tag_t t)
     {
-        return boost::lockfree::atomic_cas2(this, oldval.ptr, oldval.tag, newptr, t);
+        tagged_ptr newval(newptr, t);
+        return boost::lockfree::atomic_cas<tagged_ptr>::cas(this, oldval, newval);
     }
     /* @} */
 

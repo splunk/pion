@@ -51,6 +51,8 @@ class stack:
                                      >::type pool_t;
 
 public:
+    static const bool is_lockfree = node::tagged_ptr::is_lockfree;
+
     stack(void):
         tos(NULL), pool(128)
     {}
@@ -118,6 +120,11 @@ private:
     }
 
     ptr_type tos;
+
+    static const int padding_size = 64 - sizeof(ptr_type); /* cache lines on current cpus seem to
+                                                            * be 64 byte */
+    char padding[padding_size];
+
     pool_t pool;
 };
 
