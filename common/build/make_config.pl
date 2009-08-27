@@ -44,7 +44,7 @@ for ($n = 2; $n <= $#ARGV; ++$n) {
 }
 
 # clear out old files and directories at destination
-@oldfiles = bsd_glob($DESTDIR . "*");
+@oldfiles = bsd_glob($DESTDIR . "/*");
 foreach (@oldfiles) {
 	rmtree($_);
 }
