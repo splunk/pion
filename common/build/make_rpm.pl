@@ -137,7 +137,8 @@ install -m 775 $BIN_SRC_BASE/pion.service \$RPM_BUILD_ROOT/etc/rc.d/init.d/pion
 install -s $BIN_SRC_BASE/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins
 install -s $BIN_SRC_BASE/libs/* \$RPM_BUILD_ROOT/usr/lib
 install -s $BIN_SRC_BASE/pion \$RPM_BUILD_ROOT/usr/bin/pion
-install -s $BIN_SRC_BASE/pget \$RPM_BUILD_ROOT/usr/bin/pget
+install -s $BIN_SRC_BASE/pget.py \$RPM_BUILD_ROOT/usr/bin/pget.py
+install -s $BIN_SRC_BASE/pmon.py \$RPM_BUILD_ROOT/usr/bin/pmon.py
 cp -r $BIN_SRC_BASE/ui/* \$RPM_BUILD_ROOT/usr/share/pion/ui
 
 
@@ -156,7 +157,8 @@ rm -rf \$RPM_BUILD_ROOT
 
 \%defattr(755,root,root)
 /usr/bin/pion
-/usr/bin/pget
+/usr/bin/pget.py
+/usr/bin/pmon.py
 
 \%defattr(-,root,root)
 /var/log/pion
