@@ -3,10 +3,12 @@
 # make_rpm.pl: script for building pion rpm packages
 # --------------------------------------------------
 
+use Cwd;
 use File::Spec;
 use File::Path;
 use File::Copy;
 use File::Glob ':glob';
+
 # include perl source with common subroutines
 require File::Spec->catfile( ("common", "build"), "common.pl");
 
@@ -197,7 +199,22 @@ copyDirWithoutDotFiles($PACKAGE_DIR, $BIN_SRC_DIR);
 if ($EDITION eq "community") {
 	copyDirWithoutDotFiles("platform/build/rpm", $BIN_SRC_DIR);
 } else {
-	copyDirWithoutDotFiles("../pion-platform/platform/build/rpm", $BIN_SRC_DIR);
+	# find the pion-platform directory
+	$_ = getcwd();
+	if (/pion-[^-]+-/) {
+		s,/$,,;
+		s,\\$,,;
+		s,pion-[^-]+-(.*),pion-platform-$1,;
+		if (-d $_) {
+			$PION_PLATFORM_DIR = $_;
+		} else {
+			$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-platform") );
+		}
+	} else {
+		$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-platform") );
+	}
+	die("Could not find pion-platform directory: $PION_PLATFORM_DIR") if (! -d $PION_PLATFORM_DIR);
+	copyDirWithoutDotFiles($PION_PLATFORM_DIR . "/platform/build/rpm", $BIN_SRC_DIR);
 	copyDirWithoutDotFiles("enterprise/build/rpm", $BIN_SRC_DIR);
 }
 
