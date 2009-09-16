@@ -18,7 +18,8 @@ require File::Spec->catfile( ("common", "build"), "common.pl");
 # -----------------------------------
 
 # check command line parameters
-die("usage: make_rpm.pl <VERSION> <RELEASE.ARCH>") if ($#ARGV != 1);
+die("usage: make_rpm.pl <VERSION> <RELEASE.ARCH> [--nostrip]")
+	if ($#ARGV < 1 || $#ARGV > 2 || ($#ARGV == 2 && $ARGV[2] ne "--nostrip"));
 
 # must be run as root
 die("This script must be run as root!") if $>!=0;
@@ -26,6 +27,15 @@ die("This script must be run as root!") if $>!=0;
 # set some global variables
 $VERSION = $ARGV[0];
 $RELEASE = $ARGV[1];
+
+# check for --nostrip option
+if ($ARGV[2] eq "--nostrip") {
+	$INSTALL_BIN = 'install';
+	$SPEC_OPTIONS = '%define __os_install_post %{nil}';
+} else {
+	$INSTALL_BIN = 'install -s';
+	$SPEC_OPTIONS = '';
+}
 
 # check validity of RELEASE parameter
 die("Second parameter must be format <RELEASE.ARCH> (i.e. \"1.el5\")")
@@ -136,9 +146,9 @@ install -m 660 $BIN_SRC_BASE/config/$config_file_glob \$RPM_BUILD_ROOT/etc/pion
 $install_perl_scripts
 install -m 660 $BIN_SRC_BASE/config/vocabularies/*.xml \$RPM_BUILD_ROOT/etc/pion/vocabularies
 install -m 775 $BIN_SRC_BASE/pion.service \$RPM_BUILD_ROOT/etc/rc.d/init.d/pion
-install -s $BIN_SRC_BASE/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins
-install -s $BIN_SRC_BASE/libs/* \$RPM_BUILD_ROOT/usr/lib
-install -s $BIN_SRC_BASE/pion \$RPM_BUILD_ROOT/usr/bin/pion
+$INSTALL_BIN $BIN_SRC_BASE/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins
+$INSTALL_BIN $BIN_SRC_BASE/libs/* \$RPM_BUILD_ROOT/usr/lib
+$INSTALL_BIN $BIN_SRC_BASE/pion \$RPM_BUILD_ROOT/usr/bin/pion
 install $BIN_SRC_BASE/pget.py \$RPM_BUILD_ROOT/usr/bin/pget.py
 install $BIN_SRC_BASE/pmon.py \$RPM_BUILD_ROOT/usr/bin/pmon.py
 cp -r $BIN_SRC_BASE/ui/* \$RPM_BUILD_ROOT/usr/share/pion/ui
@@ -146,6 +156,10 @@ cp -r $BIN_SRC_BASE/ui/* \$RPM_BUILD_ROOT/usr/share/pion/ui
 
 \%clean
 rm -rf \$RPM_BUILD_ROOT
+
+
+%define debug_package %{nil}
+$SPEC_OPTIONS
 
 
 \%files

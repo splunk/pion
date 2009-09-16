@@ -77,8 +77,8 @@ case "$build_os" in
 	# Other (Linux): GCC compiler
 	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT"
 	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
-	PION_OPT_FLAGS="-O2 -Wall -Wno-strict-aliasing -DNDEBUG"
-	PION_DEBUG_FLAGS="-ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
+	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
+	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
 	PION_EXTERNAL_LIBS="-ldl"
 	;;
 esac
