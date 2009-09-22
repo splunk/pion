@@ -85,23 +85,27 @@ your favorite package manager:
 # apt-get install libxml2 libxml2-devel
 
 
-Installing OSSP uuid:
----------------------
+Installing Python:
+------------------
 
-The Pion Platform requires the OSSP uuid library to generate universally 
-unique identifiers for most platforms, including Linux.  This library is 
-not used by the Pion Network Library, so you may skip this step if you 
-are only building the Network Library.
+Pion's PythonReactor requires Python version 2.4 or greater.  This is already
+pre-installed and should work out of the box on most Linux systems.  One
+exception is RHEL/CentOS 4 (or earlier), which shipped with Python 2.3.  For
+this platform, we recommend that you download, build and install Python 2.6
+into your /usr/local directories.  You can download the source code from:
 
-You can download the source code tarball for the uuid library from the 
-"Third Party Libraries" page on our website.  After downloading it, just 
-run:
+http://www.python.org
 
-# tar xvfz uuid-<version>.tar.gz
-# cd uuid-<version>
-# ./configure
+# tar xvfj Python-2.6.X.tar.bz2
+# cd Python-2.6.X
+# ./configure --with-threads
 # make all
 # make install
+
+When you run the "configure" script for Pion, add the "--with-python" option
+to use the new version installed in /usr/local/bin instead of the default one:
+
+# ./configure --with-python=/usr/local/bin/python
 
 
 Installing YAJL:
