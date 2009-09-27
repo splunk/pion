@@ -48,7 +48,6 @@ versions:
 
 # yum install openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
 # up2date openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
-# apt-get install openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
 
 
 Installing log4cplus:
@@ -82,17 +81,24 @@ your favorite package manager:
 
 # yum install libxml2 libxml2-devel
 # up2date libxml2 libxml2-devel
-# apt-get install libxml2 libxml2-devel
 
 
 Installing Python:
 ------------------
 
-Pion's PythonReactor requires Python version 2.4 or greater.  This is already
-pre-installed and should work out of the box on most Linux systems.  One
-exception is RHEL/CentOS 4 (or earlier), which shipped with Python 2.3.  For
-this platform, we recommend that you download, build and install Python 2.6
-into your /usr/local directories.  You can download the source code from:
+Pion's PythonReactor requires Python version 2.4 or greater.  You may skip this
+step if you do not want to build support for Python.
+
+Python 2.4 (or greater) is already pre-installed and should work out of the box
+on most Linux systems.  If you do not have it already, you should be able to
+grab the latest version using your favorite package manager:
+
+# yum install python python-devel
+# up2date python python-devel
+
+RHEL/CentOS 4 shipped with Python 2.3.  For this platform, we recommend that
+you download, build and install Python 2.6 into your /usr/local directories.
+You can download the source code from:
 
 http://www.python.org
 
@@ -121,7 +127,6 @@ versions using your favorite package manager:
 
 # yum install ruby cmake
 # up2date ruby cmake
-# apt-get install ruby cmake
 
 You can download the source code tarball for YAJL from the "Third Party
 Libraries" page on our website.  After downloading it, just run:

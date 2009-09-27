@@ -34,6 +34,19 @@ tarball for log4cplus.  Then, just run:
 # make install
 
 
+Installing Python:
+------------------
+
+Pion's PythonReactor requires Python version 2.4 or greater.  You may skip this
+step if you do not want to build support for Python.
+
+Python 2.4 (or greater) is already pre-installed and should work out of the box
+on most Linux systems.  If you do not have it already, you should be able to
+grab the latest version using your favorite package manager:
+
+# apt-get install python python-dev
+
+
 Installing YAJL:
 ----------------
 
