@@ -43,11 +43,18 @@ public:
 			: PionException("Plug-in directory not found: ", dir) {}
 	};
 
-	/// exception thrown if the plug-in file cannot be opened
+	/// exception thrown if the plug-in file cannot be found
 	class PluginNotFoundException : public PionException {
 	public:
 		PluginNotFoundException(const std::string& file)
 			: PionException("Plug-in library not found: ", file) {}
+	};
+	
+	/// exception thrown if the plug-in file cannot be opened
+	class OpenPluginException : public PionException {
+	public:
+		OpenPluginException(const std::string& file)
+			: PionException("Unable to open plug-in library: ", file) {}
 	};
 	
 	/// exception thrown if a plug-in library is missing the create() function

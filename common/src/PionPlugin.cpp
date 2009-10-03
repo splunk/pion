@@ -237,8 +237,19 @@ void PionPlugin::openPlugin(const std::string& plugin_file,
 	// attempt to open the plugin; note that this tries all search paths
 	// and also tries a variety of platform-specific extensions
 	plugin_data.m_lib_handle = loadDynamicLibrary(plugin_file.c_str());
-	if (plugin_data.m_lib_handle == NULL)
-		throw PluginNotFoundException(plugin_file);
+	if (plugin_data.m_lib_handle == NULL) {
+#ifndef PION_WIN32
+		char *error_msg = dlerror();
+		if (error_msg != NULL) {
+			std::string error_str(plugin_file);
+			error_str += " (";
+			error_str += error_msg;
+			error_str += ')';
+			throw OpenPluginException(error_str);
+		} else
+#endif
+		throw OpenPluginException(plugin_file);
+	}
 	
 	// find the function used to create new plugin objects
 	plugin_data.m_create_func =
