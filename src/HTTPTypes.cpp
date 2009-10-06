@@ -10,6 +10,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/net/HTTPTypes.hpp>
+#include <cstdio>
 #include <ctime>
 
 
