@@ -77,6 +77,7 @@ struct PION_NET_API HTTPTypes
 	static const std::string	RESPONSE_MESSAGE_BAD_REQUEST;
 	static const std::string	RESPONSE_MESSAGE_SERVER_ERROR;
 	static const std::string	RESPONSE_MESSAGE_NOT_IMPLEMENTED;
+	static const std::string	RESPONSE_MESSAGE_CONTINUE;
 
 	// common HTTP response codes
 	static const unsigned int	RESPONSE_CODE_OK;
@@ -91,6 +92,7 @@ struct PION_NET_API HTTPTypes
 	static const unsigned int	RESPONSE_CODE_BAD_REQUEST;
 	static const unsigned int	RESPONSE_CODE_SERVER_ERROR;
 	static const unsigned int	RESPONSE_CODE_NOT_IMPLEMENTED;
+	static const unsigned int	RESPONSE_CODE_CONTINUE;
 	
 	/// returns true if two strings are equal (ignoring case)
 	struct CaseInsensitiveEqual {

@@ -68,6 +68,7 @@ const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_MODIFIED("Not Modified");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_BAD_REQUEST("Bad Request");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR("Server Error");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_NOT_IMPLEMENTED("Not Implemented");
+const std::string	HTTPTypes::RESPONSE_MESSAGE_CONTINUE("Continue");
 
 // common HTTP response codes
 const unsigned int	HTTPTypes::RESPONSE_CODE_OK = 200;
@@ -82,6 +83,7 @@ const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_MODIFIED = 304;
 const unsigned int	HTTPTypes::RESPONSE_CODE_BAD_REQUEST = 400;
 const unsigned int	HTTPTypes::RESPONSE_CODE_SERVER_ERROR = 500;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NOT_IMPLEMENTED = 501;
+const unsigned int	HTTPTypes::RESPONSE_CODE_CONTINUE = 100;
 
 
 // static member functions
