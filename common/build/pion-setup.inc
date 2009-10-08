@@ -13,6 +13,10 @@ AC_PROG_INSTALL
 AC_LANG_CPLUSPLUS
 AX_COMPILER_VENDOR
 
+# library to link with for dlopen, etc.
+PION_DLOPEN_LIBS=$lt_cv_dlopen_libs
+AC_SUBST(PION_DLOPEN_LIBS)
+
 # Set basic compiler options
 case "$build_os" in
 *solaris*)
@@ -110,9 +114,20 @@ else
 	if test "$with_cpu" = "default"; then
 		AC_MSG_RESULT(no)
 	else
-		AC_MSG_RESULT($with_cpu)
-		PION_OPT_FLAGS="$PION_OPT_FLAGS -march=$with_cpu"
-		PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS -march=$with_cpu"
+		# check to make sure it works
+		CFLAGS_SAVED=$CFLAGS
+		CXXFLAGS_SAVED=$CXXFLAGS
+		CFLAGS="$CFLAGS -march=$with_cpu"
+		CXXFLAGS="$CXXFLAGS -march=$with_cpu"
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])], [
+			AC_MSG_RESULT($with_cpu)
+			PION_OPT_FLAGS="$PION_OPT_FLAGS -march=$with_cpu"
+			PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS -march=$with_cpu"
+			], [
+			AC_MSG_RESULT(no)
+			])
+		CFLAGS=$CFLAGS_SAVED
+		CXXFLAGS=$CXXFLAGS_SAVED
 	fi
 fi
 
