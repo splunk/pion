@@ -173,12 +173,8 @@ $SPEC_OPTIONS
 
 \%defattr(755,root,root)
 /usr/bin/pion
-/usr/bin/pget.py
-/usr/bin/pmon.py
-/usr/bin/pget.pyc
-/usr/bin/pmon.pyc
-/usr/bin/pget.pyo
-/usr/bin/pmon.pyo
+/usr/bin/pget.py*
+/usr/bin/pmon.py*
 
 \%defattr(-,root,root)
 /var/log/pion
