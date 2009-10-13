@@ -19,11 +19,7 @@ using namespace pion;
 
 
 #if defined(PION_WIN32)
-	#if defined(_MSC_VER)
-		static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests\\bin";
-	#else
-		static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests/.libs";
-	#endif
+	static const std::string directoryOfPluginsForTests = "PluginsUsedByUnitTests/.libs";
 	static const std::string sharedLibExt = ".dll";
 #else
 	#if defined(PION_XCODE)

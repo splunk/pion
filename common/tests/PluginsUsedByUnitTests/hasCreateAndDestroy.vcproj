@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="hasCreateAndDestroy"
-	ProjectGUID="{8C8A8E46-4588-4CE1-B624-89C36EA5209E}"
+	ProjectGUID="{CD11B3D6-1296-45F4-B924-034CC103D626}"
 	RootNamespace="hasCreateAndDestroy"
 	Keyword="Win32Proj"
 	>
@@ -43,7 +43,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; bin"
+				CommandLine="if not exist .libs md .libs&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; .libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist bin md bin&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; bin"
+				CommandLine="if not exist .libs md .libs&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; .libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
