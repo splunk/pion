@@ -167,6 +167,7 @@ $SPEC_OPTIONS
 \%defattr(-,pion,pion)
 \%config /etc/pion/
 \%dir /var/lib/pion
+\%dir /var/log/pion
 
 \%defattr(-,root,root)
 \%doc $BIN_SRC_BASE/HISTORY.txt $BIN_SRC_BASE/LICENSE.txt $BIN_SRC_BASE/README.txt $BIN_SRC_BASE/pion-manual.pdf
@@ -177,7 +178,6 @@ $SPEC_OPTIONS
 /usr/bin/pmon.py*
 
 \%defattr(-,root,root)
-/var/log/pion
 /usr/share/pion/ui
 
 \%defattr(755,root,root)
