@@ -86,7 +86,10 @@ void TCPServer::start(void)
 			pion::PionAdminRights use_admin_rights(getPort() < 1024);
 			m_tcp_acceptor.open(m_endpoint.protocol());
 			// allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
+			// ...except when running not on Windows - see http://msdn.microsoft.com/en-us/library/ms740621%28VS.85%29.aspx
+#ifndef _MSC_VER
 			m_tcp_acceptor.set_option(tcp::acceptor::reuse_address(true));
+#endif
 			m_tcp_acceptor.bind(m_endpoint);
 			if (m_endpoint.port() == 0) {
 				// update the endpoint to reflect the port chosen by bind
