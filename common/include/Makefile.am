@@ -3,3 +3,5 @@
 # ---------------------------------------
 
 SUBDIRS = pion
+
+EXTRA_DIST = boost
