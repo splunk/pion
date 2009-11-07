@@ -14,6 +14,7 @@
 #include <string>
 #include <boost/cstdint.hpp>
 #include <boost/function.hpp>
+#include <boost/function/function1.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>

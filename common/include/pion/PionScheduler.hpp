@@ -13,6 +13,7 @@
 #include <vector>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <boost/function/function0.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
