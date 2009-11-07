@@ -14,6 +14,8 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/function.hpp>
+#include <boost/function/function2.hpp>
+#include <boost/function/function3.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/PionConfig.hpp>

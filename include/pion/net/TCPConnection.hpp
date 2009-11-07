@@ -34,6 +34,7 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 #include <boost/function.hpp>
+#include <boost/function/function1.hpp>
 #include <pion/PionConfig.hpp>
 #include <string>
 

@@ -12,6 +12,7 @@
 #include <pion/net/TCPServer.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <boost/function/function1.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/net/HTTPRequest.hpp>
