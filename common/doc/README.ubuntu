@@ -14,7 +14,15 @@ You can install the development tools required by Pion using apt-get:
 
 You can install most of the third-party libraries required by Pion using apt-get:
 
-# apt-get install zlib1g-dev libssl-dev libxml2-dev libbz2-dev libboost1.37-dev libpcap-dev
+# apt-get install zlib1g-dev libssl-dev libxml2-dev libbz2-dev libpcap-dev
+
+To install the Boost development libraries, use this on Ubuntu 9.04:
+
+# apt-get install libboost1.37-dev 
+
+Use this instead on Ubuntu 9.10:
+
+# apt-get install libboost1.40-all-dev 
 
 
 Installing log4cplus:
