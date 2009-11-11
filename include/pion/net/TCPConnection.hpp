@@ -16,15 +16,6 @@
 		#pragma GCC system_header
 	#endif
 	#include <boost/asio/ssl.hpp>
-	#if defined _MSC_VER
-		#if defined _DEBUG
-			#pragma comment(lib, "ssleay32d")
-			#pragma comment(lib, "libeay32d")
-		#else
-			#pragma comment(lib, "ssleay32")
-			#pragma comment(lib, "libeay32")
-		#endif
-	#endif 
 #endif
 
 #include <boost/noncopyable.hpp>
