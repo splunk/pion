@@ -100,16 +100,19 @@ ASIO requires OpenSSL for SSL/TLS encryption support.
 You can get Win 32 binaries for OpenSSL from:
 http://www.pion.org/files/openssl-0.9.8g.win32.zip
 Unzip directly into C: (or change OPENSSL_HOME accordingly.)
+The zip file includes both static (in /lib) and DLL (in /bin) versions of 
+ssleay32 and libeay32.  If you want to use the DLL versions, you will need to 
+add C:\openssl-0.9.8g\bin to your path (or otherwise include the DLLs).
 
 If you want to build them yourself, you can get the source tarball from:
 http://www.openssl.org/source/openssl-0.9.8g.tar.gz
-Build the static versions of ssleay32 and libeay32 (by using
-nt.mak rather than ntdll.mak, as explained in INSTALL.W32).  Pion expects
-them to be in $(OPENSSL_HOME)\lib, where OPENSSL_HOME is C:\openssl-0.9.8g
-unless you've changed it.  
+You can build the static or DLL versions of ssleay32 and libeay32 by using
+nt.mak or ntdll.mak, respectively, as explained in INSTALL.W32.
+Pion expects them to be in $(OPENSSL_HOME)\lib or $(OPENSSL_HOME)\bin,
+repectively, where OPENSSL_HOME is C:\openssl-0.9.8g unless you've changed it.  
 Note: While configuring OpenSSL for build, use the following command:
 	perl Configure VC-WIN32 --prefix=C:\\OpenSSL 
-(note double "\\" required by windows )
+(note double "\\" required by windows)
 
 Pion is currently set up to link to ssleay32d.lib and libeay32d.lib for the 
 debug configuration; the easiest way to get these files is from the above zip 
@@ -118,20 +121,15 @@ libeay32.lib with a debug configuration of Pion, you will probably have
 trouble running the unit tests, due to msvcr80.dll and msvcr80d.dll being 
 loaded  at the same time.  (Yes, this is even true for the static versions.)
 
-If you want to use the DLL versions, they are also included in the above zip 
-file.  You will need to add C:\openssl-0.9.8g\bin to your path, and follow
-the instructions in the next section.  (If you build them yourself, the same 
-caveats about the debug versions apply.)
-
 
 Linking with OpenSSL:
 ---------------------
 
 Macro OPENSSL_HOME in pion.vsprops is set to C:\openssl-0.9.8g.  If you 
 installed OpenSSL somewhere other than C:\openssl-0.9.8g, change OPENSSL_HOME 
-accordingly.  By default, Pion links with the static versions, which should be 
-in $(OPENSSL_HOME)\lib.  To link with the DLL versions, you will have to 
-change $(OPENSSL_HOME)\lib to $(OPENSSL_HOME)\bin in 
+accordingly.  By default, Pion links with the DLL versions, which should be 
+in $(OPENSSL_HOME)\bin.  To link with the static versions, you will have to 
+change $(OPENSSL_HOME)\bin to $(OPENSSL_HOME)\lib in 
 common\build\Release_DLL_pion.vsprops, common\build\Debug_DLL_pion.vsprops 
 and platform\server\pion.vcproj.
 
