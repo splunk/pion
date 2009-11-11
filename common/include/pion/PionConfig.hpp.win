@@ -84,6 +84,16 @@
    in Preprocessor Definitions, or uncomment the following line, to use SSL. */
 //#define PION_HAVE_SSL
 
+#ifdef PION_HAVE_SSL
+	#if defined _DEBUG
+		#pragma comment(lib, "ssleay32d")
+		#pragma comment(lib, "libeay32d")
+	#else
+		#pragma comment(lib, "ssleay32")
+		#pragma comment(lib, "libeay32")
+	#endif
+#endif
+
 /* If you have the `yajl' library installed, include PION_HAVE_JSON or PION_FULL
    in Preprocessor Definitions, or uncomment the following line, to use yajl. */
 //#define PION_HAVE_JSON
