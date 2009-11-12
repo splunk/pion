@@ -36,7 +36,7 @@
 	/>
 	<UserMacro
 		Name="OPENSSL_HOME"
-		Value="C:\openssl-0.9.8g"
+		Value="C:\openssl-0.9.8l"
 	/>
 	<UserMacro
 		Name="LIBXML_HOME"
