@@ -27,7 +27,7 @@ else
         fi
     done
     if test "x$BOOST_LIB_EXTENSION" = "x"; then
-        AC_MSG_ERROR(Unable to determine Boost library extension)
+        AC_MSG_NOTICE(Unable to determine Boost library extension)
     fi
 fi
 AC_MSG_RESULT($BOOST_LIB_EXTENSION)
