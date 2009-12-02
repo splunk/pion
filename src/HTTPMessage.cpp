@@ -35,7 +35,7 @@ std::size_t HTTPMessage::send(TCPConnection& tcp_conn,
 	prepareBuffersForSend(write_buffers, tcp_conn.getKeepAlive(), false);
 
 	// append payload content to write buffers (if there is any)
-	if (getContentLength() > 0 && getContent() != NULL && getContent()[0] != '\0')
+	if (getContentLength() > 0 && getContent() != NULL)
 		write_buffers.push_back(boost::asio::buffer(getContent(), getContentLength()));
 
 	// send the message and return the result
