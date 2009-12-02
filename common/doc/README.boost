@@ -1,58 +1,32 @@
-Installing Boost with ASIO
-==========================
-
-Starting with 0.5.6, Pion requires Boost 1.35.0 (or later). Since this is
-still a fairly recent release, none of our supported platforms currently have
-pre-built versions available of these libraries.  Therefore, you will likely
-need to download, compile and install Boost and ASIO using the source code
-tarballs.
+Pion requires Boost 1.35.0 (or later). Since this is still a fairly recent
+release, few of our supported platforms currently have pre-built versions
+available of these libraries.  Therefore, you will likely need to download,
+compile and install Boost using the source code tarballs.
 
 
 Obtaining Boost:
-================
+----------------
 
 First, download the latest tarball from SourceForge.net:
 
-# wget http://downloads.sourceforge.net/boost/boost_1_35_0.tar.bz2
+# wget http://downloads.sourceforge.net/boost/boost_1_41_0.tar.bz2
 
 Next, uncompress the tarball into a new directory:
 
-# bzip2 -dc boost_1_35_0.tar.bz2 | tar xvf -
-
-Finally, configure, build and install the Boost libraries. You have two
-options:
+# bzip2 -dc boost_1_41_0.tar.bz2 | tar xvf -
 
 
-Build using the configure script:
----------------------------------
-
-The configure script provides the easiest way to build and install
-Boost. However, with the configure script you cannot specify alternative
-compilers (this is auto-detected) and you also must build all of the
-Boost libraries, which can be very time-consuming (note that Pion requires
-only eight of them).  Building Boost with the configure script also requires
-that you have a UNIX shell interpreter (/bin/sh) and the make utility
-installed on your system.
-
-# cd boost_1_35_0
-# ./configure
-# make all
-# make install  (this may require superuser/Administrator privileges)
-
-WARNING: Boost's configure script will only build the iostreams library 
-(now required by Pion) if you have all of the bzip2 and gzip (bzlib and 
-zlib) development libraries installed and available on your system.
-
-
-Build using the bjam utility:
------------------------------
+Building and Installing Boost:
+------------------------------
 
 bjam (http://www.boost.org/tools/build/v2/index.html) is a tool you can
 use to build Boost that allows you to configure many different options
 for your build. For a description of options available when building
 Boost with bjam, please see the Getting Started Guide at
-http://www.boost.org/more/getting_started/. You can download
-pre-compiled bjam executables from:
+http://www.boost.org/more/getting_started/. 
+
+You can build bjam by running the included "bootstrap.bat" on Windows or
+"bootstrap.sh" on Unix.  You can also download bjam executables from:
 
 http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=72941
 
@@ -67,16 +41,16 @@ For example (when using Microsoft Visual C++):
 
 # bjam --toolset=msvc --with-thread --with-system --with-filesystem \
 	--with-regex --with-date_time --with-signals --with-iostreams --with-test \
-	debug release threading=multi stage
+	release threading=multi stage
 
-This will build the eight libraries required by Pion and place the
-files within the stage/ subdirectory of your build directory.
+(just leave out "--toolset=msvc" for Unixes)
+
+This will build the eight libraries required by Pion and place the files within
+the stage/ subdirectory of your build directory.
 
 To install, you can now just copy the files in stage/lib into your
 library include path, and copy the boost/ directory into your header
 include path.
 
-
-Note: Some platforms require additional steps for building Boost & ASIO. 
+Some platforms may require additional steps for building Boost.
 Please see the appropriate README.platform file for more information.
-
