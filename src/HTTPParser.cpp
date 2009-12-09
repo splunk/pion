@@ -43,6 +43,10 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
 	boost::tribool rc = boost::indeterminate;
 	std::size_t total_bytes_parsed = 0;
 
+	if(http_msg.hasMissingPackets()) {
+		http_msg.setDataAfterMissingPacket(true);
+	}
+
 	do {
 		switch (m_message_parse_state) {
 			// just started parsing the HTTP message
@@ -94,6 +98,8 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg)
 	if (rc == true) {
 		m_message_parse_state = PARSE_END;
 		finish(http_msg);
+	} else if(rc == false) {
+		computeMsgStatus(http_msg, false);
 	}
 
 	// update bytes last read (aggregate individual operations for caller)
@@ -106,6 +112,8 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg, std::size_t l
 {
 	static const char MISSING_DATA_CHAR = 'X';
 	boost::tribool rc = boost::indeterminate;
+
+	http_msg.setMissingPackets(true);
 
 	switch (m_message_parse_state) {
 
@@ -189,6 +197,8 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg, std::size_t l
 	if (rc == true) {
 		m_message_parse_state = PARSE_END;
 		finish(http_msg);
+	} else if(rc == false) {
+		computeMsgStatus(http_msg, false);
 	}
 
 	return rc;
@@ -1046,6 +1056,8 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 		break;
 	}
 
+	computeMsgStatus(http_msg, http_msg.isValid());
+
 	if (isParsingRequest()) {
 		// Parse query pairs from post content if content type is x-www-form-urlencoded.
 		// Type could be followed by parameters (as defined in section 3.6 of RFC 2616)
@@ -1064,6 +1076,20 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 	}
 }
 
+void HTTPParser::computeMsgStatus(HTTPMessage& http_msg, bool msg_parsed_ok )
+{
+	HTTPMessage::DataStatus st = HTTPMessage::STATUS_NONE;
+
+	if(http_msg.hasMissingPackets()) {
+		st = http_msg.hasDataAfterMissingPackets() ?
+						HTTPMessage::STATUS_PARTIAL : HTTPMessage::STATUS_TRUNCATED;
+		http_msg.setStatus(st);
+	} else {
+		st = msg_parsed_ok ? HTTPMessage::STATUS_OK : HTTPMessage::STATUS_TRUNCATED;
+	}
+
+	http_msg.setStatus(st);
+}
 }	// end namespace net
 }	// end namespace pion
 

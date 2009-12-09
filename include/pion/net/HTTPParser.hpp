@@ -314,6 +314,13 @@ protected:
 	 */
 	std::size_t consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers);
 
+	/**
+	 * compute and sets a HTTP Message data integrity status
+	 * @param http_msg target HTTP message 
+	 * @param msg_parsed_ok message parsing result
+	 */
+	static void computeMsgStatus(HTTPMessage& http_msg, bool msg_parsed_ok);
+
 	// misc functions used by the parsing functions
 	inline static bool isChar(int c);
 	inline static bool isControl(int c);

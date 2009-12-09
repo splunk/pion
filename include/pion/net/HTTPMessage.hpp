@@ -63,12 +63,21 @@ public:
 		}
 	};
 
+	/// defines message data integrity status codes
+	enum DataStatus
+	{
+		STATUS_NONE,		// no data received (i.e. all lost)
+		STATUS_TRUNCATED,	// one or more missing packets at the end 
+		STATUS_PARTIAL,		// one or more missing packets but NOT at the end 
+		STATUS_OK			// no missing packets
+	};
 
 	/// constructs a new HTTP message object
 	HTTPMessage(void)
 		: m_is_valid(false), m_is_chunked(false), m_chunks_supported(false),
 		m_do_not_send_content_length(false),
-		m_version_major(1), m_version_minor(1), m_content_length(0)
+		m_version_major(1), m_version_minor(1), m_content_length(0),
+		m_status(STATUS_NONE), m_has_missing_packets(false), m_has_data_after_missing(false)
 	{}
 
 	/// copy constructor
@@ -83,7 +92,10 @@ public:
 		m_version_minor(http_msg.m_version_minor),
 		m_content_length(http_msg.m_content_length),
 		m_chunk_cache(http_msg.m_chunk_cache),
-		m_headers(http_msg.m_headers)
+		m_headers(http_msg.m_headers),
+		m_status(http_msg.m_status),
+		m_has_missing_packets(http_msg.m_has_missing_packets),
+		m_has_data_after_missing(http_msg.m_has_data_after_missing)
 	{
 		if (http_msg.m_content_buf) {
 			char *ptr = createContentBuffer();
@@ -104,6 +116,9 @@ public:
 		m_content_length = http_msg.m_content_length;
 		m_chunk_cache = http_msg.m_chunk_cache;
 		m_headers = http_msg.m_headers;
+		m_status = http_msg.m_status;
+		m_has_missing_packets = http_msg.m_has_missing_packets;
+		m_has_data_after_missing = http_msg.m_has_data_after_missing;
 		if (http_msg.m_content_buf) {
 			char *ptr = createContentBuffer();
 			memcpy(ptr, http_msg.m_content_buf.get(), m_content_length);
@@ -125,6 +140,9 @@ public:
 		m_content_buf.reset();
 		m_chunk_cache.clear();
 		m_headers.clear();
+		m_status = STATUS_NONE;
+		m_has_missing_packets = false;
+		m_has_data_after_missing = false;
 	}
 
 	/// should return true if the content length can be implied without headers
@@ -193,6 +211,16 @@ public:
 		return m_first_line;
 	}
 
+	/// true if there were missing packets 
+	inline bool hasMissingPackets() const { return m_has_missing_packets; }
+	
+	/// set to true when missing packets detected
+	inline void setMissingPackets(bool newVal) { m_has_missing_packets = newVal; }
+
+	/// true if more data seen after the missing packets
+	inline bool hasDataAfterMissingPackets() const { return m_has_data_after_missing; }
+
+	inline void setDataAfterMissingPacket(bool newVal) { m_has_data_after_missing = newVal; }
 
 	/// sets whether or not the message is valid
 	inline void setIsValid(bool b = true) { m_is_valid = b; }
@@ -220,6 +248,12 @@ public:
 
 	/// if called, the content-length will not be sent in the HTTP headers
 	inline void setDoNotSendContentLength(void) { m_do_not_send_content_length = true; }
+
+	/// return the data receival status
+	inline DataStatus getStatus() const { return m_status; }
+
+	/// 
+	inline void setStatus(DataStatus newVal) { m_status = newVal; }
 
 	/// sets the length of the payload content using the Content-Length header
 	inline void updateContentLengthUsingHeader(void) {
@@ -478,6 +512,14 @@ private:
 
 	/// HTTP message headers
 	Headers							m_headers;
+
+	/// message data integrity status
+	DataStatus						m_status;
+
+	/// missing packet indicator
+	bool							m_has_missing_packets;
+	/// indicates missing packets in the middle of the data stream
+	bool							m_has_data_after_missing;
 };
 
 
