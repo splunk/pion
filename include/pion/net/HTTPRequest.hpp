@@ -49,7 +49,6 @@ public:
 		m_original_resource.erase();
 		m_query_string.erase();
 		m_query_params.clear();
-		m_cookie_params.clear();
 		m_user_record.reset();
 		m_charset.clear();
 	}
@@ -74,34 +73,16 @@ public:
 		return getValue(m_query_params, key);
 	}
 
-	/// returns a value for the cookie if any are defined; otherwise, an empty string
-	/// since cookie names are insensitive, key should use lowercase alpha chars
-	inline const std::string& getCookie(const std::string& key) const {
-		return getValue(m_cookie_params, key);
-	}
-	
 	/// returns the query parameters
 	inline QueryParams& getQueryParams(void) {
 		return m_query_params;
 	}
 	
-	/// returns the cookie parameters
-	inline CookieParams& getCookieParams(void) {
-		return m_cookie_params;
-	}
-
 	/// returns true if at least one value for the query key is defined
 	inline bool hasQuery(const std::string& key) const {
 		return(m_query_params.find(key) != m_query_params.end());
 	}
-	
-	/// returns true if at least one value for the cookie is defined
-	/// since cookie names are insensitive, key should use lowercase alpha chars
-	inline bool hasCookie(const std::string& key) const {
-		return(m_cookie_params.find(key) != m_cookie_params.end());
-	}
-	
-	
+		
 	/// sets the HTTP request method (i.e. GET, POST, PUT)
 	inline void setMethod(const std::string& str) { 
 		m_method = str;
@@ -162,24 +143,6 @@ public:
 			memcpy(ptr, value.c_str(), value.size());
 	}
 	
-	/// adds a value for the cookie
-	/// since cookie names are insensitive, key should use lowercase alpha chars
-	inline void addCookie(const std::string& key, const std::string& value) {
-		m_cookie_params.insert(std::make_pair(key, value));
-	}
-
-	/// changes the value of a cookie
-	/// since cookie names are insensitive, key should use lowercase alpha chars
-	inline void changeCookie(const std::string& key, const std::string& value) {
-		changeValue(m_cookie_params, key, value);
-	}
-
-	/// removes all values for a cookie
-	/// since cookie names are insensitive, key should use lowercase alpha chars
-	inline void deleteCookie(const std::string& key) {
-		deleteValue(m_cookie_params, key);
-	}
-	
 	/// sets the user record for HTTP request after authentication
 	inline void setUser(PionUserPtr user) { m_user_record = user; }
 	
@@ -223,9 +186,6 @@ private:
 	
 	/// HTTP query parameters parsed from the request line and post content
 	QueryParams						m_query_params;
-
-	/// HTTP cookie parameters parsed from the "Cookie" request headers
-	CookieParams					m_cookie_params;
 
 	/// pointer to PionUser record if this request had been authenticated 
 	PionUserPtr						m_user_record;

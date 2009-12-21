@@ -140,6 +140,7 @@ public:
 		m_content_buf.reset();
 		m_chunk_cache.clear();
 		m_headers.clear();
+		m_cookie_params.clear();
 		m_status = STATUS_NONE;
 		m_has_missing_packets = false;
 		m_has_data_after_missing = false;
@@ -204,6 +205,41 @@ public:
 		return(m_headers.find(key) != m_headers.end());
 	}
 
+	/// returns a value for the cookie if any are defined; otherwise, an empty string
+	/// since cookie names are insensitive, key should use lowercase alpha chars
+	inline const std::string& getCookie(const std::string& key) const {
+		return getValue(m_cookie_params, key);
+	}
+	
+	/// returns the cookie parameters
+	inline CookieParams& getCookieParams(void) {
+		return m_cookie_params;
+	}
+
+	/// returns true if at least one value for the cookie is defined
+	/// since cookie names are insensitive, key should use lowercase alpha chars
+	inline bool hasCookie(const std::string& key) const {
+		return(m_cookie_params.find(key) != m_cookie_params.end());
+	}
+	
+	/// adds a value for the cookie
+	/// since cookie names are insensitive, key should use lowercase alpha chars
+	inline void addCookie(const std::string& key, const std::string& value) {
+		m_cookie_params.insert(std::make_pair(key, value));
+	}
+
+	/// changes the value of a cookie
+	/// since cookie names are insensitive, key should use lowercase alpha chars
+	inline void changeCookie(const std::string& key, const std::string& value) {
+		changeValue(m_cookie_params, key, value);
+	}
+
+	/// removes all values for a cookie
+	/// since cookie names are insensitive, key should use lowercase alpha chars
+	inline void deleteCookie(const std::string& key) {
+		deleteValue(m_cookie_params, key);
+	}
+	
 	/// returns a string containing the first line for the HTTP message
 	inline const std::string& getFirstLine(void) const {
 		if (m_first_line.empty())
@@ -513,11 +549,15 @@ private:
 	/// HTTP message headers
 	Headers							m_headers;
 
+	/// HTTP cookie parameters parsed from the headers
+	CookieParams					m_cookie_params;
+
 	/// message data integrity status
 	DataStatus						m_status;
 
 	/// missing packet indicator
 	bool							m_has_missing_packets;
+
 	/// indicates missing packets in the middle of the data stream
 	bool							m_has_data_after_missing;
 };

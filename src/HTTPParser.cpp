@@ -559,7 +559,7 @@ void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
 					<< m_query_string << "\"");
 		}
 
-		// parse "Cookie" headers
+		// parse "Cookie" headers in request
 		std::pair<HTTPTypes::Headers::const_iterator, HTTPTypes::Headers::const_iterator>
 		cookie_pair = http_request.getHeaders().equal_range(HTTPTypes::HEADER_COOKIE);
 		for (HTTPTypes::Headers::const_iterator cookie_iterator = cookie_pair.first;
@@ -578,6 +578,19 @@ void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
 		HTTPResponse& http_response(dynamic_cast<HTTPResponse&>(http_msg));
 		http_response.setStatusCode(m_status_code);
 		http_response.setStatusMessage(m_status_message);
+
+		// parse "Set-Cookie" headers in response
+		std::pair<HTTPTypes::Headers::const_iterator, HTTPTypes::Headers::const_iterator>
+		cookie_pair = http_response.getHeaders().equal_range(HTTPTypes::HEADER_SET_COOKIE);
+		for (HTTPTypes::Headers::const_iterator cookie_iterator = cookie_pair.first;
+			 cookie_iterator != http_response.getHeaders().end()
+			 && cookie_iterator != cookie_pair.second; ++cookie_iterator)
+		{
+			if (! parseCookieHeader(http_response.getCookieParams(),
+									cookie_iterator->second) )
+				PION_LOG_WARN(m_logger, "Set-Cookie header parsing failed");
+		}
+
 	}
 }
 
