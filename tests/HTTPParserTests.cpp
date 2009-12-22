@@ -82,6 +82,68 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithEmptyValues)
 	BOOST_CHECK(i->second.empty());
 }
 
+BOOST_AUTO_TEST_CASE(testParseSingleCookieHeader)
+{
+	std::string cookie_header;
+	HTTPTypes::CookieParams cookies;
+	HTTPTypes::CookieParams::const_iterator cookie_it;
+
+	cookie_header = "a=b";
+	BOOST_REQUIRE(HTTPParser::parseCookieHeader(cookies, cookie_header, false));
+	BOOST_CHECK_EQUAL(cookies.size(), 1UL);
+
+	cookie_it = cookies.find("a");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "b");
+}
+
+BOOST_AUTO_TEST_CASE(testParseTwoCookieHeader)
+{
+	std::string cookie_header;
+	HTTPTypes::CookieParams cookies;
+	HTTPTypes::CookieParams::const_iterator cookie_it;
+
+	cookie_header = "a=b; Part_Number=\"Rocket_Launcher_0001\";";
+	BOOST_REQUIRE(HTTPParser::parseCookieHeader(cookies, cookie_header, false));
+	BOOST_CHECK_EQUAL(cookies.size(), 2UL);
+
+	cookie_it = cookies.find("a");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "b");
+
+	cookie_it = cookies.find("Part_Number");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "Rocket_Launcher_0001");
+}
+
+BOOST_AUTO_TEST_CASE(testParseNormalCookieHeader)
+{
+	std::string cookie_header;
+	HTTPTypes::CookieParams cookies;
+	HTTPTypes::CookieParams::const_iterator cookie_it;
+
+	cookie_header = "$Version=\"1\"; Part_Number=\"Rocket_Launcher_0001\"; $Path=\"/acme\"";
+	BOOST_REQUIRE(HTTPParser::parseCookieHeader(cookies, cookie_header, false));
+	BOOST_CHECK_EQUAL(cookies.size(), 1UL);
+	cookie_it = cookies.find("Part_Number");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "Rocket_Launcher_0001");
+}
+
+BOOST_AUTO_TEST_CASE(testParseSetCookieHeader)
+{
+	std::string cookie_header;
+	HTTPTypes::CookieParams cookies;
+	HTTPTypes::CookieParams::const_iterator cookie_it;
+
+	cookie_header = "Shipping=\"FedEx\"; Version=\"1\"; Path=\"/acme\"";
+	BOOST_REQUIRE(HTTPParser::parseCookieHeader(cookies, cookie_header, true));
+	BOOST_CHECK_EQUAL(cookies.size(), 1UL);
+	cookie_it = cookies.find("Shipping");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "FedEx");
+}
+
 BOOST_AUTO_TEST_CASE(testHTTPParserSimpleRequest)
 {
 	HTTPParser request_parser(true);

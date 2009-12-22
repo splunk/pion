@@ -567,7 +567,7 @@ void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
 			 && cookie_iterator != cookie_pair.second; ++cookie_iterator)
 		{
 			if (! parseCookieHeader(http_request.getCookieParams(),
-									cookie_iterator->second) )
+									cookie_iterator->second, false) )
 				PION_LOG_WARN(m_logger, "Cookie header parsing failed");
 		}
 
@@ -587,7 +587,7 @@ void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
 			 && cookie_iterator != cookie_pair.second; ++cookie_iterator)
 		{
 			if (! parseCookieHeader(http_response.getCookieParams(),
-									cookie_iterator->second) )
+									cookie_iterator->second, true) )
 				PION_LOG_WARN(m_logger, "Set-Cookie header parsing failed");
 		}
 
@@ -736,9 +736,11 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
 }
 
 bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
-								   const char *ptr, const size_t len)
+								   const char *ptr, const size_t len,
+								   bool set_cookie_header)
 {
 	// BASED ON RFC 2109
+	// http://www.ietf.org/rfc/rfc2109.txt
 	// 
 	// The current implementation ignores cookie attributes which begin with '$'
 	// (i.e. $Path=/, $Domain=, etc.)
@@ -770,7 +772,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 				// when quoted values are encountered
 				if (! cookie_name.empty()) {
 					// value is empty (OK)
-					if (cookie_name[0] != '$')
+					if (! isCookieAttribute(cookie_name, set_cookie_header))
 						dict.insert( std::make_pair(cookie_name, cookie_value) );
 					cookie_name.erase();
 				}
@@ -789,7 +791,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 				// value is not (yet) quoted
 				if (*ptr == ';' || *ptr == ',') {
 					// end of value found (OK if empty)
-					if (cookie_name[0] != '$') 
+					if (! isCookieAttribute(cookie_name, set_cookie_header))
 						dict.insert( std::make_pair(cookie_name, cookie_value) );
 					cookie_name.erase();
 					cookie_value.erase();
@@ -816,7 +818,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 				// value is quoted
 				if (*ptr == value_quote_character) {
 					// end of value found (OK if empty)
-					if (cookie_name[0] != '$') 
+					if (! isCookieAttribute(cookie_name, set_cookie_header))
 						dict.insert( std::make_pair(cookie_name, cookie_value) );
 					cookie_name.erase();
 					cookie_value.erase();
@@ -842,7 +844,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 	}
 
 	// handle last cookie in string
-	if (! cookie_name.empty() && cookie_name[0] != '$')
+	if (! isCookieAttribute(cookie_name, set_cookie_header))
 		dict.insert( std::make_pair(cookie_name, cookie_value) );
 
 	return true;

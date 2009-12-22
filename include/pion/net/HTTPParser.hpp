@@ -209,11 +209,13 @@ public:
 	 * @param dict dictionary for key-values pairs
 	 * @param ptr points to the start of the header string to be parsed
 	 * @param len length of the encoded string, in bytes
+	 * @param set_cookie_header set true if parsing Set-Cookie response header
 	 * 
 	 * @return bool true if successful
 	 */
 	static bool parseCookieHeader(HTTPTypes::CookieParams& dict,
-								  const char *ptr, const std::size_t len);
+								  const char *ptr, const std::size_t len,
+								  bool set_cookie_header);
 
 	/**
 	 * parse key-value pairs out of a "Cookie" request header
@@ -221,13 +223,14 @@ public:
 	 * 
 	 * @param dict dictionary for key-values pairs
 	 * @param cookie_header header string to be parsed
+	 * @param set_cookie_header set true if parsing Set-Cookie response header
 	 * 
 	 * @return bool true if successful
 	 */
 	static inline bool parseCookieHeader(HTTPTypes::CookieParams& dict,
-		const std::string& cookie_header)
+		const std::string& cookie_header, bool set_cookie_header)
 	{
-		return parseCookieHeader(dict, cookie_header.c_str(), cookie_header.size());
+		return parseCookieHeader(dict, cookie_header.c_str(), cookie_header.size(), set_cookie_header);
 	}
 
 	/**
@@ -327,6 +330,7 @@ protected:
 	inline static bool isSpecial(int c);
 	inline static bool isDigit(int c);
 	inline static bool isHexDigit(int c);
+	inline static bool isCookieAttribute(const std::string& name, bool set_cookie_header);
 
 
 	/// maximum length for response status message
@@ -497,6 +501,13 @@ inline bool HTTPParser::isDigit(int c)
 inline bool HTTPParser::isHexDigit(int c)
 {
 	return((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+}
+
+inline bool HTTPParser::isCookieAttribute(const std::string& name, bool set_cookie_header)
+{
+	return (name.empty() || name[0] == '$' || (set_cookie_header &&
+		(name=="Comment" || name=="Domain" || name=="Max-Age" || name=="Path" || name=="Secure" || name=="Version" || name=="Expires")
+		) );
 }
 
 }	// end namespace net
