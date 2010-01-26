@@ -14,7 +14,7 @@
 // DO NOT USE autoheader ; this file is not automanaged!!!
 
 /* Define to the version number of pion. */
-#define PION_VERSION "2.3.0"
+#define PION_VERSION "2.3.1"
 
 /* Define to the directory where Pion plug-ins are installed. */
 #define PION_PLUGINS_DIRECTORY "/usr/local/lib/pion/plugins"
