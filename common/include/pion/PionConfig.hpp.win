@@ -22,7 +22,7 @@
 #endif
 
 /* Define to the version number of pion. */
-#define PION_VERSION "2.3.1"
+#define PION_VERSION "3.0.0"
 
 /* Define to the directory where Pion plug-ins are installed. */
 //#undef PION_PLUGINS_DIRECTORY
