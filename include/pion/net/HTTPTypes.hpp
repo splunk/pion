@@ -11,7 +11,6 @@
 #define __PION_HTTPTYPES_HEADER__
 
 #include <string>
-#include <cctype>
 #include <pion/PionConfig.hpp>
 #include <pion/PionHashMap.hpp>
 
@@ -94,71 +93,11 @@ struct PION_NET_API HTTPTypes
 	static const unsigned int	RESPONSE_CODE_NOT_IMPLEMENTED;
 	static const unsigned int	RESPONSE_CODE_CONTINUE;
 	
-	/// returns true if two strings are equal (ignoring case)
-	struct CaseInsensitiveEqual {
-		inline bool operator()(const std::string& str1, const std::string& str2) const {
-			if (str1.size() != str2.size())
-				return false;
-			std::string::const_iterator it1 = str1.begin();
-			std::string::const_iterator it2 = str2.begin();
-			while ( (it1!=str1.end()) && (it2!=str2.end()) ) {
-				if (tolower(*it1) != tolower(*it2))
-					return false;
-				++it1;
-				++it2;
-			}
-			return true;
-		}
-	};
+	/// data type for HTTP headers
+	typedef StringDictionary	Headers;
 
-	/// case insensitive hash function for std::string
-	struct CaseInsensitiveHash {
-		inline unsigned long operator()(const std::string& str) const {
-			unsigned long value = 0;
-			for (std::string::const_iterator i = str.begin(); i!= str.end(); ++i)
-				value = static_cast<unsigned char>(tolower(*i)) + (value << 6) + (value << 16) - value;
-			return value;
-		}
-	};
-
-	/// returns true if str1 < str2 (ignoring case)
-	struct CaseInsensitiveLess {
-		inline bool operator()(const std::string& str1, const std::string& str2) const {
-			std::string::const_iterator it1 = str1.begin();
-			std::string::const_iterator it2 = str2.begin();
-			while ( (it1 != str1.end()) && (it2 != str2.end()) ) {
-				if (tolower(*it1) != tolower(*it2))
-					return (tolower(*it1) < tolower(*it2));
-				++it1;
-				++it2;
-			}
-			return (str1.size() < str2.size());
-		}
-	};
-
-#ifdef _MSC_VER
-	/// case insensitive extension of stdext::hash_compare for std::string
-	struct CaseInsensitiveHashCompare : public stdext::hash_compare<std::string, CaseInsensitiveLess> {
-		// makes operator() with two arguments visible, otherwise it would be hidden by the operator() defined here
-		using stdext::hash_compare<std::string, CaseInsensitiveLess>::operator();
-
-		inline size_t operator()(const std::string& str) const {
-			return CaseInsensitiveHash()(str);
-		}
-	};
-#endif
-
-	/// use case-insensitive comparisons for HTTP header names and cookie parameters
-#ifdef _MSC_VER
-	typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHashCompare>	Headers;
-	typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHashCompare>	CookieParams;
-#else
-	typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHash, CaseInsensitiveEqual >	Headers;
-	typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHash, CaseInsensitiveEqual >	CookieParams;
-#endif
-
-	/// data type for a dictionary of strings (used for HTTP headers)
-	typedef PION_HASH_MULTIMAP<std::string, std::string, PION_HASH_STRING >	StringDictionary;
+	/// data type for HTTP cookie parameters
+	typedef StringDictionary	CookieParams;
 
 	/// data type for HTTP query parameters
 	typedef StringDictionary	QueryParams;

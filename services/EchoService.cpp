@@ -21,7 +21,7 @@ namespace plugins {		// begin namespace plugins
 	
 /// used by handleRequest to write dictionary terms
 void writeDictionaryTerm(HTTPResponseWriterPtr& writer,
-						 const HTTPTypes::StringDictionary::value_type& val,
+						 const HTTPTypes::QueryParams::value_type& val,
 						 const bool decode)
 {
 	// text is copied into writer text cache

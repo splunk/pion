@@ -664,7 +664,7 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 	return rc;
 }
 
-bool HTTPParser::parseURLEncoded(HTTPTypes::StringDictionary& dict,
+bool HTTPParser::parseURLEncoded(HTTPTypes::QueryParams& dict,
 								 const char *ptr, const size_t len)
 {
 	// used to track whether we are parsing the name or value

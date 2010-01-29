@@ -19,11 +19,11 @@ using namespace pion::net;
 BOOST_AUTO_TEST_CASE(testParseSimpleQueryString)
 {
 	const std::string QUERY_STRING("a=b");
-	HTTPTypes::StringDictionary params;
+	HTTPTypes::QueryParams params;
 	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING.c_str(), QUERY_STRING.size()));
 	BOOST_CHECK_EQUAL(params.size(), 1UL);
 
-	HTTPTypes::StringDictionary::const_iterator i = params.find("a");
+	HTTPTypes::QueryParams::const_iterator i = params.find("a");
 	BOOST_REQUIRE(i != params.end());
 	BOOST_CHECK_EQUAL(i->second, "b");
 }
@@ -31,11 +31,11 @@ BOOST_AUTO_TEST_CASE(testParseSimpleQueryString)
 BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleValues)
 {
 	const std::string QUERY_STRING("test=2&three=%20four%20with%20spaces&five=sixty+two");
-	HTTPTypes::StringDictionary params;
+	HTTPTypes::QueryParams params;
 	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING));
 	BOOST_CHECK_EQUAL(params.size(), 3UL);
 
-	HTTPTypes::StringDictionary::const_iterator i = params.find("test");
+	HTTPTypes::QueryParams::const_iterator i = params.find("test");
 	BOOST_REQUIRE(i != params.end());
 	BOOST_CHECK_EQUAL(i->second, "2");
 	i = params.find("three");
@@ -49,11 +49,11 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleValues)
 BOOST_AUTO_TEST_CASE(testParseQueryStringWithDoubleAmpersand)
 {
 	const std::string QUERY_STRING("a=b&&c=d&e");
-	HTTPTypes::StringDictionary params;
+	HTTPTypes::QueryParams params;
 	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING));
 	BOOST_CHECK_EQUAL(params.size(), 3UL);
 
-	HTTPTypes::StringDictionary::const_iterator i = params.find("a");
+	HTTPTypes::QueryParams::const_iterator i = params.find("a");
 	BOOST_REQUIRE(i != params.end());
 	BOOST_CHECK_EQUAL(i->second, "b");
 	i = params.find("c");
@@ -67,11 +67,11 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithDoubleAmpersand)
 BOOST_AUTO_TEST_CASE(testParseQueryStringWithEmptyValues)
 {
 	const std::string QUERY_STRING("a=&b&c=");
-	HTTPTypes::StringDictionary params;
+	HTTPTypes::QueryParams params;
 	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING));
 	BOOST_CHECK_EQUAL(params.size(), 3UL);
 
-	HTTPTypes::StringDictionary::const_iterator i = params.find("a");
+	HTTPTypes::QueryParams::const_iterator i = params.find("a");
 	BOOST_REQUIRE(i != params.end());
 	BOOST_CHECK(i->second.empty());
 	i = params.find("b");

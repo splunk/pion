@@ -199,7 +199,7 @@ public:
 	 * 
 	 * @return bool true if successful
 	 */
-	static bool parseURLEncoded(HTTPTypes::StringDictionary& dict,
+	static bool parseURLEncoded(HTTPTypes::QueryParams& dict,
 								const char *ptr, const std::size_t len);
 
 	/**
@@ -242,7 +242,7 @@ public:
 	 * 
 	 * @return bool true if successful
 	 */
-	static inline bool parseURLEncoded(HTTPTypes::StringDictionary& dict,
+	static inline bool parseURLEncoded(HTTPTypes::QueryParams& dict,
 		const std::string& query)
 	{
 		return parseURLEncoded(dict, query.c_str(), query.size());
