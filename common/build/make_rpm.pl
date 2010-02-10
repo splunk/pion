@@ -49,8 +49,13 @@ $DIR_GLOB = $BIN_DIR . "/pion-*-" . $VERSION;
 @PACKAGES = bsd_glob( $DIR_GLOB );
 die("error: unable to find binary directory") if ($#PACKAGES != 0);
 $EDITION = $PACKAGE_BASE = $PACKAGE_DIR = $PACKAGES[0];
-$PACKAGE_BASE =~ s/.*(pion-[a-z]+)-.*/$1/;
-$EDITION =~ s/.*pion-([a-z]+)-.*/$1/;
+if ( /.*pion-[a-z]+-.*/ ) {
+	$PACKAGE_BASE =~ s/.*(pion-[a-z]+)-.*/$1/;
+	$EDITION =~ s/.*pion-([a-z]+)-.*/$1/;
+} else {
+	$PACKAGE_BASE =~ s/.*(pion)-.*/$1/;
+	$EDITION = "";
+}
 $BIN_SRC_BASE = $PACKAGE_BASE . "-" . $VERSION . "-" . $RELEASE;
 $BIN_SRC_DIR = "$BUILD_DIR/$BIN_SRC_BASE";
 $SPEC_FILE_NAME = "/tmp/$BIN_SRC_BASE.spec";
@@ -75,7 +80,7 @@ print "* Building RPM binary package for " . $TARBALL_BASE . "\n";
 print "* Generating RPM spec file..\n";
 
 # prepare some vars for spec file
-if ($EDITION eq "community") {
+if ($EDITION eq "core") {
 	$spec_license = "GPL";
 	$config_file_glob = "*.{xml,txt,pem}";
 	$install_perl_scripts = "";
@@ -206,25 +211,25 @@ print "* Preparing binary source directory..\n";
 
 `rm -rf $BIN_SRC_DIR`;
 copyDirWithoutDotFiles($PACKAGE_DIR, $BIN_SRC_DIR);
-if ($EDITION eq "community") {
+if ($EDITION eq "core") {
 	copyDirWithoutDotFiles("platform/build/rpm", $BIN_SRC_DIR);
 } else {
-	# find the pion-platform directory
+	# find the pion-core directory
 	$_ = getcwd();
 	if (/pion-[^-]+-/) {
 		s,/$,,;
 		s,\\$,,;
-		s,pion-[^-]+-(.*),pion-platform-$1,;
+		s,pion-[^-]+-(.*),pion-core-$1,;
 		if (-d $_) {
-			$PION_PLATFORM_DIR = $_;
+			$PION_CORE_DIR = $_;
 		} else {
-			$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-platform") );
+			$PION_CORE_DIR = File::Spec->catdir( ("..", "pion-core") );
 		}
 	} else {
-		$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-platform") );
+		$PION_CORE_DIR = File::Spec->catdir( ("..", "pion-core") );
 	}
-	die("Could not find pion-platform directory: $PION_PLATFORM_DIR") if (! -d $PION_PLATFORM_DIR);
-	copyDirWithoutDotFiles($PION_PLATFORM_DIR . "/platform/build/rpm", $BIN_SRC_DIR);
+	die("Could not find pion-core directory: $PION_CORE_DIR") if (! -d $PION_CORE_DIR);
+	copyDirWithoutDotFiles($PION_CORE_DIR . "/platform/build/rpm", $BIN_SRC_DIR);
 	copyDirWithoutDotFiles("enterprise/build/rpm", $BIN_SRC_DIR);
 }
 
