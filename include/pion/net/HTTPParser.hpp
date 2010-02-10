@@ -51,7 +51,7 @@ public:
 		m_chunked_content_parse_state(PARSE_CHUNK_SIZE_START), m_status_code(0),
 		m_bytes_content_remaining(0), m_bytes_content_read(0),
 		m_bytes_last_read(0), m_bytes_total_read(0),
-		m_max_content_length(max_content_length)
+		m_max_content_length(max_content_length), m_save_raw_headers(false)
 	{}
 
 	/// default destructor
@@ -139,6 +139,7 @@ public:
 		m_method.erase();
 		m_resource.erase();
 		m_query_string.erase();
+		m_raw_headers.erase();
 		m_bytes_content_read = m_bytes_last_read = m_bytes_total_read = 0;
 	}
 
@@ -160,6 +161,12 @@ public:
 	/// returns the maximum length for HTTP payload content
 	inline std::size_t getMaxContentLength(void) const { return m_max_content_length; }
 
+	/// returns the raw HTTP headers saved by the parser
+	inline const std::string& getRawHeaders(void) const { return m_raw_headers; }
+
+	/// returns true if the parser is saving raw HTTP header contents
+	inline bool getSaveRawHeaders(void) const { return m_save_raw_headers; }
+
 	/// returns true if the parser is being used to parse an HTTP request
 	inline bool isParsingRequest(void) const { return m_is_request; }
 
@@ -171,6 +178,9 @@ public:
 
 	/// resets the maximum length for HTTP payload content to the default value
 	inline void resetMaxContentLength(void) { m_max_content_length = DEFAULT_CONTENT_MAX; }
+
+	/// sets parameter for saving raw HTTP header content
+	inline void setSaveRawHeaders(bool b) { m_save_raw_headers = b; }
 
 	/// sets the logger to be used
 	inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
@@ -436,6 +446,9 @@ private:
 	/// Used for parsing the query string portion of a URI
 	std::string							m_query_string;
 
+	/// Used to store the raw contents of HTTP headers when m_save_raw_headers is true
+	std::string							m_raw_headers;
+
 	/// Used for parsing the name of HTTP headers
 	std::string							m_header_name;
 
@@ -465,6 +478,9 @@ private:
 
 	/// maximum length for HTTP payload content
 	std::size_t							m_max_content_length;
+	
+	/// if true, the raw contents of HTTP headers are stored into m_raw_headers
+	bool								m_save_raw_headers;
 };
 
 

@@ -530,7 +530,10 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 			m_bytes_total_read += m_bytes_last_read;
 			return true;
 		}
-
+		
+		if (m_save_raw_headers)
+			m_raw_headers += *m_read_ptr;
+		
 		++m_read_ptr;
 	}
 
