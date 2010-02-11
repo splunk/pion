@@ -45,11 +45,11 @@ die("Second parameter must be format <RELEASE.ARCH> (i.e. \"1.el5\")")
 $BIN_DIR = "bin";
 $RPMS_DIR = "/usr/src/redhat/RPMS";
 $BUILD_DIR = "/usr/src/redhat/BUILD";
-$DIR_GLOB = $BIN_DIR . "/pion-*-" . $VERSION;
+$DIR_GLOB = $BIN_DIR . "/pion-*" . $VERSION;
 @PACKAGES = bsd_glob( $DIR_GLOB );
 die("error: unable to find binary directory") if ($#PACKAGES != 0);
 $EDITION = $PACKAGE_BASE = $PACKAGE_DIR = $PACKAGES[0];
-if ( /.*pion-[a-z]+-.*/ ) {
+if ( $PACKAGE_DIR =~ m/.*pion-[a-z]+-.*/ ) {
 	$PACKAGE_BASE =~ s/.*(pion-[a-z]+)-.*/$1/;
 	$EDITION =~ s/.*pion-([a-z]+)-.*/$1/;
 } else {
@@ -214,22 +214,22 @@ copyDirWithoutDotFiles($PACKAGE_DIR, $BIN_SRC_DIR);
 if ($EDITION eq "core") {
 	copyDirWithoutDotFiles("platform/build/rpm", $BIN_SRC_DIR);
 } else {
-	# find the pion-core directory
+	# find the pion-platform directory
 	$_ = getcwd();
 	if (/pion-[^-]+-/) {
 		s,/$,,;
 		s,\\$,,;
-		s,pion-[^-]+-(.*),pion-core-$1,;
+		s,pion-[^-]+-(.*),pion-platform-$1,;
 		if (-d $_) {
-			$PION_CORE_DIR = $_;
+			$PION_PLATFORM_DIR = $_;
 		} else {
-			$PION_CORE_DIR = File::Spec->catdir( ("..", "pion-core") );
+			$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-platform") );
 		}
 	} else {
-		$PION_CORE_DIR = File::Spec->catdir( ("..", "pion-core") );
+		$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-platform") );
 	}
-	die("Could not find pion-core directory: $PION_CORE_DIR") if (! -d $PION_CORE_DIR);
-	copyDirWithoutDotFiles($PION_CORE_DIR . "/platform/build/rpm", $BIN_SRC_DIR);
+	die("Could not find pion-platform directory: $PION_CORE_DIR") if (! -d $PION_PLATFORM_DIR);
+	copyDirWithoutDotFiles($PION_PLATFORM_DIR . "/platform/build/rpm", $BIN_SRC_DIR);
 	copyDirWithoutDotFiles("enterprise/build/rpm", $BIN_SRC_DIR);
 }
 
