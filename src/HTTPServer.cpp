@@ -149,6 +149,14 @@ void HTTPServer::addResource(const std::string& resource,
 	PION_LOG_INFO(m_logger, "Added request handler for HTTP resource: " << clean_resource);
 }
 
+void HTTPServer::removeResource(const std::string& resource)
+{
+	boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+	const std::string clean_resource(stripTrailingSlash(resource));
+	m_resources.erase(clean_resource);
+	PION_LOG_INFO(m_logger, "Removed request handler for HTTP resource: " << clean_resource);
+}
+
 void HTTPServer::addRedirect(const std::string& requested_resource,
 							 const std::string& new_resource)
 {

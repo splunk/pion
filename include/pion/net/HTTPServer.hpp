@@ -120,6 +120,13 @@ public:
 	void addResource(const std::string& resource, RequestHandler request_handler);
 
 	/**
+	 * removes a web service from the HTTP server
+	 *
+	 * @param resource the resource name or uri-stem to remove
+	 */
+	void removeResource(const std::string& resource);
+
+	/**
 	 * adds a new resource redirection to the HTTP server
 	 *
 	 * @param requested_resource the resource name or uri-stem that will be redirected
