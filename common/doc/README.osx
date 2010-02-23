@@ -20,6 +20,14 @@ code for ICU from:
 
 http://site.icu-project.org/
 
+After downloading it, just run:
+
+# tar xvfz icu4c-<version>-src.tgz
+# cd icu/source
+# ./runConfigureICU MacOSX
+# make all
+# make install
+
 As of version 4.2.1, it doesn't seem to be possible to build universal
 libraries of ICU (or at least we haven't figured it out yet), however you
 can build 64-bit binaries on OSX using an included patch file:
@@ -32,18 +40,28 @@ can build 64-bit binaries on OSX using an included patch file:
 # make all
 # make install
 
+Note that 64-bit builds of Boost on OSX seem to be extremely buggy, so this
+is not recommended.
+
 
 Installing Boost on OSX:
 ------------------------
 
 Please see the README.boost file for general instructions.
 
-The bjam command to build Universal binaries for all libraries is:
+The bjam command to build all Boost libraries for OSX (i386) is:
+(This is recommended and the only known working option)
 
-The bjam command to build 64-bit Intel binaries for all libraries is:
+# bjam release threading=multi link=shared stage
+
+The bjam command to build 64-bit (x86_64) binaries for all libraries is:
+(These appear to be extremely buggy and will likely crash your computer)
 
 # bjam --toolset=darwin -sHAVE_ICU=1 release threading=multi \
 	architecture=x86 address-model=64 link=shared stage
+
+The bjam command to build Universal binaries for all libraries is:
+(Since ICU doesn't support Universal binaries, you have to disable it)
 
 # bjam --toolset=darwin -sHAVE_ICU=0 release threading=multi \
 	architecture=combined address-model=32_64 link=shared stage

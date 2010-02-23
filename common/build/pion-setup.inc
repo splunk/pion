@@ -53,10 +53,12 @@ case "$build_os" in
 	if test "$with_arch" = "no"; then
 		AC_MSG_RESULT(no)
 	elif test "$with_arch" = "default"; then
-		AC_MSG_RESULT(x86_64)
-		with_arch="-arch x86_64"
-		PION_OPT_FLAGS="$PION_OPT_FLAGS $with_arch"
-		PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS $with_arch"
+		AC_MSG_RESULT(no)
+# Note: Pion seems to crashe consistently when built with x86_64
+#		AC_MSG_RESULT(x86_64)
+#		with_arch="-arch x86_64"
+#		PION_OPT_FLAGS="$PION_OPT_FLAGS $with_arch"
+#		PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS $with_arch"
 	else
 		AC_MSG_RESULT($with_arch)
 		with_arch="-arch `echo $with_arch | sed 's#,# -arch #g'`"
@@ -101,7 +103,7 @@ if test "$with_cpu" = "no"; then
 	AC_MSG_RESULT(no)
 else
 	if test "$with_cpu" = "default"; then
-		if test "$with_arch" = "no" || test "x$with_arch" = "x" ; then
+		if test "$with_arch" = "no" || test "$with_arch" = "default" ; then
 		if test "$ax_cv_cxx_compiler_vendor" = "gnu"; then
 			# check __x86_64__ to determine default
 			AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
