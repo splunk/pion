@@ -52,7 +52,7 @@ Please see the README.boost file for general instructions.
 The bjam command to build all Boost libraries for OSX (i386) is:
 (This is recommended and the only known working option)
 
-# bjam release threading=multi link=shared stage
+# bjam -sHAVE_ICU=1 release threading=multi link=shared stage
 
 The bjam command to build 64-bit (x86_64) binaries for all libraries is:
 (These appear to be extremely buggy and will likely crash your computer)
