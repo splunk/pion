@@ -9,11 +9,11 @@ Obtaining Boost:
 
 First, download the latest tarball from SourceForge.net:
 
-# wget http://downloads.sourceforge.net/boost/boost_1_41_0.tar.bz2
+# wget http://downloads.sourceforge.net/boost/boost_1_42_0.tar.bz2
 
 Next, uncompress the tarball into a new directory:
 
-# bzip2 -dc boost_1_41_0.tar.bz2 | tar xvf -
+# bzip2 -dc boost_1_42_0.tar.bz2 | tar xvf -
 
 
 Building and Installing Boost:
@@ -37,13 +37,25 @@ will save you a lot of time), include the following options when running bjam:
 "--with-thread --with-system --with-filesystem --with-regex --with-date_time
 --with-signals --with-iostreams --with-test"
 
+We recommend that you build Boost with Unicode and ICU support.  If the ICU
+library is included with your operating system, this can be usually be
+accomplished by just adding "-sHAVE_ICU=1" to your bjam options.  If not,
+you can download the ICU source code from:
+
+http://site.icu-project.org/
+
+More information on building Boost with Unicode support can be found at:
+
+http://www.boost.org/doc/libs/1_42_0/libs/regex/doc/html/boost_regex/install.html#boost_regex.install.building_with_unicode_and_icu_support
+
 For example (when using Microsoft Visual C++):
 
-# bjam --toolset=msvc --with-thread --with-system --with-filesystem \
-	--with-regex --with-date_time --with-signals --with-iostreams --with-test \
-	release threading=multi stage
+# bjam --toolset=msvc -sHAVE_ICU=1 \
+	--with-thread --with-system --with-filesystem --with-regex \
+	--with-date_time --with-signals --with-iostreams --with-test \
+	release threading=multi link=shared stage
 
-(just leave out "--toolset=msvc" for Unixes)
+(just leave out "--toolset=msvc" for Unix platforms)
 
 This will build the eight libraries required by Pion and place the files within
 the stage/ subdirectory of your build directory.

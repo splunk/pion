@@ -12,28 +12,41 @@ this into your /usr/local/ directory, and you should be able to skip
 down to one of the last two steps!
 
 
+Installing ICU on OSX:
+----------------------
+
+Boost requires the ICU library for i18n support.  You can download the source
+code for ICU from:
+
+http://site.icu-project.org/
+
+As of version 4.2.1, it doesn't seem to be possible to build universal
+libraries of ICU (or at least we haven't figured it out yet), however you
+can build 64-bit binaries on OSX using an included patch file:
+
+# tar xvfz icu4c-<version>-src.tgz
+# cd icu
+# patch -p1 < /path/to/pion-source/common/build/icu-4.2.1-osx.patch
+# cd source
+# ./runConfigureICU MacOSX
+# make all
+# make install
+
+
 Installing Boost on OSX:
 ------------------------
 
 Please see the README.boost file for general instructions.
 
-To build Universal binaries for OSX, you need to first patch boost to 
-support a new "32_64" address model (still required as of version 1.37):
-
-# cd <boost-source>/tools/build/v2/tools
-# patch -p0 < <pion-source>/common/build/32_64.diff
-
-(this patch is from https://svn.boost.org/trac/boost/ticket/1679)
-
 The bjam command to build Universal binaries for all libraries is:
 
-# bjam --toolset=darwin debug release threading=multi architecture=combined \
-	address-model=32_64 stage
-	
-To build 64-bit binaries, run Pion's configure script with 
-"--with-arch=x86_64".  Please note that Pion's unit tests currently fail
-when using 64-bit binaries on OSX due to compatibility bugs in Boost's
-unit test framework.
+The bjam command to build 64-bit Intel binaries for all libraries is:
+
+# bjam --toolset=darwin -sHAVE_ICU=1 release threading=multi \
+	architecture=x86 address-model=64 link=shared stage
+
+# bjam --toolset=darwin -sHAVE_ICU=0 release threading=multi \
+	architecture=combined address-model=32_64 link=shared stage
 
 
 Installing zlib, bzlib & openssl:
@@ -88,38 +101,6 @@ the following site:
 http://www.xmlsoft.org
 
 
-Installing OSSP uuid:
----------------------
-
-The Pion Platform requires the OSSP uuid library to generate universally 
-unique identifiers for most platforms, including OS X.  This library is 
-not used by the Pion Network Library, so you may skip this step if you 
-are only building the Network Library.
-
-You can download the source code tarball for the uuid library from the 
-"Third Party Libraries" page on our website.  After downloading it, just 
-run:
-
-# tar xvfz uuid-<version>.tar.gz
-# cd uuid-<version>
-# ./configure
-# make all
-# make install
-
-For Universal binaries, use:
-
-# LDFLAGS="-arch i386 -arch x86_64 -arch ppc -arch ppc64" \
-	CFLAGS="-arch i386 -arch x86_64 -arch ppc -arch ppc64" ./configure
-
-This will build a Universal static library, but the dynamic library will be
-broken and the final linking of the uuid executable will fail.  Just copy
-the necessary files manually into your /usr/local directories:
-
-# cp .libs/libuuid.a /usr/local/lib
-# cp uuid.h /usr/local/include
-# cp uuid-config /usr/local/bin
-
-
 Installing YAJL:
 ----------------
 
@@ -164,7 +145,7 @@ Now you should be able to build and install Pion:
 
 # tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
 # cd pion-<PROJECT>-<VERSION>
-# ./configure [--with-arch=x86_64] [--with-cpu=nocona]
+# ./configure [--with-arch=ppc64,x86_64] [--with-cpu=nocona]
 # make all
 # make install
 

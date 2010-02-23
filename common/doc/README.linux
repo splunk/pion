@@ -11,8 +11,19 @@ and uncompress this file into your /usr/local/ directory, and you should be
 able to skip down to the last step!
 
 
-Building Boost with ASIO:
--------------------------
+Installing ICU:
+---------------
+
+Boost requires the ICU library for i18n support.  This library is normally
+pre-installed on Linux.  If you do not have it already, you should be able
+to grab the latest version using your favorite package manager:
+
+# yum install libicu libicu-devel
+# up2date libicu libicu-devel
+
+
+Installing Boost:
+-----------------
 
 Please see the README.boost file for instructions.
 
@@ -27,8 +38,8 @@ not seem to work with gcc 3.x.  You should use gcc4 instead:
 
 # yum install gcc4 gcc4-c++
 
-Before running "make" to build the Boost libraries, edit the user-config.jam
-file and change this:
+Before running "make" to build the Boost libraries, edit the
+tools/build/v2/user-config.jam file and change this:
 
 using gcc ;
 
