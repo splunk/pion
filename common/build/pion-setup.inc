@@ -49,11 +49,14 @@ case "$build_os" in
 	AC_ARG_WITH([arch],
 	    AC_HELP_STRING([--with-arch@<:@=LIST@:>@],[specify comma-separated list of OSX architectures]),
     	[with_arch=$withval],
-	    [with_arch=no])
+	    [with_arch=default])
 	if test "$with_arch" = "no"; then
 		AC_MSG_RESULT(no)
-	elif test "x$with_arch" = "x"; then
-		AC_MSG_RESULT(no)
+	elif test "$with_arch" = "default"; then
+		AC_MSG_RESULT(x86_64)
+		with_arch="-arch x86_64"
+		PION_OPT_FLAGS="$PION_OPT_FLAGS $with_arch"
+		PION_DEBUG_FLAGS="$PION_DEBUG_FLAGS $with_arch"
 	else
 		AC_MSG_RESULT($with_arch)
 		with_arch="-arch `echo $with_arch | sed 's#,# -arch #g'`"
