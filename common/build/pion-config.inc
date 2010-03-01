@@ -3,7 +3,7 @@
 # --------------------------------
 
 # Set Pion version information
-PION_LIBRARY_VERSION=`echo $PACKAGE_VERSION | sed 's;^\([[0-9]]\+\.[[0-9]]\+\).*$;\1;'`
+PION_LIBRARY_VERSION=`echo $PACKAGE_VERSION | sed 's;^\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\).*$;\1;'`
 # AC_MSG_NOTICE("Pion Library Version: $PION_LIBRARY_VERSION")
 AC_SUBST(PION_LIBRARY_VERSION)
 AC_DEFINE_UNQUOTED([PION_VERSION],["$PACKAGE_VERSION"],[Define to the version number of Pion.])
