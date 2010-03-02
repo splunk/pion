@@ -175,7 +175,7 @@ $SPEC_OPTIONS
 \%dir /var/log/pion
 
 \%defattr(-,root,root)
-\%doc $BIN_SRC_BASE/HISTORY.txt $BIN_SRC_BASE/LICENSE.txt $BIN_SRC_BASE/README.txt $BIN_SRC_BASE/pion-manual.pdf
+\%doc $BIN_SRC_BASE/HISTORY.txt $BIN_SRC_BASE/LICENSE.txt $BIN_SRC_BASE/README.txt $BIN_SRC_BASE/pion-overview.pdf $BIN_SRC_BASE/pion-reactor-config.pdf $BIN_SRC_BASE/pion-replay-guide.pdf $BIN_SRC_BASE/pion-setup-wizard.pdf
 
 \%defattr(755,root,root)
 /usr/bin/pion
