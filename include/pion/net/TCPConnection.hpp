@@ -587,7 +587,7 @@ public:
 	 */
 	template <typename ConstBufferSequence>
 	inline std::size_t write(const ConstBufferSequence& buffers,
-							 boost::system::error_code ec)
+							 boost::system::error_code& ec)
 	{
 #ifdef PION_HAVE_SSL
 		if (getSSLFlag())
