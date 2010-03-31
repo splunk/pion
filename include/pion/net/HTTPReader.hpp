@@ -11,6 +11,8 @@
 #define __PION_HTTPREADER_HEADER__
 
 #include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <pion/PionConfig.hpp>
@@ -55,7 +57,6 @@ protected:
 	 */
 	HTTPReader(const bool is_request, TCPConnectionPtr& tcp_conn)
 		: HTTPParser(is_request), m_tcp_conn(tcp_conn),
-		m_read_timer(m_tcp_conn->getIOService()),
 		m_timer_active(false), m_read_active(false),
 		m_read_timeout(DEFAULT_READ_TIMEOUT)
 		{}	
@@ -87,12 +88,8 @@ private:
 	/// reads more bytes for parsing, with timeout support
 	void readBytesWithTimeout(void);
 
-	/**
-	 * Callback handler for the read timer
-	 *
-	 * @param ec deadline timer error status code
-	 */
-	void timerCallback(const boost::system::error_code& ec);
+	/// run function for read operation timeout thread
+	void runTimer(void);
 
 	/**
 	 * Handles errors that occur during read operations
@@ -109,20 +106,20 @@ private:
 	/// The HTTP connection that has a new HTTP message to parse
 	TCPConnectionPtr						m_tcp_conn;
 
-	/// deadline timer used to timeout long-running read operations
-	boost::asio::deadline_timer				m_read_timer;
-	
-	/// conditioned signaled after the read timer has finished
-	boost::condition						m_timer_finished;
+	/// thread used by the read timer
+	boost::shared_ptr<boost::thread>		m_timer_thread_ptr;
 
-	/// mutex used to synchronize the timeout deadline timer
+	/// condition signaled to stop the read deadline timer thread
+	boost::condition						m_timer_stop;
+
+	/// mutex used to synchronize the read deadline timer
 	boost::mutex							m_timer_mutex;
 
 	/// true if the read timer is active
-	bool									m_timer_active;	
+	volatile bool							m_timer_active;	
 
 	/// true if a read operation is active
-	bool									m_read_active;	
+	volatile bool							m_read_active;	
 
 	/// maximum number of seconds for read operations
 	boost::uint32_t							m_read_timeout;
