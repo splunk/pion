@@ -16,7 +16,12 @@
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)
 
+
+// HTTPReader static members
 	
+const boost::uint32_t		HTTPReader::DEFAULT_READ_TIMEOUT = 10;
+
+
 // HTTPReader member functions
 
 void HTTPReader::receive(void)
@@ -29,13 +34,23 @@ void HTTPReader::receive(void)
 	} else {
 		// no pipelined messages available in the read buffer -> read bytes from the socket
 		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// default to close the connection
-		readBytes();
+		readBytesWithTimeout();
 	}
 }
 
 void HTTPReader::consumeBytes(const boost::system::error_code& read_error,
 							  std::size_t bytes_read)
 {
+	// cancel read timer if operation didn't time-out
+	if (m_read_timeout > 0) {
+		boost::mutex::scoped_lock timer_lock(m_timer_mutex);
+		m_read_active = false;
+		while (m_timer_active) {
+			m_read_timer.cancel();
+			m_timer_finished.wait(timer_lock);
+		}
+	}
+
 	if (read_error) {
 		// a read error occured
 		handleReadError(read_error);
@@ -123,8 +138,30 @@ void HTTPReader::consumeBytes(void)
 		
 	} else {
 		// not yet finished parsing the message -> read more data
-		
-		readBytes();
+		readBytesWithTimeout();
+	}
+}
+
+void HTTPReader::readBytesWithTimeout(void)
+{
+	if (m_read_timeout > 0) {
+		boost::mutex::scoped_lock timer_lock(m_timer_mutex);
+		m_read_active = true;
+		m_timer_active = true;
+		m_read_timer.expires_from_now(boost::posix_time::seconds(m_read_timeout));
+		m_read_timer.async_wait(boost::bind(&HTTPReader::timerCallback, this, _1));
+	}
+	readBytes();
+}
+
+void HTTPReader::timerCallback(const boost::system::error_code& ec)
+{
+	boost::mutex::scoped_lock timer_lock(m_timer_mutex);
+	m_timer_active = false;
+	if (m_read_active) {
+		m_tcp_conn->close();
+	} else {
+		m_timer_finished.notify_all();
 	}
 }
 

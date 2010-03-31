@@ -671,6 +671,23 @@ public:
 		return getRemoteEndpoint().port();
 	}
 	
+	/// returns reference to the io_service used for async operations
+	inline boost::asio::io_service& getIOService(void) {
+		return m_tcp_socket.io_service();
+	}
+
+	/// returns non-const reference to underlying TCP socket object
+	inline Socket& getSocket(void) { return m_tcp_socket; }
+	
+	/// returns non-const reference to underlying SSL socket object
+	inline SSLSocket& getSSLSocket(void) { return m_ssl_socket; }
+
+	/// returns const reference to underlying TCP socket object
+	inline const Socket& getSocket(void) const { return m_tcp_socket; }
+	
+	/// returns const reference to underlying SSL socket object
+	inline const SSLSocket& getSSLSocket(void) const { return m_ssl_socket; }
+
 	
 protected:
 		

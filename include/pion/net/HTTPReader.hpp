@@ -11,6 +11,8 @@
 #define __PION_HTTPREADER_HEADER__
 
 #include <boost/asio.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPParser.hpp>
 #include <pion/net/HTTPMessage.hpp>
@@ -37,6 +39,9 @@ public:
 	
 	/// returns a shared pointer to the TCP connection
 	inline TCPConnectionPtr& getTCPConnection(void) { return m_tcp_conn; }
+	
+	/// sets the maximum number of seconds for read operations
+	inline void setTimeout(boost::uint32_t seconds) { m_read_timeout = seconds; }
 
 	
 protected:
@@ -49,7 +54,11 @@ protected:
 	 * @param tcp_conn TCP connection containing a new message to parse
 	 */
 	HTTPReader(const bool is_request, TCPConnectionPtr& tcp_conn)
-		: HTTPParser(is_request), m_tcp_conn(tcp_conn) {}	
+		: HTTPParser(is_request), m_tcp_conn(tcp_conn),
+		m_read_timer(m_tcp_conn->getIOService()),
+		m_timer_active(false), m_read_active(false),
+		m_read_timeout(DEFAULT_READ_TIMEOUT)
+		{}	
 	
 	/**
 	 * Consumes bytes that have been read using an HTTP parser
@@ -75,6 +84,16 @@ protected:
 
 private:
 
+	/// reads more bytes for parsing, with timeout support
+	void readBytesWithTimeout(void);
+
+	/**
+	 * Callback handler for the read timer
+	 *
+	 * @param ec deadline timer error status code
+	 */
+	void timerCallback(const boost::system::error_code& ec);
+
 	/**
 	 * Handles errors that occur during read operations
 	 *
@@ -83,8 +102,30 @@ private:
 	void handleReadError(const boost::system::error_code& read_error);
 
 
+	/// default maximum number of seconds for read operations
+	static const boost::uint32_t			DEFAULT_READ_TIMEOUT;
+
+
 	/// The HTTP connection that has a new HTTP message to parse
 	TCPConnectionPtr						m_tcp_conn;
+
+	/// deadline timer used to timeout long-running read operations
+	boost::asio::deadline_timer				m_read_timer;
+	
+	/// conditioned signaled after the read timer has finished
+	boost::condition						m_timer_finished;
+
+	/// mutex used to synchronize the timeout deadline timer
+	boost::mutex							m_timer_mutex;
+
+	/// true if the read timer is active
+	bool									m_timer_active;	
+
+	/// true if a read operation is active
+	bool									m_read_active;	
+
+	/// maximum number of seconds for read operations
+	boost::uint32_t							m_read_timeout;
 };
 
 
