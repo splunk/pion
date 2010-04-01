@@ -171,6 +171,7 @@ public:
 			m_tail_ptr = m_head_ptr;
 			m_head_ptr = m_head_ptr->next;
 			destroyNode(m_tail_ptr);
+			--m_size;
 		}
 		m_tail_ptr = m_head_ptr;
 	}
