@@ -15,15 +15,24 @@
 #include <boost/functional/hash.hpp>
 #include <pion/PionConfig.hpp>
 
-
 #if defined(PION_HAVE_UNORDERED_MAP)
 	#include <tr1/unordered_map>
+#elif defined(PION_HAVE_EXT_HASH_MAP)
+	#include <ext/hash_map>
+#elif defined(PION_HAVE_HASH_MAP)
+	#include <hash_map>
+#endif
+
+
+namespace pion {	// begin namespace pion
+
+
+#if defined(PION_HAVE_UNORDERED_MAP)
 	#define PION_HASH_MAP std::tr1::unordered_map
 	#define PION_HASH_MULTIMAP std::tr1::unordered_multimap
 	#define PION_HASH_STRING boost::hash<std::string>
 	#define PION_HASH(TYPE) boost::hash<TYPE>
 #elif defined(PION_HAVE_EXT_HASH_MAP)
-	#include <ext/hash_map>
 	#if __GNUC__ >= 3
 		#define PION_HASH_MAP __gnu_cxx::hash_map
 		#define PION_HASH_MULTIMAP __gnu_cxx::hash_multimap
@@ -34,7 +43,6 @@
 	#define PION_HASH_STRING boost::hash<std::string>
 	#define PION_HASH(TYPE) boost::hash<TYPE>
 #elif defined(PION_HAVE_HASH_MAP)
-	#include <hash_map>
 	#ifdef _MSC_VER
 		#define PION_HASH_MAP stdext::hash_map
 		#define PION_HASH_MULTIMAP stdext::hash_multimap
@@ -117,5 +125,7 @@ struct CaseInsensitiveLess {
 /// data type for a dictionary of strings
 //typedef PION_HASH_MULTIMAP<std::string, std::string, PION_HASH_STRING >	StringDictionary;
 
+
+}	// end namespace pion
 
 #endif
