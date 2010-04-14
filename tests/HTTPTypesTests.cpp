@@ -12,6 +12,7 @@
 #include <pion/PionUnitTestDefs.hpp>
 #include <boost/test/unit_test.hpp>
 
+using namespace pion;
 using namespace pion::net;
 
 BOOST_FIXTURE_TEST_SUITE(HTTPTypes_S, HTTPTypes)
