@@ -42,14 +42,9 @@ void HTTPReader::consumeBytes(const boost::system::error_code& read_error,
 							  std::size_t bytes_read)
 {
 	// cancel read timer if operation didn't time-out
-	if (m_read_timeout > 0) {
-		boost::mutex::scoped_lock timer_lock(m_timer_mutex);
-		m_read_active = false;
-		if (m_timer_active) {
-			m_timer_stop.notify_all();
-			timer_lock.unlock();
-			m_timer_thread_ptr->join();
-		}
+	if (m_timer_ptr) {
+		m_timer_ptr->cancel();
+		m_timer_ptr.reset();
 	}
 
 	if (read_error) {
@@ -146,30 +141,12 @@ void HTTPReader::consumeBytes(void)
 void HTTPReader::readBytesWithTimeout(void)
 {
 	if (m_read_timeout > 0) {
-		boost::mutex::scoped_lock timer_lock(m_timer_mutex);
-		m_read_active = true;
-		m_timer_active = true;
-		m_timer_thread_ptr.reset(new boost::thread(boost::bind(&HTTPReader::runTimer, this)));
+		m_timer_ptr.reset(new TCPTimer(m_tcp_conn));
+		m_timer_ptr->start(m_read_timeout);
+	} else if (m_timer_ptr) {
+		m_timer_ptr.reset();
 	}
 	readBytes();
-}
-
-void HTTPReader::runTimer(void)
-{
-	boost::mutex::scoped_lock timer_lock(m_timer_mutex);
-	try {
-		if (m_read_active)
-			m_timer_stop.timed_wait(m_timer_mutex, boost::posix_time::seconds(m_read_timeout));
-		if (m_read_active) {
-			PION_LOG_DEBUG(m_logger, "Read operation timed-out, closing connection");
-			m_tcp_conn->close();
-		}
-	} catch (std::exception& e) {
-		PION_LOG_ERROR(m_logger, e.what());
-	} catch (...) {
-		PION_LOG_ERROR(m_logger, "caught unrecognized exception");
-	}
-	m_timer_active = false;
 }
 
 void HTTPReader::handleReadError(const boost::system::error_code& read_error)
