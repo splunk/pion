@@ -410,6 +410,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TCPTimer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WebServer.cpp"
 				>
 			</File>
@@ -489,6 +493,10 @@
 			</File>
 			<File
 				RelativePath="..\include\pion\net\TCPServer.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\net\TCPTimer.hpp"
 				>
 			</File>
 			<File
