@@ -265,4 +265,19 @@ template<typename F>											\
 void test_name<F>::test_method()								\
 /**/
 
+// Macro for checking that a particular exception is thrown, for situations where the type of the exception is not in scope.  
+// For instance, in checkEmptyQueryMapException(), we'd really just like to say:
+//		BOOST_CHECK_THROW(p->setConfig(*m_vocab, config_ptr), pion::plugins::WebTrendsAnalyticsReactor::EmptyQueryMap);
+// but pion::plugins::WebTrendsAnalyticsReactor::EmptyQueryMap isn't defined, and the overhead to bring it into scope is prohibitive.
+#define CHECK_THROW_WITH_SPECIFIC_MESSAGE(S, M) \
+	bool exception_caught = false;              \
+	try {                                       \
+		S;                                      \
+	} catch (pion::PionException& e) {          \
+		exception_caught = true;                \
+		BOOST_CHECK_EQUAL(e.what(), M);         \
+	}                                           \
+	BOOST_CHECK(exception_caught);
+/**/
+
 #endif
