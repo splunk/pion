@@ -190,16 +190,6 @@ public:
 
 
 	/**
-	 * Determine if the Content-Type header is valid and has type "application/x-www-form-urlencoded",
-	 * and if a charset parameter is found, save the value.
-	 * 
-	 * @param http_request request whose Content-Type header is being analyzed
-	 * 
-	 * @return bool true if header is valid and has type "application/x-www-form-urlencoded"
-	 */
-	static bool contentTypeIsUrlEncoded(HTTPRequest& http_request);
-
-	/**
 	 * parse key-value pairs out of a url-encoded string
 	 * (i.e. this=that&a=value)
 	 * 
