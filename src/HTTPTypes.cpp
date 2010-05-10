@@ -41,6 +41,7 @@ const std::string	HTTPTypes::HEADER_AUTHORIZATION("Authorization");
 const std::string	HTTPTypes::HEADER_REFERER("Referer");
 const std::string	HTTPTypes::HEADER_USER_AGENT("User-Agent");
 const std::string	HTTPTypes::HEADER_X_FORWARDED_FOR("X-Forwarded-For");
+const std::string	HTTPTypes::HEADER_CLIENT_IP("Client-IP");
 
 // common HTTP content types
 const std::string	HTTPTypes::CONTENT_TYPE_HTML("text/html");
