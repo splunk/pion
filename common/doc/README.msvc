@@ -1,33 +1,12 @@
 Microsoft Visual C++ Build Instructions
 =======================================
 
-Installing Visual C++ 2005 Express Edition:
--------------------------------------------
-
-This whole section can be skipped if you have Visual Studio 2005 (i.e.
-not the free Express edition) installed.
-
-To install Visual C++ 2005 Express Edition and the Microsoft Platform
-SDK, follow the steps described at the following URL:
-
-http://www.microsoft.com/express/2005/platformsdk/default.aspx
-
-In order for the Visual Studio Command Line Compiler to find the necessary
-Microsoft Platform SDK files, one more file must be modified: open
-"C:\Program Files\Microsoft Visual Studio 8\VC\vcvarsall.bat" in an editor
-and add the following lines at the top, after "@echo off":
-
-@set PATH=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin;%PATH%
-@set INCLUDE=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include;%INCLUDE%
-@set LIB=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib;%LIB%
-
-
 The Easy Way:
 -------------
 
 Atomic Labs has a zip file available from the "Third Party Libraries" page
 on our website that contains all of the required libraries to build Pion
-for MSVC 2005.  To get started quickly, just download and uncompress this file
+for MSVC 2008.  To get started quickly, just download and uncompress this file
 into your C:\ directory, and you should be able to skip most of the following
 instructions (however, Path updates are still required).
 
@@ -35,20 +14,20 @@ instructions (however, Path updates are still required).
 Building Boost:
 ---------------
 
-First, download and unzip the Boost 1.37.0 source code from:
+First, download and unzip the Boost 1.42.0 source code from:
 
-http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=8041&release_id=637761
+http://sourceforge.net/projects/boost/files/boost/1.42.0
 
 We recommend that you use the bjam tool to build Boost for MSVC.  You can
 download the latest bjam executable from:
 
-http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=72941
+http://sourceforge.net/projects/boost/files/boost-jam
 
-(Click on boost-jam-3.1.16-1-ntx86.zip, or similar)
+(Click on boost-jam-3.1.18-1-ntx86.zip, or similar)
 
 Copy the included "bjam" executable into your C:\Windows\System32 directory.
 
-Open the Visual Studio 2005 Command Prompt, change to the Boost source code
+Open the Visual Studio 2008 Command Prompt, change to the Boost source code
 directory, and type:
 
 bjam --toolset=msvc debug release threading=multi stage
@@ -63,12 +42,12 @@ bjam --toolset=msvc --with-thread --with-system --with-filesystem \
 Boost.Iostreams is also required, but must be compiled separately for
 Windows; see Building Boost.Iostreams below.
 
-We recommend that you create a C:\boost-1.37.0 directory with C:\boost-1.37.0\lib and
-C:\boost-1.37.0\boost subdirectories.  To install boost-1.37.0 into these
-directories, just copy the files in stage\lib into C:\boost-1.37.0\lib, and
-copy the entire boost directory (which contains all the header files) into C:\boost-1.37.0\boost.
+We recommend that you create a C:\boost-1.42.0 directory with C:\boost-1.42.0\lib and
+C:\boost-1.42.0\boost subdirectories.  To install boost-1.42.0 into these
+directories, just copy the files in stage\lib into C:\boost-1.42.0\lib, and
+copy the entire boost directory (which contains all the header files) into C:\boost-1.42.0\boost.
 
-Finally, add C:\boost-1.37.0\lib to your Path.
+Finally, add C:\boost-1.42.0\lib to your Path.
 
 
 Building Boost.Iostreams:
@@ -79,7 +58,7 @@ support on Windows (since zlib and bzip2 aren't installed as part of
 Windows.)  Since Pion uses boost::iostreams::gzip_decompressor and 
 boost::iostreams::bzip2_decompressor, zlib and bzip2 must be installed
 (see instructions later in this document) and Boost.Iostreams must be
-rebuilt: open a command prompt in ...\boost_1_35_0\libs\iostreams\build,
+rebuilt: open a command prompt in ...\boost_1_42_0\libs\iostreams\build,
 and run the following command (changing the paths if you installed zlib 
 and/or bzip2 elsewhere.)
 
@@ -87,9 +66,27 @@ bjam debug release -sZLIB_BINARY=zdll -sZLIB_INCLUDE=C:/zlib-1.2.3/include \
 	-sZLIB_LIBPATH=C:/zlib-1.2.3/lib -sBZIP2_BINARY=bzip2 \
 	-sBZIP2_INCLUDE=C:/bzip2-1.0.5/include -sBZIP2_LIBPATH=C:/bzip2-1.0.5/lib
 
-Then copy boost_iostreams-vc80-mt-gd-1_35.{dll|lib} and 
-boost_iostreams-vc80-mt-1_35.{dll|lib} from 
-...\boost_1_35_0\bin.v2\libs\iostreams\build to C:\Boost\Lib.
+Then copy boost_iostreams-vc90-mt-gd-1_42.{dll|lib} and 
+boost_iostreams-vc90-mt-1_42.{dll|lib} from 
+...\boost_1_42_0\bin.v2\libs\iostreams\build to C:\Boost\Lib.
+
+
+Building Boost.Regex:
+-------------------------
+
+Boost.Regex is built by default without Unicode support via ICU.
+Since Pion uses boost::u32regex, ICU must be installed
+(see instructions later in this document) and Boost.Regex must be
+rebuilt: open a command prompt in ...\boost_1_42_0\libs\regex\build,
+and run the following command (changing the path if you installed ICU elsewhere.)
+
+bjam debug release -sICU_PATH=C:\icu-4.4.1
+
+Then copy boost_regex-vc90-mt-gd-1_42.{dll|lib} and boost_regex-vc90-mt-1_42.{dll|lib} 
+from ...\boost_1_42_0\bin.v2\libs\regex\build to C:\boost-1.42.0\lib.
+
+Documentation is available at the Boost website:
+http://www.boost.org/doc/libs/1_42_0/libs/regex/doc/html/boost_regex/install.html#boost_regex.install.building_with_unicode_and_icu_support
 
 
 Installing OpenSSL:
@@ -217,6 +214,13 @@ bzip2:
  - (if installed somewhere other than C:\bzip2-1.0.5, change user macro 
    BZIP2_HOME in pion.vsprops accordingly)
 
+icu:
+ - download http://download.icu-project.org/files/icu4c/4.4.1/icu4c-4_4_1-Win32-msvc9.zip
+ - open it into C:\icu-4.4.1
+ - add C:\icu-4.4.1\bin to your path
+ - (if installed somewhere other than C:\icu-4.4.1, change user macro 
+   ICU_HOME in pion.vsprops accordingly)
+
 
 Building and installing Pion:
 -----------------------------
@@ -229,7 +233,7 @@ See platform/server/README.msvc for more information about running Pion.
 Running the test programs:
 --------------------------
 
-Make sure "C:\Boost\Lib" is on your path.
+Make sure "C:\boost-1.42.0\lib" is on your path.
 
 If you got the source code from the Subversion repository and haven't yet run
 Doxygen, then create the documentation files (used as part of the Pion Network 
