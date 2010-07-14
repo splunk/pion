@@ -56,6 +56,6 @@
 	/>
 	<UserMacro
 		Name="ICU_HOME"
-		Value="C:\icu-4.4.1"
+		Value="C:\icu-3.6"
 	/>
 </VisualStudioPropertySheet>
