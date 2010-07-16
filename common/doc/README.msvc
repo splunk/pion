@@ -80,7 +80,7 @@ Since Pion uses boost::u32regex, ICU must be installed
 rebuilt: open a command prompt in ...\boost_1_42_0\libs\regex\build,
 and run the following command (changing the path if you installed ICU elsewhere.)
 
-bjam debug release -sICU_PATH=C:\icu-4.4.1
+bjam debug release -sICU_PATH=C:\icu-3.6
 
 Then copy boost_regex-vc90-mt-gd-1_42.{dll|lib} and boost_regex-vc90-mt-1_42.{dll|lib} 
 from ...\boost_1_42_0\bin.v2\libs\regex\build to C:\boost-1.42.0\lib.
@@ -215,10 +215,10 @@ bzip2:
    BZIP2_HOME in pion.vsprops accordingly)
 
 icu:
- - download http://download.icu-project.org/files/icu4c/4.4.1/icu4c-4_4_1-Win32-msvc9.zip
- - open it into C:\icu-4.4.1
- - add C:\icu-4.4.1\bin to your path
- - (if installed somewhere other than C:\icu-4.4.1, change user macro 
+ - download ftp://ftp.software.ibm.com/software/globalization/icu/3.6/icu4c-3_6-Win32-msvc7_1.zip
+ - open it into C:\icu-3.6
+ - add C:\icu-3.6\bin to your path
+ - (if installed somewhere other than C:\icu-3.6, change user macro 
    ICU_HOME in pion.vsprops accordingly)
 
 
