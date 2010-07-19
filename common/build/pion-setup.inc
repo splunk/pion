@@ -42,7 +42,7 @@ case "$build_os" in
 	#LDFLAGS="$LDFLAGS"
 	PION_OPT_FLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -fno-tree-pre -falign-loops -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
-	PION_EXTERNAL_LIBS="-ldl"
+	PION_EXTERNAL_LIBS="-ldl -licui18n -licuuc"
 
 	# Check for OSX binary architecture
 	AC_MSG_CHECKING([for OSX binary architectures])
