@@ -88,7 +88,7 @@ case "$build_os" in
 	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
 	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
-	PION_EXTERNAL_LIBS="-ldl"
+	PION_EXTERNAL_LIBS="-ldl -licui18n -licuuc"
 	;;
 esac
 
