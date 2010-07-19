@@ -50,7 +50,6 @@ public:
 		m_query_string.erase();
 		m_query_params.clear();
 		m_user_record.reset();
-		m_charset.clear();
 	}
 
 	/// the content length of the message can never be implied for requests
@@ -189,10 +188,6 @@ private:
 
 	/// pointer to PionUser record if this request had been authenticated 
 	PionUserPtr						m_user_record;
-
-	/// charset value from 
-	/// Content-Type: application/x-www-form-urlencoded; charset=<VALUE>
-	std::string						m_charset;
 };
 
 
