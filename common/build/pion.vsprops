@@ -66,4 +66,8 @@
 		Name="PYTHON_HOME"
 		Value="C:\Python26"
 	/>
+	<UserMacro
+		Name="PION_PATH"
+		Value="$(BOOST_HOME)\lib;$(BZIP2_HOME)\bin;$(ICONV_HOME)\bin;$(ICU_HOME)\bin;$(LIBXML_HOME)\bin;$(LOG4CPLUS_HOME)\bin;$(OPENSSL_HOME)\bin;$(YAJL_HOME)\bin;$(ZLIB_HOME)\bin;%PATH%"
+	/>
 </VisualStudioPropertySheet>

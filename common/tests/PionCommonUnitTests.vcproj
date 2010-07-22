@@ -77,7 +77,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="auto run tests"
-				CommandLine="&quot;$(TargetPath)&quot; --log_level=test_suite"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
 			/>
 		</Configuration>
 		<Configuration
@@ -140,7 +140,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="auto run tests"
-				CommandLine="&quot;$(TargetPath)&quot; --log_level=test_suite"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
 			/>
 		</Configuration>
 		<Configuration
@@ -205,7 +205,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="auto run tests"
-				CommandLine="&quot;$(TargetPath)&quot; --log_level=test_suite"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
 			/>
 		</Configuration>
 		<Configuration
@@ -268,7 +268,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="auto run tests"
-				CommandLine="&quot;$(TargetPath)&quot; --log_level=test_suite"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
 			/>
 		</Configuration>
 		<Configuration
@@ -332,7 +332,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="auto run tests"
-				CommandLine="&quot;$(TargetPath)&quot; --log_level=test_suite"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
 			/>
 		</Configuration>
 		<Configuration
@@ -397,7 +397,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="auto run tests"
-				CommandLine="&quot;$(TargetPath)&quot; --log_level=test_suite"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
 			/>
 		</Configuration>
 	</Configurations>
