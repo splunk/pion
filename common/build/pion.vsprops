@@ -58,4 +58,12 @@
 		Name="ICU_HOME"
 		Value="C:\icu-3.6"
 	/>
+	<UserMacro
+		Name="YAJL_HOME"
+		Value="C:\yajl-1.0.9"
+	/>
+	<UserMacro
+		Name="PYTHON_HOME"
+		Value="C:\Python26"
+	/>
 </VisualStudioPropertySheet>
