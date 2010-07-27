@@ -18,9 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug_DLL|Win32"
-			OutputDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\build\pion.vsprops;..\..\build\depth_3_pion-common.vsprops;..\..\build\third_party_libs_win32.vsprops"
+			InheritedPropertySheets="..\..\build\depth_3_pion-common.vsprops;..\..\build\third_party_libs_win32.vsprops;..\..\build\pion_plugin.vsprops"
 			CharacterSet="0"
 			>
 			<Tool
@@ -93,9 +92,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release_DLL|Win32"
-			OutputDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\build\pion.vsprops;..\..\build\depth_3_pion-common.vsprops;..\..\build\third_party_libs_win32.vsprops"
+			InheritedPropertySheets="..\..\build\depth_3_pion-common.vsprops;..\..\build\third_party_libs_win32.vsprops;..\..\build\pion_plugin.vsprops"
 			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
