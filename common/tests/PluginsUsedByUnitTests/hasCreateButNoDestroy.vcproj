@@ -20,7 +20,7 @@
 			Name="Debug_DLL|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\build\pion.vsprops;..\..\build\depth_3_pion-common.vsprops"
+			InheritedPropertySheets="..\..\build\pion.vsprops;..\..\build\depth_3_pion-common.vsprops;..\..\build\third_party_libs_win32.vsprops"
 			CharacterSet="0"
 			>
 			<Tool
@@ -95,7 +95,7 @@
 			Name="Release_DLL|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\build\pion.vsprops;..\..\build\depth_3_pion-common.vsprops"
+			InheritedPropertySheets="..\..\build\pion.vsprops;..\..\build\depth_3_pion-common.vsprops;..\..\build\third_party_libs_win32.vsprops"
 			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>

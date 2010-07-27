@@ -16,7 +16,6 @@
 	<Tool
 		Name="VCLinkerTool"
 		LinkIncremental="2"
-		AdditionalLibraryDirectories="&quot;$(LOG4CXX_HOME)\bin&quot;;&quot;$(OPENSSL_HOME)\bin&quot;;&quot;$(LIBXML_HOME)\lib&quot;"
 		GenerateDebugInformation="true"
 	/>
 </VisualStudioPropertySheet>
