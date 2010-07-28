@@ -11,6 +11,9 @@
 		<Platform
 			Name="Win32"
 		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -103,9 +106,103 @@
 				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Debug_DLL|x64"
+			ConfigurationType="10"
+			InheritedPropertySheets="..\common\build\pion.vsprops"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from services\.libs"
+				CommandLine="if exist services\.libs del /Q services\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into services\.libs"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_DLL_full|x64"
+			ConfigurationType="10"
+			InheritedPropertySheets="..\common\build\pion.vsprops"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from services\.libs"
+				CommandLine="if exist services\.libs del /Q services\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into services\.libs"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL|x64"
+			ConfigurationType="10"
+			InheritedPropertySheets="..\common\build\pion.vsprops"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from services\.libs"
+				CommandLine="if exist services\.libs del /Q services\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into services\.libs"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL_full|x64"
+			ConfigurationType="10"
+			InheritedPropertySheets="..\common\build\pion.vsprops"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from services\.libs"
+				CommandLine="if exist services\.libs del /Q services\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into services\.libs"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
 	<Files>
 	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>
