@@ -37,7 +37,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy the plugin DLLs for the current configuration into services\.libs"
-				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)_$(PlatformName)\*.dll services\.libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -59,7 +59,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy the plugin DLLs for the current configuration into services\.libs"
-				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)_$(PlatformName)\*.dll services\.libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy the plugin DLLs for the current configuration into services\.libs"
-				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)_$(PlatformName)\*.dll services\.libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -103,7 +103,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy the plugin DLLs for the current configuration into services\.libs"
-				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)_$(PlatformName)\*.dll services\.libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -126,7 +126,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy the plugin DLLs for the current configuration into services\.libs"
-				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)_$(PlatformName)\*.dll services\.libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy the plugin DLLs for the current configuration into services\.libs"
-				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)_$(PlatformName)\*.dll services\.libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -172,7 +172,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy the plugin DLLs for the current configuration into services\.libs"
-				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)_$(PlatformName)\*.dll services\.libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -195,7 +195,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy the plugin DLLs for the current configuration into services\.libs"
-				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)\*.dll services\.libs&#x0D;&#x0A;"
+				CommandLine="if not exist services\.libs md services\.libs&#x0D;&#x0A;copy services\$(ConfigurationName)_$(PlatformName)\*.dll services\.libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
