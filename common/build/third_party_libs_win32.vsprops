@@ -61,6 +61,10 @@
 		Value="C:\libxml2-2.6.30\lib"
 	/>
 	<UserMacro
+		Name="LIBXML_BIN"
+		Value="C:\libxml2-2.6.30\bin"
+	/>
+	<UserMacro
 		Name="LOG4CPLUS_INC"
 		Value="C:\log4cplus-1.0.3\include"
 	/>
@@ -109,7 +113,11 @@
 		Value="C:\zlib-1.2.3\lib"
 	/>
 	<UserMacro
+		Name="ZLIB_BIN"
+		Value="C:\zlib-1.2.3\bin"
+	/>
+	<UserMacro
 		Name="PION_PATH"
-		Value="$(BOOST_LIB);$(BZIP2_LIB);$(ICONV_LIB);$(ICU_BIN);$(LIBXML_LIB);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_LIB);%PATH%"
+		Value="$(BOOST_LIB);$(BZIP2_BIN);$(ICONV_LIB);$(ICU_BIN);$(LIBXML_BIN);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_BIN);%PATH%"
 	/>
 </VisualStudioPropertySheet>
