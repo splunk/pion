@@ -6,4 +6,20 @@
 	OutputDirectory="$(ConfigurationName)"
 	InheritedPropertySheets=".\pion.vsprops"
 	>
+	<UserMacro
+		Name="REACTORS_DIR"
+		Value="$(PION_HOME)\platform\reactors\$(ConfigurationName)"
+	/>
+	<UserMacro
+		Name="DATABASES_DIR"
+		Value="$(PION_HOME)\platform\databases\$(ConfigurationName)"
+	/>
+	<UserMacro
+		Name="PROTOCOLS_DIR"
+		Value="$(PION_HOME)\platform\protocols\$(ConfigurationName)"
+	/>
+	<UserMacro
+		Name="SERVICES_DIR"
+		Value="$(PION_HOME)\platform\services\$(ConfigurationName)"
+	/>
 </VisualStudioPropertySheet>
