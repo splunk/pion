@@ -3,8 +3,8 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="pion"
-	OutputDirectory="$(SolutionDir)bin\$(ConfigurationName)"
-	IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)"
+	OutputDirectory="$(SolutionDir)bin\$(ConfigurationName)_$(PlatformName)"
+	IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
