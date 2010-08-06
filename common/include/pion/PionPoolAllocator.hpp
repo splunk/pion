@@ -136,8 +136,21 @@ public:
 	{
 		bool result = false;
 		for (std::size_t n = 0; n < NumberOfAllocs; ++n) {
-			boost::unique_lock<boost::mutex> pool_lock(m_pools[n]->m_mutex);
-			if (m_pools[n]->m_pool.release_memory())
+			FixedSizeAlloc *pool_ptr = m_pools[n].get();
+#if defined(PION_HAVE_LOCKFREE)
+			while (true) {
+				// get copy of free list pointer
+				FreeListPtr old_free_ptr(pool_ptr->m_free_ptr);
+				if (! old_free_ptr)
+					break;	// all done: free list is empty
+					
+				// use CAS operation to swap the free list pointer
+				if (pool_ptr->m_free_ptr.cas(old_free_ptr, old_free_ptr->next.get_ptr()))
+					pool_ptr->m_pool.free(old_free_ptr.get_ptr());	// release memory from pool
+			}
+#endif
+			boost::unique_lock<boost::mutex> pool_lock(pool_ptr->m_mutex);
+			if (pool_ptr->m_pool.release_memory())
 				result = true;
 		}
 		return result;

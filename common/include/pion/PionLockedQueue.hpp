@@ -114,8 +114,22 @@ public:
 	class ConsumerThread {
 	public:
 
-		/// constructor assumes thread is active/running
+		/**
+		 * default constructor used to disable idle wakeup timer
+		 * (assumes thread is active/running)
+		 */
 		ConsumerThread(void) : m_is_running(true), m_next_ptr(NULL) {}
+
+		/**
+		 * constructor used to enable an idle wakeup timer for the thread
+		 * (assumes thread is active/running)
+		 *
+		 * @param d inactivity wakeup timer duration
+		 */
+		template <typename DurationType>
+		ConsumerThread(const DurationType& d)
+			: m_is_running(true), m_next_ptr(NULL), m_wakeup_time(d)
+		{}
 
 		/// returns true while the consumer thread is active/running
 		inline bool isRunning(void) const { return m_is_running; }
@@ -125,6 +139,14 @@ public:
 
 		/// stops the thread -- if waiting on pop() will return immediately
 		inline void reset(void) { m_is_running = true; m_next_ptr = NULL; }
+		
+		/// returns true if an inactivity wakeup timer is set for the thread
+		inline bool hasWakeupTimer(void) const { return !m_wakeup_time.is_not_a_date_time(); }
+		
+		/// returns absolute wakeup time based on current time
+		inline const boost::posix_time::time_duration& getWakeupTimer(void) const {
+			return m_wakeup_time;
+		}
 
 	private:
 
@@ -132,8 +154,9 @@ public:
 		friend class PionLockedQueue;
 
 		volatile bool		m_is_running;		//< true while the thread is running/active
-		boost::condition	m_wakeup_event;	//< triggered when a new item is available
 		ConsumerThread *	m_next_ptr;		//< pointer to the next idle thread
+		boost::condition	m_wakeup_event;	//< triggered when a new item is available
+		boost::posix_time::time_duration	m_wakeup_time;	//< inactivity wakeup timer duration
 	};
 
 
@@ -240,8 +263,15 @@ public:
 				// still empty after acquiring lock
 				thread_info.m_next_ptr = m_idle_ptr;
 				m_idle_ptr = & thread_info;
-				// wait for an item to become available
-				thread_info.m_wakeup_event.wait(tail_lock);
+				// get wakeup time (if any)
+				if (thread_info.hasWakeupTimer()) {
+					// wait for an item to become available
+					if (!thread_info.m_wakeup_event.timed_wait(tail_lock, thread_info.getWakeupTimer()))
+						return false;	// timer expired if timed_wait() returns false
+				} else {
+					// wait for an item to become available
+					thread_info.m_wakeup_event.wait(tail_lock);
+				}
 			}
 		}
 		return false;
