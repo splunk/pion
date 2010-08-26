@@ -215,7 +215,7 @@ protected:
 	 * @param http_request the HTTP request to handle
 	 * @param tcp_conn TCP connection containing a new request
 	 */
-	void handleRequest(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn);
+	virtual void handleRequest(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn);
 
 	/**
 	 * searches for the appropriate request handler to use for a given resource
@@ -223,7 +223,7 @@ protected:
 	 * @param resource the name of the resource to search for
 	 * @param request_handler function that can handle requests for this resource
 	 */
-	bool findRequestHandler(const std::string& resource,
+	virtual bool findRequestHandler(const std::string& resource,
 							RequestHandler& request_handler) const;
 
 
