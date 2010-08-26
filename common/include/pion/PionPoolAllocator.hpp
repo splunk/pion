@@ -90,7 +90,7 @@ public:
 #endif
 
 		boost::unique_lock<boost::mutex> pool_lock(pool_ptr->m_mutex);
-		return pool_ptr->m_pool.malloc();
+		return pool_ptr->m_pool.ordered_malloc();
 	}
 
 	/**
@@ -123,7 +123,7 @@ public:
 		}
 #else
 		boost::unique_lock<boost::mutex> pool_lock(pool_ptr->m_mutex);
-		return pool_ptr->m_pool.free(ptr);
+		return pool_ptr->m_pool.ordered_free(ptr);
 #endif
 	}
 	
@@ -146,7 +146,7 @@ public:
 					
 				// use CAS operation to swap the free list pointer
 				if (pool_ptr->m_free_ptr.cas(old_free_ptr, old_free_ptr->next.get_ptr()))
-					pool_ptr->m_pool.free(old_free_ptr.get_ptr());	// release memory from pool
+					pool_ptr->m_pool.ordered_free(old_free_ptr.get_ptr());	// release memory from pool
 			}
 #endif
 			boost::unique_lock<boost::mutex> pool_lock(pool_ptr->m_mutex);
