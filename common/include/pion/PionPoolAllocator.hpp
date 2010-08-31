@@ -134,11 +134,11 @@ public:
 	/**
 	 * releases every memory block that does not have any allocated chunks
 	 *
-	 * @param pad padding bytes passed to malloc_trim(), if it's supported
+	 * @param pad padding bytes passed to malloc_trim(), if it's supported (default=10MB)
 	 *
 	 * @return bool true if at least one block of memory was released
 	 */
-	inline bool release_memory(size_t pad = 0UL)
+	inline bool release_memory(size_t pad = 10240000UL)
 	{
 		bool result = false;
 		for (std::size_t n = 0; n < NumberOfAllocs; ++n) {
