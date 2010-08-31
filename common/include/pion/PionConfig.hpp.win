@@ -31,6 +31,9 @@
 /* Define to the directory where cygwin is installed. */
 #undef PION_CYGWIN_DIRECTORY
 
+/* Define to 1 if C library supports malloc_trim() */
+#undef PION_HAVE_MALLOC_TRIM
+
 // -----------------------------------------------------------------------
 // hash_map support
 //

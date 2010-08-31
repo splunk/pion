@@ -20,6 +20,10 @@
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
 
+#if defined(PION_HAVE_MALLOC_TRIM)
+	#include <malloc.h>
+#endif
+
 /// the following enables use of the lock-free cache
 #if defined(PION_HAVE_LOCKFREE)
 #ifdef _MSC_VER
@@ -130,9 +134,11 @@ public:
 	/**
 	 * releases every memory block that does not have any allocated chunks
 	 *
-	 * @param bool true if at least one block of memory was released
+	 * @param pad padding bytes passed to malloc_trim(), if it's supported
+	 *
+	 * @return bool true if at least one block of memory was released
 	 */
-	inline bool release_memory(void)
+	inline bool release_memory(size_t pad = 0UL)
 	{
 		bool result = false;
 		for (std::size_t n = 0; n < NumberOfAllocs; ++n) {
@@ -153,6 +159,9 @@ public:
 			if (pool_ptr->m_pool.release_memory())
 				result = true;
 		}
+#if defined(PION_HAVE_MALLOC_TRIM)
+		::malloc_trim(pad);
+#endif		
 		return result;
 	}
 	

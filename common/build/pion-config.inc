@@ -37,6 +37,18 @@ fi
 AC_DEFINE_UNQUOTED([PION_CYGWIN_DIRECTORY],["$PION_CYGWIN_DIRECTORY"],[Define to the directory where cygwin is installed.])
 AC_SUBST(PION_CYGWIN_DIRECTORY)
 
+
+# Check for malloc_trim support
+AC_MSG_CHECKING(for malloc_trim() support)
+AC_TRY_LINK([#include <malloc.h>],
+	[
+	malloc_trim(0);
+	],
+	[ AC_MSG_RESULT(yes)
+	  AC_DEFINE([PION_HAVE_MALLOC_TRIM],[1],[Define to 1 if C library supports malloc_trim()])
+	],
+	[ AC_MSG_RESULT(no) ])
+
      
 # Check for unordered container support
 AC_CHECK_HEADERS([tr1/unordered_map],[unordered_map_type=tr1_unordered_map],[])
