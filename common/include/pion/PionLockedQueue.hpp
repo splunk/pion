@@ -118,7 +118,8 @@ public:
 		 * default constructor used to disable idle wakeup timer
 		 * (assumes thread is active/running)
 		 */
-		ConsumerThread(void) : m_is_running(true), m_next_ptr(NULL) {}
+		ConsumerThread(void) : m_is_running(true), m_next_ptr(NULL),
+			m_wakeup_time(boost::posix_time::not_a_date_time) {}
 
 		/**
 		 * constructor used to enable an idle wakeup timer for the thread
