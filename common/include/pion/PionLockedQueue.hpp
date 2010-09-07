@@ -267,7 +267,7 @@ public:
 				// get wakeup time (if any)
 				if (thread_info.hasWakeupTimer()) {
 					// wait for an item to become available
-					const boost::posix_time::ptime wakeup_time(boost::system_time() + thread_info.getWakeupTimer());
+					const boost::posix_time::ptime wakeup_time(boost::get_system_time() + thread_info.getWakeupTimer());
 					if (!thread_info.m_wakeup_event.timed_wait(tail_lock, wakeup_time))
 						return false;	// timer expired if timed_wait() returns false
 				} else {
