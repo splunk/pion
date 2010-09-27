@@ -230,6 +230,55 @@ void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
 	writer->send();
 }
 
+void HTTPServer::handleForbiddenRequest(HTTPRequestPtr& http_request,
+										TCPConnectionPtr& tcp_conn,
+										const std::string& error_msg)
+{
+	static const std::string FORBIDDEN_HTML_START =
+		"<html><head>\n"
+		"<title>403 Forbidden</title>\n"
+		"</head><body>\n"
+		"<h1>Forbidden</h1>\n"
+		"<p>User not authorized to access the requested URL ";
+	static const std::string FORBIDDEN_HTML_MIDDLE =
+		"</p><p><strong>\n";
+	static const std::string FORBIDDEN_HTML_FINISH =
+		"</strong></p>\n"
+		"</body></html>\n";
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
+															boost::bind(&TCPConnection::finish, tcp_conn)));
+	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_FORBIDDEN);
+	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_FORBIDDEN);
+	writer->writeNoCopy(FORBIDDEN_HTML_START);
+	writer << http_request->getResource();
+	writer->writeNoCopy(FORBIDDEN_HTML_MIDDLE);
+	writer << error_msg;
+	writer->writeNoCopy(FORBIDDEN_HTML_FINISH);
+	writer->send();
+}
+
+void HTTPServer::handleMethodNotAllowed(HTTPRequestPtr& http_request,
+										TCPConnectionPtr& tcp_conn)
+{
+	static const std::string NOT_ALLOWED_HTML_START =
+		"<html><head>\n"
+		"<title>405 Method Not Allowed</title>\n"
+		"</head><body>\n"
+		"<h1>Not Allowed</h1>\n"
+		"<p>The requested method ";
+	static const std::string NOT_ALLOWED_HTML_FINISH =
+		" is not allowed on this server.</p>\n"
+		"</body></html>\n";
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
+															boost::bind(&TCPConnection::finish, tcp_conn)));
+	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+	writer->writeNoCopy(NOT_ALLOWED_HTML_START);
+	writer << http_request->getMethod();
+	writer->writeNoCopy(NOT_ALLOWED_HTML_FINISH);
+	writer->send();
+}
+
 }	// end namespace net
 }	// end namespace pion
 

@@ -193,6 +193,26 @@ public:
 								  const std::string& error_msg);
 
 	/**
+	 * used to send responses when a request is forbidden
+	 *
+	 * @param http_request the new HTTP request to handle
+	 * @param tcp_conn the TCP connection that has the new request
+	 * @param error_msg message that explains what went wrong
+	 */
+	static void handleForbiddenRequest(HTTPRequestPtr& http_request,
+									   TCPConnectionPtr& tcp_conn,
+									   const std::string& error_msg);
+
+	/**
+	 * used to send responses when a method is not allowed
+	 *
+	 * @param http_request the new HTTP request to handle
+	 * @param tcp_conn the TCP connection that has the new request
+	 */
+	static void handleMethodNotAllowed(HTTPRequestPtr& http_request,
+									   TCPConnectionPtr& tcp_conn);
+
+	/**
 	 * sets the handler object for authentication verification processing
 	 */ 
 	inline void setAuthentication(HTTPAuthPtr auth) { m_auth = auth; }
