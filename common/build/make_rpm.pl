@@ -139,6 +139,7 @@ rm -rf \$RPM_BUILD_ROOT
 mkdir -p \$RPM_BUILD_ROOT/etc/rc.d/init.d
 mkdir -p \$RPM_BUILD_ROOT/etc/pion
 mkdir -p \$RPM_BUILD_ROOT/etc/pion/vocabularies
+mkdir -p \$RPM_BUILD_ROOT/etc/pion/pymodules
 mkdir -p \$RPM_BUILD_ROOT/var/log/pion
 mkdir -p \$RPM_BUILD_ROOT/var/lib/pion
 mkdir -p \$RPM_BUILD_ROOT/usr/bin
@@ -150,6 +151,7 @@ mkdir -p \$RPM_BUILD_ROOT/usr/share/doc/$PACKAGE_BASE-$VERSION
 install -m 660 $BIN_SRC_BASE/config/$config_file_glob \$RPM_BUILD_ROOT/etc/pion
 $install_perl_scripts
 install -m 660 $BIN_SRC_BASE/config/vocabularies/*.xml \$RPM_BUILD_ROOT/etc/pion/vocabularies
+install -m 660 $BIN_SRC_BASE/config/pymodules/*.py \$RPM_BUILD_ROOT/etc/pion/pymodules
 install -m 775 $BIN_SRC_BASE/pion.service \$RPM_BUILD_ROOT/etc/rc.d/init.d/pion
 $INSTALL_BIN $BIN_SRC_BASE/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins
 $INSTALL_BIN $BIN_SRC_BASE/libs/* \$RPM_BUILD_ROOT/usr/lib
