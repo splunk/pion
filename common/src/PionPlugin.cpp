@@ -239,7 +239,7 @@ void PionPlugin::openPlugin(const std::string& plugin_file,
 	plugin_data.m_lib_handle = loadDynamicLibrary(plugin_file.c_str());
 	if (plugin_data.m_lib_handle == NULL) {
 #ifndef PION_WIN32
-		char *error_msg = dlerror();
+		const char *error_msg = dlerror();
 		if (error_msg != NULL) {
 			std::string error_str(plugin_file);
 			error_str += " (";
