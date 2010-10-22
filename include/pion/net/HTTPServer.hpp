@@ -208,9 +208,11 @@ public:
 	 *
 	 * @param http_request the new HTTP request to handle
 	 * @param tcp_conn the TCP connection that has the new request
+	 * @param allowed_methods optional comma separated list of allowed methods
 	 */
 	static void handleMethodNotAllowed(HTTPRequestPtr& http_request,
-									   TCPConnectionPtr& tcp_conn);
+									   TCPConnectionPtr& tcp_conn,
+									   const std::string& allowed_methods = "");
 
 	/**
 	 * sets the handler object for authentication verification processing

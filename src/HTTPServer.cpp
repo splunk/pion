@@ -258,7 +258,8 @@ void HTTPServer::handleForbiddenRequest(HTTPRequestPtr& http_request,
 }
 
 void HTTPServer::handleMethodNotAllowed(HTTPRequestPtr& http_request,
-										TCPConnectionPtr& tcp_conn)
+										TCPConnectionPtr& tcp_conn,
+										const std::string& allowed_methods)
 {
 	static const std::string NOT_ALLOWED_HTML_START =
 		"<html><head>\n"
@@ -273,6 +274,8 @@ void HTTPServer::handleMethodNotAllowed(HTTPRequestPtr& http_request,
 															boost::bind(&TCPConnection::finish, tcp_conn)));
 	writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
 	writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
+	if (! allowed_methods.empty())
+		writer->getResponse().addHeader("Allow", allowed_methods);
 	writer->writeNoCopy(NOT_ALLOWED_HTML_START);
 	writer << http_request->getMethod();
 	writer->writeNoCopy(NOT_ALLOWED_HTML_FINISH);
