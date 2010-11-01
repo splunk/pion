@@ -67,6 +67,11 @@
 	// log4cplus headers
 	#include <log4cplus/logger.h>
 	#include <log4cplus/configurator.h>
+	#include <log4cplus/appender.h>
+	#include <log4cplus/spi/loggingevent.h>
+
+	#include <boost/circular_buffer.hpp>
+	#include <boost/thread/mutex.hpp>
 
 	#if defined _MSC_VER
 		#if defined _DEBUG
@@ -78,6 +83,40 @@
 
 	namespace pion {
 		typedef log4cplus::Logger	PionLogger;
+
+		///
+		/// CircularBufferAppender: caches log events in a circular buffer
+		/// 
+		class CircularBufferAppender : public log4cplus::Appender
+		{
+		public:
+			typedef	boost::circular_buffer<log4cplus::spi::InternalLoggingEvent> LogEventBuffer;
+
+			// default constructor and destructor
+			CircularBufferAppender(void) : m_log_events(1000) {};
+			virtual ~CircularBufferAppender() {}
+			
+			/// returns an iterator to the log events in the buffer
+			const LogEventBuffer& getLogIterator() const {
+				return m_log_events;
+			}
+
+		public:
+			// member functions inherited from the Appender interface class
+			virtual void close() {}
+		protected:
+			virtual void append(const log4cplus::spi::InternalLoggingEvent& event) {
+				boost::mutex::scoped_lock log_lock(m_log_mutex);
+				m_log_events.push_back(*event.clone());
+			}
+
+		private:
+			/// circular buffer for log events
+			LogEventBuffer	m_log_events;
+
+			/// mutex to make class thread-safe
+			boost::mutex	m_log_mutex;
+		};
 	}
 
 	#define PION_LOG_CONFIG_BASIC	log4cplus::BasicConfigurator::doConfigure();
