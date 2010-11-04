@@ -22,7 +22,7 @@ namespace net {		// begin namespace net (Pion Network Library)
 
 // static members of HTTPMessage
 
-const boost::regex		HTTPMessage::REGEX_ICASE_CHUNKED("chunked", boost::regex::icase);
+const boost::regex		HTTPMessage::REGEX_ICASE_CHUNKED(".*chunked.*", boost::regex::icase);
 
 
 // HTTPMessage member functions
