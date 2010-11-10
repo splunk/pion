@@ -35,7 +35,8 @@ die "Source directory does not exist: $SRCDIR" if (! -d $SRCDIR);
 my %templates = ("PION_PLUGINS_DIRECTORY" => "../../platform/codecs/.libs/</PluginPath><PluginPath>../../platform/databases/.libs/</PluginPath><PluginPath>../../platform/reactors/.libs</PluginPath><PluginPath>../../platform/protocols/.libs/</PluginPath><PluginPath>../../platform/services/.libs/</PluginPath><PluginPath>../../net/services/.libs/",
 	"PION_DATA_DIRECTORY" => ".",
 	"PION_UI_DIRECTORY" => "../../platform/ui",
-	"PION_LOG_CONFIG" => "logconfig.txt");
+	"PION_LOG_CONFIG" => "logconfig.txt",
+	"PION_CONFIG_CHANGE_LOG" => "config.log");
 
 # update template parameter hash using values provided
 for ($n = 2; $n <= $#ARGV; ++$n) {
