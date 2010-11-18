@@ -64,6 +64,24 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithDoubleAmpersand)
 	BOOST_CHECK(i->second.empty());
 }
 
+BOOST_AUTO_TEST_CASE(testParseQueryStringWithEmptyName)
+{
+	const std::string QUERY_STRING("a=b&=bob&=&c=d&e");
+	HTTPTypes::QueryParams params;
+	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING));
+	BOOST_CHECK_EQUAL(params.size(), 3UL);
+
+	HTTPTypes::QueryParams::const_iterator i = params.find("a");
+	BOOST_REQUIRE(i != params.end());
+	BOOST_CHECK_EQUAL(i->second, "b");
+	i = params.find("c");
+	BOOST_REQUIRE(i != params.end());
+	BOOST_CHECK_EQUAL(i->second, "d");
+	i = params.find("e");
+	BOOST_REQUIRE(i != params.end());
+	BOOST_CHECK(i->second.empty());
+}
+
 BOOST_AUTO_TEST_CASE(testParseQueryStringWithEmptyValues)
 {
 	const std::string QUERY_STRING("a=&b&c=");

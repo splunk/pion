@@ -695,8 +695,7 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::QueryParams& dict,
 		case QUERY_PARSE_NAME:
 			// parsing query name
 			if (*ptr == '=') {
-				// end of name found
-				if (query_name.empty()) return false;
+				// end of name found (OK if empty)
 				parse_state = QUERY_PARSE_VALUE;
 			} else if (*ptr == '&') {
 				// if query name is empty, just skip it (i.e. "&&")
@@ -720,8 +719,10 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::QueryParams& dict,
 			// parsing query value
 			if (*ptr == '&') {
 				// end of value found (OK if empty)
-				dict.insert( std::make_pair(query_name, query_value) );
-				query_name.erase();
+				if (! query_name.empty()) {
+					dict.insert( std::make_pair(query_name, query_value) );
+					query_name.erase();
+				}
 				query_value.erase();
 				parse_state = QUERY_PARSE_NAME;
 			} else if (*ptr == '\r' || *ptr == '\n') {
