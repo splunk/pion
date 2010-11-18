@@ -8,6 +8,7 @@
 //
 
 #include <pion/net/TCPTimer.hpp>
+#include <boost/bind.hpp>
 
 
 namespace pion {	// begin namespace pion
