@@ -364,6 +364,14 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 				m_headers_parse_state = PARSE_STATUS_MESSAGE;
 			} else if (isDigit(*m_read_ptr)) {
 				m_status_code = ( (m_status_code * 10) + (*m_read_ptr - '0') );
+			} else if (*m_read_ptr == '\r') {
+				// recover from status message not sent
+				m_status_message.erase();
+				m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
+			} else if (*m_read_ptr == '\n') {
+				// recover from status message not sent
+				m_status_message.erase();
+				m_headers_parse_state = PARSE_EXPECTING_CR;
 			} else {
 				return false;
 			}
