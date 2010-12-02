@@ -566,8 +566,7 @@ void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
 			if (! parseURLEncoded(http_request.getQueryParams(),
 								  m_query_string.c_str(),
 								  m_query_string.size())) 
-				PION_LOG_WARN(m_logger, "Request query string parsing failed (URI): \""
-					<< m_query_string << "\"");
+				PION_LOG_WARN(m_logger, "Request query string parsing failed (URI)");
 		}
 
 		// parse "Cookie" headers in request
@@ -1097,8 +1096,7 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 			if (! parseURLEncoded(http_request.getQueryParams(),
 								  http_request.getContent(),
 								  http_request.getContentLength())) 
-				PION_LOG_WARN(m_logger, "Request query string parsing failed (POST content): \""
-					<< http_request.getContent() << "\"");
+				PION_LOG_WARN(m_logger, "Request query string parsing failed (POST content)");
 		}
 	}
 }
