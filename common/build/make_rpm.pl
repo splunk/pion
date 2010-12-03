@@ -158,6 +158,7 @@ $INSTALL_BIN $BIN_SRC_BASE/libs/* \$RPM_BUILD_ROOT/usr/lib
 $INSTALL_BIN $BIN_SRC_BASE/pion \$RPM_BUILD_ROOT/usr/bin/pion
 install $BIN_SRC_BASE/pget.py \$RPM_BUILD_ROOT/usr/bin/pget.py
 install $BIN_SRC_BASE/pmon.py \$RPM_BUILD_ROOT/usr/bin/pmon.py
+install $BIN_SRC_BASE/pupgrade.py \$RPM_BUILD_ROOT/usr/bin/pupgrade.py
 cp -r $BIN_SRC_BASE/ui/* \$RPM_BUILD_ROOT/usr/share/pion/ui
 
 
@@ -183,6 +184,7 @@ $SPEC_OPTIONS
 /usr/bin/pion
 /usr/bin/pget.py*
 /usr/bin/pmon.py*
+/usr/bin/pupgrade.py*
 
 \%defattr(-,root,root)
 /usr/share/pion/ui
