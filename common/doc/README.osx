@@ -119,6 +119,15 @@ the following site:
 http://www.xmlsoft.org
 
 
+Installing lxml:
+----------------
+
+Pion's pupgrade.py script requires that you have the lxml library installed.
+This can be installed with one easy step:
+
+# sudo easy_install lxml
+
+
 Installing YAJL:
 ----------------
 

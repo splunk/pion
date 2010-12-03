@@ -14,7 +14,7 @@ You can install the development tools required by Pion using apt-get:
 
 You can install most of the third-party libraries required by Pion using apt-get:
 
-# apt-get install zlib1g-dev libssl-dev libxml2-dev libbz2-dev libpcap-dev
+# apt-get install zlib1g-dev libssl-dev libxml2-dev libbz2-dev libpcap-dev python-lxml
 
 To install the Boost development libraries, use this on Ubuntu 9.04:
 

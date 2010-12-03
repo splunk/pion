@@ -125,6 +125,20 @@ to use the new version installed in /usr/local/bin instead of the default one:
 # ./configure --with-python=/usr/local/bin/python
 
 
+Installing lxml:
+----------------
+
+Pion's pupgrade.py script requires that you have the lxml library installed.
+If you have the RPMforge repository setup, you can install this using yum:
+
+# yum install python-lxml
+
+If not then another method is to use Python's easy_install script:
+
+# yum install python-setuptools
+# easy_install lxml
+
+
 Installing YAJL:
 ----------------
 
