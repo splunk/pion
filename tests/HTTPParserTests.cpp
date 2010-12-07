@@ -100,6 +100,18 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithEmptyValues)
 	BOOST_CHECK(i->second.empty());
 }
 
+BOOST_AUTO_TEST_CASE(testParseQueryStringWithTabs)
+{
+	const std::string QUERY_STRING("promoCode=BOB	");
+	HTTPTypes::QueryParams params;
+	BOOST_REQUIRE(HTTPParser::parseURLEncoded(params, QUERY_STRING));
+	BOOST_CHECK_EQUAL(params.size(), 1UL);
+
+	HTTPTypes::QueryParams::const_iterator i = params.find("promoCode");
+	BOOST_REQUIRE(i != params.end());
+	BOOST_CHECK_EQUAL(i->second, "BOB");
+}
+
 BOOST_AUTO_TEST_CASE(testParseSingleCookieHeader)
 {
 	std::string cookie_header;

@@ -703,8 +703,8 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::QueryParams& dict,
 					dict.insert( std::make_pair(query_name, query_value) );
 					query_name.erase();
 				}
-			} else if (*ptr == '\r' || *ptr == '\n') {
-				// ignore linefeeds and carriage returns (normally within POST content)
+			} else if (*ptr == '\r' || *ptr == '\n' || *ptr == '\t') {
+				// ignore linefeeds, carriage return and tabs (normally within POST content)
 			} else if (isControl(*ptr) || query_name.size() >= QUERY_NAME_MAX) {
 				// control character detected, or max sized exceeded
 				return false;
@@ -724,8 +724,8 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::QueryParams& dict,
 				}
 				query_value.erase();
 				parse_state = QUERY_PARSE_NAME;
-			} else if (*ptr == '\r' || *ptr == '\n') {
-				// ignore linefeeds and carriage returns (normally within POST content)
+			} else if (*ptr == '\r' || *ptr == '\n' || *ptr == '\t') {
+				// ignore linefeeds, carriage return and tabs (normally within POST content)
 			} else if (isControl(*ptr) || query_value.size() >= QUERY_VALUE_MAX) {
 				// control character detected, or max sized exceeded
 				return false;
