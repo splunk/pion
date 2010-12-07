@@ -774,8 +774,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 		case COOKIE_PARSE_NAME:
 			// parsing cookie name
 			if (*ptr == '=') {
-				// end of name found
-				if (cookie_name.empty()) return false;
+				// end of name found (OK if empty)
 				value_quote_character = '\0';
 				parse_state = COOKIE_PARSE_VALUE;
 			} else if (*ptr == ';' || *ptr == ',') {
@@ -818,7 +817,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
 						// assume character is part of the (unquoted) value
 						cookie_value.push_back(*ptr);
 					}
-				} else if (*ptr != ' ') {	// ignore unquoted whitespace
+				} else if (*ptr != ' ' || !cookie_value.empty()) {	// ignore leading unquoted whitespace
 					// check if control character detected, or max sized exceeded
 					if (isControl(*ptr) || cookie_value.size() >= COOKIE_VALUE_MAX)
 						return false;

@@ -134,6 +134,55 @@ BOOST_AUTO_TEST_CASE(testParseTwoCookieHeader)
 	BOOST_CHECK_EQUAL(cookie_it->second, "Rocket_Launcher_0001");
 }
 
+BOOST_AUTO_TEST_CASE(testParseCookieHeaderWithEmptyName)
+{
+	std::string cookie_header;
+	HTTPTypes::CookieParams cookies;
+	HTTPTypes::CookieParams::const_iterator cookie_it;
+
+	cookie_header = "a=b; =; =\"001\"; c=d";
+	BOOST_REQUIRE(HTTPParser::parseCookieHeader(cookies, cookie_header, false));
+	BOOST_CHECK_EQUAL(cookies.size(), 2UL);
+
+	cookie_it = cookies.find("a");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "b");
+
+	cookie_it = cookies.find("c");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "d");
+}
+
+BOOST_AUTO_TEST_CASE(testParseCookieHeaderWithUnquotedSpaces)
+{
+	std::string cookie_header;
+	HTTPTypes::CookieParams cookies;
+	HTTPTypes::CookieParams::const_iterator cookie_it;
+
+	cookie_header = "a=a black cat; c = Dec 2, 2010 11:54:30 AM; d = \"dark \"";
+	BOOST_REQUIRE(HTTPParser::parseCookieHeader(cookies, cookie_header, false));
+	BOOST_CHECK_EQUAL(cookies.size(), 4UL);
+
+	cookie_it = cookies.find("a");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "a black cat");
+
+	cookie_it = cookies.find("c");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "Dec 2");
+
+	// ideally, this would be parsed as part of c (as intended)
+	// but the parser needs to accept , as a cookie separator to conform with v1 and later
+	// so for now just not "breaking" is good enough
+	cookie_it = cookies.find("201011:54:30AM");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "");
+
+	cookie_it = cookies.find("d");
+	BOOST_REQUIRE(cookie_it != cookies.end());
+	BOOST_CHECK_EQUAL(cookie_it->second, "dark ");
+}
+
 BOOST_AUTO_TEST_CASE(testParseNormalCookieHeader)
 {
 	std::string cookie_header;
