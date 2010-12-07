@@ -116,8 +116,7 @@ public:
 	 * should be called if there is no more data to parse, and if the last
 	 * call to the parse() function returned boost::indeterminate
 	 *
-	 * @param http_mhttp://start.fedoraproject.org/sg the HTTP 
-	 *                  message object being parsed
+	 * @param http_msg the HTTP message object being parsed
 	 * @return true if premature EOF, false if message is OK & finished parsing
 	 */
 	inline bool checkPrematureEOF(HTTPMessage& http_msg) {
@@ -129,6 +128,13 @@ public:
 		return false;
 	}
 
+	/**
+	 * skip parsing all headers and parse payload content only
+	 *
+	 * @param http_msg the HTTP message object being parsed
+	 */
+	inline void skipHeaderParsing(HTTPMessage& http_msg) { finishHeaderParsing(http_msg); }
+	
 	/// resets the parser to its initial state
 	inline void reset(void) {
 		m_message_parse_state = PARSE_START;

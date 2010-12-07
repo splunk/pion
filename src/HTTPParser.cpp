@@ -250,6 +250,18 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 			} else if (*m_read_ptr == '?') {
 				m_query_string.erase();
 				m_headers_parse_state = PARSE_URI_QUERY;
+			} else if (*m_read_ptr == '\r') {
+				// should only happen for requests (no HTTP/VERSION specified)
+				if (! m_is_request) return false;
+				http_msg.setVersionMajor(0);
+				http_msg.setVersionMinor(0);
+				m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
+			} else if (*m_read_ptr == '\n') {
+				// should only happen for requests (no HTTP/VERSION specified)
+				if (! m_is_request) return false;
+				http_msg.setVersionMajor(0);
+				http_msg.setVersionMinor(0);
+				m_headers_parse_state = PARSE_EXPECTING_CR;
 			} else if (isControl(*m_read_ptr)) {
 				return false;
 			} else if (m_resource.size() >= RESOURCE_MAX) {
@@ -274,7 +286,19 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 
 		case PARSE_HTTP_VERSION_H:
 			// parsing "HTTP"
-			if (*m_read_ptr != 'H') return false;
+			if (*m_read_ptr == '\r') {
+				// should only happen for requests (no HTTP/VERSION specified)
+				if (! m_is_request) return false;
+				http_msg.setVersionMajor(0);
+				http_msg.setVersionMinor(0);
+				m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
+			} else if (*m_read_ptr == '\n') {
+				// should only happen for requests (no HTTP/VERSION specified)
+				if (! m_is_request) return false;
+				http_msg.setVersionMajor(0);
+				http_msg.setVersionMinor(0);
+				m_headers_parse_state = PARSE_EXPECTING_CR;
+			} else if (*m_read_ptr != 'H') return false;
 			m_headers_parse_state = PARSE_HTTP_VERSION_T_1;
 			break;
 
@@ -1072,7 +1096,7 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 		http_msg.setContentLength(getContentBytesRead());
 		break;
 	case PARSE_CHUNKS:
-		http_msg.setIsValid(false);
+		http_msg.setIsValid(m_chunked_content_parse_state==PARSE_CHUNK_SIZE_START);
 		http_msg.concatenateChunks();
 		break;
 	case PARSE_CONTENT_NO_LENGTH:
