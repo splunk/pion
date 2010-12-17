@@ -62,6 +62,10 @@ YAJL ("Yet Another JSON Library") is required to build support for the
 JSONCodec plugin.  You may skip this step if you do not want to build
 support for JSON.
 
+On Ubuntu 10.04 and later, you can install this easily with:
+
+# sudo apt-get install libyajl-dev
+
 You can download the source code tarball for YAJL from the "Third Party
 Libraries" page on our website.  After downloading it, just run:
 
