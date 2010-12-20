@@ -117,6 +117,8 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
 	client_str >> response_msg;
 	BOOST_CHECK_EQUAL(response_msg, "Hello");
 
+	client_str.close();
+	listener_thread.join();
 	m_scheduler.removeActiveUser();
 }
 
@@ -174,6 +176,8 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
 	BOOST_REQUIRE(client_str.read(another_buf, BIG_BUF_SIZE));
 	BOOST_CHECK_EQUAL(memcmp(m_big_buf, another_buf, BIG_BUF_SIZE), 0);
 
+	client_str.close();
+	listener_thread.join();
 	m_scheduler.removeActiveUser();
 }
 
