@@ -374,17 +374,23 @@ public:
 	 * sends the message over a TCP connection (blocks until finished)
 	 *
 	 * @param ec contains error code if the send fails
+	 * @param headers_only if true then only HTTP headers are sent
+	 *
 	 * @return std::size_t number of bytes written to the connection
 	 */
-	std::size_t send(TCPConnection& tcp_conn, boost::system::error_code& ec);
+	std::size_t send(TCPConnection& tcp_conn, boost::system::error_code& ec,
+		bool headers_only = false);
 
 	/**
 	 * receives a new message from a TCP connection (blocks until finished)
 	 *
 	 * @param ec contains error code if the receive fails
+	 * @param headers_only if true then only HTTP headers are received
+	 *
 	 * @return std::size_t number of bytes read from the connection
 	 */
-	std::size_t receive(TCPConnection& tcp_conn, boost::system::error_code& ec);
+	std::size_t receive(TCPConnection& tcp_conn, boost::system::error_code& ec,
+		bool headers_only = false);
 
 	/**
 	 * pieces together all the received chunks

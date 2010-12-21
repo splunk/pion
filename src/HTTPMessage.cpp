@@ -28,14 +28,15 @@ const boost::regex		HTTPMessage::REGEX_ICASE_CHUNKED(".*chunked.*", boost::regex
 // HTTPMessage member functions
 
 std::size_t HTTPMessage::send(TCPConnection& tcp_conn,
-							  boost::system::error_code& ec)
+							  boost::system::error_code& ec,
+							  bool headers_only)
 {
 	// initialize write buffers for send operation using HTTP headers
 	WriteBuffers write_buffers;
 	prepareBuffersForSend(write_buffers, tcp_conn.getKeepAlive(), false);
 
 	// append payload content to write buffers (if there is any)
-	if (getContentLength() > 0 && getContent() != NULL)
+	if (!headers_only && getContentLength() > 0 && getContent() != NULL)
 		write_buffers.push_back(boost::asio::buffer(getContent(), getContentLength()));
 
 	// send the message and return the result
@@ -43,12 +44,14 @@ std::size_t HTTPMessage::send(TCPConnection& tcp_conn,
 }
 
 std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
-								 boost::system::error_code& ec)
+								 boost::system::error_code& ec,
+								 bool headers_only)
 {
 	static ReceiveError RECEIVE_ERROR;
 	// assumption: this can only be either an HTTPRequest or an HTTPResponse
 	const bool is_request = (dynamic_cast<HTTPRequest*>(this) != NULL);
 	HTTPParser http_parser(is_request);
+	http_parser.parseHeadersOnly(headers_only);
 	std::size_t last_bytes_read = 0;
 
 	// make sure that we start out with an empty message

@@ -51,7 +51,8 @@ public:
 		m_chunked_content_parse_state(PARSE_CHUNK_SIZE_START), m_status_code(0),
 		m_bytes_content_remaining(0), m_bytes_content_read(0),
 		m_bytes_last_read(0), m_bytes_total_read(0),
-		m_max_content_length(max_content_length), m_save_raw_headers(false)
+		m_max_content_length(max_content_length),
+		m_parse_headers_only(false), m_save_raw_headers(false)
 	{}
 
 	/// default destructor
@@ -127,6 +128,13 @@ public:
 		finish(http_msg);
 		return false;
 	}
+
+	/**
+	 * controls headers-only parsing (default is disabled; content parsed also)
+	 *
+	 * @param b if true, then the parse() function returns true after headers
+	 */
+	inline void parseHeadersOnly(bool b = true) { m_parse_headers_only = b; }
 
 	/**
 	 * skip parsing all headers and parse payload content only
@@ -475,6 +483,9 @@ private:
 	/// maximum length for HTTP payload content
 	std::size_t							m_max_content_length;
 	
+	/// if true, then only HTTP headers will be parsed (no content parsing)
+	bool								m_parse_headers_only;
+
 	/// if true, the raw contents of HTTP headers are stored into m_raw_headers
 	bool								m_save_raw_headers;
 };

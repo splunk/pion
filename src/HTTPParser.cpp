@@ -641,6 +641,10 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 
 		// content is encoded using chunks
 		m_message_parse_state = PARSE_CHUNKS;
+		
+		// return true if parsing headers only
+		if (m_parse_headers_only)
+			rc = true;
 
 	} else if (http_msg.isContentLengthImplied()) {
 
@@ -672,6 +676,10 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 				// check if content-length exceeds maximum allowed
 				if (m_bytes_content_remaining > m_max_content_length)
 					http_msg.setContentLength(m_max_content_length);
+
+				// return true if parsing headers only
+				if (m_parse_headers_only)
+					rc = true;
 			}
 
 		} else {
@@ -685,6 +693,10 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg)
 
 				// continue reading content until there is no more data
 				m_message_parse_state = PARSE_CONTENT_NO_LENGTH;
+
+				// return true if parsing headers only
+				if (m_parse_headers_only)
+					rc = true;
 			} else {
 				m_message_parse_state = PARSE_END;
 				rc = true;

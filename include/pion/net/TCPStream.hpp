@@ -393,7 +393,7 @@ public:
 	inline boost::system::error_code accept(boost::asio::ip::tcp::acceptor& tcp_acceptor)
 	{
 		boost::system::error_code ec = m_tcp_buf.getConnection().accept(tcp_acceptor);
-		if (! ec) ec = m_tcp_buf.getConnection().handshake_server();
+		if (! ec && getSSLFlag()) ec = m_tcp_buf.getConnection().handshake_server();
 		return ec;
 	}
 
@@ -408,7 +408,7 @@ public:
 	inline boost::system::error_code connect(boost::asio::ip::tcp::endpoint& tcp_endpoint)
 	{
 		boost::system::error_code ec = m_tcp_buf.getConnection().connect(tcp_endpoint);
-		if (! ec) ec = m_tcp_buf.getConnection().handshake_client();
+		if (! ec && getSSLFlag()) ec = m_tcp_buf.getConnection().handshake_client();
 		return ec;
 	}
 	
@@ -426,7 +426,7 @@ public:
 	{
 		boost::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
 		boost::system::error_code ec = m_tcp_buf.getConnection().connect(tcp_endpoint);
-		if (! ec) ec = m_tcp_buf.getConnection().handshake_client();
+		if (! ec && getSSLFlag()) ec = m_tcp_buf.getConnection().handshake_client();
 		return ec;
 	}
 

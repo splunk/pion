@@ -66,7 +66,16 @@ public:
 	/// data type for SSL configuration context
 	typedef boost::asio::ssl::context								SSLContext;
 #else
-	typedef Socket	SSLSocket;
+	class SSLSocket {
+	public:
+		SSLSocket(boost::asio::io_service& io_service) : m_socket(io_service) {}
+		inline Socket& next_layer(void) { return m_socket; }
+		inline const Socket& next_layer(void) const { return m_socket; }
+		inline Socket& lowest_layer(void) { return m_socket.lowest_layer(); }
+		inline const Socket& lowest_layer(void) const { return m_socket.lowest_layer(); }
+	private:
+		Socket	m_socket;
+	};
 	typedef int		SSLContext;
 #endif
 
@@ -96,7 +105,7 @@ public:
 	 * @param ssl_flag if true then the connection will be encrypted using SSL 
 	 */
 	explicit TCPConnection(boost::asio::io_service& io_service, const bool ssl_flag = false)
-		: m_tcp_socket(io_service),
+		:
 #ifdef PION_HAVE_SSL
 		m_ssl_context(io_service, boost::asio::ssl::context::sslv23),
 		m_ssl_socket(io_service, m_ssl_context),
@@ -118,7 +127,7 @@ public:
 	 * @param ssl_context asio ssl context associated with the connection
 	 */
 	TCPConnection(boost::asio::io_service& io_service, SSLContext& ssl_context)
-		: m_tcp_socket(io_service),
+		:
 #ifdef PION_HAVE_SSL
 		m_ssl_context(io_service, boost::asio::ssl::context::sslv23),
 		m_ssl_socket(io_service, ssl_context), m_ssl_flag(true),
@@ -133,26 +142,13 @@ public:
 	
 	/// returns true if the connection is currently open
 	inline bool is_open(void) const {
-#ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			return const_cast<SSLSocket&>(m_ssl_socket).lowest_layer().is_open();
-		else 
-#endif
-			return m_tcp_socket.is_open();
+		return const_cast<SSLSocket&>(m_ssl_socket).lowest_layer().is_open();
 	}
 	
 	/// closes the tcp socket and cancels any pending asynchronous operations
 	inline void close(void) {
-#ifdef PION_HAVE_SSL
-		if (getSSLFlag()) {
-			if (m_ssl_socket.lowest_layer().is_open())
-				m_ssl_socket.lowest_layer().close();
-		} else
-#endif
-		{
-			if (m_tcp_socket.is_open())
-				m_tcp_socket.close();
-		}
+		if (m_ssl_socket.lowest_layer().is_open())
+			m_ssl_socket.lowest_layer().close();
 	}
 
 	/*
@@ -160,12 +156,7 @@ public:
 
 	/// cancels any asynchronous operations pending on the socket
 	inline void cancel(void) {
-#ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			m_ssl_socket.lowest_layer().cancel();
-		else
-#endif
-			m_tcp_socket.cancel();
+		m_ssl_socket.lowest_layer().cancel();
 	}
 	*/
 	
@@ -184,12 +175,7 @@ public:
 	inline void async_accept(boost::asio::ip::tcp::acceptor& tcp_acceptor,
 							 AcceptHandler handler)
 	{
-#ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			tcp_acceptor.async_accept(m_ssl_socket.lowest_layer(), handler);
-		else
-#endif		
-			tcp_acceptor.async_accept(m_tcp_socket, handler);
+		tcp_acceptor.async_accept(m_ssl_socket.lowest_layer(), handler);
 	}
 
 	/**
@@ -203,12 +189,7 @@ public:
 	inline boost::system::error_code accept(boost::asio::ip::tcp::acceptor& tcp_acceptor)
 	{
 		boost::system::error_code ec;
-#ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			tcp_acceptor.accept(m_ssl_socket.lowest_layer(), ec);
-		else
-#endif		
-			tcp_acceptor.accept(m_tcp_socket, ec);
+		tcp_acceptor.accept(m_ssl_socket.lowest_layer(), ec);
 		return ec;
 	}
 	
@@ -224,12 +205,7 @@ public:
 	inline void async_connect(boost::asio::ip::tcp::endpoint& tcp_endpoint,
 							  ConnectHandler handler)
 	{
-#ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			m_ssl_socket.lowest_layer().async_connect(tcp_endpoint, handler);
-		else
-#endif		
-			m_tcp_socket.async_connect(tcp_endpoint, handler);
+		m_ssl_socket.lowest_layer().async_connect(tcp_endpoint, handler);
 	}
 
 	/**
@@ -261,12 +237,7 @@ public:
 	inline boost::system::error_code connect(boost::asio::ip::tcp::endpoint& tcp_endpoint)
 	{
 		boost::system::error_code ec;
-#ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			m_ssl_socket.lowest_layer().connect(tcp_endpoint, ec);
-		else
-#endif		
-			m_tcp_socket.connect(tcp_endpoint, ec);
+		m_ssl_socket.lowest_layer().connect(tcp_endpoint, ec);
 		return ec;
 	}
 
@@ -300,7 +271,7 @@ public:
 	{
 		// query a list of matching endpoints
 		boost::system::error_code ec;
-		boost::asio::ip::tcp::resolver resolver(m_tcp_socket.get_io_service());
+		boost::asio::ip::tcp::resolver resolver(m_ssl_socket.lowest_layer().get_io_service());
 		boost::asio::ip::tcp::resolver::query query(remote_server,
 			boost::lexical_cast<std::string>(remote_port),
 			boost::asio::ip::tcp::resolver::query::numeric_service);
@@ -332,8 +303,8 @@ public:
 	template <typename SSLHandshakeHandler>
 	inline void async_handshake_client(SSLHandshakeHandler handler) {
 #ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			m_ssl_socket.async_handshake(boost::asio::ssl::stream_base::client, handler);
+		m_ssl_socket.async_handshake(boost::asio::ssl::stream_base::client, handler);
+		m_ssl_flag = true;
 #endif
 	}
 
@@ -347,8 +318,8 @@ public:
 	template <typename SSLHandshakeHandler>
 	inline void async_handshake_server(SSLHandshakeHandler handler) {
 #ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			m_ssl_socket.async_handshake(boost::asio::ssl::stream_base::server, handler);
+		m_ssl_socket.async_handshake(boost::asio::ssl::stream_base::server, handler);
+		m_ssl_flag = true;
 #endif
 	}
 	
@@ -362,8 +333,8 @@ public:
 	inline boost::system::error_code handshake_client(void) {
 		boost::system::error_code ec;
 #ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			m_ssl_socket.handshake(boost::asio::ssl::stream_base::client, ec);
+		m_ssl_socket.handshake(boost::asio::ssl::stream_base::client, ec);
+		m_ssl_flag = true;
 #endif
 		return ec;
 	}
@@ -378,8 +349,8 @@ public:
 	inline boost::system::error_code handshake_server(void) {
 		boost::system::error_code ec;
 #ifdef PION_HAVE_SSL
-		if (getSSLFlag())
-			m_ssl_socket.handshake(boost::asio::ssl::stream_base::server, ec);
+		m_ssl_socket.handshake(boost::asio::ssl::stream_base::server, ec);
+		m_ssl_flag = true;
 #endif
 		return ec;
 	}
@@ -399,7 +370,7 @@ public:
 										 handler);
 		else
 #endif		
-			m_tcp_socket.async_read_some(boost::asio::buffer(m_read_buffer),
+			m_ssl_socket.next_layer().async_read_some(boost::asio::buffer(m_read_buffer),
 										 handler);
 	}
 	
@@ -419,7 +390,7 @@ public:
 			m_ssl_socket.async_read_some(read_buffer, handler);
 		else
 #endif		
-			m_tcp_socket.async_read_some(read_buffer, handler);
+			m_ssl_socket.next_layer().async_read_some(read_buffer, handler);
 	}
 	
 	/**
@@ -436,7 +407,7 @@ public:
 			return m_ssl_socket.read_some(boost::asio::buffer(m_read_buffer), ec);
 		else
 #endif		
-			return m_tcp_socket.read_some(boost::asio::buffer(m_read_buffer), ec);
+			return m_ssl_socket.next_layer().read_some(boost::asio::buffer(m_read_buffer), ec);
 	}
 	
 	/**
@@ -457,7 +428,7 @@ public:
 			return m_ssl_socket.read_some(read_buffer, ec);
 		else
 #endif		
-			return m_tcp_socket.read_some(read_buffer, ec);
+			return m_ssl_socket.next_layer().read_some(read_buffer, ec);
 	}
 	
 	/**
@@ -479,7 +450,7 @@ public:
 									completion_condition, handler);
 		else
 #endif		
-			boost::asio::async_read(m_tcp_socket, boost::asio::buffer(m_read_buffer),
+			boost::asio::async_read(m_ssl_socket.next_layer(), boost::asio::buffer(m_read_buffer),
 									completion_condition, handler);
 	}
 			
@@ -504,7 +475,7 @@ public:
 									completion_condition, handler);
 		else
 #endif		
-			boost::asio::async_read(m_tcp_socket, buffers,
+			boost::asio::async_read(m_ssl_socket.next_layer(), buffers,
 									completion_condition, handler);
 	}
 	
@@ -528,7 +499,7 @@ public:
 										   completion_condition, ec);
 		else
 #endif		
-			return boost::asio::async_read(m_tcp_socket, boost::asio::buffer(m_read_buffer),
+			return boost::asio::async_read(m_ssl_socket.next_layer(), boost::asio::buffer(m_read_buffer),
 										   completion_condition, ec);
 	}
 	
@@ -554,7 +525,7 @@ public:
 									 completion_condition, ec);
 		else
 #endif		
-			return boost::asio::read(m_tcp_socket, buffers,
+			return boost::asio::read(m_ssl_socket.next_layer(), buffers,
 									 completion_condition, ec);
 	}
 	
@@ -573,7 +544,7 @@ public:
 			boost::asio::async_write(m_ssl_socket, buffers, handler);
 		else
 #endif		
-			boost::asio::async_write(m_tcp_socket, buffers, handler);
+			boost::asio::async_write(m_ssl_socket.next_layer(), buffers, handler);
 	}	
 		
 	/**
@@ -595,7 +566,7 @@ public:
 									  boost::asio::transfer_all(), ec);
 		else
 #endif		
-			return boost::asio::write(m_tcp_socket, buffers,
+			return boost::asio::write(m_ssl_socket.next_layer(), buffers,
 									  boost::asio::transfer_all(), ec);
 	}	
 	
@@ -648,13 +619,8 @@ public:
 	inline boost::asio::ip::tcp::endpoint getRemoteEndpoint(void) const {
 		boost::asio::ip::tcp::endpoint remote_endpoint;
 		try {
-#ifdef PION_HAVE_SSL
-			if (getSSLFlag())
-				// const_cast is required since lowest_layer() is only defined non-const in asio
-				remote_endpoint = const_cast<SSLSocket&>(m_ssl_socket).lowest_layer().remote_endpoint();
-			else
-#endif
-				remote_endpoint = m_tcp_socket.remote_endpoint();
+			// const_cast is required since lowest_layer() is only defined non-const in asio
+			remote_endpoint = const_cast<SSLSocket&>(m_ssl_socket).lowest_layer().remote_endpoint();
 		} catch (boost::system::system_error& /* e */) {
 			// do nothing
 		}
@@ -673,17 +639,17 @@ public:
 	
 	/// returns reference to the io_service used for async operations
 	inline boost::asio::io_service& getIOService(void) {
-		return m_tcp_socket.io_service();
+		return m_ssl_socket.lowest_layer().io_service();
 	}
 
 	/// returns non-const reference to underlying TCP socket object
-	inline Socket& getSocket(void) { return m_tcp_socket; }
+	inline Socket& getSocket(void) { return m_ssl_socket.next_layer(); }
 	
 	/// returns non-const reference to underlying SSL socket object
 	inline SSLSocket& getSSLSocket(void) { return m_ssl_socket; }
 
 	/// returns const reference to underlying TCP socket object
-	inline const Socket& getSocket(void) const { return m_tcp_socket; }
+	inline const Socket& getSocket(void) const { return const_cast<SSLSocket&>(m_ssl_socket).next_layer(); }
 	
 	/// returns const reference to underlying SSL socket object
 	inline const SSLSocket& getSSLSocket(void) const { return m_ssl_socket; }
@@ -704,7 +670,7 @@ protected:
 				  SSLContext& ssl_context,
 				  const bool ssl_flag,
 				  ConnectionHandler finished_handler)
-		: m_tcp_socket(io_service),
+		:
 #ifdef PION_HAVE_SSL
 		m_ssl_context(io_service, boost::asio::ssl::context::sslv23),
 		m_ssl_socket(io_service, ssl_context), m_ssl_flag(ssl_flag),
@@ -725,9 +691,6 @@ private:
 	typedef std::pair<const char*, const char*>		ReadPosition;
 
 	
-	/// TCP connection socket
-	Socket						m_tcp_socket;
-	
 	/// context object for the SSL connection socket
 	SSLContext					m_ssl_context;
 
@@ -735,7 +698,7 @@ private:
 	SSLSocket					m_ssl_socket;
 
 	/// true if the connection is encrypted using SSL
-	const bool					m_ssl_flag;
+	bool						m_ssl_flag;
 
 	/// buffer used for reading data from the TCP connection
 	ReadBuffer					m_read_buffer;
