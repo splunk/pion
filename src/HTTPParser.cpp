@@ -217,6 +217,9 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 	m_bytes_last_read = 0;
 	while (m_read_ptr < m_read_end_ptr) {
 
+		if (m_save_raw_headers)
+			m_raw_headers += *m_read_ptr;
+		
 		switch (m_headers_parse_state) {
 		case PARSE_METHOD_START:
 			// we have not yet started parsing the HTTP method string
@@ -562,9 +565,6 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg)
 			m_bytes_total_read += m_bytes_last_read;
 			return true;
 		}
-		
-		if (m_save_raw_headers)
-			m_raw_headers += *m_read_ptr;
 		
 		++m_read_ptr;
 	}
