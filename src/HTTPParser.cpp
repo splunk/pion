@@ -1143,7 +1143,6 @@ void HTTPParser::computeMsgStatus(HTTPMessage& http_msg, bool msg_parsed_ok )
 	if(http_msg.hasMissingPackets()) {
 		st = http_msg.hasDataAfterMissingPackets() ?
 						HTTPMessage::STATUS_PARTIAL : HTTPMessage::STATUS_TRUNCATED;
-		http_msg.setStatus(st);
 	} else {
 		st = msg_parsed_ok ? HTTPMessage::STATUS_OK : HTTPMessage::STATUS_TRUNCATED;
 	}
