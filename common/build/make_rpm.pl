@@ -84,10 +84,12 @@ if ($EDITION eq "core") {
 	$spec_license = "GPL";
 	$config_file_glob = "*.{xml,txt,pem}";
 	$install_perl_scripts = "";
+	$extra_config_files = "";
 } else {
 	$spec_license = "commercial";
-	$config_file_glob = "*.{xml,txt,pem,cap}";
+	$config_file_glob = "*.{xml,txt,pem}";
 	$install_perl_scripts = "install -m 660 $BIN_SRC_BASE/config/*.pl \$RPM_BUILD_ROOT/var/lib/pion";
+	$extra_config_files = "\%config /etc/pion/SearchEngines.xml\n\%config(noreplace) /etc/pion/ReplayQueries.xml\n\%config(noreplace) /etc/pion/robots.xml";
 }
 $SPEC_POST="/sbin/ldconfig";
 $SPEC_POSTUN="/sbin/ldconfig";
@@ -173,7 +175,20 @@ $SPEC_OPTIONS
 \%files
 
 \%defattr(-,pion,pion)
-\%config /etc/pion/
+\%config /etc/pion/pymodules
+\%config /etc/pion/logconfig.txt
+\%config(noreplace) /etc/pion/codecs.xml
+\%config(noreplace) /etc/pion/databases.xml
+\%config(noreplace) /etc/pion/dbengines.xml
+\%config(noreplace) /etc/pion/platform.xml
+\%config(noreplace) /etc/pion/protocols.xml
+\%config(noreplace) /etc/pion/reactors.xml
+\%config(noreplace) /etc/pion/services.xml
+\%config(noreplace) /etc/pion/sslkey.pem
+\%config(noreplace) /etc/pion/users.xml
+\%config(noreplace) /etc/pion/vocabularies.xml
+\%config(noreplace) /etc/pion/vocabularies
+$extra_config_files
 \%dir /var/lib/pion
 \%dir /var/log/pion
 
