@@ -175,6 +175,7 @@ $SPEC_OPTIONS
 \%files
 
 \%defattr(-,pion,pion)
+\%dir /etc/pion/
 \%config /etc/pion/pymodules
 \%config /etc/pion/logconfig.txt
 \%config(noreplace) /etc/pion/codecs.xml
