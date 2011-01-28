@@ -129,22 +129,25 @@ Installing lxml:
 ----------------
 
 Pion's pupgrade.py script requires that you have the lxml library installed.
-We recommend that you install this using the RPM's provided by the EPEL (Extra
-Packages for Enterprise Linux) project.  If you do not have this repository
-setup yet, you can do so (on Redhat or CentOS EL5) using the following command:
+The easiest way to do this is using the easy_install utility:
 
+# yum install python-setuptools
+# easy_install lxml
+
+You can also obtain lxml RPMs from either the RPMforge or EPEL (Extra Packages
+for Enterprise Linux) repositories. We recommend that you use EPEL since it is
+more up-to-date. On EL5, you can use the following command to set up this
+repository:
+
+(32-bit)
 # rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+
+(64-bit)
+# rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
 
 You can then use yum to install the library with the following command:
 
 # yum install python-lxml
-
-(Note that the RPMForge project also provides this RPM although it is quite old)
-
-An alternative method is to use Python's easy_install script:
-
-# yum install python-setuptools
-# easy_install lxml
 
 
 Installing YAJL:
