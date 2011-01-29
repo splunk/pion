@@ -7,6 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <cstdlib>
+#include <cstdio>
 #include <pion/PionAlgorithms.hpp>
 #include <boost/assert.hpp>
 
