@@ -84,326 +84,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug_static|Win32"
-			ConfigurationType="1"
-			InheritedPropertySheets="..\build\Debug_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_CONSOLE"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				SubSystem="1"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="auto run tests"
-				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release_DLL|Win32"
-			ConfigurationType="1"
-			InheritedPropertySheets="..\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-				AdditionalDependencies="bin/hasNoCreate.dll;bin/hasCreateButNoDestroy.dll;bin/hasCreateAndDestroy.dll"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_CONSOLE"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				SubSystem="1"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="auto run tests"
-				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release_static|Win32"
-			ConfigurationType="1"
-			InheritedPropertySheets="..\build\Release_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_CONSOLE"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				SubSystem="1"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="auto run tests"
-				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug_DLL_full|Win32"
-			ConfigurationType="1"
-			InheritedPropertySheets="..\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-				AdditionalDependencies="bin/hasNoCreate.dll;bin/hasCreateButNoDestroy.dll;bin/hasCreateAndDestroy.dll"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_CONSOLE;PION_FULL"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				SubSystem="1"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="auto run tests"
-				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release_DLL_full|Win32"
-			ConfigurationType="1"
-			InheritedPropertySheets="..\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-				AdditionalDependencies="bin/hasNoCreate.dll;bin/hasCreateButNoDestroy.dll;bin/hasCreateAndDestroy.dll"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_CONSOLE;PION_FULL"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				SubSystem="1"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="auto run tests"
-				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Debug_DLL|x64"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_x64.vsprops"
@@ -471,6 +151,69 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Debug_static|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\build\Debug_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="_CONSOLE"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="auto run tests"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug_static|x64"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\build\Debug_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_x64.vsprops"
@@ -511,6 +254,71 @@
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="auto run tests"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+				AdditionalDependencies="bin/hasNoCreate.dll;bin/hasCreateButNoDestroy.dll;bin/hasCreateAndDestroy.dll"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="_CONSOLE"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -604,6 +412,69 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release_static|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\build\Release_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="_CONSOLE"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="auto run tests"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Release_static|x64"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\build\Release_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_x64.vsprops"
@@ -643,6 +514,70 @@
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="auto run tests"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_DLL_full|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+				AdditionalDependencies="bin/hasNoCreate.dll;bin/hasCreateButNoDestroy.dll;bin/hasCreateAndDestroy.dll"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="_CONSOLE;PION_FULL"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -710,6 +645,71 @@
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="auto run tests"
+				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL_full|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+				AdditionalDependencies="bin/hasNoCreate.dll;bin/hasCreateButNoDestroy.dll;bin/hasCreateAndDestroy.dll"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="_CONSOLE;PION_FULL"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -811,6 +811,10 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\PionAlgorithmsTests.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\PionBlobTests.cpp"
 				>
