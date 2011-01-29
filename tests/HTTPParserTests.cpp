@@ -8,12 +8,14 @@
 //
 
 #include <boost/test/unit_test.hpp>
+#include <pion/PionAlgorithms.hpp>
 #include <pion/net/HTTPParser.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/HTTPResponse.hpp>
 
 #include "HTTPParserTestsData.inc"
 
+using namespace pion;
 using namespace pion::net;
 
 BOOST_AUTO_TEST_CASE(testParseSimpleQueryString)
@@ -40,10 +42,10 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleValues)
 	BOOST_CHECK_EQUAL(i->second, "2");
 	i = params.find("three");
 	BOOST_REQUIRE(i != params.end());
-	BOOST_CHECK_EQUAL(HTTPTypes::url_decode(i->second), " four with spaces");
+	BOOST_CHECK_EQUAL(algo::url_decode(i->second), " four with spaces");
 	i = params.find("five");
 	BOOST_REQUIRE(i != params.end());
-	BOOST_CHECK_EQUAL(HTTPTypes::url_decode(i->second), "sixty two");
+	BOOST_CHECK_EQUAL(algo::url_decode(i->second), "sixty two");
 }
 
 BOOST_AUTO_TEST_CASE(testParseQueryStringWithDoubleAmpersand)

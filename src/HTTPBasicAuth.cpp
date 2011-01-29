@@ -8,6 +8,7 @@
 //
 
 #include <boost/algorithm/string.hpp>
+#include <pion/PionAlgorithms.hpp>
 #include <pion/net/HTTPBasicAuth.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
 #include <pion/net/HTTPServer.hpp>
@@ -115,7 +116,7 @@ bool HTTPBasicAuth::parseCredentials(const std::string &credentials,
 {
 	std::string user_password;
 	
-	if (! HTTPTypes::base64_decode(credentials, user_password))
+	if (! algo::base64_decode(credentials, user_password))
 		return false;
 
 	// find ':' symbol

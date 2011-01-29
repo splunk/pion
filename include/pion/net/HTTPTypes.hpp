@@ -104,28 +104,6 @@ struct PION_NET_API HTTPTypes
 	typedef StringDictionary	QueryParams;
 
 	
-	/** base64 decoding , used internally by HTTPBasicAuth
-	 *
-	 * @param input - base64 encoded string
-	 * @param output - decoded string ( may include non-text chars)
-	 * @return true if successful, false if input string contains non-base64 symbols
-	 */
-	static bool base64_decode(std::string const &input, std::string & output);
-
-	/** base64 encoding , used internally by HTTPBasicAuth
-	 *
-	 * @param input - arbitrary string ( may include non-text chars)
-	 * @param output - base64 encoded string
-	 * @return true if successful,
-	 */
-	static bool base64_encode(std::string const &input, std::string & output);
-
-	/// escapes URL-encoded strings (a%20value+with%20spaces)
-	static std::string url_decode(const std::string& str);
-
-	/// encodes strings so that they are safe for URLs (with%20spaces)
-	static std::string url_encode(const std::string& str);
-	
 	/// converts time_t format into an HTTP-date string
 	static std::string get_date_string(const time_t t);
 

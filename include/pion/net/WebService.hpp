@@ -13,6 +13,7 @@
 #include <boost/noncopyable.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionException.hpp>
+#include <pion/PionAlgorithms.hpp>
 #include <pion/net/HTTPRequest.hpp>
 #include <pion/net/TCPConnection.hpp>
 #include <string>
@@ -80,7 +81,7 @@ public:
 			return std::string();
 		}
 		// strip the web service's resource path plus the slash after it
-		return HTTPTypes::url_decode(resource_requested.substr(getResource().size() + 1));
+		return algo::url_decode(resource_requested.substr(getResource().size() + 1));
 	}
 	
 	

@@ -8,6 +8,7 @@
 //
 
 #include <boost/algorithm/string.hpp>
+#include <pion/PionAlgorithms.hpp>
 #include <pion/net/HTTPCookieAuth.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
 #include <pion/net/HTTPServer.hpp>
@@ -110,15 +111,15 @@ bool HTTPCookieAuth::processLogin(HTTPRequestPtr& http_request, TCPConnectionPtr
 		return false; // no login processing done
 	}
 
-	std::string redirect_url = HTTPTypes::url_decode(http_request->getQuery("url"));
+	std::string redirect_url = algo::url_decode(http_request->getQuery("url"));
 	std::string new_cookie;
 	bool delete_cookie = false;
 
 	if (resource == m_login) {
 		// process login
 		// check username
-		std::string username = HTTPTypes::url_decode(http_request->getQuery("user"));
-		std::string password = HTTPTypes::url_decode(http_request->getQuery("pass"));
+		std::string username = algo::url_decode(http_request->getQuery("user"));
+		std::string password = algo::url_decode(http_request->getQuery("pass"));
 
 		// match username/password
 		PionUserPtr user=m_user_manager->getUser(username,password);
@@ -134,7 +135,7 @@ bool HTTPCookieAuth::processLogin(HTTPRequestPtr& http_request, TCPConnectionPtr
 		for (unsigned int i=0; i<RANDOM_COOKIE_BYTES ; i++) {
 			rand_binary += static_cast<unsigned char>(m_random_die());
 		}
-		HTTPTypes::base64_encode(rand_binary, new_cookie);
+		algo::base64_encode(rand_binary, new_cookie);
 
 		// add new session to cache
 		PionDateTime time_now(boost::posix_time::second_clock::universal_time());

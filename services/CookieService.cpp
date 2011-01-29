@@ -8,6 +8,7 @@
 //
 
 #include "CookieService.hpp"
+#include <pion/PionAlgorithms.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
 
 using namespace pion;
@@ -34,7 +35,7 @@ void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_co
 
 	// Check if we have an action to perform
 	if (request->hasQuery("action")) {
-		if (HTTPTypes::url_decode(request->getQuery("action")) == "Add Cookie") {
+		if (algo::url_decode(request->getQuery("action")) == "Add Cookie") {
 			// add a new cookie
 			const std::string cookie_name(request->getQuery("cookie_name"));
 			const std::string cookie_value(request->getQuery("cookie_value"));

@@ -9,6 +9,7 @@
 
 #include "EchoService.hpp"
 #include <boost/bind.hpp>
+#include <pion/PionAlgorithms.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
 #include <pion/net/PionUser.hpp>
 
@@ -26,7 +27,7 @@ void writeDictionaryTerm(HTTPResponseWriterPtr& writer,
 {
 	// text is copied into writer text cache
 	writer << val.first << HTTPTypes::HEADER_NAME_VALUE_DELIMITER
-	<< (decode ? HTTPTypes::url_decode(val.second) : val.second)
+	<< (decode ? algo::url_decode(val.second) : val.second)
 	<< HTTPTypes::STRING_CRLF;
 }
 
