@@ -131,7 +131,7 @@ Installing lxml:
 Pion's pupgrade.py script requires that you have the lxml library installed.
 The easiest way to do this is using the easy_install utility:
 
-# yum install python-setuptools
+# yum install python-setuptools libxml2-devel libxslt-devel
 # easy_install lxml
 
 You can also obtain lxml RPMs from either the RPMforge or EPEL (Extra Packages
