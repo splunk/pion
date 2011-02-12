@@ -409,7 +409,7 @@ inline boost::uint64_t PluginManager<PLUGIN_TYPE>::getStatistic(const std::strin
 template <typename PLUGIN_TYPE>
 inline void PluginManager<PLUGIN_TYPE>::PluginMap::clear(void)
 {
-	if (! empty()) {
+	if (! std::map<std::string, std::pair<PLUGIN_TYPE *, PionPluginPtr<PLUGIN_TYPE> > >::empty()) {
 		for (typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i =
 			 std::map<std::string, std::pair<PLUGIN_TYPE *, PionPluginPtr<PLUGIN_TYPE> > >::begin();
 			 i != std::map<std::string, std::pair<PLUGIN_TYPE *, PionPluginPtr<PLUGIN_TYPE> > >::end(); ++i)
