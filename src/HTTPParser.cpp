@@ -8,6 +8,7 @@
 //
 
 #include <cstdlib>
+#include <boost/regex.hpp>
 #include <boost/logic/tribool.hpp>
 #include <pion/net/HTTPParser.hpp>
 #include <pion/net/HTTPRequest.hpp>
@@ -1149,6 +1150,45 @@ void HTTPParser::computeMsgStatus(HTTPMessage& http_msg, bool msg_parsed_ok )
 
 	http_msg.setStatus(st);
 }
+
+bool HTTPParser::parseForwardedFor(const std::string& header, std::string& public_ip)
+{
+	// static regex's used to check for ipv4 address
+	static const boost::regex IPV4_ADDR_RX("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
+
+	/// static regex used to check for private/local networks:
+	/// 10.*
+	/// 127.*
+	/// 192.168.*
+	/// 172.16-31.*
+	static const boost::regex PRIVATE_NET_RX("(10\\.[0-9]{1,3}|127\\.[0-9]{1,3}|192\\.168|172\\.1[6-9]|172\\.2[0-9]|172\\.3[0-1])\\.[0-9]{1,3}\\.[0-9]{1,3}");
+
+	// sanity check
+	if (header.empty())
+		return false;
+
+	// local variables re-used by while loop
+	boost::match_results<std::string::const_iterator> m;
+	std::string::const_iterator start_it = header.begin();
+
+	// search for next ip address within the header
+	while (boost::regex_search(start_it, header.end(), m, IPV4_ADDR_RX)) {
+		// get ip that matched
+		std::string ip_str(m[0].first, m[0].second);
+		// check if public network ip address
+		if (! boost::regex_match(ip_str, PRIVATE_NET_RX) ) {
+			// match found!
+			public_ip = ip_str;
+			return true;
+		}
+		// update search starting position
+		start_it = m[0].second;
+	}
+
+	// no matches found
+	return false;
+}
+
 }	// end namespace net
 }	// end namespace pion
 

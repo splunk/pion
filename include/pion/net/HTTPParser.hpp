@@ -262,6 +262,17 @@ public:
 		return parseURLEncoded(dict, query.c_str(), query.size());
 	}
 
+	/**
+	 * parses an X-Forwarded-For HTTP header, and extracts from it an IP
+	 * address that best matches the client's public IP address (if any are found)
+	 *
+	 * @param header the X-Forwarded-For HTTP header to parse
+	 * @param public_ip the extract IP address, if found
+	 *
+	 * @return bool true if a public IP address was found and extracted
+	 */
+	static bool parseForwardedFor(const std::string& header, std::string& public_ip);
+
 
 protected:
 

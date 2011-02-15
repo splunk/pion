@@ -318,3 +318,56 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
 	boost::regex content_regex(".*<title>Atomic\\sLabs:.*");
 	BOOST_CHECK(boost::regex_match(http_response.getContent(), content_regex));
 }
+
+
+/// fixture used for testing HTTPParser's X-Fowarded-For header parsing
+class HTTPParserForwardedForTests_F
+{
+public:
+	HTTPParserForwardedForTests_F(void) {}
+	~HTTPParserForwardedForTests_F(void) {}
+
+	inline void checkParsingTrue(const std::string& header, const std::string& result) {
+		std::string public_ip;
+		BOOST_CHECK(HTTPParser::parseForwardedFor(header, public_ip));
+		BOOST_CHECK_EQUAL(public_ip, result);
+	}
+
+	inline void checkParsingFalse(const std::string& header) {
+		std::string public_ip;
+		BOOST_CHECK(! HTTPParser::parseForwardedFor(header, public_ip));
+	}
+};
+
+BOOST_FIXTURE_TEST_SUITE(HTTPParserForwardedForTests_S, HTTPParserForwardedForTests_F)
+
+BOOST_AUTO_TEST_CASE(checkParseForwardedForHeaderNoIP) {
+	checkParsingFalse("myserver");
+	checkParsingFalse("128.2.02f.12");
+}
+
+BOOST_AUTO_TEST_CASE(checkParseForwardedForHeaderNotPublic) {
+	checkParsingFalse("127.0.0.1");
+	checkParsingFalse("10.0.2.1");
+	checkParsingFalse("192.168.2.12");
+	checkParsingFalse("172.16.2.1");
+	checkParsingFalse("172.21.2.1");
+	checkParsingFalse("172.30.2.1");
+}
+
+BOOST_AUTO_TEST_CASE(checkParseForwardedForHeaderWithSpaces) {
+	checkParsingTrue("   129.12.12.204   ", "129.12.12.204");
+}
+
+BOOST_AUTO_TEST_CASE(checkParseForwardedForHeaderFirstNotIP) {
+	checkParsingTrue(" phono , 129.2.31.24, 62.31.21.2", "129.2.31.24");
+	checkParsingTrue("not_ipv4, 127.2.31.24, 62.31.21.2", "62.31.21.2");
+}
+
+BOOST_AUTO_TEST_CASE(checkParseForwardedForHeaderFirstNotPublic) {
+	checkParsingTrue("127.0.0.1, 62.31.21.2", "62.31.21.2");
+	checkParsingTrue("10.21.31.2, 172.15.31.2", "172.15.31.2");
+	checkParsingTrue("192.168.2.12, 172.32.31.2", "172.32.31.2");
+}
+
+BOOST_AUTO_TEST_SUITE_END()
