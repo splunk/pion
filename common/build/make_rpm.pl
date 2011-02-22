@@ -162,6 +162,7 @@ $INSTALL_BIN $BIN_SRC_BASE/piondb \$RPM_BUILD_ROOT/usr/bin/piondb
 install $BIN_SRC_BASE/pget.py \$RPM_BUILD_ROOT/usr/bin/pget.py
 install $BIN_SRC_BASE/pmon.py \$RPM_BUILD_ROOT/usr/bin/pmon.py
 install $BIN_SRC_BASE/pupgrade.py \$RPM_BUILD_ROOT/usr/bin/pupgrade.py
+install $BIN_SRC_BASE/httpbl.py \$RPM_BUILD_ROOT/usr/bin/httpbl.py
 cp -r $BIN_SRC_BASE/ui/* \$RPM_BUILD_ROOT/usr/share/pion/ui
 
 
@@ -203,6 +204,7 @@ $extra_config_files
 /usr/bin/pget.py*
 /usr/bin/pmon.py*
 /usr/bin/pupgrade.py*
+/usr/bin/httpbl.py*
 
 \%defattr(-,root,root)
 /usr/share/pion/ui
