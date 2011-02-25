@@ -160,7 +160,7 @@ protected:
 							   << (getTCPConnection()->getKeepAlive() ? "keeping alive)" : "closing)"));
 			}
 		}
-		finishedWriting();
+		finishedWriting(write_error);
 	}
 
 	

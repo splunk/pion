@@ -36,7 +36,8 @@ class HTTPRequestReader :
 public:
 
 	/// function called after the HTTP message has been parsed
-	typedef boost::function2<void, HTTPRequestPtr, TCPConnectionPtr>	FinishedHandler;
+	typedef boost::function3<void, HTTPRequestPtr, TCPConnectionPtr,
+		const boost::system::error_code&>	FinishedHandler;
 
 	
 	// default destructor
@@ -81,9 +82,9 @@ protected:
 	}
 
 	/// Called after we have finished reading/parsing the HTTP message
-	virtual void finishedReading(void) {
+	virtual void finishedReading(const boost::system::error_code& ec) {
 		// call the finished handler with the finished HTTP message
-		m_finished(m_http_msg, getTCPConnection());
+		if (m_finished) m_finished(m_http_msg, getTCPConnection(), ec);
 	}
 	
 	/// Returns a reference to the HTTP message being parsed

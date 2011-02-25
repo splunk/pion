@@ -37,7 +37,7 @@ class PION_NET_API HTTPWriter :
 protected:
 	
 	/// function called after the HTTP message has been sent
-	typedef boost::function0<void>	FinishedHandler;
+	typedef boost::function1<void,const boost::system::error_code&>	FinishedHandler;
 
 	/// data type for a function that handles write operations
 	typedef boost::function2<void,const boost::system::error_code&,std::size_t>	WriteHandler;
@@ -77,7 +77,9 @@ protected:
 	virtual WriteHandler bindToWriteHandler(void) = 0;
 	
 	/// called after we have finished sending the HTTP message
-	inline void finishedWriting(void) { if (m_finished) m_finished(); }
+	inline void finishedWriting(const boost::system::error_code& ec) {
+		if (m_finished) m_finished(ec);
+	}
 	
 	
 public:

@@ -73,7 +73,7 @@ protected:
 	virtual void readBytes(void) = 0;
 
     /// Called after we have finished reading/parsing the HTTP message
-    virtual void finishedReading(void) = 0;
+    virtual void finishedReading(const boost::system::error_code& ec) = 0;
 
     /// Returns a reference to the HTTP message being parsed
     virtual HTTPMessage& getMessage(void) = 0;

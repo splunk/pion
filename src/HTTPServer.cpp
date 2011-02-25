@@ -28,17 +28,17 @@ void HTTPServer::handleConnection(TCPConnectionPtr& tcp_conn)
 {
 	HTTPRequestReaderPtr reader_ptr;
 	reader_ptr = HTTPRequestReader::create(tcp_conn, boost::bind(&HTTPServer::handleRequest,
-										   this, _1, _2));
+										   this, _1, _2, _3));
 	reader_ptr->setMaxContentLength(m_max_content_length);
 	reader_ptr->receive();
 }
 
 void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
-							   TCPConnectionPtr& tcp_conn)
+	TCPConnectionPtr& tcp_conn, const boost::system::error_code& ec)
 {
-	if (! http_request->isValid()) {
+	if (ec || ! http_request->isValid()) {
 		// the request is invalid or an error occured
-		PION_LOG_INFO(m_logger, "Received an invalid HTTP request");
+		PION_LOG_INFO(m_logger, "Invalid HTTP request (" << ec.message() << ")");
 		m_bad_request_handler(http_request, tcp_conn);
 		return;
 	}

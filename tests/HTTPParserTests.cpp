@@ -231,7 +231,9 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleRequest)
     request_parser.setReadBuffer((const char*)request_data_1, sizeof(request_data_1));
 
     HTTPRequest http_request;
-	BOOST_CHECK(request_parser.parse(http_request));
+	boost::system::error_code ec;
+	BOOST_CHECK(request_parser.parse(http_request, ec));
+	BOOST_CHECK(!ec);
 
 	BOOST_CHECK_EQUAL(http_request.getContentLength(), 0UL);
 	BOOST_CHECK_EQUAL(request_parser.getTotalBytesRead(), sizeof(request_data_1));
@@ -244,7 +246,9 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
     response_parser.setReadBuffer((const char*)response_data_1, sizeof(response_data_1));
 
     HTTPResponse http_response;
-    BOOST_CHECK(response_parser.parse(http_response));
+	boost::system::error_code ec;
+    BOOST_CHECK(response_parser.parse(http_response, ec));
+	BOOST_CHECK(!ec);
 
 	BOOST_CHECK_EQUAL(http_response.getContentLength(), 117UL);
 	BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), sizeof(response_data_1));
@@ -254,6 +258,18 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
 	BOOST_CHECK(boost::regex_match(http_response.getContent(), content_regex));
 }
 
+BOOST_AUTO_TEST_CASE(testHTTPParserBadRequest)
+{
+	HTTPParser request_parser(true);
+    request_parser.setReadBuffer((const char*)request_data_bad, sizeof(request_data_bad));
+
+    HTTPRequest http_request;
+	boost::system::error_code ec;
+	BOOST_CHECK(!request_parser.parse(http_request, ec));
+	BOOST_CHECK_EQUAL(ec.value(), HTTPParser::ERROR_VERSION_CHAR);
+	BOOST_CHECK_EQUAL(ec.message(), "invalid version character");
+}
+
 BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithSmallerMaxSize)
 {
     HTTPParser response_parser(false);
@@ -261,7 +277,9 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithSmallerMaxSize)
 	response_parser.setMaxContentLength(4);
 
     HTTPResponse http_response;
-    BOOST_CHECK(response_parser.parse(http_response));
+	boost::system::error_code ec;
+    BOOST_CHECK(response_parser.parse(http_response, ec));
+	BOOST_CHECK(!ec);
 
 	BOOST_CHECK_EQUAL(http_response.getContentLength(), 4UL);
 	BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), sizeof(response_data_1));
@@ -278,7 +296,9 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithZeroMaxSize)
 	response_parser.setMaxContentLength(0);
 
     HTTPResponse http_response;
-    BOOST_CHECK(response_parser.parse(http_response));
+	boost::system::error_code ec;
+    BOOST_CHECK(response_parser.parse(http_response, ec));
+	BOOST_CHECK(!ec);
 
 	BOOST_CHECK_EQUAL(http_response.getContentLength(), 0UL);
 	BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), sizeof(response_data_1));
@@ -299,16 +319,19 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
 
     HTTPParser response_parser(false);
     HTTPResponse http_response;
+	boost::system::error_code ec;
 
 	boost::uint64_t total_bytes = 0;
     for (int i=0; i <  frame_cnt - 1; i++ ) {
         response_parser.setReadBuffer((const char*)frames[i], sizes[i]);
-		BOOST_CHECK( boost::indeterminate(response_parser.parse(http_response)) );
+		BOOST_CHECK( boost::indeterminate(response_parser.parse(http_response, ec)) );
+		BOOST_CHECK(!ec);
 		total_bytes += sizes[i];
 	}
 
     response_parser.setReadBuffer((const char*)frames[frame_cnt - 1], sizes[frame_cnt - 1]);
-    BOOST_CHECK( response_parser.parse(http_response) );
+    BOOST_CHECK( response_parser.parse(http_response, ec) );
+		BOOST_CHECK(!ec);
 	total_bytes += sizes[frame_cnt - 1];
 
 	BOOST_CHECK_EQUAL(http_response.getContentLength(), 4712UL);

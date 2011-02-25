@@ -152,7 +152,7 @@ protected:
 				PION_LOG_DEBUG(log_ptr, "Sent HTTP request of " << bytes_written << " bytes");
 			}
 		}
-		finishedWriting();
+		finishedWriting(write_error);
 	}
 
 

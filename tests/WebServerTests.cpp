@@ -918,7 +918,7 @@ public:
 		HTTPRequest http_request("GET");
 		HTTPResponseReaderPtr reader_ptr(HTTPResponseReader::create(tcp_conn, http_request,
 																	boost::bind(&ContentResponseWithoutLengthTests_F::checkResponse,
-																	this, _1, _2)));
+																	this, _1, _2, _3)));
 		reader_ptr->receive();
 	}
 
@@ -932,7 +932,8 @@ public:
 	}
 	
 	/// checks the validity of the HTTP response
-	void checkResponse(HTTPResponsePtr& response_ptr, TCPConnectionPtr& conn_ptr)
+	void checkResponse(HTTPResponsePtr& response_ptr,
+		TCPConnectionPtr& conn_ptr, const boost::system::error_code& ec)
 	{
 		checkResponse(*response_ptr);
 		boost::mutex::scoped_lock async_lock(m_mutex);

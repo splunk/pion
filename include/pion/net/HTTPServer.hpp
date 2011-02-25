@@ -236,8 +236,10 @@ protected:
 	 *
 	 * @param http_request the HTTP request to handle
 	 * @param tcp_conn TCP connection containing a new request
+	 * @param ec error_code contains additional information for parsing errors
 	 */
-	virtual void handleRequest(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn);
+	virtual void handleRequest(HTTPRequestPtr& http_request,
+		TCPConnectionPtr& tcp_conn, const boost::system::error_code& ec);
 
 	/**
 	 * searches for the appropriate request handler to use for a given resource

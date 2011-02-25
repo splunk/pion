@@ -13,6 +13,7 @@
 #include <string>
 #include <boost/noncopyable.hpp>
 #include <boost/logic/tribool.hpp>
+#include <boost/system/error_code.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionLogger.hpp>
 #include <pion/net/HTTPMessage.hpp>
@@ -36,6 +37,77 @@ public:
 
 	/// maximum length for HTTP payload content
 	static const std::size_t		DEFAULT_CONTENT_MAX;
+
+	/// class-specific error code values
+	enum ErrorValues {
+		ERROR_METHOD_CHAR = 1,
+		ERROR_METHOD_SIZE,
+		ERROR_URI_CHAR,
+		ERROR_URI_SIZE,
+		ERROR_QUERY_CHAR,
+		ERROR_QUERY_SIZE,
+		ERROR_VERSION_EMPTY,
+		ERROR_VERSION_CHAR,
+		ERROR_STATUS_EMPTY,
+		ERROR_STATUS_CHAR,
+		ERROR_HEADER_CHAR,
+		ERROR_HEADER_NAME_SIZE,
+		ERROR_HEADER_VALUE_SIZE,
+		ERROR_INVALID_CONTENT_LENGTH,
+		ERROR_CHUNK_CHAR,
+		ERROR_MISSING_CHUNK_DATA,
+		ERROR_MISSING_HEADER_DATA,
+		ERROR_MISSING_TOO_MUCH_CONTENT,
+	};
+	
+	/// class-specific error category
+	class ErrorCategory
+		: public boost::system::error_category
+	{
+	public:
+		const char *name() const { return "HTTPParser"; }
+		std::string message(int ev) const {
+			switch (ev) {
+			case ERROR_METHOD_CHAR:
+				return "invalid method character";
+			case ERROR_METHOD_SIZE:
+				return "method exceeds maximum size";
+			case ERROR_URI_CHAR:
+				return "invalid URI character";
+			case ERROR_URI_SIZE:
+				return "method exceeds maximum size";
+			case ERROR_QUERY_CHAR:
+				return "invalid query string character";
+			case ERROR_QUERY_SIZE:
+				return "query string exceeds maximum size";
+			case ERROR_VERSION_EMPTY:
+				return "HTTP version undefined";
+			case ERROR_VERSION_CHAR:
+				return "invalid version character";
+			case ERROR_STATUS_EMPTY:
+				return "HTTP status undefined";
+			case ERROR_STATUS_CHAR:
+				return "invalid status character";
+			case ERROR_HEADER_CHAR:
+				return "invalid header character";
+			case ERROR_HEADER_NAME_SIZE:
+				return "header name exceeds maximum size";
+			case ERROR_HEADER_VALUE_SIZE:
+				return "header value exceeds maximum size";
+			case ERROR_INVALID_CONTENT_LENGTH:
+				return "invalid Content-Length header";
+			case ERROR_CHUNK_CHAR:
+				return "invalid chunk character";
+			case ERROR_MISSING_HEADER_DATA:
+				return "missing header data";
+			case ERROR_MISSING_CHUNK_DATA:
+				return "missing chunk data";
+			case ERROR_MISSING_TOO_MUCH_CONTENT:
+				return "missing too much content";
+			}
+			return "HTTPParser error";
+		}
+	};
 
 	/**
 	 * creates new HTTPParser objects
@@ -62,26 +134,29 @@ public:
 	 * parses an HTTP message including all payload content it might contain
 	 *
 	 * @param http_msg the HTTP message object to populate from parsing
+	 * @param ec error_code contains additional information for parsing errors
 	 *
 	 * @return boost::tribool result of parsing:
 	 *                        false = message has an error,
 	 *                        true = finished parsing HTTP message,
 	 *                        indeterminate = not yet finished parsing HTTP message
 	 */
-	boost::tribool parse(HTTPMessage& http_msg);
+	boost::tribool parse(HTTPMessage& http_msg, boost::system::error_code& ec);
 
 	/**
 	 * attempts to continue parsing despite having missed data (length is known but content is not)
 	 *
 	 * @param http_msg the HTTP message object to populate from parsing
 	 * @param len the length in bytes of the missing data
+	 * @param ec error_code contains additional information for parsing errors
 	 *
 	 * @return boost::tribool result of parsing:
 	 *                        false = message has an error,
 	 *                        true = finished parsing HTTP message,
 	 *                        indeterminate = not yet finished parsing HTTP message
 	 */
-	boost::tribool parseMissingData(HTTPMessage& http_msg, std::size_t len);
+	boost::tribool parseMissingData(HTTPMessage& http_msg, std::size_t len,
+		boost::system::error_code& ec);
 
 	/**
 	 * finishes parsing an HTTP response message
@@ -141,7 +216,10 @@ public:
 	 *
 	 * @param http_msg the HTTP message object being parsed
 	 */
-	inline void skipHeaderParsing(HTTPMessage& http_msg) { finishHeaderParsing(http_msg); }
+	inline void skipHeaderParsing(HTTPMessage& http_msg) {
+		boost::system::error_code ec;
+		finishHeaderParsing(http_msg, ec);
+	}
 	
 	/// resets the parser to its initial state
 	inline void reset(void) {
@@ -277,17 +355,26 @@ public:
 protected:
 
 	/**
+	 * sets an error condition
+	 *
+	 * @param ec error code variable to define
+	 * @param ev error value to raise
+	 */
+	void setError(boost::system::error_code& ec, int ev);	
+
+	/**
 	 * parses an HTTP message up to the end of the headers using bytes 
 	 * available in the read buffer
 	 *
 	 * @param http_msg the HTTP message object to populate from parsing
+	 * @param ec error_code contains additional information for parsing errors
 	 *
 	 * @return boost::tribool result of parsing:
 	 *                        false = message has an error,
 	 *                        true = finished parsing HTTP headers,
 	 *                        indeterminate = not yet finished parsing HTTP headers
 	 */
-	boost::tribool parseHeaders(HTTPMessage& http_msg);
+	boost::tribool parseHeaders(HTTPMessage& http_msg, boost::system::error_code& ec);
 
 	/**
 	 * updates an HTTPMessage object with data obtained from parsing headers
@@ -301,37 +388,43 @@ protected:
 	 * available in the read buffer
 	 *
 	 * @param http_msg the HTTP message object to populate from parsing
+	 * @param ec error_code contains additional information for parsing errors
 	 *
 	 * @return boost::tribool result of parsing:
 	 *                        false = message has an error,
 	 *                        true = finished parsing HTTP message (no content),
 	 *                        indeterminate = payload content is available to be parsed
 	 */
-	boost::tribool finishHeaderParsing(HTTPMessage& http_msg);
+	boost::tribool finishHeaderParsing(HTTPMessage& http_msg,
+		boost::system::error_code& ec);
 
 	/**
 	 * parses a chunked HTTP message-body using bytes available in the read buffer
 	 *
 	 * @param chunk_buffers buffers to be populated from parsing chunked content
+	 * @param ec error_code contains additional information for parsing errors
 	 *
 	 * @return boost::tribool result of parsing:
 	 *                        false = message has an error,
 	 *                        true = finished parsing message,
 	 *                        indeterminate = message is not yet finished
 	 */
-	boost::tribool parseChunks(HTTPMessage::ChunkCache& chunk_buffers);
+	boost::tribool parseChunks(HTTPMessage::ChunkCache& chunk_buffers,
+		boost::system::error_code& ec);
 
 	/**
 	 * consumes payload content in the parser's read buffer 
 	 *
 	 * @param http_msg the HTTP message object to consume content for
+	 * @param ec error_code contains additional information for parsing errors
 	 *  
 	 * @return boost::tribool result of parsing:
 	 *                        false = message has an error,
 	 *                        true = finished parsing message,
 	 *                        indeterminate = message is not yet finished
 	 */
-	boost::tribool consumeContent(HTTPMessage& http_msg);
+	boost::tribool consumeContent(HTTPMessage& http_msg,
+		boost::system::error_code& ec);
 
 	/**
 	 * consume the bytes available in the read buffer, converting them into

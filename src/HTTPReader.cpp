@@ -73,7 +73,8 @@ void HTTPReader::consumeBytes(void)
 	// true: finished successfully parsing the message
 	// indeterminate: parsed bytes, but the message is not yet finished
 	//
-	boost::tribool result = parse(getMessage());
+	boost::system::error_code ec;
+	boost::tribool result = parse(getMessage(), ec);
 	
 	if (gcount() > 0) {
 		// parsed > 0 bytes in HTTP headers
@@ -106,7 +107,7 @@ void HTTPReader::consumeBytes(void)
 		}
 
 		// we have finished parsing the HTTP message
-		finishedReading();
+		finishedReading(ec);
 
 	} else if (result == false) {
 		// the message is invalid or an error occured
@@ -130,7 +131,7 @@ void HTTPReader::consumeBytes(void)
 
 		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
 		getMessage().setIsValid(false);
-		finishedReading();
+		finishedReading(ec);
 		
 	} else {
 		// not yet finished parsing the message -> read more data
@@ -156,7 +157,8 @@ void HTTPReader::handleReadError(const boost::system::error_code& read_error)
 
 	// check if this is just a message with unknown content length
 	if (! checkPrematureEOF(getMessage())) {
-		finishedReading();
+		boost::system::error_code ec;	// clear error code
+		finishedReading(ec);
 		return;
 	}
 	
@@ -173,8 +175,7 @@ void HTTPReader::handleReadError(const boost::system::error_code& read_error)
 		}
 	}
 
-	// do not trigger the callback when there are errors -> currently no way to propagate them
-	m_tcp_conn->finish();
+	finishedReading(read_error);
 }
 
 }	// end namespace net

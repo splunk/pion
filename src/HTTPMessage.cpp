@@ -77,7 +77,7 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 	boost::tribool parse_result;
 	while (true) {
 		// parse bytes available in the read buffer
-		parse_result = http_parser.parse(*this);
+		parse_result = http_parser.parse(*this, ec);
 		if (! boost::indeterminate(parse_result)) break;
 
 		// read more bytes from the connection
@@ -106,7 +106,6 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 	
 	if (parse_result == false) {
 		// an error occurred while parsing the message headers
-		ec.assign(1, RECEIVE_ERROR);
 		return http_parser.getTotalBytesRead();
 	}
 
