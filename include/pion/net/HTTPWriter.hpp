@@ -12,7 +12,6 @@
 
 #include <vector>
 #include <string>
-#include <exception>
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/function/function0.hpp>
@@ -84,14 +83,6 @@ protected:
 	
 public:
 
-	/// exception thrown if the TCP connection is dropped while/before sending
-	class LostConnectionException : public std::exception {
-	public:
-		virtual const char* what() const throw() {
-			return "Lost TCP connection while or before sending an HTTP message";
-		}
-	};
-		
 	/// default destructor
 	virtual ~HTTPWriter() {}
 
@@ -270,7 +261,8 @@ private:
 	inline void sendMoreData(const bool send_final_chunk, SendHandler send_handler)
 	{
 		// make sure that we did not lose the TCP connection
-		if (! m_tcp_conn->is_open()) throw LostConnectionException();
+		if (! m_tcp_conn->is_open())
+			finishedWriting(boost::asio::error::connection_reset);
 		// make sure that the content-length is up-to-date
 		flushContentStream();
 		// prepare the write buffers to be sent

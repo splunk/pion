@@ -37,9 +37,15 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 	TCPConnectionPtr& tcp_conn, const boost::system::error_code& ec)
 {
 	if (ec || ! http_request->isValid()) {
-		// the request is invalid or an error occured
-		PION_LOG_INFO(m_logger, "Invalid HTTP request (" << ec.message() << ")");
-		m_bad_request_handler(http_request, tcp_conn);
+		tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
+		if (!tcp_conn->is_open() || ec == boost::asio::error::operation_aborted) {
+			PION_LOG_INFO(m_logger, "Lost connection on port " << getPort());
+			tcp_conn->finish();
+		} else {
+			// the request is invalid or an error occured
+			PION_LOG_INFO(m_logger, "Invalid HTTP request (" << ec.message() << ")");
+			m_bad_request_handler(http_request, tcp_conn);
+		}
 		return;
 	}
 		
@@ -88,11 +94,6 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 			if (http_request->getResource() != http_request->getOriginalResource()) {
 				PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request->getOriginalResource());
 			}
-		} catch (HTTPResponseWriter::LostConnectionException& e) {
-			// the connection was lost while or before sending the response
-			PION_LOG_WARN(m_logger, "HTTP request handler: " << e.what());
-			tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
-			tcp_conn->finish();
 		} catch (std::bad_alloc&) {
 			// propagate memory errors (FATAL)
 			throw;
