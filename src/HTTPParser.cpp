@@ -33,15 +33,11 @@ const boost::uint32_t	HTTPParser::QUERY_VALUE_MAX = 1024 * 1024;	// 1 MB
 const boost::uint32_t	HTTPParser::COOKIE_NAME_MAX = 1024;	// 1 KB
 const boost::uint32_t	HTTPParser::COOKIE_VALUE_MAX = 1024 * 1024;	// 1 MB
 const std::size_t		HTTPParser::DEFAULT_CONTENT_MAX = 1024 * 1024;	// 1 MB
+HTTPParser::ErrorCategory *	HTTPParser::m_error_category_ptr = NULL;
+boost::once_flag			HTTPParser::m_instance_flag = BOOST_ONCE_INIT;
 
 
 // HTTPParser member functions
-
-void HTTPParser::setError(boost::system::error_code& ec, int ev)
-{
-	static ErrorCategory cat;
-	ec = boost::system::error_code(ev, cat);
-}
 
 boost::tribool HTTPParser::parse(HTTPMessage& http_msg,
 	boost::system::error_code& ec)
@@ -1229,6 +1225,12 @@ void HTTPParser::computeMsgStatus(HTTPMessage& http_msg, bool msg_parsed_ok )
 	}
 
 	http_msg.setStatus(st);
+}
+
+void HTTPParser::createErrorCategory(void)
+{
+	static ErrorCategory UNIQUE_ERROR_CATEGORY;
+	m_error_category_ptr = &UNIQUE_ERROR_CATEGORY;
 }
 
 bool HTTPParser::parseForwardedFor(const std::string& header, std::string& public_ip)

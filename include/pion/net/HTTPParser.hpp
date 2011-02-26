@@ -14,6 +14,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/thread/once.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/PionLogger.hpp>
 #include <pion/net/HTTPMessage.hpp>
@@ -39,7 +40,7 @@ public:
 	static const std::size_t		DEFAULT_CONTENT_MAX;
 
 	/// class-specific error code values
-	enum ErrorValues {
+	enum ErrorValue {
 		ERROR_METHOD_CHAR = 1,
 		ERROR_METHOD_SIZE,
 		ERROR_URI_CHAR,
@@ -350,17 +351,15 @@ public:
 	 * @return bool true if a public IP address was found and extracted
 	 */
 	static bool parseForwardedFor(const std::string& header, std::string& public_ip);
+	
+	/// returns an instance of HTTPParser::ErrorCategory
+	static inline ErrorCategory& getErrorCategory(void) {
+		boost::call_once(HTTPParser::createErrorCategory, m_instance_flag);
+		return *m_error_category_ptr;
+	}
 
 
 protected:
-
-	/**
-	 * sets an error condition
-	 *
-	 * @param ec error code variable to define
-	 * @param ev error value to raise
-	 */
-	void setError(boost::system::error_code& ec, int ev);	
 
 	/**
 	 * parses an HTTP message up to the end of the headers using bytes 
@@ -441,6 +440,20 @@ protected:
 	 * @param msg_parsed_ok message parsing result
 	 */
 	static void computeMsgStatus(HTTPMessage& http_msg, bool msg_parsed_ok);
+
+	/**
+	 * sets an error code
+	 *
+	 * @param ec error code variable to define
+	 * @param ev error value to raise
+	 */
+	static inline void setError(boost::system::error_code& ec, ErrorValue ev) {
+		ec = boost::system::error_code(static_cast<int>(ev), getErrorCategory());
+	}
+
+	/// creates the unique HTTPParser ErrorCategory
+	static void createErrorCategory(void);
+
 
 	// misc functions used by the parsing functions
 	inline static bool isChar(int c);
@@ -592,6 +605,12 @@ private:
 
 	/// if true, the raw contents of HTTP headers are stored into m_raw_headers
 	bool								m_save_raw_headers;
+
+	/// points to a single and unique instance of the HTTPParser ErrorCategory
+	static ErrorCategory *				m_error_category_ptr;
+		
+	/// used to ensure thread safety of the HTTPParser ErrorCategory
+	static boost::once_flag				m_instance_flag;
 };
 
 

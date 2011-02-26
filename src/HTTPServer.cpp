@@ -38,13 +38,14 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
 {
 	if (ec || ! http_request->isValid()) {
 		tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
-		if (!tcp_conn->is_open() || ec == boost::asio::error::operation_aborted) {
-			PION_LOG_INFO(m_logger, "Lost connection on port " << getPort());
-			tcp_conn->finish();
-		} else {
-			// the request is invalid or an error occured
+		if (tcp_conn->is_open() && (&ec.category() == &HTTPParser::getErrorCategory())) {
+			// HTTP parser error
 			PION_LOG_INFO(m_logger, "Invalid HTTP request (" << ec.message() << ")");
 			m_bad_request_handler(http_request, tcp_conn);
+		} else {
+			// other (IO) error
+			PION_LOG_INFO(m_logger, "Lost connection on port " << getPort());
+			tcp_conn->finish();
 		}
 		return;
 	}
