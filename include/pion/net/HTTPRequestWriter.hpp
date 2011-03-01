@@ -172,7 +172,7 @@ typedef boost::shared_ptr<HTTPRequestWriter>	HTTPRequestWriterPtr;
 
 /// override operator<< for convenience
 template <typename T>
-HTTPRequestWriterPtr& operator<<(HTTPRequestWriterPtr& writer, const T& data) {
+const HTTPRequestWriterPtr& operator<<(const HTTPRequestWriterPtr& writer, const T& data) {
 	writer->write(data);
 	return writer;
 }

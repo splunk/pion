@@ -8,6 +8,8 @@
 //
 
 #include <sstream>
+#include <vector>
+#include <algorithm>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPMessage.hpp>
 #include <pion/net/HTTPRequest.hpp>
@@ -16,6 +18,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <boost/foreach.hpp>
 
 using namespace pion::net;
 
@@ -333,9 +336,46 @@ public:
 	}
 	
 	std::string getFileContents(void) {
+		// if only it were this easy... unfortunately order of headers can vary
+		//std::stringstream ss;
+		//m_file.seekg(0);
+		//ss << m_file.rdbuf();
+		//return ss.str();
+
+		char line[256];
 		std::stringstream ss;
+		std::vector<std::string> lines;
+		bool is_first_line = true;
+
+		m_file.clear();
 		m_file.seekg(0);
-		ss << m_file.rdbuf();
+		
+		while (m_file.getline(line, 255)) {
+			std::size_t len = strlen(line);
+			if (len > 0 && line[len-1]=='\r')
+				line[len-1] = '\0';
+			if (is_first_line) {
+				ss << line << "\r\n";
+				lines.clear();
+				is_first_line = false;
+			} else if (line[0] == '\0') {
+				std::sort(lines.begin(), lines.end());
+				BOOST_FOREACH(const std::string& l, lines) {
+					ss << l << "\r\n";
+				}
+				ss << "\r\n";
+				lines.clear();
+				is_first_line = true;
+			} else {
+				lines.push_back(line);
+			}
+		}
+		
+		std::sort(lines.begin(), lines.end());
+		BOOST_FOREACH(const std::string& l, lines) {
+			ss << l << "\r\n";
+		}
+
 		return ss.str();
 	}
 
@@ -359,6 +399,7 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
 	
 	// read from file
 	HTTPRequest req2;
+	m_file.clear();
 	m_file.seekg(0);
 	req2.read(m_file, ec);
 	BOOST_REQUIRE(! ec);
@@ -398,6 +439,7 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
 	
 	// read from file
 	HTTPResponse rsp2;
+	m_file.clear();
 	m_file.seekg(0);
 	rsp2.read(m_file, ec);
 	BOOST_REQUIRE(! ec);
@@ -471,13 +513,15 @@ BOOST_AUTO_TEST_CASE(checkWriteReadMixedMessages) {
 	std::string contents = getFileContents();
 	BOOST_CHECK_EQUAL(contents, "GET /test.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nTest: Something\r\n\r\n"
 		"HTTP/1.1 202 Hi There\r\nConnection: Keep-Alive\r\nContent-Length: 18\r\nHeaderA: a value\r\n\r\nMy message content"
-		"GET /blah.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 18\r\nTest: Something\r\nHeaderA: a value\r\n\r\nMy request content"
+		"GET /blah.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 18\r\nHeaderA: a value\r\nTest: Something\r\n\r\nMy request content"
 		"HTTP/1.1 302 Hello There\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nHeaderA: a value\r\nHeaderB: another value\r\n\r\n"
-		"GET /last.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nTest: Something\r\nHeaderA: a value\r\nHeaderB: Bvalue\r\n\r\n");
+		"GET /last.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nHeaderA: a value\r\nHeaderB: Bvalue\r\nTest: Something\r\n\r\n");
+
+	m_file.clear();
+	m_file.seekg(0);
 
 	// read first request
 	HTTPRequest req1;
-	m_file.seekg(0);
 	req1.read(m_file, ec);
 	BOOST_REQUIRE(! ec);
 	
@@ -495,6 +539,8 @@ BOOST_AUTO_TEST_CASE(checkWriteReadMixedMessages) {
 	HTTPResponse rsp2;
 	rsp2.read(m_file, ec);
 	BOOST_REQUIRE(! ec);
+	BOOST_CHECK_EQUAL(rsp2.getStatusCode(), 302U);
+	BOOST_CHECK_EQUAL(rsp2.getStatusMessage(), "Hello There");
 
 	// read third request
 	HTTPRequest req3;
