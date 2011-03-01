@@ -7,6 +7,7 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <sstream>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPMessage.hpp>
 #include <pion/net/HTTPRequest.hpp>
@@ -14,6 +15,7 @@
 #include <pion/PionUnitTestDefs.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
+#include <boost/filesystem/operations.hpp>
 
 using namespace pion::net;
 
@@ -302,6 +304,222 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkContentPointerUsableAsString) {
 	const std::string s1 = TEXT_STRING_1;
 	std::string s2 = F::getContent();
 	BOOST_CHECK_EQUAL(s1, s2);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+/// simple fixture for testing read() and write() methods
+class HTTPMessageReadWrite_F {
+public:
+	HTTPMessageReadWrite_F()
+		: m_filename("output.tmp")
+	{
+		openNewFile();
+	}
+	
+	~HTTPMessageReadWrite_F() {
+		m_file.close();
+		boost::filesystem::remove(m_filename);
+	}
+	
+	void openNewFile(void) {
+		if (m_file.is_open()) {
+			m_file.close();
+			m_file.clear();
+		}
+		m_file.open(m_filename.c_str(), std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
+		BOOST_REQUIRE(m_file.is_open());
+	}
+	
+	std::string getFileContents(void) {
+		std::stringstream ss;
+		m_file.seekg(0);
+		ss << m_file.rdbuf();
+		return ss.str();
+	}
+
+	std::string		m_filename;
+	std::fstream	m_file;
+};
+
+BOOST_FIXTURE_TEST_SUITE(HTTPMessageReadWrite_S, HTTPMessageReadWrite_F)
+
+BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
+	// build a request
+	HTTPRequest req;
+	req.setResource("/test.html");
+	req.addHeader("Test", "Something");
+	
+	// write to file
+	boost::system::error_code ec;
+	req.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	m_file.flush();
+	
+	// read from file
+	HTTPRequest req2;
+	m_file.seekg(0);
+	req2.read(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	
+	// check request read from file
+	BOOST_CHECK_EQUAL(req2.getResource(), "/test.html");
+	BOOST_CHECK_EQUAL(req2.getHeader("Test"), "Something");
+	BOOST_CHECK_EQUAL(req2.getContentLength(), 0U);
+
+	// validate file contents
+	std::string req_contents = getFileContents();
+	BOOST_CHECK_EQUAL(req_contents, "GET /test.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nTest: Something\r\n\r\n");
+
+	// create a new file for req2
+	openNewFile();
+	req2.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	m_file.flush();
+
+	// make sure file matches original (no loss/change from read/write cycle)
+	std::string req2_contents = getFileContents();
+	BOOST_CHECK_EQUAL(req_contents, req2_contents);
+}
+
+BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
+	// build a response
+	HTTPResponse rsp;
+	rsp.setStatusCode(202);
+	rsp.setStatusMessage("Hi There");
+	rsp.addHeader("HeaderA", "a value");
+	
+	// write to file
+	boost::system::error_code ec;
+	rsp.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	m_file.flush();
+	
+	// read from file
+	HTTPResponse rsp2;
+	m_file.seekg(0);
+	rsp2.read(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	
+	// check response read from file
+	BOOST_CHECK_EQUAL(rsp2.getStatusCode(), 202U);
+	BOOST_CHECK_EQUAL(rsp2.getStatusMessage(), "Hi There");
+	BOOST_CHECK_EQUAL(rsp2.getHeader("HeaderA"), "a value");
+	BOOST_CHECK_EQUAL(rsp2.getContentLength(), 0U);
+
+	// validate file contents
+	std::string rsp_contents = getFileContents();
+	BOOST_CHECK_EQUAL(rsp_contents, "HTTP/1.1 202 Hi There\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nHeaderA: a value\r\n\r\n");
+
+	// create a new file for rsp2
+	openNewFile();
+	rsp2.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	m_file.flush();
+
+	// make sure file matches original (no loss/change from read/write cycle)
+	std::string rsp2_contents = getFileContents();
+	BOOST_CHECK_EQUAL(rsp_contents, rsp2_contents);
+}
+
+BOOST_AUTO_TEST_CASE(checkWriteReadMixedMessages) {
+	boost::system::error_code ec;
+	HTTPRequest req;
+	HTTPResponse rsp;
+
+	// build a request & write to file
+	req.setResource("/test.html");
+	req.addHeader("Test", "Something");
+	req.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+
+	// build a response & write to file
+	rsp.setStatusCode(202);
+	rsp.setStatusMessage("Hi There");
+	rsp.addHeader("HeaderA", "a value");
+	rsp.setContent("My message content");
+	rsp.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+
+	// another request
+	req.setResource("/blah.html");
+	req.addHeader("HeaderA", "a value");
+	req.setContent("My request content");
+	req.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	
+	// another response
+	rsp.setStatusCode(302);
+	rsp.setStatusMessage("Hello There");
+	rsp.addHeader("HeaderB", "another value");
+	rsp.clearContent();
+	rsp.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+
+	// one last request
+	req.setResource("/last.html");
+	req.addHeader("HeaderB", "Bvalue");
+	req.clearContent();
+	req.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+
+	// flush file output
+	m_file.flush();
+	
+	// validate file contents
+	std::string contents = getFileContents();
+	BOOST_CHECK_EQUAL(contents, "GET /test.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nTest: Something\r\n\r\n"
+		"HTTP/1.1 202 Hi There\r\nConnection: Keep-Alive\r\nContent-Length: 18\r\nHeaderA: a value\r\n\r\nMy message content"
+		"GET /blah.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 18\r\nTest: Something\r\nHeaderA: a value\r\n\r\nMy request content"
+		"HTTP/1.1 302 Hello There\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nHeaderA: a value\r\nHeaderB: another value\r\n\r\n"
+		"GET /last.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nTest: Something\r\nHeaderA: a value\r\nHeaderB: Bvalue\r\n\r\n");
+
+	// read first request
+	HTTPRequest req1;
+	m_file.seekg(0);
+	req1.read(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	
+	// read first response
+	HTTPResponse rsp1;
+	rsp1.read(m_file, ec);
+	BOOST_REQUIRE(! ec);
+
+	// read second request
+	HTTPRequest req2;
+	req2.read(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	
+	// read second response
+	HTTPResponse rsp2;
+	rsp2.read(m_file, ec);
+	BOOST_REQUIRE(! ec);
+
+	// read third request
+	HTTPRequest req3;
+	req3.read(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	
+	// write everything back to new file
+	openNewFile();
+	req1.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	rsp1.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	req2.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	rsp2.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+	req3.write(m_file, ec);
+	BOOST_REQUIRE(! ec);
+
+	// flush file output
+	m_file.flush();
+
+	// make sure file matches original (no loss/change from read/write cycle)
+	std::string new_contents = getFileContents();
+	BOOST_CHECK_EQUAL(contents, new_contents);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

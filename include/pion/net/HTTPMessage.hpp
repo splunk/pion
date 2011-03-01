@@ -10,7 +10,9 @@
 #ifndef __PION_HTTPMESSAGE_HEADER__
 #define __PION_HTTPMESSAGE_HEADER__
 
+#include <iosfwd>
 #include <vector>
+#include <cstring>
 #include <boost/cstdint.hpp>
 #include <boost/asio.hpp>
 #include <boost/scoped_array.hpp>
@@ -321,6 +323,20 @@ public:
 		m_content_buf[m_content_length] = '\0';
 		return m_content_buf.get();
 	}
+	
+	/// resets payload content to match the value of a string
+	inline void setContent(const std::string& content) {
+		setContentLength(content.size());
+		createContentBuffer();
+		memcpy(m_content_buf.get(), content.c_str(), content.size());
+	}
+
+	/// clears payload content buffer
+	inline void clearContent(void) {
+		setContentLength(0);
+		createContentBuffer();
+		deleteValue(m_headers, HEADER_CONTENT_TYPE);
+	}
 
 	/// sets the content type for the message payload
 	inline void setContentType(const std::string& type) {
@@ -373,6 +389,7 @@ public:
 	/**
 	 * sends the message over a TCP connection (blocks until finished)
 	 *
+	 * @param tcp_conn TCP connection to use
 	 * @param ec contains error code if the send fails
 	 * @param headers_only if true then only HTTP headers are sent
 	 *
@@ -384,12 +401,37 @@ public:
 	/**
 	 * receives a new message from a TCP connection (blocks until finished)
 	 *
+	 * @param tcp_conn TCP connection to use
 	 * @param ec contains error code if the receive fails
 	 * @param headers_only if true then only HTTP headers are received
 	 *
 	 * @return std::size_t number of bytes read from the connection
 	 */
 	std::size_t receive(TCPConnection& tcp_conn, boost::system::error_code& ec,
+		bool headers_only = false);
+
+	/**
+	 * writes the message to a std::ostream (blocks until finished)
+	 *
+	 * @param out std::ostream to use
+	 * @param ec contains error code if the write fails
+	 * @param headers_only if true then only HTTP headers are written
+	 *
+	 * @return std::size_t number of bytes written to the connection
+	 */
+	std::size_t write(std::ostream& out, boost::system::error_code& ec,
+		bool headers_only = false);
+
+	/**
+	 * reads a new message from a std::istream (blocks until finished)
+	 *
+	 * @param in std::istream to use
+	 * @param ec contains error code if the read fails
+	 * @param headers_only if true then only HTTP headers are read
+	 *
+	 * @return std::size_t number of bytes read from the connection
+	 */
+	std::size_t read(std::istream& in, boost::system::error_code& ec,
 		bool headers_only = false);
 
 	/**
