@@ -140,10 +140,7 @@ protected:
 							 std::size_t bytes_written)
 	{
 		PionLogger log_ptr(getLogger());
-		if (write_error) {
-			// encountered error sending request
-			PION_LOG_WARN(log_ptr, "Unable to send HTTP request (" << write_error.message() << ')');
-		} else {
+		if (! write_error) {
 			// request sent OK
 			if (sendingChunkedMessage()) {
 				PION_LOG_DEBUG(log_ptr, "Sent HTTP request chunk of " << bytes_written << " bytes");

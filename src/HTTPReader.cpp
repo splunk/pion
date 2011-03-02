@@ -111,28 +111,9 @@ void HTTPReader::consumeBytes(void)
 
 	} else if (result == false) {
 		// the message is invalid or an error occured
-
-	#ifndef NDEBUG
-		// display extra error information if debug mode is enabled
-		std::string bad_message;
-		m_read_ptr = m_tcp_conn->getReadBuffer().data();
-		while (m_read_ptr < m_read_end_ptr && bad_message.size() < 50) {
-#ifndef _MSC_VER
-// There's a bug in MSVC's implementation of isprint().
-			if (!isprint(*m_read_ptr) || *m_read_ptr == '\n' || *m_read_ptr=='\r')
-				bad_message += '.';
-			else bad_message += *m_read_ptr;
-#endif
-			++m_read_ptr;
-		}
-		PION_LOG_ERROR(m_logger, "Bad " << (isParsingRequest() ? "request" : "response")
-					   << " debug: " << bad_message);
-	#endif
-
 		m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
 		getMessage().setIsValid(false);
 		finishedReading(ec);
-		
 	} else {
 		// not yet finished parsing the message -> read more data
 		readBytesWithTimeout();

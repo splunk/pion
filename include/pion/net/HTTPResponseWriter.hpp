@@ -147,11 +147,7 @@ protected:
 							 std::size_t bytes_written)
 	{
 		PionLogger log_ptr(getLogger());
-		if (write_error) {
-			// encountered error sending response
-			getTCPConnection()->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);	// make sure it will get closed
-			PION_LOG_WARN(log_ptr, "Unable to send HTTP response (" << write_error.message() << ')');
-		} else {
+		if (!write_error) {
 			// response sent OK
 			if (sendingChunkedMessage()) {
 				PION_LOG_DEBUG(log_ptr, "Sent HTTP response chunk of " << bytes_written << " bytes");
