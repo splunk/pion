@@ -137,6 +137,9 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 std::size_t HTTPMessage::write(std::ostream& out,
 	boost::system::error_code& ec, bool headers_only)
 {
+	// reset error_code
+	ec.clear();
+
 	// initialize write buffers for send operation using HTTP headers
 	WriteBuffers write_buffers;
 	prepareBuffersForSend(write_buffers, true, false);
@@ -160,8 +163,9 @@ std::size_t HTTPMessage::write(std::ostream& out,
 std::size_t HTTPMessage::read(std::istream& in,
 	boost::system::error_code& ec, bool headers_only)
 {
-	// make sure that we start out with an empty message
+	// make sure that we start out with an empty message & clear error_code
 	clear();
+	ec.clear();
 	
 	// assumption: this can only be either an HTTPRequest or an HTTPResponse
 	const bool is_request = (dynamic_cast<HTTPRequest*>(this) != NULL);
@@ -170,9 +174,13 @@ std::size_t HTTPMessage::read(std::istream& in,
 
 	// parse data from file one byte at a time
 	boost::tribool parse_result;
-	while ( ! in.eof() ) {
+	while (in) {
 		char c;
 		in.read(&c, 1);
+		if (in.eof()) {
+			ec = make_error_code(boost::asio::error::eof);
+			break;
+		}
 		http_parser.setReadBuffer(&c, 1);
 		parse_result = http_parser.parse(*this, ec);
 		if (! boost::indeterminate(parse_result)) break;

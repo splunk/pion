@@ -403,6 +403,11 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
 	m_file.seekg(0);
 	req2.read(m_file, ec);
 	BOOST_REQUIRE(! ec);
+
+	// make sure we're now at EOF
+	HTTPRequest req3;
+	req3.read(m_file, ec);
+	BOOST_CHECK_EQUAL(ec, boost::asio::error::eof);
 	
 	// check request read from file
 	BOOST_CHECK_EQUAL(req2.getResource(), "/test.html");
@@ -443,6 +448,11 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
 	m_file.seekg(0);
 	rsp2.read(m_file, ec);
 	BOOST_REQUIRE(! ec);
+	
+	// make sure we're now at EOF
+	HTTPResponse rsp3;
+	rsp3.read(m_file, ec);
+	BOOST_CHECK_EQUAL(ec, boost::asio::error::eof);
 	
 	// check response read from file
 	BOOST_CHECK_EQUAL(rsp2.getStatusCode(), 202U);
