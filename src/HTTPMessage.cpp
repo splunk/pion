@@ -86,7 +86,7 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
 			if (http_parser.checkPrematureEOF(*this)) {
 				// premature EOF encountered
 				if (! ec)
-					ec = make_error_code(boost::asio::error::eof);
+					ec = make_error_code(boost::system::errc::io_error);
 				return http_parser.getTotalBytesRead();
 			} else {
 				// EOF reached when content length unknown
@@ -174,11 +174,11 @@ std::size_t HTTPMessage::read(std::istream& in,
 
 	// parse data from file one byte at a time
 	boost::tribool parse_result;
+	char c;
 	while (in) {
-		char c;
 		in.read(&c, 1);
-		if (in.eof()) {
-			ec = make_error_code(boost::asio::error::eof);
+		if ( ! in ) {
+			ec = make_error_code(boost::system::errc::io_error);
 			break;
 		}
 		http_parser.setReadBuffer(&c, 1);
@@ -190,7 +190,7 @@ std::size_t HTTPMessage::read(std::istream& in,
 		if (http_parser.checkPrematureEOF(*this)) {
 			// premature EOF encountered
 			if (! ec)
-				ec = make_error_code(boost::asio::error::eof);
+				ec = make_error_code(boost::system::errc::io_error);
 		} else {
 			// EOF reached when content length unknown
 			// assume it is the correct end of content
