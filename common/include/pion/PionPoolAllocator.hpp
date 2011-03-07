@@ -141,6 +141,7 @@ public:
 	inline bool release_memory(size_t pad = 10240000UL)
 	{
 		bool result = false;
+/*
 		for (std::size_t n = 0; n < NumberOfAllocs; ++n) {
 			FixedSizeAlloc *pool_ptr = m_pools[n].get();
 			// need to lock before releasing free list because of calls
@@ -164,6 +165,7 @@ public:
 #if defined(PION_HAVE_MALLOC_TRIM)
 		::malloc_trim(pad);
 #endif		
+*/
 		return result;
 	}
 	
