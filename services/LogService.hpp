@@ -30,11 +30,6 @@
 			}
 		}
 	#endif
-#elif defined(PION_USE_LOG4CPLUS)
-	#include <log4cplus/appender.h>
-	#include <log4cplus/loglevel.h>
-#elif defined(PION_USE_LOG4CPP)
-	#include <log4cpp/AppenderSkeleton.hh>
 #endif
 
 
@@ -46,13 +41,7 @@ namespace plugins {		// begin namespace plugins
 /// LogServiceAppender: caches log events in memory for use by LogService
 /// 
 class LogServiceAppender
-	#if defined(PION_USE_LOG4CXX)
-		: public log4cxx::AppenderSkeleton
-	#elif defined(PION_USE_LOG4CPLUS)
-		: public log4cplus::Appender
-	#elif defined(PION_USE_LOG4CPP)
-		: public log4cpp::AppenderSkeleton
-	#endif
+	: public PionLogAppender
 {
 public:
 	// default constructor and destructor
@@ -140,11 +129,13 @@ public:
 							pion::net::TCPConnectionPtr& tcp_conn);
 
 	/// returns the log appender used by LogService
-	inline LogServiceAppender& getLogAppender(void) { return *m_log_appender_ptr; }
+	inline LogServiceAppender& getLogAppender(void) {
+		return dynamic_cast<LogServiceAppender&>(*m_log_appender_ptr);
+	}
 	
 private:
 	/// map of file extensions to MIME types
-	LogServiceAppender *	m_log_appender_ptr;
+	PionLogAppenderPtr		m_log_appender_ptr;
 };
 
 	
