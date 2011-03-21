@@ -41,6 +41,8 @@
 
 	namespace pion {
 		typedef log4cxx::LoggerPtr	PionLogger;
+		typedef log4cxx::AppenderSkeleton	PionLogAppender;
+		typedef PionLogAppender *	PionLogAppenderPtr;
 	}
 
 	#define PION_LOG_CONFIG_BASIC	log4cxx::BasicConfigurator::configure();
@@ -69,6 +71,7 @@
 	#include <log4cplus/configurator.h>
 	#include <log4cplus/appender.h>
 	#include <log4cplus/spi/loggingevent.h>
+	#include <log4cplus/loglevel.h>
 
 	#include <boost/circular_buffer.hpp>
 	#include <boost/thread/mutex.hpp>
@@ -83,6 +86,8 @@
 
 	namespace pion {
 		typedef log4cplus::Logger	PionLogger;
+		typedef log4cplus::Appender	PionLogAppender;
+		typedef log4cplus::SharedAppenderPtr	PionLogAppenderPtr;
 
 		///
 		/// CircularBufferAppender: caches log events in a circular buffer
@@ -145,9 +150,12 @@
 	#include <log4cpp/Category.hh>
 	#include <log4cpp/BasicLayout.hh>
 	#include <log4cpp/OstreamAppender.hh>
+	#include <log4cpp/AppenderSkeleton.hh>
 
 	namespace pion {
 		typedef log4cpp::Category*	PionLogger;
+		typedef log4cpp::AppenderSkeleton	PionLogAppender;
+		typedef PionLogAppender *	PionLogAppenderPtr;
 	}
 
 	#define PION_LOG_CONFIG_BASIC	{ log4cpp::OstreamAppender *app = new log4cpp::OstreamAppender("cout", &std::cout); app->setLayout(new log4cpp::BasicLayout()); log4cpp::Category::getRoot().setAppender(app); }
