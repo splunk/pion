@@ -19,7 +19,7 @@
 #ifdef __APPLE__
     #include <libkern/OSAtomic.h>
 
-    #include <bits/atomicity.h>
+//    #include <bits/atomicity.h>
 #endif
 
 #define BOOST_LOCKFREE_CACHELINE_BYTES 64
