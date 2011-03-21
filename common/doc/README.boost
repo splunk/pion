@@ -30,6 +30,11 @@ You can build bjam by running the included "bootstrap.bat" on Windows or
 
 http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=72941
 
+NOTE: We strongly recommend using the version of bjam distributed with the
+Boost source code you are using.  In some cases, using an older bjam than the
+version of source that you have will cause the build to fail without any
+warning or explanation.
+
 You only need to build eight of the Boost libraries for Pion: thread,
 system, filesystem, regex, date_time, signals, iostreams and
 unit_test_framework. If you wish to only build these eight libraries (this
@@ -38,26 +43,40 @@ will save you a lot of time), include the following options when running bjam:
 --with-signals --with-iostreams --with-test"
 
 We recommend that you build Boost with Unicode and ICU support.  If the ICU
-library is included with your operating system, this can be usually be
-accomplished by just adding "-sHAVE_ICU=1" to your bjam options.  If not,
-you can download the ICU source code from:
+library is included with your operating system, this is auto-enabled for you
+in versions 1.44 and later, and can be usually be accomplished for earlier
+versions by adding "-sHAVE_ICU=1" to your bjam options.
+
+If you do not have ICU, you can download the ICU source code from:
 
 http://site.icu-project.org/
 
-More information on building Boost with Unicode support can be found at:
+You can use "-sICU_PATH=<PATH>" to specify altnerative paths for ICU.
+
+More information on building Boost with Unicode support can be found at
+(for older versions):
 
 http://www.boost.org/doc/libs/1_42_0/libs/regex/doc/html/boost_regex/install.html#boost_regex.install.building_with_unicode_and_icu_support
 
-For example (when using Microsoft Visual C++):
+(for newer versions):
+http://www.boost.org/doc/libs/1_46_0/libs/regex/doc/html/boost_regex/install.html#boost_regex.install.building_with_unicode_and_icu_support
+
+For example (when using Microsoft Visual C++ with Boost 1.43 or earlier):
 
 # bjam --toolset=msvc -sHAVE_ICU=1 \
 	--with-thread --with-system --with-filesystem --with-regex \
 	--with-date_time --with-signals --with-iostreams --with-test \
 	release threading=multi link=shared stage
 
-(just leave out "--toolset=msvc" for Unix platforms)
+For example (when using gcc with Boost 1.44 or later and 4 processes):
 
-This will build the eight libraries required by Pion and place the files within
+# bjam --toolset=gcc -j4 release threading=multi link=shared stage
+
+For example (when using gcc on OSX with Boost 1.44 and later) for OSX is:
+
+# bjam -sICU_PATH=/usr/local --toolset=darwin release threading=multi link=shared stage
+
+This will build the libraries required by Pion and place the files within
 the stage/ subdirectory of your build directory.
 
 To install, you can now just copy the files in stage/lib into your

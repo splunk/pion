@@ -49,22 +49,13 @@ Installing Boost on OSX:
 
 Please see the README.boost file for general instructions.
 
-The bjam command to build all Boost libraries for OSX (i386) is:
-(This is recommended and the only known working option)
+The bjam command to build all Boost libraries (1.43 and earlier) for OSX is:
 
-# bjam -sHAVE_ICU=1 release threading=multi link=shared stage
+# bjam -sHAVE_ICU=1 --toolset=darwin release threading=multi link=shared stage
 
-The bjam command to build 64-bit (x86_64) binaries for all libraries is:
-(These appear to be extremely buggy and will likely crash your computer)
+The bjam command to build all Boost libraries (1.44 and later) for OSX is:
 
-# bjam --toolset=darwin -sHAVE_ICU=1 release threading=multi \
-	architecture=x86 address-model=64 link=shared stage
-
-The bjam command to build Universal binaries for all libraries is:
-(Since ICU doesn't support Universal binaries, you have to disable it)
-
-# bjam --toolset=darwin -sHAVE_ICU=0 release threading=multi \
-	architecture=combined address-model=32_64 link=shared stage
+# bjam -sICU_PATH=/usr/local --toolset=darwin release threading=multi link=shared stage
 
 
 Installing zlib, bzlib & openssl:
