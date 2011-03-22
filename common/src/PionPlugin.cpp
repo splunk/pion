@@ -201,11 +201,14 @@ bool PionPlugin::checkForFile(std::string& final_path, const std::string& start_
 		test_path /= name;
 
 	// check for existence of file (without extension)
-	if (boost::filesystem::is_regular(test_path)) {
-		final_path = test_path.file_string();
-		return true;
-	}
-		
+	try {
+		// is_regular may throw if directory is not readable
+		if (boost::filesystem::is_regular(test_path)) {
+			final_path = test_path.file_string();
+			return true;
+		}
+	} catch (...) {}
+
 	// next, try appending the extension
 	if (name.empty()) {
 		// no "name" specified -> append it directly to start_path
@@ -219,11 +222,14 @@ bool PionPlugin::checkForFile(std::string& final_path, const std::string& start_
 	}
 
 	// re-check for existence of file (after adding extension)
-	if (boost::filesystem::is_regular(test_path)) {
-		final_path = test_path.file_string();
-		return true;
-	}
-	
+	try {
+		// is_regular may throw if directory is not readable
+		if (boost::filesystem::is_regular(test_path)) {
+			final_path = test_path.file_string();
+			return true;
+		}
+	} catch (...) {}
+
 	// no plug-in file found
 	return false;
 }
