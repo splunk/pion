@@ -118,6 +118,11 @@ This can be installed with one easy step:
 
 # sudo easy_install lxml
 
+If you get an error about an architecture not being installed, try using this
+command instead:
+
+# sudo env ARCHFLAGS="-arch x86_64" easy_install lxml
+
 
 Installing YAJL:
 ----------------
