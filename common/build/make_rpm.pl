@@ -85,11 +85,15 @@ if ($EDITION eq "core") {
 	$config_file_glob = "*.{xml,txt,pem}";
 	$install_perl_scripts = "";
 	$extra_config_files = "";
+	$install_pionlite = "";
+	$attr_pionlite = "";
 } else {
 	$spec_license = "commercial";
 	$config_file_glob = "*.{xml,txt,pem}";
 	$install_perl_scripts = "install -m 660 $BIN_SRC_BASE/config/*.pl \$RPM_BUILD_ROOT/var/lib/pion";
 	$extra_config_files = "\%config /etc/pion/SearchEngines.xml\n\%config(noreplace) /etc/pion/ReplayQueries.xml\n\%config(noreplace) /etc/pion/robots.xml";
+	$install_pionlite = "$INSTALL_BIN $BIN_SRC_BASE/pionlite \$RPM_BUILD_ROOT/usr/bin/pionlite"
+	$attr_pionlite = "/usr/bin/pionlite";
 }
 $SPEC_POST="/sbin/ldconfig";
 $SPEC_POSTUN="/sbin/ldconfig";
@@ -159,6 +163,7 @@ $INSTALL_BIN $BIN_SRC_BASE/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins
 $INSTALL_BIN $BIN_SRC_BASE/libs/* \$RPM_BUILD_ROOT/usr/lib
 $INSTALL_BIN $BIN_SRC_BASE/pion \$RPM_BUILD_ROOT/usr/bin/pion
 $INSTALL_BIN $BIN_SRC_BASE/piondb \$RPM_BUILD_ROOT/usr/bin/piondb
+$install_pionlite
 install $BIN_SRC_BASE/pget.py \$RPM_BUILD_ROOT/usr/bin/pget.py
 install $BIN_SRC_BASE/pmon.py \$RPM_BUILD_ROOT/usr/bin/pmon.py
 install $BIN_SRC_BASE/pupgrade.py \$RPM_BUILD_ROOT/usr/bin/pupgrade.py
@@ -201,6 +206,7 @@ $extra_config_files
 \%defattr(755,root,root)
 /usr/bin/pion
 /usr/bin/piondb
+$attr_pionlite
 /usr/bin/pget.py*
 /usr/bin/pmon.py*
 /usr/bin/pupgrade.py*

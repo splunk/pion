@@ -81,10 +81,36 @@ PION_CPPFLAGS="$PION_CPPFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --cflag
 PION_LDFLAGS="$PION_LDFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-L pion-platform`"
 PION_LDLIBS="$PION_LDLIBS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-l pion-platform`"
 
+# Find static versions of Pion library dependencies
+PION_STATIC_LIBS=""
+for param in $PION_LDLIBS
+do
+	if [[[ "$param" =~ ^-l ]]]; then
+		lib=`echo $param | sed 's;-l;lib;'`
+		if test -r "/usr/local/lib/$lib.a"; then
+			PION_STATIC_LIBS="$PION_STATIC_LIBS /usr/local/lib/$lib.a"
+		elif test -r "/usr/lib/$lib.a"; then
+			PION_STATIC_LIBS="$PION_STATIC_LIBS /usr/lib/$lib.a"
+		else
+			PION_STATIC_LIBS="$PION_STATIC_LIBS $param"
+			AC_MSG_WARN([Unable to find static archive for $param])
+		fi
+	else
+		PION_STATIC_LIBS="$PION_STATIC_LIBS $param"
+	fi
+done
+# Append direct references to the Pion library archives
+for lib in $PION_LIBS
+do
+	pionlib=`echo $lib | sed 's;\([[^ ]]*\)/\([[^/]]*\).la;\1/.libs/\2.a;'`
+	PION_STATIC_LIBS="$PION_STATIC_LIBS $pionlib"
+done
+
 # Substitute variables in Makefiles
 AC_SUBST(PION_CPPFLAGS)
 AC_SUBST(PION_LDFLAGS)
 AC_SUBST(PION_LDLIBS)
+AC_SUBST(PION_STATIC_LIBS)
 AC_SUBST(PION_LIBS)
 AC_SUBST(PION_SERVER_LIB)
 AC_SUBST(PION_SQLITE_LIB)
