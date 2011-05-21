@@ -39,9 +39,9 @@ if test -r "$pion_location/pion-platform.pc"; then
 					-I$pion_location/platform/server -I$pion_location/sqlite"
 				PION_LIBS="$pion_location/common/src/libpion-common.la \
 					$pion_location/net/src/libpion-net.la \
-					$pion_location/platform/src/libpion-platform.la"
+					$pion_location/platform/src/libpion-platform.la \
+					$pion_location/sqlite/libpion-sqlite.la"
 				PION_SERVER_LIB="$pion_location/platform/server/libpion-server.la"
-				PION_SQLITE_LIB="$pion_location/sqlite/libpion-sqlite.la"
 			fi
 		fi
 	fi
@@ -60,9 +60,9 @@ if test "x$found_pion_source" == "x"; then
 						found_pion_install="true"
 						PION_LIBS="$pion_location/lib/libpion-common.la \
 							$pion_location/lib/libpion-net.la \
-							$pion_location/lib/libpion-platform.la"
+							$pion_location/lib/libpion-platform.la \
+							$pion_location/lib/libpion-sqlite.la"
 						PION_SERVER_LIB="$pion_location/lib/libpion-server.la"
-						PION_SQLITE_LIB="$pion_location/lib/libpion-sqlite.la"
 					fi
 				fi
 			fi
@@ -113,6 +113,5 @@ AC_SUBST(PION_LDLIBS)
 AC_SUBST(PION_STATIC_LIBS)
 AC_SUBST(PION_LIBS)
 AC_SUBST(PION_SERVER_LIB)
-AC_SUBST(PION_SQLITE_LIB)
 AC_SUBST(PION_PLATFORM_PATH)
 
