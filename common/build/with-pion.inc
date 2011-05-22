@@ -85,13 +85,19 @@ PION_LDLIBS="$PION_LDLIBS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only
 PION_STATIC_LIBS=""
 for param in $PION_LDLIBS
 do
-	if [[[ "$param" =~ ^-l ]]]; then
+	if [[[ "$param" =~ ^-l ]] && [[ "$param" != "-ldl" ]]]; then
 		lib=`echo $param | sed 's;-l;lib;'`
-		if test -r "/usr/local/lib/$lib.a"; then
-			PION_STATIC_LIBS="$PION_STATIC_LIBS /usr/local/lib/$lib.a"
-		elif test -r "/usr/lib/$lib.a"; then
-			PION_STATIC_LIBS="$PION_STATIC_LIBS /usr/lib/$lib.a"
-		else
+		found_static_lib="false"
+		dirs_to_check="/usr/local/lib /lib64 /usr/lib64 /lib /usr/lib"
+		for dir in $dirs_to_check
+		do
+			if test -r "$dir/$lib.a"; then
+				PION_STATIC_LIBS="$PION_STATIC_LIBS $dir/$lib.a"
+				found_static_lib="true"
+				break
+			fi
+		done
+		if test "$found_static_lib" == "false"; then
 			PION_STATIC_LIBS="$PION_STATIC_LIBS $param"
 			AC_MSG_WARN([Unable to find static archive for $param])
 		fi
