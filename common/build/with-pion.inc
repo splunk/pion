@@ -81,36 +81,72 @@ PION_CPPFLAGS="$PION_CPPFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --cflag
 PION_LDFLAGS="$PION_LDFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-L pion-platform`"
 PION_LDLIBS="$PION_LDLIBS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-l pion-platform`"
 
+# Function to return static version of a given library
+pion_static_lib() {
+	dirs_to_check="/usr/local/lib /lib64 /usr/lib64 /lib /usr/lib"
+	lib=`echo $1 | sed 's;-l;lib;'`
+	for dir in $dirs_to_check
+	do
+		if test -r "$dir/$lib.a"; then
+			echo "$dir/$lib.a"
+			return 1
+		fi
+	done
+	echo $1
+	return 0
+}
+
+# Function that converts a list of libs to static libs
+pion_make_static() {
+	static_libs=""
+	for param in $1
+	do
+		if [[[ "$param" =~ ^-l ]] && [[ "$param" != "-ldl" ]]]; then
+			result=`pion_static_lib $param`
+			if [[ "$result" == "$param" ]]; then
+				AC_MSG_WARN([Unable to find static archive for $param])
+			fi
+			static_libs="$static_libs $result"
+		else
+			static_libs="$static_libs $param"
+		fi
+	done
+	echo $static_libs
+}
+
+# Initialize PION_STATIC_LIBS
 PION_STATIC_LIBS=""
-# Append direct references to the Pion library archives
+
+# Use direct references to the Pion library archives
 for lib in $PION_LIBS
 do
 	pionlib=`echo $lib | sed 's;\([[^ ]]*\)/\([[^/]]*\).la;\1/.libs/\2.a;'`
 	PION_STATIC_LIBS="$PION_STATIC_LIBS $pionlib"
 done
+
 # Find static versions of Pion library dependencies
-for param in $PION_LDLIBS
-do
-	if [[[ "$param" =~ ^-l ]] && [[ "$param" != "-ldl" ]]]; then
-		lib=`echo $param | sed 's;-l;lib;'`
-		found_static_lib="false"
-		dirs_to_check="/usr/local/lib /lib64 /usr/lib64 /lib /usr/lib"
-		for dir in $dirs_to_check
-		do
-			if test -r "$dir/$lib.a"; then
-				PION_STATIC_LIBS="$PION_STATIC_LIBS $dir/$lib.a"
-				found_static_lib="true"
-				break
-			fi
-		done
-		if test "$found_static_lib" == "false"; then
-			PION_STATIC_LIBS="$PION_STATIC_LIBS $param"
-			AC_MSG_WARN([Unable to find static archive for $param])
-		fi
-	else
-		PION_STATIC_LIBS="$PION_STATIC_LIBS $param"
-	fi
-done
+temp_libs=`pion_make_static "$PION_LDLIBS"`
+PION_STATIC_LIBS="$PION_STATIC_LIBS $temp_libs"
+
+# Check if static linking OpenSSL requires extra Kerberos libs
+# ... this is a really nasty hack for dependency hell on RHEL5 ...
+AC_MSG_CHECKING(if OpenSSL requires Kerberos)
+LIBS_SAVED="$LIBS"
+LIBS="$LIBS_SAVED $PION_STATIC_LIBS"
+AC_TRY_LINK([#include <openssl/ssl.h>],
+        [
+        SSL_library_init();
+        OpenSSL_add_all_algorithms();
+        OpenSSL_add_all_ciphers();
+        OpenSSL_add_all_digests();
+        ],
+        [ AC_MSG_RESULT(no)
+        ],
+        [ AC_MSG_RESULT(yes)
+          temp_libs=`pion_make_static "-lkrb5 -lk5crypto -lgssapi_krb5 -lkrb5support -lcom_err -lselinux -lsepol -lresolv -lkeyutils"`
+          PION_STATIC_LIBS="$PION_STATIC_LIBS $temp_libs"
+        ])
+LIBS="$LIBS_SAVED"
 
 # Substitute variables in Makefiles
 AC_SUBST(PION_CPPFLAGS)
