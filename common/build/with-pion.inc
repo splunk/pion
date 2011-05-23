@@ -37,9 +37,9 @@ if test -r "$pion_location/pion-platform.pc"; then
 				PION_CPPFLAGS="-I$pion_location/common/include \
 					-I$pion_location/net/include -I$pion_location/platform/include \
 					-I$pion_location/platform/server -I$pion_location/sqlite"
-				PION_LIBS="$pion_location/common/src/libpion-common.la \
+				PION_LIBS="$pion_location/platform/src/libpion-platform.la \
 					$pion_location/net/src/libpion-net.la \
-					$pion_location/platform/src/libpion-platform.la \
+					$pion_location/common/src/libpion-common.la \
 					$pion_location/sqlite/libpion-sqlite.la"
 				PION_SERVER_LIB="$pion_location/platform/server/libpion-server.la"
 			fi
@@ -58,9 +58,9 @@ if test "x$found_pion_source" == "x"; then
 						# Found installation directory
 						AC_MSG_RESULT(found install in $pion_location)
 						found_pion_install="true"
-						PION_LIBS="$pion_location/lib/libpion-common.la \
+						PION_LIBS="$pion_location/lib/libpion-platform.la \
 							$pion_location/lib/libpion-net.la \
-							$pion_location/lib/libpion-platform.la \
+							$pion_location/lib/libpion-common.la \
 							$pion_location/lib/libpion-sqlite.la"
 						PION_SERVER_LIB="$pion_location/lib/libpion-server.la"
 					fi
@@ -81,8 +81,14 @@ PION_CPPFLAGS="$PION_CPPFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --cflag
 PION_LDFLAGS="$PION_LDFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-L pion-platform`"
 PION_LDLIBS="$PION_LDLIBS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-l pion-platform`"
 
-# Find static versions of Pion library dependencies
 PION_STATIC_LIBS=""
+# Append direct references to the Pion library archives
+for lib in $PION_LIBS
+do
+	pionlib=`echo $lib | sed 's;\([[^ ]]*\)/\([[^/]]*\).la;\1/.libs/\2.a;'`
+	PION_STATIC_LIBS="$PION_STATIC_LIBS $pionlib"
+done
+# Find static versions of Pion library dependencies
 for param in $PION_LDLIBS
 do
 	if [[[ "$param" =~ ^-l ]] && [[ "$param" != "-ldl" ]]]; then
@@ -104,12 +110,6 @@ do
 	else
 		PION_STATIC_LIBS="$PION_STATIC_LIBS $param"
 	fi
-done
-# Append direct references to the Pion library archives
-for lib in $PION_LIBS
-do
-	pionlib=`echo $lib | sed 's;\([[^ ]]*\)/\([[^/]]*\).la;\1/.libs/\2.a;'`
-	PION_STATIC_LIBS="$PION_STATIC_LIBS $pionlib"
 done
 
 # Substitute variables in Makefiles
