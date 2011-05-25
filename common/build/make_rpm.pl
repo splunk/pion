@@ -92,7 +92,7 @@ if ($EDITION eq "core") {
 	$config_file_glob = "*.{xml,txt,pem}";
 	$install_perl_scripts = "install -m 660 $BIN_SRC_BASE/config/*.pl \$RPM_BUILD_ROOT/var/lib/pion";
 	$extra_config_files = "\%config /etc/pion/SearchEngines.xml\n\%config(noreplace) /etc/pion/ReplayQueries.xml\n\%config(noreplace) /etc/pion/robots.xml";
-	$install_pionlite = "$INSTALL_BIN $BIN_SRC_BASE/pionlite \$RPM_BUILD_ROOT/usr/bin/pionlite"
+	$install_pionlite = "$INSTALL_BIN $BIN_SRC_BASE/pionlite \$RPM_BUILD_ROOT/usr/bin/pionlite";
 	$attr_pionlite = "/usr/bin/pionlite";
 }
 $SPEC_POST="/sbin/ldconfig";
