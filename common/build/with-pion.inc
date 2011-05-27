@@ -81,38 +81,6 @@ PION_CPPFLAGS="$PION_CPPFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --cflag
 PION_LDFLAGS="$PION_LDFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-L pion-platform`"
 PION_LDLIBS="$PION_LDLIBS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-l pion-platform`"
 
-# Function to return static version of a given library
-pion_static_lib() {
-	dirs_to_check="/usr/local/lib /lib64 /usr/lib64 /lib /usr/lib"
-	lib=`echo $1 | sed 's;-l;lib;'`
-	for dir in $dirs_to_check
-	do
-		if test -r "$dir/$lib.a"; then
-			echo "$dir/$lib.a"
-			return 1
-		fi
-	done
-	echo $1
-	return 0
-}
-
-# Function that converts a list of libs to static libs
-pion_make_static() {
-	static_libs=""
-	for param in $1
-	do
-		if [[[ "$param" =~ ^-l ]] && [[ "$param" != "-ldl" ]]]; then
-			result=`pion_static_lib $param`
-			if [[ "$result" == "$param" ]]; then
-				AC_MSG_WARN([Unable to find static archive for $param])
-			fi
-			static_libs="$static_libs $result"
-		else
-			static_libs="$static_libs $param"
-		fi
-	done
-	echo $static_libs
-}
 
 # Initialize PION_STATIC_LIBS
 PION_STATIC_LIBS=""

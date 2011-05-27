@@ -10,12 +10,13 @@
 #ifndef __PION_HAS_CREATE_AND_DESTROY_HEADER__
 #define __PION_HAS_CREATE_AND_DESTROY_HEADER__
 
+#include "InterfaceStub.hpp"
 
 ///
 /// This class has a corresponding create function (pion_create_hasCreateAndDestroy) and
 /// destroy function (pion_destroy_hasCreateAndDestroy), as required for use by PionPlugin.
 /// 
-class hasCreateAndDestroy
+class hasCreateAndDestroy : public InterfaceStub
 {
 public:
 	hasCreateAndDestroy(void) {}

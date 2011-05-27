@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 #include <list>
+#include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/filesystem/path.hpp>
 #include <pion/PionConfig.hpp>
@@ -98,18 +99,8 @@ public:
 	}
 	
 	/**
-	 * finds an entry point for a plugin that is statically linked
-	 *
-	 * @param plugin_name the name of the plugin to look for
-	 * @param create_func - pointer to the function to be used in to create plugin object
-	 * @param destroy_func - pointer to the function to be used to release plugin object
-	 */
-	static bool findStaticEntryPoint(const std::string& plugin_name,
-									 void **create_func,
-									 void **destroy_func);
-	
-	/**
 	 * adds an entry point for a plugin that is statically linked
+	 * NOTE: USE PION_DECLARE_PLUGIN() macro instead!!!
 	 *
 	 * @param plugin_name the name of the plugin to add
 	 * @param create_func - pointer to the function to be used in to create plugin object
@@ -178,18 +169,6 @@ public:
 	 * @param plugin_file shared object file containing the plugin code
 	 */
 	void openFile(const std::string& plugin_file);
-
-	/**
-	* opens plug-in library that is statically linked into the program
-	* 
-	* @param plugin_name plugin name to be used in future references
-	* @param create_func - pointer to the function to be used in to create plugin object
-	* @param destroy_func - pointer to the function to be used to release plugin object
-	*
-	*/
-	void openStaticLinked(const std::string& plugin_name,
-						  void *create_func,
-						  void *destroy_func);
 
 	/// closes plug-in library
 	inline void close(void) { releaseData(); }
@@ -261,21 +240,6 @@ protected:
 	
 private:
 
-	/// data type for keeping track of the entry points for static plugins
-	class StaticEntryPoint
-	{
-	public:
-		StaticEntryPoint(const std::string& name, void *create, void *destroy)
-			: m_plugin_name(name), m_create_func(create), m_destroy_func(destroy)
-			{}
-		std::string  m_plugin_name;
-		void *       m_create_func;
-		void *       m_destroy_func;
-	};
-
-	/// data type for a list of static entry points
-	typedef std::list<StaticEntryPoint>		StaticEntryPointList;
-	
 	/// data type that maps plug-in names to their shared library data
 	typedef std::map<std::string, PionPluginData*>	PluginMap;
 
@@ -348,9 +312,6 @@ private:
 	/// mutex to make class thread-safe
 	static boost::mutex					m_plugin_mutex;
 
-	/// list of entry points for statically linked plugins
-	static StaticEntryPointList			*m_entry_points_ptr;
-
 	/// points to the shared library and functions used by the plug-in
 	PionPluginData *					m_plugin_data;
 };
@@ -405,6 +366,64 @@ public:
 };
 
 
+///
+/// PionPluginInstancePtr: smart pointer that manages a plug-in instance
+///
+template <typename InterfaceClassType>
+class PionPluginInstancePtr :
+	private boost::noncopyable
+{
+public:
+
+	/// default constructor & destructor
+	PionPluginInstancePtr(void) : m_instance_ptr(NULL) {}
+	
+	/// virtual destructor / may be extended
+	virtual ~PionPluginInstancePtr() { reset(); }
+	
+	/// reset the instance pointer
+	inline void reset(void) { 
+		if (m_instance_ptr) {
+			m_plugin_ptr.destroy(m_instance_ptr);
+		}
+	}
+	
+	/// create a new instance of the given plugin_type
+	inline void create(const std::string& plugin_type) {
+		reset();
+		m_plugin_ptr.open(plugin_type);
+		m_instance_ptr = m_plugin_ptr.create();
+	}
+	
+	/// returns true if pointer is empty
+	inline bool empty(void) const { return m_instance_ptr==NULL; }
+	
+	/// return a raw pointer to the instance
+	inline InterfaceClassType *get(void) { return m_instance_ptr; }
+	
+	/// return a reference to the instance
+	inline InterfaceClassType& operator*(void) { return *m_instance_ptr; }
+
+	/// return a const reference to the instance
+	inline const InterfaceClassType& operator*(void) const { return *m_instance_ptr; }
+
+	/// return a reference to the instance
+	inline InterfaceClassType* operator->(void) { return m_instance_ptr; }
+
+	/// return a const reference to the instance
+	inline const InterfaceClassType* operator->(void) const { return m_instance_ptr; }
+	
+	
+protected:
+
+	/// smart pointer that manages the plugin's dynamic object code
+	PionPluginPtr<InterfaceClassType>	m_plugin_ptr;
+	
+	/// raw pointer to the plugin instance
+	InterfaceClassType	*				m_instance_ptr;
+};
+
+
 /**
 * Macros to declare entry points for statically linked plugins in accordance
 * with the general naming convention.
@@ -424,7 +443,7 @@ public:
 	class plugin_name;						\
 	extern "C" plugin_name *pion_create_##plugin_name(void); \
 	extern "C" void pion_destroy_##plugin_name(plugin_name *plugin_ptr); \
-	static pion::StaticEntryPointHelper helper_##plugin_name(#plugin_name, pion_create_##plugin_name, pion_destroy_##plugin_name);
+	static pion::StaticEntryPointHelper helper_##plugin_name(#plugin_name, (void*) pion_create_##plugin_name, (void*) pion_destroy_##plugin_name);
 
 /// used by PION_DECLARE_PLUGIN to add an entry point for static-linked plugins
 class StaticEntryPointHelper {

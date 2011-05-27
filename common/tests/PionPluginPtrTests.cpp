@@ -14,6 +14,7 @@
 #include <pion/PionPlugin.hpp>
 #include <pion/PionUnitTestDefs.hpp>
 #include <boost/test/unit_test.hpp>
+#include "PluginsUsedByUnitTests/InterfaceStub.hpp"
 
 using namespace pion;
 
@@ -29,9 +30,6 @@ using namespace pion;
 	#endif
 	static const std::string sharedLibExt = ".so";
 #endif
-
-class InterfaceStub {
-};
 
 class EmptyPluginPtr_F : public PionPluginPtr<InterfaceStub> {
 public:
@@ -70,6 +68,28 @@ BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonExistentPlugin) {
 
 BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
 	BOOST_CHECK_EQUAL(getPluginName(), "");
+}
+
+BOOST_AUTO_TEST_CASE(checkPluginInstancePtrCreate) {
+	PionPluginInstancePtr<InterfaceStub> m_instance_ptr;
+	BOOST_CHECK(m_instance_ptr.empty());
+	BOOST_CHECK(m_instance_ptr.get() == NULL);
+	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
+	BOOST_CHECK_NO_THROW(m_instance_ptr.create("hasCreateAndDestroy"));
+	BOOST_CHECK(! m_instance_ptr.empty());
+	BOOST_CHECK(m_instance_ptr.get() != NULL);
+}
+
+BOOST_AUTO_TEST_CASE(checkPluginInstancePtrDereferencing) {
+	PionPluginInstancePtr<InterfaceStub> m_instance_ptr;
+	BOOST_CHECK_NO_THROW(m_instance_ptr.create("hasCreateAndDestroy"));
+	const PionPluginInstancePtr<InterfaceStub>& const_ref = m_instance_ptr;
+	InterfaceStub &a = *m_instance_ptr;
+	const InterfaceStub &b = *const_ref;
+	a.method();
+	b.const_method();
+	m_instance_ptr->method();
+	const_ref->const_method();
 }
 
 #ifndef PION_STATIC_LINKING

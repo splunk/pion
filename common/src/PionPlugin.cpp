@@ -35,7 +35,6 @@ const std::string			PionPlugin::PION_CONFIG_EXTENSION(".conf");
 std::vector<std::string>	PionPlugin::m_plugin_dirs;
 PionPlugin::PluginMap		PionPlugin::m_plugin_map;
 boost::mutex				PionPlugin::m_plugin_mutex;
-PionPlugin::StaticEntryPointList	*PionPlugin::m_entry_points_ptr = NULL;
 
 	
 // PionPlugin member functions
@@ -69,6 +68,19 @@ void PionPlugin::resetPluginDirectories(void)
 
 void PionPlugin::open(const std::string& plugin_name)
 {
+	// check first if name matches an existing plugin name
+	{
+		boost::mutex::scoped_lock plugin_lock(m_plugin_mutex);
+		PluginMap::iterator itr = m_plugin_map.find(plugin_name);
+		if (itr != m_plugin_map.end()) {
+			releaseData();	// make sure we're not already pointing to something
+			m_plugin_data = itr->second;
+			++ m_plugin_data->m_references;
+			return;
+		}
+	}
+	
+	// nope, look for shared library file
 	std::string plugin_file;
 
 	if (!findPluginFile(plugin_file, plugin_name))
@@ -106,34 +118,6 @@ void PionPlugin::openFile(const std::string& plugin_file)
 	++ m_plugin_data->m_references;
 }
 
-void PionPlugin::openStaticLinked(const std::string& plugin_name,
-								  void *create_func,
-								  void *destroy_func)
-{
-	releaseData();	// make sure we're not already pointing to something
-
-	// check to see if we already have a matching shared library
-	boost::mutex::scoped_lock plugin_lock(m_plugin_mutex);
-	PluginMap::iterator itr = m_plugin_map.find(plugin_name);
-	if (itr == m_plugin_map.end()) {
-		// no plug-ins found with the same name
-
-		// all is good -> insert it into the plug-in map
-		m_plugin_data = new PionPluginData(plugin_name);
-		m_plugin_data->m_lib_handle = NULL; // this will indicate that we are using statically linked plug-in
-		m_plugin_data->m_create_func = create_func;
-		m_plugin_data->m_destroy_func = destroy_func;
-		m_plugin_map.insert(std::make_pair(m_plugin_data->m_plugin_name,
-										   m_plugin_data));
-	} else {
-		// found an existing plug-in with the same name
-		m_plugin_data = itr->second;
-	}
-
-	// increment the number of references
-	++ m_plugin_data->m_references;
-}
-
 void PionPlugin::releaseData(void)
 {
 	if (m_plugin_data != NULL) {
@@ -142,17 +126,21 @@ void PionPlugin::releaseData(void)
 		if (m_plugin_data != NULL && --m_plugin_data->m_references == 0) {
 			// no more references to the plug-in library
 			
-			// release the shared object
-			closeDynamicLibrary(m_plugin_data->m_lib_handle);
+			// make sure it's not a static library
+			if (m_plugin_data->m_lib_handle != NULL) {
 			
-			// remove it from the plug-in map
-			PluginMap::iterator itr = m_plugin_map.find(m_plugin_data->m_plugin_name);
-			// check itr just to be safe (it SHOULD always find a match)
-			if (itr != m_plugin_map.end())
-				m_plugin_map.erase(itr);
+				// release the shared object
+				closeDynamicLibrary(m_plugin_data->m_lib_handle);
 			
-			// release the heap object
-			delete m_plugin_data;
+				// remove it from the plug-in map
+				PluginMap::iterator itr = m_plugin_map.find(m_plugin_data->m_plugin_name);
+				// check itr just to be safe (it SHOULD always find a match)
+				if (itr != m_plugin_map.end())
+					m_plugin_map.erase(itr);
+			
+				// release the heap object
+				delete m_plugin_data;
+			}
 		}
 		m_plugin_data = NULL;
 	}
@@ -296,6 +284,15 @@ void PionPlugin::getAllPluginNames(std::vector<std::string>& plugin_names)
 			}
 		}
 	}
+	
+	// Append static-linked libraries
+	boost::mutex::scoped_lock plugin_lock(m_plugin_mutex);
+	for (PluginMap::const_iterator itr = m_plugin_map.begin(); itr != m_plugin_map.end(); ++itr) {
+		const PionPluginData& plugin_data = *(itr->second);
+		if (plugin_data.m_lib_handle == NULL) {
+			plugin_names.push_back(plugin_data.m_plugin_name);
+		}
+	}
 }
 
 void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
@@ -344,40 +341,22 @@ void *PionPlugin::getLibrarySymbol(void *lib_handle, const std::string& symbol)
 #endif
 }
 
-bool PionPlugin::findStaticEntryPoint(const std::string& plugin_name,
-									  void **create_func,
-									  void **destroy_func)
-{
-	// check simple case first: no entry points exist
-	if (m_entry_points_ptr == NULL || m_entry_points_ptr->empty())
-		return false;
-
-	// try to find the entry point for the plugin
-	for (std::list<StaticEntryPoint>::const_iterator i = m_entry_points_ptr->begin();
-		 i != m_entry_points_ptr->end(); ++i) {
-			if (i->m_plugin_name==plugin_name) {
-				*create_func  = i->m_create_func;
-				*destroy_func = i->m_destroy_func;
-				return true;
-			}
-	}
-	return false;
-}
-
 void PionPlugin::addStaticEntryPoint(const std::string& plugin_name,
 									 void *create_func,
 									 void *destroy_func)
 {
-	// make sure that this function can only be called by one thread at a time
-	static boost::mutex			entrypoint_mutex;
-	boost::mutex::scoped_lock	entrypoint_lock(entrypoint_mutex);
-
-	// create the entry point list if it doesn't already exist
-	if (m_entry_points_ptr == NULL)
-		m_entry_points_ptr = new StaticEntryPointList;
-	
-	// insert it into the entry point list
-	m_entry_points_ptr->push_back(StaticEntryPoint(plugin_name, create_func, destroy_func));
+	// check for duplicate
+	boost::mutex::scoped_lock plugin_lock(m_plugin_mutex);
+	PluginMap::iterator itr = m_plugin_map.find(plugin_name);
+	if (itr == m_plugin_map.end()) {
+		// no plug-ins found with the same name
+		// all is good -> insert it into the plug-in map
+		PionPluginData *plugin_data = new PionPluginData(plugin_name);
+		plugin_data->m_lib_handle = NULL; // this will indicate that we are using statically linked plug-in
+		plugin_data->m_create_func = create_func;
+		plugin_data->m_destroy_func = destroy_func;
+		m_plugin_map.insert(std::make_pair(plugin_name, plugin_data));
+	}
 }
 
 }	// end namespace pion
