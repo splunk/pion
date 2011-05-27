@@ -32,7 +32,7 @@ void argument_error(void)
 {
 	std::cerr << "usage:   PionWebServer [OPTIONS] RESOURCE WEBSERVICE" << std::endl
 		      << "         PionWebServer [OPTIONS] -c SERVICE_CONFIG_FILE" << std::endl
-		      << "options: [-ssl PEM_FILE] [-i IP] [-p PORT] [-d PLUGINS_DIR] [-o OPTION=VALUE]" << std::endl;
+		      << "options: [-ssl PEM_FILE] [-i IP] [-p PORT] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v]" << std::endl;
 }
 
 
@@ -52,6 +52,7 @@ int main (int argc, char *argv[])
 	std::string service_name;
 	std::string ssl_pem_file;
 	bool ssl_flag = false;
+	bool verbose_flag = false;
 	
 	for (int argnum=1; argnum < argc; ++argnum) {
 		if (argv[argnum][0] == '-') {
@@ -87,6 +88,8 @@ int main (int argc, char *argv[])
 					   argv[argnum][3] == 'l' && argv[argnum][4] == '\0' && argnum+1 < argc) {
 				ssl_flag = true;
 				ssl_pem_file = argv[++argnum];
+			} else if (argv[argnum][1] == 'v' && argv[argnum][2] == '\0') {
+				verbose_flag = true;
 			} else {
 				argument_error();
 				return 1;
@@ -118,8 +121,13 @@ int main (int argc, char *argv[])
 	// initialize log system (use simple configuration)
 	PionLogger main_log(PION_GET_LOGGER("PionWebServer"));
 	PionLogger pion_log(PION_GET_LOGGER("pion"));
-	PION_LOG_SETLEVEL_INFO(main_log);
-	PION_LOG_SETLEVEL_INFO(pion_log);
+	if (verbose_flag) {
+		PION_LOG_SETLEVEL_DEBUG(main_log);
+		PION_LOG_SETLEVEL_DEBUG(pion_log);
+	} else {
+		PION_LOG_SETLEVEL_INFO(main_log);
+		PION_LOG_SETLEVEL_INFO(pion_log);
+	}
 	PION_LOG_CONFIG_BASIC;
 	
 	try {

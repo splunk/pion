@@ -32,7 +32,8 @@ LogService_la_LDFLAGS = -no-undefined -module -avoid-version
 LogService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @PION_EXTERNAL_LIBS@
 LogService_la_DEPENDENCIES = ../src/libpion-net.la
 
-FileService_la_CXXFLAGS = -shared $(AM_CXXFLAGS)
+# Build both dynamic and static library for FileService
+#FileService_la_CXXFLAGS = -shared $(AM_CXXFLAGS)
 FileService_la_SOURCES = FileService.hpp FileService.cpp
 FileService_la_LDFLAGS = -no-undefined -module -avoid-version
 FileService_la_LIBADD = ../src/libpion-net.la @PION_COMMON_LIB@ @PION_EXTERNAL_LIBS@
