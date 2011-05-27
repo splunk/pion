@@ -158,14 +158,13 @@ struct PionUnitTestsConfig {
 				verbose = true;
 			}
 		}
-		PION_LOG_CONFIG_BASIC;
-		pion::PionLogger log_ptr = PION_GET_LOGGER("pion");
 		if (verbose) {
-			PION_LOG_SETLEVEL_WARN(log_ptr);
+			PION_LOG_CONFIG_BASIC;
 		} else {
 			std::cout << "Use '-v' to enable logging of errors and warnings from pion.\n";
-			PION_LOG_SETLEVEL_FATAL(log_ptr);
 		}
+		pion::PionLogger log_ptr = PION_GET_LOGGER("pion");
+		PION_LOG_SETLEVEL_WARN(log_ptr);
 	}
 	~PionUnitTestsConfig() {
 		std::cout << "global teardown for all pion unit tests\n";
