@@ -91,6 +91,7 @@ do
 	pionlib=`echo $lib | sed 's;\([[^ ]]*\)/\([[^/]]*\).la;\1/.libs/\2.a;'`
 	PION_STATIC_LIBS="$PION_STATIC_LIBS $pionlib"
 done
+PION_STATIC_SERVER_LIB=`echo $PION_SERVER_LIB | sed 's;\([[^ ]]*\)/\([[^/]]*\).la;\1/.libs/\2.a;'`
 
 # Find static versions of Pion library dependencies
 temp_libs=`pion_make_static "$PION_LDLIBS"`
@@ -121,6 +122,7 @@ AC_SUBST(PION_CPPFLAGS)
 AC_SUBST(PION_LDFLAGS)
 AC_SUBST(PION_LDLIBS)
 AC_SUBST(PION_STATIC_LIBS)
+AC_SUBST(PION_STATIC_SERVER_LIB)
 AC_SUBST(PION_LIBS)
 AC_SUBST(PION_SERVER_LIB)
 AC_SUBST(PION_PLATFORM_PATH)
