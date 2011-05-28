@@ -15,6 +15,7 @@
 #include <map>
 #include <list>
 #include <boost/noncopyable.hpp>
+#include <boost/thread/once.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/filesystem/path.hpp>
 #include <pion/PionConfig.hpp>
@@ -243,7 +244,28 @@ private:
 	/// data type that maps plug-in names to their shared library data
 	typedef std::map<std::string, PionPluginData*>	PluginMap;
 
+	/// data type for static/global plugin configuration information
+	struct PionPluginConfig {
+		/// directories containing plugin files
+		std::vector<std::string>	plugin_dirs;
+		
+		/// maps plug-in names to shared library data
+		PluginMap					plugin_map;
+		
+		/// mutex to make class thread-safe
+		boost::mutex				plugin_mutex;
+	};
+
 	
+	/// returns a singleton instance of PionPluginConfig
+	static inline PionPluginConfig& getPionPluginConfig(void) {
+		boost::call_once(PionPlugin::createPionPluginConfig, m_instance_flag);
+		return *m_config_ptr;
+	}
+	
+	/// creates the PionPluginConfig singleton
+	static void createPionPluginConfig(void);
+
 	/**
 	 * searches directories for a valid plug-in file
 	 *
@@ -303,14 +325,11 @@ private:
 	/// file extension used for Pion configuration files
 	static const std::string			PION_CONFIG_EXTENSION;
 	
-	/// directories containing plugin files
-	static std::vector<std::string>		m_plugin_dirs;
-	
-	/// maps plug-in names to shared library data
-	static PluginMap					m_plugin_map;
-	
-	/// mutex to make class thread-safe
-	static boost::mutex					m_plugin_mutex;
+	/// used to ensure thread safety of the PionPluginConfig singleton
+	static boost::once_flag				m_instance_flag;
+
+	/// pointer to the PionPluginConfig singleton
+	static PionPluginConfig *			m_config_ptr;
 
 	/// points to the shared library and functions used by the plug-in
 	PionPluginData *					m_plugin_data;
