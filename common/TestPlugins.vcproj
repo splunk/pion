@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="9.00"
+	Name="TestPlugins"
+	ProjectGUID="{A4803007-06EC-4F2C-975B-61E49CDC87C5}"
+	RootNamespace="TestPlugins"
+	TargetFrameworkVersion="131072"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+		<Platform
+			Name="x64"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug_DLL|Win32"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from all *\.libs folders"
+				CommandLine="if exist tests\PluginsUsedByUnitTests\.libs del /Q tests\PluginsUsedByUnitTests\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into *\.libs"
+				CommandLine="if not exist tests\PluginsUsedByUnitTests\.libs md tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;copy tests\PluginsUsedByUnitTests\Debug_DLL_$(PlatformName)\*.dll tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_DLL|x64"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from all *\.libs folders"
+				CommandLine="if exist tests\PluginsUsedByUnitTests\.libs del /Q tests\PluginsUsedByUnitTests\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into *\.libs"
+				CommandLine="if not exist tests\PluginsUsedByUnitTests\.libs md tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;copy tests\PluginsUsedByUnitTests\Debug_DLL_$(PlatformName)\*.dll tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_DLL_full|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from all *\.libs folders"
+				CommandLine="if exist tests\PluginsUsedByUnitTests\.libs del /Q tests\PluginsUsedByUnitTests\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into *\.libs"
+				CommandLine="if not exist tests\PluginsUsedByUnitTests\.libs md tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;copy tests\PluginsUsedByUnitTests\Debug_DLL_$(PlatformName)\*.dll tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_DLL_full|x64"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from all *\.libs folders"
+				CommandLine="if exist tests\PluginsUsedByUnitTests\.libs del /Q tests\PluginsUsedByUnitTests\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into *\.libs"
+				CommandLine="if not exist tests\PluginsUsedByUnitTests\.libs md tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;copy tests\PluginsUsedByUnitTests\Debug_DLL_$(PlatformName)\*.dll tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL|Win32"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from all *\.libs folders"
+				CommandLine="if exist tests\PluginsUsedByUnitTests\.libs del /Q tests\PluginsUsedByUnitTests\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into *\.libs"
+				CommandLine="if not exist tests\PluginsUsedByUnitTests\.libs md tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;copy tests\PluginsUsedByUnitTests\Release_DLL_$(PlatformName)\*.dll tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL|x64"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from all *\.libs folders"
+				CommandLine="if exist tests\PluginsUsedByUnitTests\.libs del /Q tests\PluginsUsedByUnitTests\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into *\.libs"
+				CommandLine="if not exist tests\PluginsUsedByUnitTests\.libs md tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;copy tests\PluginsUsedByUnitTests\Release_DLL_$(PlatformName)\*.dll tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL_full|Win32"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from all *\.libs folders"
+				CommandLine="if exist tests\PluginsUsedByUnitTests\.libs del /Q tests\PluginsUsedByUnitTests\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into *\.libs"
+				CommandLine="if not exist tests\PluginsUsedByUnitTests\.libs md tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;copy tests\PluginsUsedByUnitTests\Release_DLL_$(PlatformName)\*.dll tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL_full|x64"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from all *\.libs folders"
+				CommandLine="if exist tests\PluginsUsedByUnitTests\.libs del /Q tests\PluginsUsedByUnitTests\.libs\*.*&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into *\.libs"
+				CommandLine="if not exist tests\PluginsUsedByUnitTests\.libs md tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;copy tests\PluginsUsedByUnitTests\Release_DLL_$(PlatformName)\*.dll tests\PluginsUsedByUnitTests\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
