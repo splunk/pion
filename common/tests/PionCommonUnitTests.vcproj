@@ -153,7 +153,7 @@
 		<Configuration
 			Name="Debug_static|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\build\Debug_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
+			InheritedPropertySheets="..\build\Debug_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_static_libs_win32.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -414,7 +414,7 @@
 		<Configuration
 			Name="Release_static|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\build\Release_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_libs_win32.vsprops"
+			InheritedPropertySheets="..\build\Release_static_pion.vsprops;..\build\depth_2_pion-common.vsprops;..\build\third_party_static_libs_win32.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

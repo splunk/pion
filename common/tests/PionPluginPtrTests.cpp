@@ -1,11 +1,13 @@
 // -----------------------------------------------------------------------
 // pion-common: a collection of common libraries used by the Pion Platform
 // -----------------------------------------------------------------------
-// Copyright (C) 2007-2008 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// Copyright (C) 2007-2011 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
 //
+
+#ifndef PION_STATIC_LINKING
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -92,8 +94,6 @@ BOOST_AUTO_TEST_CASE(checkPluginInstancePtrDereferencing) {
 	const_ref->const_method();
 }
 
-#ifndef PION_STATIC_LINKING
-
 BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonPluginDll) {
 	BOOST_REQUIRE(boost::filesystem::exists("hasNoCreate" + sharedLibExt));
 	BOOST_CHECK_THROW(open("hasNoCreate"), PluginMissingCreateException);
@@ -113,8 +113,6 @@ BOOST_AUTO_TEST_CASE(checkOpenFileDoesntThrowExceptionForValidPlugin) {
 	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
 	BOOST_CHECK_NO_THROW(openFile("hasCreateAndDestroy" + sharedLibExt));
 }
-
-#endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -193,16 +191,13 @@ BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
 	BOOST_CHECK_EQUAL(m_pluginPtr.getPluginName(), "");
 }
 
-#ifndef PION_STATIC_LINKING
 BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
 	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
 	BOOST_CHECK_NO_THROW(m_pluginPtr.open("hasCreateAndDestroy"));
 }
-#endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_SUITE_END()
 
-#ifndef PION_STATIC_LINKING
 
 struct PluginPtrWithPluginLoaded_F : EmptyPluginPtr_F {
 	PluginPtrWithPluginLoaded_F() { 
@@ -238,7 +233,6 @@ BOOST_AUTO_TEST_CASE(checkDestroyDoesntThrowExceptionAfterCreate) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-#endif // PION_STATIC_LINKING
 
 #ifdef PION_WIN32
 	static const std::string fakePluginInSandboxWithExt = "sandbox\\fakePlugin.dll";
@@ -387,3 +381,5 @@ BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsFalseForPluginOnSearchPathAfterRe
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+#endif // PION_STATIC_LINKING
