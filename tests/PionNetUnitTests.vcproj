@@ -85,7 +85,7 @@
 		<Configuration
 			Name="Debug_static|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\common\build\Debug_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_win32.vsprops"
+			InheritedPropertySheets="..\..\common\build\Debug_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_static_libs_win32.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -118,7 +118,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="EchoService.lib FileService.lib HelloService.lib LogService.lib CookieService.lib"
-				AdditionalLibraryDirectories="&quot;$(InputDir)\..\services\.libs&quot;"
+				AdditionalLibraryDirectories="..\services\.libs"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -144,7 +144,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="auto run tests"
-				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
+				CommandLine="&quot;$(TargetPath)&quot; --log_level=test_suite"
 			/>
 		</Configuration>
 		<Configuration
@@ -214,7 +214,7 @@
 		<Configuration
 			Name="Release_static|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\common\build\Release_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_win32.vsprops"
+			InheritedPropertySheets="..\..\common\build\Release_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_static_libs_win32.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -247,6 +247,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="EchoService.lib FileService.lib HelloService.lib LogService.lib CookieService.lib"
+				AdditionalLibraryDirectories="..\services\.libs"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -272,7 +273,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="auto run tests"
-				CommandLine="echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; &quot;$(TargetPath)&quot; --log_level=test_suite"
+				CommandLine="&quot;$(TargetPath)&quot; --log_level=test_suite"
 			/>
 		</Configuration>
 		<Configuration

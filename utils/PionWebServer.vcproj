@@ -82,7 +82,7 @@
 		<Configuration
 			Name="Debug_static|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\common\build\Debug_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_win32.vsprops"
+			InheritedPropertySheets="..\..\common\build\Debug_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_static_libs_win32.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -114,7 +114,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreDefaultLibraryNames=""
+				AdditionalDependencies="EchoService.lib FileService.lib HelloService.lib LogService.lib CookieService.lib"
+				AdditionalLibraryDirectories="..\services\.libs"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -208,7 +209,7 @@
 		<Configuration
 			Name="Release_static|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\common\build\Release_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_win32.vsprops"
+			InheritedPropertySheets="..\..\common\build\Release_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_static_libs_win32.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -240,6 +241,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="EchoService.lib FileService.lib HelloService.lib LogService.lib CookieService.lib"
+				AdditionalLibraryDirectories="..\services\.libs"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
