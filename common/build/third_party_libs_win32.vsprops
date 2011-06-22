@@ -38,6 +38,10 @@
 	/>
 	<UserMacro
 		Name="ICONV_LIB"
+		Value="C:\iconv-1.9.2\lib"
+	/>
+	<UserMacro
+		Name="ICONV_BIN"
 		Value="C:\iconv-1.9.2\bin"
 	/>
 	<UserMacro
@@ -118,6 +122,6 @@
 	/>
 	<UserMacro
 		Name="PION_PATH"
-		Value="$(BOOST_LIB);$(BZIP2_BIN);$(ICONV_LIB);$(ICU_BIN);$(LIBXML_BIN);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_BIN);%PATH%"
+		Value="$(BOOST_LIB);$(BZIP2_BIN);$(ICONV_BIN);$(ICU_BIN);$(LIBXML_BIN);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_BIN);%PATH%"
 	/>
 </VisualStudioPropertySheet>

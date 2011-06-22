@@ -34,16 +34,12 @@
 		Value="C:\bzip2-1.0.5\lib"
 	/>
 	<UserMacro
-		Name="BZIP2_BIN"
-		Value="C:\bzip2-1.0.5\bin"
-	/>
-	<UserMacro
 		Name="ICONV_INC"
 		Value="C:\iconv-1.9.2\include"
 	/>
 	<UserMacro
 		Name="ICONV_LIB"
-		Value="C:\iconv-1.9.2\bin"
+		Value="C:\iconv-1.9.2\lib"
 	/>
 	<UserMacro
 		Name="ICU_INC"
@@ -54,20 +50,12 @@
 		Value="C:\icu-3.6\lib"
 	/>
 	<UserMacro
-		Name="ICU_BIN"
-		Value="C:\icu-3.6\bin"
-	/>
-	<UserMacro
 		Name="LIBXML_INC"
 		Value="C:\libxml2-2.6.30\include"
 	/>
 	<UserMacro
 		Name="LIBXML_LIB"
 		Value="C:\libxml2-2.6.30\lib"
-	/>
-	<UserMacro
-		Name="LIBXML_BIN"
-		Value="C:\libxml2-2.6.30\bin"
 	/>
 	<UserMacro
 		Name="LOG4CPLUS_INC"
@@ -116,13 +104,5 @@
 	<UserMacro
 		Name="ZLIB_LIB"
 		Value="C:\zlib-1.2.3\lib"
-	/>
-	<UserMacro
-		Name="ZLIB_BIN"
-		Value="C:\zlib-1.2.3\bin"
-	/>
-	<UserMacro
-		Name="PION_PATH"
-		Value="$(BOOST_LIB);$(BZIP2_BIN);$(ICONV_LIB);$(ICU_BIN);$(LIBXML_BIN);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_BIN);%PATH%"
 	/>
 </VisualStudioPropertySheet>
