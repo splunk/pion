@@ -7,7 +7,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories="&quot;$(BOOST_INC)&quot;;&quot;$(BZIP2_INC)&quot;;&quot;$(ICONV_INC)&quot;;&quot;$(ICU_INC)&quot;;&quot;$(LIBXML_INC)&quot;;&quot;$(LOG4CPLUS_INC)&quot;;&quot;$(LOG4CXX_INC)&quot;;&quot;$(OPENSSL_INC)&quot;;&quot;$(PYTHON_INC)&quot;;&quot;$(YAJL_INC)&quot;;&quot;$(ZLIB_INC)&quot;"
-		PreprocessorDefinitions="LOG4CPLUS_STATIC;LOG4CXX_STATIC"
+		PreprocessorDefinitions="LOG4CPLUS_STATIC;LOG4CXX_STATIC;U_STATIC_IMPLEMENTATION;LIBXML_STATIC"
 	/>
 	<Tool
 		Name="VCLibrarianTool"
