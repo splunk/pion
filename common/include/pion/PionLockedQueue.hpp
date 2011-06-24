@@ -71,6 +71,15 @@ protected:
 #endif
 	}
 	
+	/// initializes head and tail pointers for empty queue
+	inline void initialize(void) {
+		// initialize with a dummy node since m_head_ptr is always 
+		// pointing to the item before the head of the list
+		m_head_ptr = m_tail_ptr = createNode();
+		m_head_ptr->next = NULL;
+		m_head_ptr->version = 0;
+	}
+	
 	/**
 	 * dequeues the next item from the top of the queue
 	 *
@@ -166,11 +175,7 @@ public:
 		: m_head_ptr(NULL), m_tail_ptr(NULL), m_idle_ptr(NULL),
 		m_next_version(1), m_size(0)
 	{
-		// initialize with a dummy node since m_head_ptr is always 
-		// pointing to the item before the head of the list
-		m_head_ptr = m_tail_ptr = createNode();
-		m_head_ptr->next = NULL;
-		m_head_ptr->version = 0;
+		initialize();
 	}
 	
 	/// virtual destructor
@@ -191,13 +196,15 @@ public:
 	void clear(void) {
 		boost::mutex::scoped_lock tail_lock(m_tail_mutex);
 		boost::mutex::scoped_lock head_lock(m_head_mutex);
-		while (m_head_ptr->next) {
+		// also delete dummy node and reinitialize it to clear old value
+		while (m_head_ptr) {
 			m_tail_ptr = m_head_ptr;
 			m_head_ptr = m_head_ptr->next;
 			destroyNode(m_tail_ptr);
-			--m_size;
+			if (m_head_ptr)
+				--m_size;
 		}
-		m_tail_ptr = m_head_ptr;
+		initialize();
 	}
 
 	/**
