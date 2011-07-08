@@ -47,7 +47,7 @@
 	/>
 	<UserMacro
 		Name="ICU_LIB"
-		Value="C:\icu-3.6\lib"
+		Value="C:\icu-3.6\x64\lib"
 	/>
 	<UserMacro
 		Name="LIBXML_INC"
