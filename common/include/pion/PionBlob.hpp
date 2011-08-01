@@ -221,6 +221,20 @@ public:
 		memcpy(m_blob_ptr->get(), str.c_str(), str.size());
 	}
 
+	/**
+	 * reserves memory for a new blob without assigning memory
+	 *
+	 * @param blob_alloc allocator used for memory management
+	 * @param len size in octets of the new memory buffer to allocate
+	 *
+	 * @return reference to the new BLOB payload (scope should expire before Blob is copied/shared)
+	 */
+	inline CharType *reserve(AllocType& blob_alloc, const std::size_t len) {
+		release();
+		m_blob_ptr = create(blob_alloc, len);
+		return m_blob_ptr->get();
+	}
+
 	/// returns (const) reference to the BLOB payload
 	inline const CharType *get(void) const {
 		return (m_blob_ptr ? m_blob_ptr->get() : "");

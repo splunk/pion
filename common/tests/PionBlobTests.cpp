@@ -127,6 +127,19 @@ BOOST_AUTO_TEST_CASE(checkBlobConstructors) {
 	
 }
 
+BOOST_AUTO_TEST_CASE(checkBlobReserve) {
+	BlobType b;
+	char *ptr = b.reserve(m_alloc, 10U);
+	BOOST_CHECK(! b.empty());
+	BOOST_CHECK(b.unique());
+	BOOST_CHECK_EQUAL(b.use_count(), 1);
+	BOOST_CHECK_EQUAL(b.size(), 10U);
+	BOOST_CHECK_EQUAL(b.get(), ptr);
+	memcpy(ptr, "hello", 5);
+	ptr[5] = '\0';
+	BOOST_CHECK_EQUAL(std::string("hello"), b.get());
+}
+
 BOOST_AUTO_TEST_CASE(checkSetAndCompareTwoBlobs) {
 	std::string hello_str("hello");
 	std::string goodbye_str("goodbye");
