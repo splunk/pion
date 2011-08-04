@@ -1182,7 +1182,8 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 		break;
 	case PARSE_CONTENT:
 		http_msg.setIsValid(false);
-		http_msg.setContentLength(getContentBytesRead());
+		if (getContentBytesRead() < m_max_content_length)	// NOTE: we can read more than we have allocated/stored
+			http_msg.setContentLength(getContentBytesRead());
 		break;
 	case PARSE_CHUNKS:
 		http_msg.setIsValid(m_chunked_content_parse_state==PARSE_CHUNK_SIZE_START);
