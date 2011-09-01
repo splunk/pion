@@ -11,8 +11,8 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <pion/PionPlugin.hpp>
+#include <pion/PionProcess.hpp>
 #include <pion/net/WebServer.hpp>
-#include "ShutdownManager.hpp"
 
 // these are used only when linking to static web service libraries
 // #ifdef PION_STATIC_LINKING
@@ -111,12 +111,8 @@ int main (int argc, char *argv[])
 		return 1;
 	}
 	
-	// setup signal handler
-#ifdef PION_WIN32
-	SetConsoleCtrlHandler(console_ctrl_handler, TRUE);
-#else
-	signal(SIGINT, handle_signal);
-#endif
+	// initialize signal handlers, etc.
+	PionProcess::initialize();
 	
 	// initialize log system (use simple configuration)
 	PionLogger main_log(PION_GET_LOGGER("PionWebServer"));
@@ -175,7 +171,7 @@ int main (int argc, char *argv[])
 
 		// startup the server
 		web_server.start();
-		main_shutdown_manager.wait();
+		PionProcess::wait_for_shutdown();
 		
 	} catch (std::exception& e) {
 		PION_LOG_FATAL(main_log, e.what());
