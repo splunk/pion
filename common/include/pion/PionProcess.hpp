@@ -42,6 +42,9 @@ public:
 
 	/// sets up basic signal handling for the process
 	static void initialize(void);
+	
+	/// fork process and run as a background daemon
+	static void daemonize(void);
 
 
 protected:

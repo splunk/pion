@@ -10,6 +10,10 @@
 #include <signal.h>
 #ifdef _MSC_VER
 	#include <windows.h>
+#else
+	#include <fcntl.h>
+	#include <unistd.h>
+	#include <sys/stat.h>
 #endif
 
 #include <pion/PionConfig.hpp>
@@ -73,6 +77,11 @@ void PionProcess::initialize(void)
 	SetConsoleCtrlHandler(console_ctrl_handler, TRUE);
 }
 
+void PionProcess::daemonize(void)
+{
+	// not supported
+}
+
 #else	// NOT #ifdef _MSC_VER
 
 void handle_signal(int sig)
@@ -90,6 +99,34 @@ void PionProcess::initialize(void)
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, handle_signal);
 	signal(SIGTERM, handle_signal);
+}
+
+void PionProcess::daemonize(void)
+{
+	// adopted from "Unix Daemon Server Programming"
+	// http://www.enderunix.org/docs/eng/daemon.php
+	
+	// return early if already running as a daemon
+	if(getppid()==1) return;
+	
+	// for out the process 
+	int i = fork();
+	if (i<0) exit(1);	// error forking
+	if (i>0) exit(0);	// exit if parent
+	
+	// child (daemon process) continues here after the fork...
+	
+	// obtain a new process group
+	setsid();
+	
+	// close all descriptors
+	for (i=getdtablesize();i>=0;--i) close(i);
+	
+	// bind stdio to /dev/null
+	i=open("/dev/null",O_RDWR); dup(i); dup(i);
+	
+	// restrict file creation mode to 0750
+	umask(027);
 }
 
 #endif	// #ifdef _MSC_VER
