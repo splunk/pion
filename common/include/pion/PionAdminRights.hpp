@@ -39,8 +39,25 @@ public:
 	/// releases administrative rights
 	void release(void);
 
+	/// calculates the user id based upon the user configuration parameter
+	static long runAsUser(const std::string& user_name);
+	
+	/// calculates the group id based upon the group configuration parameter
+	static long runAsGroup(const std::string& group_name);
+
 
 private:
+
+	/**
+	 * finds an identifier within a system credentials file (users or groups)
+	 *
+	 * @param name descriptive name to lookup (user or group name, may be id)
+	 * @param file system credentials file to look within
+	 *
+	 * @return boost::int32_t identifier found, or -1 if none found
+	 */
+	static long findSystemId(const std::string& name, const std::string& file);
+
 
 	/// adminisitrator or root user identifier
 	static const boost::int16_t			ADMIN_USER_ID;
