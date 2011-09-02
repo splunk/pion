@@ -746,6 +746,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PionProcess.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PionScheduler.cpp"
 				>
 			</File>
@@ -925,6 +929,10 @@
 			</File>
 			<File
 				RelativePath="..\include\pion\PionPoolAllocator.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pion\PionProcess.hpp"
 				>
 			</File>
 			<File
