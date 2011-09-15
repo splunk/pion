@@ -44,7 +44,8 @@
 		typedef log4cxx::AppenderSkeleton	PionLogAppender;
 		typedef PionLogAppender *	PionLogAppenderPtr;
 	}
-
+	
+	#define PION_HAS_LOG_APPENDER	1
 	#define PION_LOG_CONFIG_BASIC	log4cxx::BasicConfigurator::configure();
 	#define PION_LOG_CONFIG(FILE)	log4cxx::PropertyConfigurator::configure(FILE);
 	#define PION_GET_LOGGER(NAME)	log4cxx::Logger::getLogger(NAME)
@@ -132,6 +133,7 @@
 		};
 	}
 
+	#define PION_HAS_LOG_APPENDER	1
 	#define PION_LOG_CONFIG_BASIC	log4cplus::BasicConfigurator::doConfigure();
 	#define PION_LOG_CONFIG(FILE)	log4cplus::PropertyConfigurator::doConfigure(FILE);
 	#define PION_GET_LOGGER(NAME)	log4cplus::Logger::getInstance(NAME)
@@ -166,6 +168,7 @@
 		typedef PionLogAppender *	PionLogAppenderPtr;
 	}
 
+	#define PION_HAS_LOG_APPENDER	1
 	#define PION_LOG_CONFIG_BASIC	{ log4cpp::OstreamAppender *app = new log4cpp::OstreamAppender("cout", &std::cout); app->setLayout(new log4cpp::BasicLayout()); log4cpp::Category::getRoot().setAppender(app); }
 	#define PION_LOG_CONFIG(FILE)	{ log4cpp::PropertyConfigurator::configure(FILE); }
 	#define PION_GET_LOGGER(NAME)	(&log4cpp::Category::getInstance(NAME))
@@ -189,8 +192,11 @@
 	// Logging is disabled -> add do-nothing stubs for logging
 	namespace pion {
 		typedef int		PionLogger;
+		typedef int		PionLogAppender;
+		typedef PionLogAppender *	PionLogAppenderPtr;
 	}
 
+	#undef PION_HAS_LOG_APPENDER
 	#define PION_LOG_CONFIG_BASIC	{}
 	#define PION_LOG_CONFIG(FILE)	{}
 	#define PION_GET_LOGGER(NAME)	0
@@ -233,8 +239,11 @@
 			std::string					m_name;
 			static PionPriorityType		m_priority;
 		};
+		typedef int		PionLogAppender;
+		typedef PionLogAppender *	PionLogAppenderPtr;
 	}
 
+	#undef PION_HAS_LOG_APPENDER
 	#define PION_LOG_CONFIG_BASIC	{}
 	#define PION_LOG_CONFIG(FILE)	{}
 	#define PION_GET_LOGGER(NAME)	pion::PionLogger(NAME)
