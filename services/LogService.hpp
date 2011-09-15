@@ -41,7 +41,9 @@ namespace plugins {		// begin namespace plugins
 /// LogServiceAppender: caches log events in memory for use by LogService
 /// 
 class LogServiceAppender
+#ifdef PION_HAS_LOG_APPENDER
 	: public PionLogAppender
+#endif
 {
 public:
 	// default constructor and destructor
@@ -130,12 +132,20 @@ public:
 
 	/// returns the log appender used by LogService
 	inline LogServiceAppender& getLogAppender(void) {
+#ifdef PION_HAS_LOG_APPENDER
 		return dynamic_cast<LogServiceAppender&>(*m_log_appender_ptr);
+#else
+		return *m_log_appender_ptr;
+#endif
 	}
 	
 private:
-	/// map of file extensions to MIME types
+	/// this is used to keep track of log messages
+#ifdef PION_HAS_LOG_APPENDER
 	PionLogAppenderPtr		m_log_appender_ptr;
+#else
+	LogServiceAppender *	m_log_appender_ptr;
+#endif
 };
 
 	
