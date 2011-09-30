@@ -1,7 +1,7 @@
 // ------------------------------------------------------------------
 // pion-net: a C++ framework for building lightweight HTTP interfaces
 // ------------------------------------------------------------------
-// Copyright (C) 2007-2008 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// Copyright (C) 2007-2011 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
@@ -60,6 +60,7 @@ const std::string	HTTPTypes::REQUEST_METHOD_DELETE("DELETE");
 // common HTTP response messages
 const std::string	HTTPTypes::RESPONSE_MESSAGE_OK("OK");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_CREATED("Created");
+const std::string	HTTPTypes::RESPONSE_MESSAGE_ACCEPTED("Accepted");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_NO_CONTENT("No Content");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_FOUND("Found");
 const std::string	HTTPTypes::RESPONSE_MESSAGE_UNAUTHORIZED("Unauthorized");
@@ -75,6 +76,7 @@ const std::string	HTTPTypes::RESPONSE_MESSAGE_CONTINUE("Continue");
 // common HTTP response codes
 const unsigned int	HTTPTypes::RESPONSE_CODE_OK = 200;
 const unsigned int	HTTPTypes::RESPONSE_CODE_CREATED = 201;
+const unsigned int	HTTPTypes::RESPONSE_CODE_ACCEPTED = 202;
 const unsigned int	HTTPTypes::RESPONSE_CODE_NO_CONTENT = 204;
 const unsigned int	HTTPTypes::RESPONSE_CODE_FOUND = 302;
 const unsigned int	HTTPTypes::RESPONSE_CODE_UNAUTHORIZED = 401;
