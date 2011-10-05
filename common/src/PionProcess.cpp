@@ -122,8 +122,12 @@ void PionProcess::daemonize(void)
 	// close all descriptors
 	for (i=getdtablesize();i>=0;--i) close(i);
 	
-	// bind stdio to /dev/null
-	i=open("/dev/null",O_RDWR); dup(i); dup(i);
+	// bind stdio to /dev/null (ignore errors)
+	i=open("/dev/null",O_RDWR);
+	if (i != -1) {
+		if (dup(i) == -1) {}
+		if (dup(i) == -1) {}
+	}
 	
 	// restrict file creation mode to 0750
 	umask(027);

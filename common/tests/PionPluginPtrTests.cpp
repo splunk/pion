@@ -257,7 +257,7 @@ public:
 		m_path_to_file = "arbitraryString";
 	}
 	~Sandbox_F() {
-		CHANGE_DIRECTORY(m_cwd.c_str());
+		BOOST_REQUIRE(CHANGE_DIRECTORY(m_cwd.c_str()) == 0);
 		boost::filesystem::remove_all("sandbox");
 	}
 	std::string m_path_to_file;
