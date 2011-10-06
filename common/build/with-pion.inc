@@ -101,7 +101,7 @@ PION_STATIC_LIBS="$PION_STATIC_LIBS $temp_libs"
 # ... this is a really nasty hack for dependency hell on RHEL5 ...
 AC_MSG_CHECKING(if OpenSSL requires Kerberos)
 LIBS_SAVED="$LIBS"
-LIBS="$LIBS_SAVED $PION_STATIC_LIBS"
+LIBS="$LIBS_SAVED $PION_STATIC_LIBS $PION_DLOPEN_LIBS"
 AC_TRY_LINK([#include <openssl/ssl.h>],
         [
         SSL_library_init();
