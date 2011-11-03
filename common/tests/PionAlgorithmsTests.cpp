@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(testBase64Routines) {
 	BOOST_CHECK(decoded == original);
 
 	char *ptr = "mike\0123\0\0";
-	original.assign(ptr, ptr+10);
+	original.assign(ptr, 10);
 	BOOST_CHECK(algo::base64_encode(original,encoded));
 	BOOST_CHECK(algo::base64_decode(encoded,decoded));
 	BOOST_CHECK_EQUAL(decoded.size(), 10U);
