@@ -184,6 +184,11 @@ pion_static_lib() {
 			echo "$dir/$lib.a"
 			return 1
 		fi
+		# try again with _s extension to library name (used for example by yajl)
+		if test -r "$dir/${lib}_s.a"; then
+			echo "$dir/${lib}_s.a"
+			return 1
+		fi
 	done
 	echo $1
 	return 0
