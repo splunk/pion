@@ -639,7 +639,7 @@ public:
 	
 	/// returns reference to the io_service used for async operations
 	inline boost::asio::io_service& getIOService(void) {
-		return m_ssl_socket.lowest_layer().io_service();
+		return m_ssl_socket.lowest_layer().get_io_service();
 	}
 
 	/// returns non-const reference to underlying TCP socket object
