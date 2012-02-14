@@ -190,7 +190,7 @@ AC_SUBST(PION_SSL_LIB)
 # Check for boost::lockfree library
 AC_ARG_ENABLE([lockfree],
     AC_HELP_STRING([--disable-lockfree],[disable lock-free support]),
-    [enable_lockfree=$enableval], [enable_lockfree=no])
+    [enable_lockfree=$enableval], [enable_lockfree=yes])
 AC_MSG_CHECKING([for boost::lockfree library])
 if test "x$enable_lockfree" == "xno"; then
 	# Display notice if lock-free is disabled
