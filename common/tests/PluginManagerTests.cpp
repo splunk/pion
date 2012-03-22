@@ -1,7 +1,7 @@
 // ------------------------------------------------------------------------
 // Pion is a development platform for building Reactors that process Events
 // ------------------------------------------------------------------------
-// Copyright (C) 2007-2008 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// Copyright (C) 2007-2011 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Pion is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Affero General Public License as published by the Free
@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with Pion.  If not, see <http://www.gnu.org/licenses/>.
 //
+
+#ifndef PION_STATIC_LINKING
 
 #include <pion/PionConfig.hpp>
 #include <pion/PluginManager.hpp>
@@ -134,3 +136,5 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkClear) {
 // TODO: tests for add(), find(), run()
 
 BOOST_AUTO_TEST_SUITE_END()
+
+#endif // PION_STATIC_LINKING

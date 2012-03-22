@@ -79,9 +79,17 @@
 
 	#if defined _MSC_VER
 		#if defined _DEBUG
-			#pragma comment(lib, "log4cplusD")
+			#if defined PION_STATIC_LINKING
+				#pragma comment(lib, "log4cplusSD")
+			#else
+				#pragma comment(lib, "log4cplusD")
+			#endif
 		#else
-			#pragma comment(lib, "log4cplus")
+			#if defined PION_STATIC_LINKING
+				#pragma comment(lib, "log4cplusS")
+			#else
+				#pragma comment(lib, "log4cplus")
+			#endif
 		#endif
 	#endif 
 

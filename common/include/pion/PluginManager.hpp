@@ -253,23 +253,12 @@ inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::load(const std::string& plugin_i
 													 const std::string& plugin_type)
 {
 	// search for the plug-in file using the configured paths
-	bool is_static;
-	void *create_func;
-	void *destroy_func;
-	
 	if (m_plugin_map.find(plugin_id) != m_plugin_map.end())
 		throw DuplicatePluginException(plugin_id);
 	
-	// check if plug-in is statically linked, and if not, try to resolve for dynamic
-	is_static = PionPlugin::findStaticEntryPoint(plugin_type, &create_func, &destroy_func);
-	
 	// open up the plug-in's shared object library
 	PionPluginPtr<PLUGIN_TYPE> plugin_ptr;
-	if (is_static) {
-		plugin_ptr.openStaticLinked(plugin_type, create_func, destroy_func);	// may throw
-	} else {
-		plugin_ptr.open(plugin_type);	// may throw
-	}
+	plugin_ptr.open(plugin_type);	// may throw
 	
 	// create a new object using the plug-in library
 	PLUGIN_TYPE *plugin_object_ptr(plugin_ptr.create());

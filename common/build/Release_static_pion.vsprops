@@ -7,13 +7,8 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		PreprocessorDefinitions="PION_STATIC_LINKING;NDEBUG;LOG4CXX_STATIC"
-		RuntimeLibrary="0"
+		PreprocessorDefinitions="PION_STATIC_LINKING;NDEBUG;PION_FULL"
+		RuntimeLibrary="2"
 		DebugInformationFormat="3"
-	/>
-	<Tool
-		Name="VCLinkerTool"
-		AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(LOG4CXX_LIB)\static&quot;"
-		GenerateDebugInformation="true"
 	/>
 </VisualStudioPropertySheet>

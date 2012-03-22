@@ -33,7 +33,7 @@ case "$build_os" in
 		PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
 		PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
 	fi
-	PION_EXTERNAL_LIBS="-lsocket -lnsl -ldl -lposix4"
+	PION_EXTERNAL_LIBS="-lsocket -lnsl -lposix4"
 	;;
 *darwin*)
 	# Mac OS X: GCC compiler
@@ -42,7 +42,7 @@ case "$build_os" in
 	#LDFLAGS="$LDFLAGS"
 	PION_OPT_FLAGS="-O3 -ggdb -fomit-frame-pointer -fstrict-aliasing -fno-tree-pre -falign-loops -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
-	PION_EXTERNAL_LIBS="-ldl -licui18n -licuuc -licudata"
+	PION_EXTERNAL_LIBS="-licui18n -licuuc -licudata"
 
 	# Check for OSX binary architecture
 	AC_MSG_CHECKING([for OSX binary architectures])
@@ -88,7 +88,7 @@ case "$build_os" in
 	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
 	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
-	PION_EXTERNAL_LIBS="-ldl -licui18n -licuuc -licudata"
+	PION_EXTERNAL_LIBS="-licui18n -licuuc -licudata"
 	;;
 esac
 
@@ -182,6 +182,11 @@ pion_static_lib() {
 	do
 		if test -r "$dir/$lib.a"; then
 			echo "$dir/$lib.a"
+			return 1
+		fi
+		# try again with _s extension to library name (used for example by yajl)
+		if test -r "$dir/${lib}_s.a"; then
+			echo "$dir/${lib}_s.a"
 			return 1
 		fi
 	done

@@ -90,7 +90,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist .libs md .libs&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; .libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -164,7 +163,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist .libs md .libs&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; .libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -239,7 +237,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist .libs md .libs&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; .libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -314,7 +311,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="if not exist .libs md .libs&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; .libs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

@@ -24,7 +24,7 @@ After downloading it, just run:
 
 # tar xvfz icu4c-<version>-src.tgz
 # cd icu/source
-# ./runConfigureICU MacOSX
+# ./runConfigureICU MacOSX --enable-static
 # make all
 # make install
 
@@ -36,7 +36,7 @@ can build 64-bit binaries on OSX using an included patch file:
 # cd icu
 # patch -p1 < /path/to/pion-source/common/build/icu-4.2.1-osx.patch
 # cd source
-# ./runConfigureICU MacOSX
+# ./runConfigureICU MacOSX --enable-static
 # make all
 # make install
 
@@ -51,11 +51,11 @@ Please see the README.boost file for general instructions.
 
 The bjam command to build all Boost libraries (1.43 and earlier) for OSX is:
 
-# bjam -sHAVE_ICU=1 --toolset=darwin release threading=multi link=shared stage
+# bjam -sHAVE_ICU=1 --toolset=darwin release threading=multi stage
 
 The bjam command to build all Boost libraries (1.44 and later) for OSX is:
 
-# bjam -sICU_PATH=/usr/local --toolset=darwin release threading=multi link=shared stage
+# bjam -sICU_PATH=/usr/local --toolset=darwin release threading=multi stage
 
 
 Installing zlib, bzlib & openssl:
@@ -117,6 +117,11 @@ Pion's pupgrade.py script requires that you have the lxml library installed.
 This can be installed with one easy step:
 
 # sudo easy_install lxml
+
+If you get an error about an architecture not being installed, try using this
+command instead:
+
+# sudo env ARCHFLAGS="-arch x86_64" easy_install lxml
 
 
 Installing YAJL:

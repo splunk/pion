@@ -2,11 +2,16 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="third_party_libs_win32"
+	Name="third_party_static_libs_x64"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories="&quot;$(BOOST_INC)&quot;;&quot;$(BZIP2_INC)&quot;;&quot;$(ICONV_INC)&quot;;&quot;$(ICU_INC)&quot;;&quot;$(LIBXML_INC)&quot;;&quot;$(LOG4CPLUS_INC)&quot;;&quot;$(LOG4CXX_INC)&quot;;&quot;$(OPENSSL_INC)&quot;;&quot;$(PYTHON_INC)&quot;;&quot;$(YAJL_INC)&quot;;&quot;$(ZLIB_INC)&quot;"
+		PreprocessorDefinitions="LOG4CPLUS_STATIC;LOG4CXX_STATIC;U_STATIC_IMPLEMENTATION;LIBXML_STATIC"
+	/>
+	<Tool
+		Name="VCLibrarianTool"
+		AdditionalLibraryDirectories="&quot;$(BOOST_LIB)&quot;;&quot;$(BZIP2_LIB)&quot;;&quot;$(ICONV_LIB)&quot;;&quot;$(ICU_LIB)&quot;;&quot;$(LIBXML_LIB)&quot;;&quot;$(LOG4CPLUS_LIB)&quot;;&quot;$(LOG4CXX_LIB)&quot;;&quot;$(OPENSSL_LIB)&quot;;&quot;$(PYTHON_LIB)&quot;;&quot;$(YAJL_LIB)&quot;;&quot;$(ZLIB_LIB)&quot;"
 	/>
 	<Tool
 		Name="VCLinkerTool"
@@ -18,7 +23,7 @@
 	/>
 	<UserMacro
 		Name="BOOST_LIB"
-		Value="C:\boost-1.42.0\lib"
+		Value="C:\boost-1.42.0\lib\x64"
 	/>
 	<UserMacro
 		Name="BZIP2_INC"
@@ -29,20 +34,12 @@
 		Value="C:\bzip2-1.0.5\lib"
 	/>
 	<UserMacro
-		Name="BZIP2_BIN"
-		Value="C:\bzip2-1.0.5\bin"
-	/>
-	<UserMacro
 		Name="ICONV_INC"
 		Value="C:\iconv-1.9.2\include"
 	/>
 	<UserMacro
 		Name="ICONV_LIB"
-		Value="C:\iconv-1.9.2\lib"
-	/>
-	<UserMacro
-		Name="ICONV_BIN"
-		Value="C:\iconv-1.9.2\bin"
+		Value="C:\iconv-1.9.2\lib\x64"
 	/>
 	<UserMacro
 		Name="ICU_INC"
@@ -50,11 +47,7 @@
 	/>
 	<UserMacro
 		Name="ICU_LIB"
-		Value="C:\icu-3.6\lib"
-	/>
-	<UserMacro
-		Name="ICU_BIN"
-		Value="C:\icu-3.6\bin"
+		Value="C:\icu-3.6\x64\lib"
 	/>
 	<UserMacro
 		Name="LIBXML_INC"
@@ -62,11 +55,7 @@
 	/>
 	<UserMacro
 		Name="LIBXML_LIB"
-		Value="C:\libxml2-2.6.30\lib"
-	/>
-	<UserMacro
-		Name="LIBXML_BIN"
-		Value="C:\libxml2-2.6.30\bin"
+		Value="C:\libxml2-2.6.30\lib\x64"
 	/>
 	<UserMacro
 		Name="LOG4CPLUS_INC"
@@ -74,7 +63,7 @@
 	/>
 	<UserMacro
 		Name="LOG4CPLUS_LIB"
-		Value="C:\log4cplus-1.0.3\bin"
+		Value="C:\log4cplus-1.0.3\bin\x64"
 	/>
 	<UserMacro
 		Name="LOG4CXX_INC"
@@ -86,11 +75,11 @@
 	/>
 	<UserMacro
 		Name="OPENSSL_INC"
-		Value="C:\openssl-0.9.8l\inc32"
+		Value="C:\openssl-0.9.8l\inc64"
 	/>
 	<UserMacro
 		Name="OPENSSL_LIB"
-		Value="C:\openssl-0.9.8l\bin"
+		Value="C:\openssl-0.9.8l\lib\x64"
 	/>
 	<UserMacro
 		Name="PYTHON_INC"
@@ -114,14 +103,6 @@
 	/>
 	<UserMacro
 		Name="ZLIB_LIB"
-		Value="C:\zlib-1.2.3\lib"
-	/>
-	<UserMacro
-		Name="ZLIB_BIN"
-		Value="C:\zlib-1.2.3\bin"
-	/>
-	<UserMacro
-		Name="PION_PATH"
-		Value="$(BOOST_LIB);$(BZIP2_BIN);$(ICONV_BIN);$(ICU_BIN);$(LIBXML_BIN);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_BIN);%PATH%"
+		Value="C:\zlib-1.2.3\lib\x64"
 	/>
 </VisualStudioPropertySheet>

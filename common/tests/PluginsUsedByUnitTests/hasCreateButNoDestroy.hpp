@@ -10,11 +10,12 @@
 #ifndef __PION_HAS_CREATE_BUT_NO_DESTROY_HEADER__
 #define __PION_HAS_CREATE_BUT_NO_DESTROY_HEADER__
 
+#include "InterfaceStub.hpp"
 
 ///
 /// This class has a corresponding create function (pion_create_hasCreateButNoDestroy) but no corresponding destroy function.
 /// 
-class hasCreateButNoDestroy
+class hasCreateButNoDestroy : public InterfaceStub
 {
 public:
 	hasCreateButNoDestroy(void) {}
