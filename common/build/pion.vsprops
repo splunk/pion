@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="pion"
+	OutputDirectory="$(SolutionDir)bin\$(ConfigurationName)_$(PlatformName)"
+	IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(PION_COMMON_HOME)\include&quot;"
+		PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500;WIN32_LEAN_AND_MEAN"
+		MinimalRebuild="true"
+		UsePrecompiledHeader="0"
+		WarningLevel="3"
+		Detect64BitPortabilityProblems="true"
+		DisableSpecificWarnings="4267;4311;4312;4250;4251;4275;4503"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		SubSystem="2"
+		TargetMachine="1"
+	/>
+</VisualStudioPropertySheet>

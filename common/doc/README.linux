@@ -1,0 +1,206 @@
+Linux Build Instructions
+========================
+
+The Easy Way:
+-------------
+
+Atomic Labs has a tarball available from the "Third Party Libraries" page
+on our website that contains all of the required libraries to build Pion
+for certain versions of Redhat Linux.  To get started quickly, just download
+and uncompress this file into your /usr/local/ directory, and you should be
+able to skip down to the last step!
+
+
+Installing ICU:
+---------------
+
+Boost requires the ICU library for i18n support.  This library is normally
+pre-installed on Linux.  If you do not have it already, you should be able
+to grab the latest version using your favorite package manager:
+
+# yum install libicu libicu-devel
+# up2date libicu libicu-devel
+
+
+Installing Boost:
+-----------------
+
+Please see the README.boost file for instructions.
+
+If you have an older version of Boost (pre-1.35) already installed, you will
+likely will need to first uninstall it so that gcc and libtool do not get
+confused:
+
+# rpm -e boost boost-devel
+
+If you're using RHEL/CentOS 4 (or earlier), please note that Boost 1.37.0 does
+not seem to work with gcc 3.x.  You should use gcc4 instead:
+
+# yum install gcc4 gcc4-c++
+
+Before running "make" to build the Boost libraries, edit the
+tools/build/v2/user-config.jam file and change this:
+
+using gcc ;
+
+to this:
+
+using gcc : : g++4 ;
+
+
+Installing zlib, bzlib & openssl:
+---------------------------------
+
+Pion requires zlib, bzlib and openssl for compression and SSL/TLS encryption
+support, respectively.  These libraries are normally pre-installed on 
+Linux. If you do not have them already, you should be able to use your 
+favorite package manager (yum, up2date or aptget) to install the latest 
+versions:
+
+# yum install openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
+# up2date openssl openssl-devel zlib zlib-devel bzip2 bzip2-devel bzip2-libs
+
+
+Installing log4cplus:
+---------------------
+
+Note that the use of a logging framework is entirely optional, so you may
+skip this step if you like.
+
+We recommend that you use log4cplus for logging.  Please visit the
+"Third Party Libraries" page on our website to obtain the source code
+tarball for log4cplus.  Then, just run:
+
+# tar xvfj log4cplus-<version>.tar.bz2
+# cd log4cplus-<version>
+# ./configure --enable-threads=yes
+# make all
+# make install
+
+
+Installing libxml2:
+-------------------
+
+The Pion Platform requires the libxml2 development library for 
+manipulating configuration files, and other things.  This library is not 
+used by the Pion Network Library, so you may skip this step if you are 
+only building the Network Library.
+
+The libxml2 library is normally pre-installed on Linux.  If you do not 
+have it already, you should be able to grab the latest version using 
+your favorite package manager:
+
+# yum install libxml2 libxml2-devel
+# up2date libxml2 libxml2-devel
+
+
+Installing Python:
+------------------
+
+Pion's PythonReactor requires Python version 2.4 or greater.  You may skip this
+step if you do not want to build support for Python.
+
+Python 2.4 (or greater) is already pre-installed and should work out of the box
+on most Linux systems.  If you do not have it already, you should be able to
+grab the latest version using your favorite package manager:
+
+# yum install python python-devel
+# up2date python python-devel
+
+RHEL/CentOS 4 shipped with Python 2.3.  For this platform, we recommend that
+you download, build and install Python 2.6 into your /usr/local directories.
+You can download the source code from:
+
+http://www.python.org
+
+# tar xvfj Python-2.6.X.tar.bz2
+# cd Python-2.6.X
+# ./configure --with-threads
+# make all
+# make install
+
+When you run the "configure" script for Pion, add the "--with-python" option
+to use the new version installed in /usr/local/bin instead of the default one:
+
+# ./configure --with-python=/usr/local/bin/python
+
+
+Installing lxml:
+----------------
+
+Pion's pupgrade.py script requires that you have the lxml library installed.
+The easiest way to do this is using the easy_install utility:
+
+# yum install python-setuptools libxml2-devel libxslt-devel
+# easy_install lxml
+
+You can also obtain lxml RPMs from either the RPMforge or EPEL (Extra Packages
+for Enterprise Linux) repositories. We recommend that you use EPEL since it is
+more up-to-date. On EL5, you can use the following command to set up this
+repository:
+
+(32-bit)
+# rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+
+(64-bit)
+# rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
+
+You can then use yum to install the library with the following command:
+
+# yum install python-lxml
+
+
+Installing YAJL:
+----------------
+
+YAJL ("Yet Another JSON Library") is required to build support for the
+JSONCodec plugin.  You may skip this step if you do not want to build
+support for JSON.
+
+To build YAJL, you must first have Ruby and CMake installed on your system. 
+If you do not  have them already, you should be able to grab the latest
+versions using your favorite package manager:
+
+# yum install ruby cmake
+# up2date ruby cmake
+
+You can download the source code tarball for YAJL from the "Third Party
+Libraries" page on our website.  After downloading it, just run:
+
+# tar xvfz yajl-<version>.tgz
+# cd yajl-<version>
+# ./configure
+# make
+
+To install YAJL, we recommend that you just move the build files in the
+"build/yajl-<version>" subdirectory into /usr/local:
+
+# sudo mv build/yajl-<version>/lib/* /usr/local/lib
+# sudo mv build/yajl-<version>/include/yajl /usr/local/include
+
+
+Building and installing Pion:
+-----------------------------
+
+Now you should be able to build and install Pion:
+
+# tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
+# cd pion-<PROJECT>-<VERSION>
+# ./configure
+# make all
+# make install
+
+To build and run Pion's unit tests, run "make check"
+
+Note: if you're using RHEL/CentOS 4 with Boost 1.37.0 & gcc4, use:
+
+# CC="gcc4" CXX="g++4" ./configure ...
+
+
+Known Problems
+--------------
+
+The Pion executables may complain about loading shared libraries if the
+Boost and/or other libraries are not in your search path.  Try this:
+
+export LD_LIBRARY_PATH=/usr/local/lib
