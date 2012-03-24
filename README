@@ -1,0 +1,32 @@
+Pion Network Library: a C++ framework for building lightweight HTTP interfaces
+
+Copyright (C) 2007-2009 Atomic Labs, Inc.
+
+Home page:  http://www.pion.org
+
+The Pion Network Library is published under the Boost Software License.
+See COPYING for licensing information.
+
+Detailed build instructions are available for all of the platforms
+supported by Pion within the "common/doc" subdirectory (README.platform).
+Please read these instructions first.
+
+Build and installation summary:
+
+# ./autogen.sh  (only required if using subversion checkout)
+# ./configure   (run ./configure --help to see available options)
+# make all      (this will build everything except the unit tests)
+# make check	(this will build and run the unit tests)
+# make install	(this may require superuser/Administrator privileges)
+
+Pion REQUIRES the Boost C++ libraries (version 1.35.0 or greater). Please see
+the README.boost file within the "common/doc" subdirectory for instructions on
+how to download, build and install Boost.
+
+For logging, Pion may be configured to:
+
+a) use std::cout and std::cerr for logging (the default configuration)
+b) use one of the following open source libraries: log4cxx, log4cpp or
+   log4cplus (configure using one of --with-log4cxx, --with-log4cpp or
+   --with-log4cplus, respectively; also may be auto-detected)
+c) disable logging entirely (configure --disable-logging)

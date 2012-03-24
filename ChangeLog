@@ -1,0 +1,338 @@
+Version 4.0.3 (2011-04-14)
+==========================
+
+* Added support for new libraries and build environments (1105, 1106, 1107)
+
+
+Version 4.0.1 (2011-03-08)
+==========================
+
+* Added read() and write() methods to HTTPMessage for serialization (1086)
+* Improved error handling in HTTP(Request/Response)(Reader/Writer) (1083)
+
+
+Version 3.0.21 (2011-01-25)
+===========================
+
+* HTTP Parser - fixed various chunked content parsing errors (991)
+* HTTP Parser - now recovers gracefully if status line is missing comment (994)
+* HTTP Parser - handle "deflate" encoded content with zlib headers (1008)
+* HTTP Parser - ignore tab characters in query string content (1014)
+* HTTP Parser - allow for empty cookie names (1015)
+* HTTP Parser - don't remove unquoted spaces from cookie values (1016)
+* HTTP Parser - allow for responses with no HTTP headers (1017)
+* HTTP Parser - improve recovery from truncated requests (1033)
+* HTTP Parser - recover from empty query parameter names (1006)
+* HTTP Parser - raw headers strings were sometimes truncated (1031)
+* TCPTimer.cpp was missing boost/bind.hpp include file (1005)
+* TCPConnection - now allows for SSL state change (1024)
+* HTTPMessage - added headers_only options for send() and receive() (1025)
+
+
+Version 3.0.9 (2010-04-30)
+==========================
+
+* HTTPReader - add support for timeouts (900)
+
+
+Version 3.0.5 (2010-04-02)
+==========================
+
+* TCPConnection - add accessors for ssl socket object (901)
+
+
+Version 3.0.3 (2010-03-12)
+==========================
+
+* HTTPTypes::url_encode() crashes when input string has negative char (877)
+* TCPConnection::write() was not passing error_code by reference (878)
+
+
+Version 3.0.1 (2010-03-01)
+==========================
+
+* Added ability to dynamically remove resources from HTTPServers (834)
+* Added support to HTTPParser for saving the raw HTTP headers (842)
+* HTTPParser now uses a default status code of 0 instead of 200 (817)
+* Removed build numbers from Unix library names (861)
+
+
+Version 2.2.12 (2010-02-16)
+===========================
+
+* Made HTTP query parameter map case-insensitive (836)
+
+
+Version 2.2.10 (2010-01-20)
+===========================
+
+* HTTPParser will now ignore attributes from Set-Cookie HTTP headers (808)
+* Disabled default building of static libraries in Unix autoconf scripts (825)
+
+
+Version 2.2.8 (2009-12-04)
+==========================
+
+* HTTP client library not sending payload content that started with NULL (777)
+* Added support for newer Boost releases (through 1.41) and for gcc 4.4 (780)
+
+
+Version 2.2.2 (2009-10-09)
+==========================
+
+* HTTPParser query parameter parsing failed on LF & CR characters (681)
+* Improved autoconf detection for support of Boost.Lockfree library (692)
+* Improved error handling in PluginManager when loading fails (736)
+* Fixed "make install" on Unix platforms using autoconf (378)
+* Pion's unit tests now use random port numbers (690)
+
+
+Version 2.1.4 (2009-07-31)
+==========================
+
+* Switched default logging to use log4cplus 1.0.3 instead of log4cxx (274, 514)
+* Updated and merged in the latest version of the boost.lockfree library (647)
+* Added PionId class to replace dependency on the OSSP UUID library (515)
+* The Unix build scripts now auto-detect everything correctly (591)
+* Fixed copy methods for HTTPMessage, HTTPRequest & HTTPResponse (590)
+* Added setMaxContentLength() method to HTTPServer (589)
+
+
+Version 2.0.8 (2009-06-05)
+==========================
+* Fixed bug with "./configure --with-debug" failing on boost thread tests (598)
+
+
+Version 2.0.6 (2009-05-26)
+==========================
+* HTTPParser exception thrown when Content-Length had leading whitespace (585)
+* Miscellaneous improvements to Windows MSVC build projects (564)
+
+
+Version 1.2.4 (2009-03-27)
+==========================
+* Removed dependencies on sqlite since it is now embedded into platform (475)
+* HTTPParser dropping requests when TCP connection contained 304 responses (481)
+* Updated PionLockedQueue so that it now always keeps track of the size (469)
+
+
+Version 1.1.4 (2009-02-16)
+==========================
+* Build updated to Boost 1.36 & 1.37 (314, 270)
+* Updates to support and use the latest Boost.Lockfree library (408, 409)
+* Unit test cleanup and refactoring (416)
+
+
+Version 1.0.10 (2009-01-22)
+===========================
+* Added support and unit tests for maximum HTTP payload content sizes (399)
+* Updated HTTPParser to recover from missing packets and other errors (407)
+* TCPServer can now bind to privileged ports when running as setuid (522)
+* Fixed occasional crashes in pion-net unit tests on multi-core systems (528)
+
+
+Version 1.0.8 (2008-12-17)
+==========================
+* Various improvements to how docs are built/cleaned (379)
+
+
+Version 1.0.6 (2008-11-20)
+==========================
+* Pruning orphaned connections (346)
+* Fixing auto generated INSTALL file (347)
+* Autoconf fixes (347)
+
+
+Version 1.0.4 (2008-10-16)
+==========================
+* Cookie collection now case sensitive (500)
+* Added unit test and fixed bug when parsing query strings with "&&" (333)
+* Added HEADER_X_FORWARDED_FOR to HTTPTypes (318)
+* Added TCPConnection::connect() function that performs dns lookups (318)
+
+
+Version 1.0.0 (2008-09-12)
+==========================
+
+* QueryService added, then removed, and placed into pion::platform
+* Update clear() function to clear all members()
+* Added test to see if base64 routines handle binary data in strings properly
+
+
+Version 0.6.0 (2008-08-29)
+==========================
+
+* Fixed bug with the --disable-logging configure option breaking build (254)
+* Updated HTTPParser::parseCookieHeader() to be usable for char[] as well
+* Only HTML documentation is now build with Doxygen when using "make docs"
+
+
+Version 0.5.8 (2008-07-18)
+==========================
+
+* Simplified HTTPParser class and eliminated some redundant code (240)
+* HTTPTypes::url_encoded() was not properly encoding space characters (239)
+* HTTPParser was not extracting POST query when charset is specified (243)
+* Unable to compile HTTPAuth code with log4cplus support (249)
+* TCPStream unit tests were occasionally failing (206)
+* Added --with-boost-extension option to Unix configure script (217)
+* Misc updates to get things building on gcc 4.2 and gcc 4.3 (241)
+
+
+Version 0.5.6 (2008-05-02)
+==========================
+
+* Added support for user authentication using cookies and HTTP Basic-Auth
+* Added support to HTTPServer to redirect/rewrite HTTP requests internally
+* Updated HTTPRequest to track the original resource requested when redirected
+* Refactored PionScheduler so that two scheduling policies are now provided
+* Added PionLockedQueue and PionLockFreeQueue based on Michael & Scott's work
+* Added "make docs" Unix build option that uses Doxygen to build all the docs
+* Unix build scripts now support dynamic versions of the Boost.UnitTest libs
+* Boost 1.35.0 or later is now REQUIRED (it includes ASIO); see README.boost
+
+
+Version 0.5.4 (2008-03-07)
+==========================
+
+* HTTPMessage header names now use case-insensitive comparisons (#79)
+* Fixed parsing errors when chunked content included extra whitespace (#73)
+* Fixed HTTP parsing errors when there was no "Content-Length" header (#78)
+* Fixed a bug that caused HTTPServer to not find resources correctly (#85)
+* HTTPServer now lets you bind any function object to resources (#69)
+* Moved plugins functionality from HTTPServer into a new WebServer class (#69)
+* PionScheduler is no longer a singleton; now is a member of TCPServer (#86)
+* PionScheduler can now be extended to provide alternative algorithms (#86)
+* Added TCPStream: a std::basic_iostream wrapper around TCPConnection
+* Added getRemotePort() and getRemoteEndpoint() members to TCPConnection
+* Web service plugins are now functions objects; no more handleRequest()
+* Moved web service plugins into the pion::plugins namespace
+
+
+Version 0.5.2 (2007-12-17)
+==========================
+
+* Added support for parsing chunked HTTP requests and responses (#37)
+* Refactored PluginManager out of HTTPServer service management code (#62)
+
+
+Version 0.4.2 (2007-12-14)
+==========================
+
+* OpenSSL functionality is now enabled for MSVC
+* PionCounter is now a thread-safe 64-bit integer counter
+* PionScheduler now uses boost::detail::atomic_count instead of PionCounter
+* Added unit tests and fixed some bugs related to sending chunked responses
+* Boost 1.34.1 and ASIO 0.3.9 are now REQUIRED; see README.boost
+
+
+Version 0.4.0 (2007-11-08)
+==========================
+
+* Added support to send HTTP requests and parse responses; lots of refactoring
+* Added unit tests! Integrated into MSVC, or use "make check" for Unixes
+* The log4cxx library can now be used to build with MSVC (see README.msvc)
+* PionNetEngine singleton was removed; servers are now used independently
+* Added "writable" FileService option that lets you add, change & delete files
+* Servers can now be bound to any endpoints that are supported by ASIO
+* Added new PionCounter and PionScheduler classes to the Common Library
+* The WebService::handleRequest() function now returns void instead of bool
+* Renamed PionServerTest to PionHelloServer & PionServiceTest to PionWebServer
+* Improved performance and flexibility of Boost library detection in autoconf
+* Logging via std::ostream is now the default (see --disable-logging)
+* Logging via std::ostream now uses a globally-shared priority level
+* MSVC projects were failing to build if there were spaces in the path
+* Fixed various crashes that mainly occurred during shutdown in Windows
+* Boost 1.34.1 and ASIO 0.3.8 are now REQUIRED; see README.boost
+
+
+Version 0.3.4 (2007-10-12)
+==========================
+
+* Renamed "libpion" to "Pion Network Library" (or "pion-net" for short)
+* Rearranged directories & files to separate out the "Pion Common Library"
+* Added support to HTTPResponse for sending chunked responses
+* Added new options to FileService: max_cache_size and max_chunk_size
+* Updated log4cxx support so that it works with both 0.9.7 and 0.10.x
+
+
+Version 0.3.2 (2007-09-14)
+==========================
+
+* Added support for MSVC compiler (see builds/VC/libpion.vcproj file)
+* Added support for HTTP/1.1 pipelining (multiple requests in single packet)
+* Added support for linking static HTTP module libraries into programs
+* Added accessor functions for client IP address in HTTPRequest/TCPConnection
+* Moved more I/O logic into TCPConnection to cleanup SSL checks
+* Changed start() to startup() and stop() to shutdown() in PionEngine
+
+
+Version 0.2.4 (2007-09-05)
+==========================
+
+* Fixed a bug in HTTPServer that caused it to not find some modules correctly   
+* Removed writeNoCopy(const T& data) function since only strings make sense
+* Updated cookie parser to ignore garbage after quoted values
+* Updated build scripts so that they find Boost libs build with GCC 4.1
+* Updated cygwin patches for Boost 1.34.1
+
+
+Version 0.2.2 (2007-06-26)
+==========================
+
+* Accept errors caused servers to stop listening for new connections
+
+
+Version 0.2.0 (2007-06-19)
+==========================
+
+* Boost 1.34.0 and ASIO 0.3.8 are now REQUIRED; see README.boost
+* Lots of platform testing and better platform-specific documentation
+* Added support to FileModule for the "cache" and "scan" options
+* Added Last-Modified HTTP header to FileModule and support for client cache
+* Changed HTTPServer error handlers to use functions rather than modules
+* Re-worked PionPlugin library so that it handles reference counting internally
+* Added start() and stop() virtual functions to HTTPModule
+* Added beforeStarting() and afterStopping() virtual functions to TCPServer
+* Added PionHashMap.hpp for setting-up unordered map types
+* Added work-around for bug that causes Windows to crash @ shutdown
+
+
+Version 0.1.6 (2007-06-01)
+==========================
+
+* Added support for HTTP module configuration files (see testmodules.conf)
+* Added support for parsing & setting cookies (Version 1, RFC 2109)
+* Added a CookieModule that displays and lets you add/delete cookies
+* Added LogModule that displays events when an external log library is used
+* Added support to FileModule for cygwin paths and "file" option
+* Added support for SSL/TLS using OpenSSL (must use --with-openssl)
+* Plug-ins now use pion_create_PLUGINNAME and pion_destroy_PLUGINNAME
+* Fixed bugs related to the parsing of request (POST) content
+
+
+Version 0.1.4 (2007-05-25)
+==========================
+
+* Fixed miscellaneous bugs with the HTTPResponse class
+* Added support for parsing POST content, and GET and POST query parameters
+* Added support for passing configuration options to HTTP modules
+* Added EchoModule and FileModule, and stubs for LogModule
+* Added support for HTTP modules to be dynamically-loadable libraries
+* Added support for pkg-config (http://pkg-config.freedesktop.org/wiki/)
+* Moved around some of the source directories & renamed test programs
+* Added build support & documentation for FreeBSD, Solaris and Windows
+* Added Xcode project file for Mac OS X (you must still use "configure")
+
+
+Version 0.1.2 (2007-05-01)
+==========================
+
+* Added support for log4cplus, log4cpp and std::ostream logging
+* Added more detailed build information for Linux and Mac OS X
+
+
+Version 0.1.0 (2007-04-30)
+==========================
+
+* First alpha release with very basic functionality

@@ -1,0 +1,4 @@
+This directory is for reserved for documentation specific to the Pion 
+Network Library.  For general Pion documentation, please see the 
+documentation directory for the Pion Common Library, located in:
+<PROJECT_ROOT>/common/doc/.
