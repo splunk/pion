@@ -37,11 +37,11 @@ if test -r "$pion_location/pion-platform.pc"; then
 				PION_CPPFLAGS="-I$pion_location/common/include \
 					-I$pion_location/net/include -I$pion_location/platform/include \
 					-I$pion_location/platform/server -I$pion_location/sqlite"
-				PION_LIBS="$pion_location/common/src/libpion-common.la \
+				PION_LIBS="$pion_location/platform/src/libpion-platform.la \
 					$pion_location/net/src/libpion-net.la \
-					$pion_location/platform/src/libpion-platform.la"
+					$pion_location/common/src/libpion-common.la \
+					$pion_location/sqlite/libpion-sqlite.la"
 				PION_SERVER_LIB="$pion_location/platform/server/libpion-server.la"
-				PION_SQLITE_LIB="$pion_location/sqlite/libpion-sqlite.la"
 			fi
 		fi
 	fi
@@ -58,11 +58,11 @@ if test "x$found_pion_source" == "x"; then
 						# Found installation directory
 						AC_MSG_RESULT(found install in $pion_location)
 						found_pion_install="true"
-						PION_LIBS="$pion_location/lib/libpion-common.la \
+						PION_LIBS="$pion_location/lib/libpion-platform.la \
 							$pion_location/lib/libpion-net.la \
-							$pion_location/lib/libpion-platform.la"
+							$pion_location/lib/libpion-common.la \
+							$pion_location/lib/libpion-sqlite.la"
 						PION_SERVER_LIB="$pion_location/lib/libpion-server.la"
-						PION_SQLITE_LIB="$pion_location/lib/libpion-sqlite.la"
 					fi
 				fi
 			fi
@@ -81,12 +81,49 @@ PION_CPPFLAGS="$PION_CPPFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --cflag
 PION_LDFLAGS="$PION_LDFLAGS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-L pion-platform`"
 PION_LDLIBS="$PION_LDLIBS `PKG_CONFIG_PATH=$pion_location pkg-config --libs-only-l pion-platform`"
 
+
+# Initialize PION_STATIC_LIBS
+PION_STATIC_LIBS=""
+
+# Use direct references to the Pion library archives
+for lib in $PION_LIBS
+do
+	pionlib=`echo $lib | sed 's;\([[^ ]]*\)/\([[^/]]*\).la;\1/.libs/\2.a;'`
+	PION_STATIC_LIBS="$PION_STATIC_LIBS $pionlib"
+done
+PION_STATIC_SERVER_LIB=`echo $PION_SERVER_LIB | sed 's;\([[^ ]]*\)/\([[^/]]*\).la;\1/.libs/\2.a;'`
+
+# Find static versions of Pion library dependencies
+temp_libs=`pion_make_static "$PION_LDLIBS"`
+PION_STATIC_LIBS="$PION_STATIC_LIBS $temp_libs"
+
+# Check if static linking OpenSSL requires extra Kerberos libs
+# ... this is a really nasty hack for dependency hell on RHEL5 ...
+AC_MSG_CHECKING(if OpenSSL requires Kerberos)
+LIBS_SAVED="$LIBS"
+LIBS="$LIBS_SAVED $PION_STATIC_LIBS $PION_DLOPEN_LIBS"
+AC_TRY_LINK([#include <openssl/ssl.h>],
+        [
+        SSL_library_init();
+        OpenSSL_add_all_algorithms();
+        OpenSSL_add_all_ciphers();
+        OpenSSL_add_all_digests();
+        ],
+        [ AC_MSG_RESULT(no)
+        ],
+        [ AC_MSG_RESULT(yes)
+          temp_libs=`pion_make_static "-lkrb5 -lk5crypto -lgssapi_krb5 -lkrb5support -lcom_err -lselinux -lsepol -lresolv -lkeyutils"`
+          PION_STATIC_LIBS="$PION_STATIC_LIBS $temp_libs"
+        ])
+LIBS="$LIBS_SAVED"
+
 # Substitute variables in Makefiles
 AC_SUBST(PION_CPPFLAGS)
 AC_SUBST(PION_LDFLAGS)
 AC_SUBST(PION_LDLIBS)
+AC_SUBST(PION_STATIC_LIBS)
+AC_SUBST(PION_STATIC_SERVER_LIB)
 AC_SUBST(PION_LIBS)
 AC_SUBST(PION_SERVER_LIB)
-AC_SUBST(PION_SQLITE_LIB)
 AC_SUBST(PION_PLATFORM_PATH)
 

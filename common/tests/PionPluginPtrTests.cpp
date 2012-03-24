@@ -1,11 +1,13 @@
 // -----------------------------------------------------------------------
 // pion-common: a collection of common libraries used by the Pion Platform
 // -----------------------------------------------------------------------
-// Copyright (C) 2007-2008 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// Copyright (C) 2007-2011 Atomic Labs, Inc.  (http://www.atomiclabs.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
 //
+
+#ifndef PION_STATIC_LINKING
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -14,6 +16,7 @@
 #include <pion/PionPlugin.hpp>
 #include <pion/PionUnitTestDefs.hpp>
 #include <boost/test/unit_test.hpp>
+#include "PluginsUsedByUnitTests/InterfaceStub.hpp"
 
 using namespace pion;
 
@@ -29,9 +32,6 @@ using namespace pion;
 	#endif
 	static const std::string sharedLibExt = ".so";
 #endif
-
-class InterfaceStub {
-};
 
 class EmptyPluginPtr_F : public PionPluginPtr<InterfaceStub> {
 public:
@@ -72,7 +72,27 @@ BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
 	BOOST_CHECK_EQUAL(getPluginName(), "");
 }
 
-#ifndef PION_STATIC_LINKING
+BOOST_AUTO_TEST_CASE(checkPluginInstancePtrCreate) {
+	PionPluginInstancePtr<InterfaceStub> m_instance_ptr;
+	BOOST_CHECK(m_instance_ptr.empty());
+	BOOST_CHECK(m_instance_ptr.get() == NULL);
+	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
+	BOOST_CHECK_NO_THROW(m_instance_ptr.create("hasCreateAndDestroy"));
+	BOOST_CHECK(! m_instance_ptr.empty());
+	BOOST_CHECK(m_instance_ptr.get() != NULL);
+}
+
+BOOST_AUTO_TEST_CASE(checkPluginInstancePtrDereferencing) {
+	PionPluginInstancePtr<InterfaceStub> m_instance_ptr;
+	BOOST_CHECK_NO_THROW(m_instance_ptr.create("hasCreateAndDestroy"));
+	const PionPluginInstancePtr<InterfaceStub>& const_ref = m_instance_ptr;
+	InterfaceStub &a = *m_instance_ptr;
+	const InterfaceStub &b = *const_ref;
+	a.method();
+	b.const_method();
+	m_instance_ptr->method();
+	const_ref->const_method();
+}
 
 BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonPluginDll) {
 	BOOST_REQUIRE(boost::filesystem::exists("hasNoCreate" + sharedLibExt));
@@ -93,8 +113,6 @@ BOOST_AUTO_TEST_CASE(checkOpenFileDoesntThrowExceptionForValidPlugin) {
 	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
 	BOOST_CHECK_NO_THROW(openFile("hasCreateAndDestroy" + sharedLibExt));
 }
-
-#endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -173,16 +191,13 @@ BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
 	BOOST_CHECK_EQUAL(m_pluginPtr.getPluginName(), "");
 }
 
-#ifndef PION_STATIC_LINKING
 BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
 	BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
 	BOOST_CHECK_NO_THROW(m_pluginPtr.open("hasCreateAndDestroy"));
 }
-#endif // PION_STATIC_LINKING
 
 BOOST_AUTO_TEST_SUITE_END()
 
-#ifndef PION_STATIC_LINKING
 
 struct PluginPtrWithPluginLoaded_F : EmptyPluginPtr_F {
 	PluginPtrWithPluginLoaded_F() { 
@@ -218,7 +233,6 @@ BOOST_AUTO_TEST_CASE(checkDestroyDoesntThrowExceptionAfterCreate) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-#endif // PION_STATIC_LINKING
 
 #ifdef PION_WIN32
 	static const std::string fakePluginInSandboxWithExt = "sandbox\\fakePlugin.dll";
@@ -243,7 +257,7 @@ public:
 		m_path_to_file = "arbitraryString";
 	}
 	~Sandbox_F() {
-		CHANGE_DIRECTORY(m_cwd.c_str());
+		BOOST_REQUIRE(CHANGE_DIRECTORY(m_cwd.c_str()) == 0);
 		boost::filesystem::remove_all("sandbox");
 	}
 	std::string m_path_to_file;
@@ -367,3 +381,5 @@ BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsFalseForPluginOnSearchPathAfterRe
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+#endif // PION_STATIC_LINKING

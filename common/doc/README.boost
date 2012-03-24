@@ -66,15 +66,15 @@ For example (when using Microsoft Visual C++ with Boost 1.43 or earlier):
 # bjam --toolset=msvc -sHAVE_ICU=1 \
 	--with-thread --with-system --with-filesystem --with-regex \
 	--with-date_time --with-signals --with-iostreams --with-test \
-	release threading=multi link=shared stage
+	release threading=multi stage
 
 For example (when using gcc with Boost 1.44 or later and 4 processes):
 
-# bjam --toolset=gcc -j4 release threading=multi link=shared stage
+# bjam --toolset=gcc -j4 release threading=multi stage
 
 For example (when using gcc on OSX with Boost 1.44 and later) for OSX is:
 
-# bjam -sICU_PATH=/usr/local --toolset=darwin release threading=multi link=shared stage
+# bjam -sICU_PATH=/usr/local --toolset=darwin release threading=multi stage
 
 This will build the libraries required by Pion and place the files within
 the stage/ subdirectory of your build directory.

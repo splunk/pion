@@ -88,7 +88,7 @@ if ($EDITION eq "core") {
 } else {
 	$spec_license = "commercial";
 	$config_file_glob = "*.{xml,txt,pem}";
-	$install_perl_scripts = "install -m 660 $BIN_SRC_BASE/config/*.pl \$RPM_BUILD_ROOT/var/lib/pion";
+	$install_perl_scripts = "install -m 660 $BIN_SRC_DIR/config/*.pl \$RPM_BUILD_ROOT/var/lib/pion";
 	$extra_config_files = "\%config /etc/pion/SearchEngines.xml\n\%config(noreplace) /etc/pion/ReplayQueries.xml\n\%config(noreplace) /etc/pion/robots.xml";
 }
 $SPEC_POST="/sbin/ldconfig";
@@ -150,21 +150,21 @@ mkdir -p \$RPM_BUILD_ROOT/usr/share/pion/ui
 mkdir -p \$RPM_BUILD_ROOT/usr/share/pion/plugins
 mkdir -p \$RPM_BUILD_ROOT/usr/share/doc/$PACKAGE_BASE-$VERSION
 
-install -m 660 $BIN_SRC_BASE/config/$config_file_glob \$RPM_BUILD_ROOT/etc/pion
+install -m 660 $BIN_SRC_DIR/config/$config_file_glob \$RPM_BUILD_ROOT/etc/pion
 $install_perl_scripts
-install -m 660 $BIN_SRC_BASE/config/vocabularies/*.xml \$RPM_BUILD_ROOT/etc/pion/vocabularies
-install -m 660 $BIN_SRC_BASE/config/pymodules/*.py \$RPM_BUILD_ROOT/etc/pion/pymodules
-install -m 775 $BIN_SRC_BASE/pion.service \$RPM_BUILD_ROOT/etc/rc.d/init.d/pion
-$INSTALL_BIN $BIN_SRC_BASE/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins
-$INSTALL_BIN $BIN_SRC_BASE/libs/* \$RPM_BUILD_ROOT/usr/lib
-$INSTALL_BIN $BIN_SRC_BASE/pion \$RPM_BUILD_ROOT/usr/bin/pion
-$INSTALL_BIN $BIN_SRC_BASE/piondb \$RPM_BUILD_ROOT/usr/bin/piondb
-install $BIN_SRC_BASE/pget.py \$RPM_BUILD_ROOT/usr/bin/pget.py
-install $BIN_SRC_BASE/pmon.py \$RPM_BUILD_ROOT/usr/bin/pmon.py
-install $BIN_SRC_BASE/pupgrade.py \$RPM_BUILD_ROOT/usr/bin/pupgrade.py
-install $BIN_SRC_BASE/httpbl.py \$RPM_BUILD_ROOT/usr/bin/httpbl.py
-cp -r $BIN_SRC_BASE/ui/* \$RPM_BUILD_ROOT/usr/share/pion/ui
-
+install -m 660 $BIN_SRC_DIR/config/vocabularies/*.xml \$RPM_BUILD_ROOT/etc/pion/vocabularies
+install -m 660 $BIN_SRC_DIR/config/pymodules/*.py \$RPM_BUILD_ROOT/etc/pion/pymodules
+install -m 775 $BIN_SRC_DIR/pion.service \$RPM_BUILD_ROOT/etc/rc.d/init.d/pion
+$INSTALL_BIN $BIN_SRC_DIR/plugins/* \$RPM_BUILD_ROOT/usr/share/pion/plugins
+$INSTALL_BIN $BIN_SRC_DIR/libs/* \$RPM_BUILD_ROOT/usr/lib
+$INSTALL_BIN $BIN_SRC_DIR/pion \$RPM_BUILD_ROOT/usr/bin/pion
+$INSTALL_BIN $BIN_SRC_DIR/piondb \$RPM_BUILD_ROOT/usr/bin/piondb
+install $BIN_SRC_DIR/pget.py \$RPM_BUILD_ROOT/usr/bin/pget.py
+install $BIN_SRC_DIR/pmon.py \$RPM_BUILD_ROOT/usr/bin/pmon.py
+install $BIN_SRC_DIR/pupgrade.py \$RPM_BUILD_ROOT/usr/bin/pupgrade.py
+install $BIN_SRC_DIR/httpbl.py \$RPM_BUILD_ROOT/usr/bin/httpbl.py
+cp -r $BIN_SRC_DIR/ui/* \$RPM_BUILD_ROOT/usr/share/pion/ui
+cp $BIN_SRC_DIR/*.txt $BIN_SRC_DIR/*.pdf \$RPM_BUILD_DIR
 
 \%clean
 rm -rf \$RPM_BUILD_ROOT
@@ -196,7 +196,12 @@ $extra_config_files
 \%dir /var/log/pion
 
 \%defattr(-,root,root)
-\%doc $BIN_SRC_BASE/HISTORY.txt $BIN_SRC_BASE/LICENSE.txt $BIN_SRC_BASE/README.txt $BIN_SRC_BASE/pion-overview.pdf $BIN_SRC_BASE/pion-replay-guide.pdf $BIN_SRC_BASE/pion-setup-wizard.pdf
+\%doc HISTORY.txt
+\%doc LICENSE.txt
+\%doc README.txt
+\%doc pion-overview.pdf
+\%doc pion-replay-guide.pdf
+\%doc pion-setup-wizard.pdf
 
 \%defattr(755,root,root)
 /usr/bin/pion
