@@ -183,7 +183,9 @@ public:
 	WebServerTests_F() : m_scheduler(), m_server(m_scheduler) {
 		// initialize the list of directories in which to look for plug-ins
 		PionPlugin::resetPluginDirectories();
+#ifndef PION_STATIC_LINKING
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+#endif
 	}
 	~WebServerTests_F() {
 		m_server.stop();

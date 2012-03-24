@@ -10,8 +10,8 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <pion/PionProcess.hpp>
 #include <pion/net/TCPServer.hpp>
-#include "ShutdownManager.hpp"
 
 using namespace std;
 using namespace pion;
@@ -49,12 +49,8 @@ int main (int argc, char *argv[])
 		return 1;
 	}
 
-	// setup signal handler
-#ifdef PION_WIN32
-	SetConsoleCtrlHandler(console_ctrl_handler, TRUE);
-#else
-	signal(SIGINT, handle_signal);
-#endif
+	// initialize signal handlers, etc.
+	PionProcess::initialize();
 
 	// initialize log system (use simple configuration)
 	PionLogger main_log(PION_GET_LOGGER("PionHelloServer"));
@@ -68,7 +64,7 @@ int main (int argc, char *argv[])
 		// create a new server to handle the Hello TCP protocol
 		TCPServerPtr hello_server(new HelloServer(port));
 		hello_server->start();
-		main_shutdown_manager.wait();
+		PionProcess::wait_for_shutdown();
 
 	} catch (std::exception& e) {
 		PION_LOG_FATAL(main_log, e.what());

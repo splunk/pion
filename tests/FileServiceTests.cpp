@@ -39,12 +39,12 @@ PION_DECLARE_PLUGIN(FileService)
 #endif
 
 
-#ifndef PION_STATIC_LINKING
-
 struct PluginPtrWithPluginLoaded_F : public PionPluginPtr<WebService> {
 	PluginPtrWithPluginLoaded_F() { 
 		PionPlugin::resetPluginDirectories();
+#ifndef PION_STATIC_LINKING
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+#endif
 		s = NULL;
 		open("FileService");
 	}
@@ -77,13 +77,14 @@ BOOST_AUTO_TEST_CASE(checkDestroyDoesntThrowExceptionAfterCreate) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-#endif // PION_STATIC_LINKING
 
 class NewlyLoadedFileService_F {
 public:
 	NewlyLoadedFileService_F() : m_scheduler(), m_server(m_scheduler) {
 		PionPlugin::resetPluginDirectories();
+#ifndef PION_STATIC_LINKING
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+#endif
 
 		boost::filesystem::remove_all("sandbox");
 		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox"));
