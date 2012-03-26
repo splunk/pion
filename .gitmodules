@@ -1,3 +1,0 @@
-[submodule "common"]
-	path = common
-	url = git://github.com/atomiclabs/pion-common.git
