@@ -1,0 +1,261 @@
+Microsoft Visual C++ Build Instructions
+=======================================
+
+The Easy Way:
+-------------
+
+Atomic Labs has a zip file available from the "Third Party Libraries" page
+on our website that contains all of the required libraries to build Pion
+for MSVC 2008.  To get started quickly, just download and uncompress this file
+into your C:\ directory, and you should be able to skip most of the following
+instructions (however, Path updates are still required).
+
+
+Building Boost:
+---------------
+
+First, download and unzip the Boost 1.42.0 source code from:
+
+http://sourceforge.net/projects/boost/files/boost/1.42.0
+
+We recommend that you use the bjam tool to build Boost for MSVC.  You can
+download the latest bjam executable from:
+
+http://sourceforge.net/projects/boost/files/boost-jam
+
+(Click on boost-jam-3.1.18-1-ntx86.zip, or similar)
+
+Copy the included "bjam" executable into your C:\Windows\System32 directory.
+
+Open the Visual Studio 2008 Command Prompt, change to the Boost source code
+directory, and type:
+
+bjam --toolset=msvc debug release threading=multi stage
+
+Or, if you wish to build only the libraries required by Pion (this saves a
+little time and disk space but not a whole lot):
+
+bjam --toolset=msvc --with-thread --with-system --with-filesystem \
+	--with-regex --with-date_time --with-unit_test_framework \
+	--with-signals debug release threading=multi stage
+
+Boost.Iostreams is also required, but must be compiled separately for
+Windows; see Building Boost.Iostreams below.
+
+We recommend that you create a C:\boost-1.42.0 directory with C:\boost-1.42.0\lib and
+C:\boost-1.42.0\boost subdirectories.  To install boost-1.42.0 into these
+directories, just copy the files in stage\lib into C:\boost-1.42.0\lib, and
+copy the entire boost directory (which contains all the header files) into C:\boost-1.42.0\boost.
+
+Finally, add C:\boost-1.42.0\lib to your Path.
+
+
+Building Boost.Iostreams:
+-------------------------
+
+Boost.Iostreams is built by default without compression/decompression 
+support on Windows (since zlib and bzip2 aren't installed as part of 
+Windows.)  Since Pion uses boost::iostreams::gzip_decompressor and 
+boost::iostreams::bzip2_decompressor, zlib and bzip2 must be installed
+(see instructions later in this document) and Boost.Iostreams must be
+rebuilt: open a command prompt in ...\boost_1_42_0\libs\iostreams\build,
+and run the following command (changing the paths if you installed zlib 
+and/or bzip2 elsewhere.)
+
+bjam debug release -sZLIB_BINARY=zdll -sZLIB_INCLUDE=C:/zlib-1.2.3/include \
+	-sZLIB_LIBPATH=C:/zlib-1.2.3/lib -sBZIP2_BINARY=bzip2 \
+	-sBZIP2_INCLUDE=C:/bzip2-1.0.5/include -sBZIP2_LIBPATH=C:/bzip2-1.0.5/lib
+
+Then copy boost_iostreams-vc90-mt-gd-1_42.{dll|lib} and 
+boost_iostreams-vc90-mt-1_42.{dll|lib} from 
+...\boost_1_42_0\bin.v2\libs\iostreams\build to C:\Boost\Lib.
+
+
+Building Boost.Regex:
+-------------------------
+
+Boost.Regex is built by default without Unicode support via ICU.
+Since Pion uses boost::u32regex, ICU must be installed
+(see instructions later in this document) and Boost.Regex must be
+rebuilt: open a command prompt in ...\boost_1_42_0\libs\regex\build,
+and run the following command (changing the path if you installed ICU elsewhere.)
+
+bjam debug release -sICU_PATH=C:\icu-3.6
+
+Then copy boost_regex-vc90-mt-gd-1_42.{dll|lib} and boost_regex-vc90-mt-1_42.{dll|lib} 
+from ...\boost_1_42_0\bin.v2\libs\regex\build to C:\boost-1.42.0\lib.
+
+Documentation is available at the Boost website:
+http://www.boost.org/doc/libs/1_42_0/libs/regex/doc/html/boost_regex/install.html#boost_regex.install.building_with_unicode_and_icu_support
+
+
+Installing OpenSSL:
+-------------------
+
+ASIO requires OpenSSL for SSL/TLS encryption support.
+
+You can get Win 32 binaries for OpenSSL from:
+http://www.pion.org/files/openssl-0.9.8l-win32.zip
+Unzip directly into C: (or change OPENSSL_HOME accordingly.)
+The zip file includes both static (in /lib) and DLL (in /bin) versions of 
+ssleay32 and libeay32.  If you want to use the DLL versions, you will need to 
+add C:\openssl-0.9.8l\bin to your path (or otherwise include the DLLs).
+
+If you want to build them yourself, you can get the source tarball from:
+http://www.openssl.org/source/openssl-0.9.8l.tar.gz
+
+You can build the static or DLL versions of ssleay32 and libeay32 by using
+nt.mak or ntdll.mak, respectively, as explained in INSTALL.W32.
+Pion expects them to be in $(OPENSSL_HOME)\lib or $(OPENSSL_HOME)\bin,
+repectively, where OPENSSL_HOME is C:\openssl-0.9.8l unless you've changed it.
+
+Pion is currently set up to link to ssleay32d.lib and libeay32d.lib for the 
+debug configuration; the easiest way to get these files is from the above zip 
+file.  Note that if you try to use the release versions of ssleay32.lib and 
+libeay32.lib with a debug configuration of Pion, you will probably have 
+trouble running the unit tests, due to msvcr80.dll and msvcr80d.dll being 
+loaded at the same time.  (Yes, this is even true for the static versions.)
+
+
+Linking with OpenSSL:
+---------------------
+
+Macro OPENSSL_HOME in pion.vsprops is set to C:\openssl-0.9.8l.  If you 
+installed OpenSSL somewhere other than C:\openssl-0.9.8l, change OPENSSL_HOME 
+accordingly.  By default, Pion links with the DLL versions, which should be 
+in $(OPENSSL_HOME)\bin.  To link with the static versions, you will have to 
+change $(OPENSSL_HOME)\bin to $(OPENSSL_HOME)\lib in 
+common\build\Release_DLL_pion.vsprops, common\build\Debug_DLL_pion.vsprops 
+and platform\server\pion.vcproj.
+
+Include PION_HAVE_SSL or PION_FULL in Preprocessor Definitions for the project,
+or in PionConfig.hpp.win, uncomment '#define PION_HAVE_SSL'.  (The 
+Debug_DLL_full and Release_DLL_full configurations have PION_FULL defined.)
+
+
+Logging frameworks:
+-------------------
+
+Note that the use of a logging framework is entirely optional, so you
+may skip this step if you like.  If no logging option is defined, std::cout 
+and std::cerr will be used for logging.  To disable logging, include 
+PION_DISABLE_LOGGING in Preprocessor Definitions for the project, or in 
+PionConfig.hpp.win, uncomment '#define PION_DISABLE_LOGGING'.
+
+We recommend log4cplus (http://log4cplus.sourceforge.net/) for logging.
+
+A binary distribution is available at http://pion.org/files/log4cplus-1.0.3-win32.zip.
+Extract it into C:\, or change user macro LOG4CPLUS_HOME in pion.vsprops, currently 
+set to C:\log4cplus-1.0.3, accordingly.
+
+Add <LOG4CPLUS_HOME>\bin to your path.
+
+Include PION_USE_LOG4CPLUS or PION_FULL in Preprocessor Definitions for the project,
+or in PionConfig.hpp.win, uncomment '#define PION_USE_LOG4CPLUS'.
+
+
+JSON (optional):
+----------------
+
+Building JSONCodec requires YAJL (http://lloyd.github.com/yajl/).
+
+A binary distribution is available at http://pion.org/files/yajl-1.0.9.win32.zip.
+Unzip directly into C: (or change JSONCodec.vcproj accordingly) and add 
+C:\yajl-1.0.9\bin to your path.
+
+JSONCodec is only built in the Debug_DLL_full and Release_DLL_full 
+configurations of pion-platform.sln.
+
+
+Python (optional):
+------------------
+
+Building PythonReactor requires python 2.6 to be installed.
+
+A Windows installer is available at http://www.python.org/ftp/python/2.6.2/python-2.6.2.msi.
+Install it in the default location (or change PythonReactor.vcproj accordingly).
+Unfortunately, the installer doesn't include the debug version of the library, so you 
+will need to build python26_d yourself in order to build the debug version of PythonReactor.
+The source code is available at http://www.python.org/ftp/python/2.6.2/Python-2.6.2.tar.bz2:
+open pcbuild.sln, build the debug version of python.vcproj, then copy python26_d.lib to
+C:\Python26\libs and python26_d.dll to C:\Windows\SysWOW64 (or wherever the installer put
+python26.lib and python26.dll, respectively).
+
+PythonReactor is only built in the Debug_DLL_full and Release_DLL_full configurations of 
+pion-platform.sln.
+
+
+Additional libraries (required for PLATFORM build)
+--------------------------------------------------
+
+zlib:
+ - download http://xmlsoft.org/sources/win32/zlib-1.2.3.win32.zip
+ - open it into C:\zlib-1.2.3
+ - add C:\zlib-1.2.3\bin to your path
+ - (if installed somewhere other than C:\zlib-1.2.3, change user macro 
+   ZLIB_HOME in pion.vsprops accordingly)
+
+iconv:
+ - download http://xmlsoft.org/sources/win32/iconv-1.9.2.win32.zip
+ - open it into C:\iconv-1.9.2\
+ - add C:\iconv-1.9.2\bin to your path
+
+libxml:
+ - download http://xmlsoft.org/sources/win32/libxml2-2.6.30.win32.zip
+ - open it into C:\libxml2-2.6.30\
+ - add C:\libxml2-2.6.30\bin to your path
+ - (if installed somewhere other than C:\libxml2-2.6.30, change user macro 
+   LIBXML_HOME in pion.vsprops accordingly)
+
+bzip2:
+ - download http://gnuwin32.sourceforge.net/downlinks/bzip2-bin-zip.php
+ - open it into C:\bzip2-1.0.5
+ - add C:\bzip2-1.0.5\bin to your path
+ - (if installed somewhere other than C:\bzip2-1.0.5, change user macro 
+   BZIP2_HOME in pion.vsprops accordingly)
+
+icu:
+ - download ftp://ftp.software.ibm.com/software/globalization/icu/3.6/icu4c-3_6-Win32-msvc7_1.zip
+ - open it into C:\icu-3.6
+ - add C:\icu-3.6\bin to your path
+ - (if installed somewhere other than C:\icu-3.6, change user macro 
+   ICU_HOME in pion.vsprops accordingly)
+
+
+Building and installing Pion:
+-----------------------------
+
+Now you should be able to build the solution file called pion-<PROJECT>.sln.
+
+See platform/server/README.msvc for more information about running Pion.
+
+
+Running the test programs:
+--------------------------
+
+Make sure "C:\boost-1.42.0\lib" is on your path.
+
+If you got the source code from the Subversion repository and haven't yet run
+Doxygen, then create the documentation files (used as part of the Pion Network 
+Library tests) as follows:
+
+cd <PION_NET_HOME>\..
+doxygen net\doc\Doxyfile
+
+Alternatively, just create file "<PION_NET_HOME>\doc\html\index.html":
+	<html>
+		<head>
+			<title>pion-net Documentation</title>
+		</head>
+		<body>
+			<h1>pion-net Documentation</h1>
+		</body>
+	</html>
+Otherwise, PionWebServer and unit tests fail with "no such directory" error.
+
+
+To test PionWebServer, try running it from "<PION_NET_HOME>\utils\" with
+the following command line args: -c testservices.conf
+
+To run from within the IDE, go to PionWebServer Property Pages ->
+Debugging, and set 'Command Arguments' to the above.

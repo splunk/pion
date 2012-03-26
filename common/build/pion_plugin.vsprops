@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="pion_plugin"
+	OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+	InheritedPropertySheets=".\pion.vsprops"
+	>
+	<UserMacro
+		Name="REACTORS_DIR"
+		Value="$(PION_HOME)\platform\reactors\$(ConfigurationName)_$(PlatformName)"
+	/>
+	<UserMacro
+		Name="DATABASES_DIR"
+		Value="$(PION_HOME)\platform\databases\$(ConfigurationName)_$(PlatformName)"
+	/>
+	<UserMacro
+		Name="PROTOCOLS_DIR"
+		Value="$(PION_HOME)\platform\protocols\$(ConfigurationName)_$(PlatformName)"
+	/>
+	<UserMacro
+		Name="SERVICES_DIR"
+		Value="$(PION_HOME)\platform\services\$(ConfigurationName)_$(PlatformName)"
+	/>
+</VisualStudioPropertySheet>
