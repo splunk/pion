@@ -1,0 +1,4 @@
+The code within this directory is from the Boost.Lockfree library
+(http://tim.klingt.org/git?p=boost_lockfree.git)
+
+Based on snapshot ac871b50a8ab1d015ce7b239c2f1e62e1df8fd8e (6/24/2009)

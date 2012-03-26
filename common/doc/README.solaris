@@ -1,0 +1,185 @@
+Solaris Build Instructions
+==========================
+
+Preparing the Build Environment:
+--------------------------------
+
+Pion currently only supports the GCC (g++) compiler when building under
+Solaris.  We plan to add support for the Sun Studio C++ compiler in the near
+future, after support for it is added to the ASIO library.
+
+The easiest way to setup a build environment in Solaris is to download and
+install the following packages from http://www.sunfreeware.com/:
+cmake, gcc, zlib, bzip2 and openssl.
+
+Make sure that the "make" and "ar" utilities are in your PATH. 
+Normally, these are installed in the /usr/ccs/bin directory, which for
+some reason is not included in the default PATH.  Also, make sure that
+/usr/local/bin is included in your PATH.
+
+
+Building Boost with ASIO:
+-------------------------
+
+Please see the README.boost file for instructions.
+
+Boost 1.35.0 on Solaris seems to incorrectly detect the presense of the ICU
+library (for Unicode support), and enables support for it even though the
+development libraries are not actually installed and available, and contrary
+to Boost's documentation (which claims incorrectly that it is always disabled
+by default).  Therefore, you will need to explicity disable ICU support when
+configuring Boost.  If you are using the configure script, add the parameter
+"--without-icu".  If you are using bjam, add the parameter "-sHAVE_ICU=0".
+
+Boost's build system is currently (as of 1.35.0) unable to detect the linker
+you are using, and therefore may pass incorrect arguments causing libraries
+to not be built correctly.  This is especially a problem under Solaris if
+you are using the GCC distribution from SunFreeware.com because it uses
+the linker bundled with Solaris while Boost assumes the GCC toolset always
+uses the GCC linker.  Luckily, the build system lets you tell it explicitly
+what linker you are using by modifying your "user-config.jam" file.
+
+If you are building Boost using the "configure" script, first run the
+"configure" command and then modify the "user-config.jam" file that it
+generates in Boost's root directory (change the existing "using gcc" line).
+If you are using Boost::Build (bjam), you need to instead modify the
+"user-config.jam" file in the "tools/build/v2" subdirectory (add the following
+line within the "GCC configuration" section):
+
+using gcc : : g++ : <linker-type>sun ;
+
+
+Installing zlib, bzlib & openssl:
+---------------------------------
+
+Pion requires zlib, bzlib and openssl for compression and SSL/TLS encryption
+support, respectively.  On Solaris, we recommend that you download and
+install the packages available on SunFreeware.com. However, you may
+instead choose to download and install the latest versions from the
+"Third Party Libraries" page on our website, or from the following sites:
+
+http://www.zlib.net
+http://www.bzip.org
+http://www.openssl.org
+
+
+Logging frameworks:
+-------------------
+
+Note that the use of a logging framework is entirely optional, so you may
+skip this step if you like.
+
+We recommend that you use log4cxx for logging.  Log4cxx requires that 
+you have the Apache Portable Runtime (APR) installed, which is not normally
+included with Solaris.  You can download the latest source code tarballs from
+the "Third Party Libraries" page on our website, or from the following site:
+
+http://apr.apache.org
+
+You will need to install both the "apr" and the "apr-util" packages.  For
+each, just download the source and run:
+
+# bzip2 -dc apr-<version>.tar.bz2 | tar xvf -
+# cd apr-<version>
+# ./configure --prefix=/usr/local --enable-threads --with-apr=/usr/local
+# make all
+# make install
+
+Next, please visit the "Third Party Libraries" page on our website to obtain
+the source code tarball for log4cxx.  Then, just run:
+
+# bzip2 -dc log4cxx-<version>.tar.bz2 | tar xvf -
+# cd log4cxx-<version>
+# ./configure
+# make all
+# make install
+
+
+Installing libxml2:
+-------------------
+
+The Pion Platform requires the libxml2 development library for 
+manipulating configuration files, and other things.  This library is not 
+used by the Pion Network Library, so you may skip this step if you are 
+only building the Network Library.
+
+The libxml2 library is normally pre-installed with the Solaris development
+tools.  If you do not have it already, you should be able to grab the
+latest source code tarball from the "Third Party Libraries" page on our
+website, or from the following site:
+
+http://www.xmlsoft.org
+
+
+Installing OSSP uuid:
+---------------------
+
+The Pion Platform requires the OSSP uuid library to generate universally 
+unique identifiers for most platforms, including Solaris.  This library is 
+not used by the Pion Network Library, so you may skip this step if you 
+are only building the Network Library.
+
+You can download the source code tarball for the uuid library from the 
+"Third Party Libraries" page on our website.  After downloading it, just 
+run:
+
+# gzip -dc uuid-<version>.tar.gz | tar xvf -
+# cd uuid-<version>
+# ./configure
+# make all
+# make install
+
+
+Installing YAJL:
+----------------
+
+YAJL ("Yet Another JSON Library") is required to build support for the
+JSONCodec plugin.  You may skip this step if you do not want to build
+support for JSON.
+
+You can download the source code tarball for YAJL from the "Third Party
+Libraries" page on our website.  After downloading it, just run:
+
+# tar xvfz yajl-<version>.tgz
+# cd yajl-<version>
+# cmake .
+# make
+
+To install YAJL, we recommend that you just move the build files in the
+"build/yajl-<version>" subdirectory into /usr/local:
+
+# sudo mv build/yajl-<version>/lib/* /usr/local/lib
+# sudo mv build/yajl-<version>/include/yajl /usr/local/include
+
+
+Building and installing Pion:
+-----------------------------
+
+Now you should be able to build and install Pion:
+
+# gzip -dc pion-<PROJECT>-<VERSION>.tar.gz | tar xvf -
+# cd pion-<PROJECT>-<VERSION>
+# ./configure [--with-openssl=/usr/local/ssl] [--with-log4cxx] [--with-yajl]
+# make all
+# make install
+
+To build and run Pion's unit tests, run "make check"
+
+
+Known problems:
+---------------
+
+If you're using the gcc compiler distributed at http://www.sunfreeware.com,
+you may encountered errors about not being able to find the libstdc++ shared
+library (and others).  If this happens, try setting the LD_LIBRARY_PATH
+variable to include /usr/local/lib/.  You should also include the Boost
+libraries and the logging library (if used) in this path:
+
+export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/ssl/lib
+
+Solaris includes some libraries, such as bzlib (bzip2) in shared object format
+located in the /usr/lib directory.  Static versions of these are not provided.
+If you encounter problems while linking static versions of Pion's libraries,
+it may be because none of the required libraries are available in static
+format.  Try using the "--disable-static" configure script flag to only build
+Pion's shared object libraries (the static libraries are not required).
