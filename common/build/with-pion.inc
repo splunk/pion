@@ -15,13 +15,13 @@ AC_ARG_WITH([pion],
 if (test "x$pion_location" == "xyes") || (test "x$pion_location" == "x"); then
 	pion_location=""
 	if test `pwd | grep 'pion-.*-\(.*\)'`; then
-		pion_location=`pwd | sed 's,/$,,' | sed 's;pion-.*-\(.*\);pion-platform-\1;'`;
+		pion_location=`pwd | sed 's,/$,,' | sed 's;pion-.*-\(.*\);pion-core-\1;'`;
 		if ! test -r "$pion_location"; then
 			pion_location=""
 		fi
 	fi
 	if test "x$pion_location" == "x"; then
-		pion_location="`pwd | sed 's,/$,,' | sed 's,\(.*/\).*,\1pion-platform,'`"
+		pion_location="`pwd | sed 's,/$,,' | sed 's,\(.*/\).*,\1pion-core,'`"
 	fi
 fi
 PION_PLATFORM_PATH="$pion_location"
