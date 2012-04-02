@@ -10,7 +10,7 @@ use File::Copy;
 use File::Glob ':glob';
 
 # include perl source with common subroutines
-require File::Spec->catfile( ("common", "build"), "common.pl");
+require File::Spec->catfile( ("..", "pion-core", "common", "build"), "common.pl");
 
 
 # -----------------------------------
@@ -238,21 +238,21 @@ copyDirWithoutDotFiles($PACKAGE_DIR, $BIN_SRC_DIR);
 if ($EDITION eq "core") {
 	copyDirWithoutDotFiles("platform/build/rpm", $BIN_SRC_DIR);
 } else {
-	# find the pion-platform directory
+	# find the pion-core directory
 	$_ = getcwd();
 	if (/pion-[^-]+-/) {
 		s,/$,,;
 		s,\\$,,;
-		s,pion-[^-]+-(.*),pion-platform-$1,;
+		s,pion-[^-]+-(.*),pion-core-$1,;
 		if (-d $_) {
 			$PION_PLATFORM_DIR = $_;
 		} else {
-			$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-platform") );
+			$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-core") );
 		}
 	} else {
-		$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-platform") );
+		$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-core") );
 	}
-	die("Could not find pion-platform directory: $PION_CORE_DIR") if (! -d $PION_PLATFORM_DIR);
+	die("Could not find pion-core directory: $PION_CORE_DIR") if (! -d $PION_PLATFORM_DIR);
 	copyDirWithoutDotFiles($PION_PLATFORM_DIR . "/platform/build/rpm", $BIN_SRC_DIR);
 	copyDirWithoutDotFiles("enterprise/build/rpm", $BIN_SRC_DIR);
 }
