@@ -21,6 +21,10 @@
 #include <pion/PionException.hpp>
 
 #ifdef PION_HAVE_SSL
+	#if defined(__APPLE__)
+		// suppress warnings about OpenSSL being deprecated in OSX
+		#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+	#endif
     #include <openssl/sha.h>
 #endif
 
