@@ -46,10 +46,10 @@
 // them are defined, std::cout and std::cerr will be used for logging.
 
 /* Define to 1 to use the `log4cplus' library (-llog4cplus) for logging. */
-/* #undef PION_USE_LOG4CPLUS */
+#define PION_USE_LOG4CPLUS 1
 
 /* Define to 1 to use the `log4cxx' library (-llog4cxx) for logging. */
-#define PION_USE_LOG4CXX 1
+/* #undef PION_USE_LOG4CXX */
 
 /* Define to 1 to use the `log4cpp' library (-llog4cpp) for logging. */
 /* #undef PION_USE_LOG4CPP */

@@ -409,7 +409,7 @@ inline void PluginManager<PLUGIN_TYPE>::PluginMap::clear(void)
 				delete i->second.first;
 			}
 		}
-		erase(std::map<std::string, std::pair<PLUGIN_TYPE *, PionPluginPtr<PLUGIN_TYPE> > >::begin(),
+        this->erase(std::map<std::string, std::pair<PLUGIN_TYPE *, PionPluginPtr<PLUGIN_TYPE> > >::begin(),
 			  std::map<std::string, std::pair<PLUGIN_TYPE *, PionPluginPtr<PLUGIN_TYPE> > >::end());
 	}
 }
