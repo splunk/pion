@@ -39,15 +39,22 @@ my %templates = ("PION_PLUGINS_DIRECTORY" => "../../platform/codecs/.libs/</Plug
 	"PION_CONFIG_CHANGE_LOG" => "config.log");
 
 # update template parameter hash using values provided
+my $do_merge = 0;
 for ($n = 2; $n <= $#ARGV; ++$n) {
 	die "Bad template argument: \"$ARGV[$n]\"" if (! ($ARGV[$n] =~ m/([^=]+)=(.*)/) );
-	$templates{$1} = $2;
+	if ($1 eq "MERGE") {
+		$do_merge = 1
+	} else {
+		$templates{$1} = $2;
+	}
 }
 
 # clear out old files and directories at destination
-@oldfiles = bsd_glob($DESTDIR . "/*");
-foreach (@oldfiles) {
-	rmtree($_);
+if (not $do_merge) {
+	@oldfiles = bsd_glob($DESTDIR . "/*");
+	foreach (@oldfiles) {
+		rmtree($_);
+	}
 }
 
 # copy files using templates
