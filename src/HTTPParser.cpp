@@ -613,7 +613,13 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg,
 			} else if (*m_read_ptr == '\n') {
 				http_msg.addHeader(m_header_name, m_header_value);
 				m_headers_parse_state = PARSE_EXPECTING_CR;
-			} else if (isControl(*m_read_ptr)) {
+			} else if (*m_read_ptr != '\t' && isControl(*m_read_ptr)) {
+				// RFC 2616, 2.2 basic Rules.
+				// TEXT = <any OCTET except CTLs, but including LWS>
+				// LWS  = [CRLF] 1*( SP | HT )
+				//
+				// TODO: parsing of folding LWS in multiple lines headers
+				//       doesn't work properly still
 				setError(ec, ERROR_HEADER_CHAR);
 				return false;
 			} else if (m_header_value.size() >= HEADER_VALUE_MAX) {
