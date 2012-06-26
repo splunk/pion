@@ -289,6 +289,14 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg,
 			// we have started parsing the URI query string
 			if (*m_read_ptr == ' ') {
 				m_headers_parse_state = PARSE_HTTP_VERSION_H;
+			} else if (*m_read_ptr == '\r') {
+				http_msg.setVersionMajor(0);
+				http_msg.setVersionMinor(0);
+				m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
+			} else if (*m_read_ptr == '\n') {
+				http_msg.setVersionMajor(0);
+				http_msg.setVersionMinor(0);
+				m_headers_parse_state = PARSE_EXPECTING_CR;
 			} else if (isControl(*m_read_ptr)) {
 				setError(ec, ERROR_QUERY_CHAR);
 				return false;
