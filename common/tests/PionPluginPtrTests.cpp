@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_SUITE_END()
 class Sandbox_F {
 public:
 	Sandbox_F() {
-		m_cwd = boost::filesystem::current_path().directory_string();
+		m_cwd = boost::filesystem::current_path().string();
 		boost::filesystem::remove_all("sandbox");
 		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox"));
 		BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1"));
