@@ -63,7 +63,12 @@ void PionPlugin::addPluginDirectory(const std::string& dir)
 		throw DirectoryNotFoundException(dir);
 	PionPluginConfig& cfg = getPionPluginConfig();
 	boost::mutex::scoped_lock plugin_lock(cfg.plugin_mutex);
-	cfg.plugin_dirs.push_back(plugin_path.string());
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+    cfg.plugin_dirs.push_back(plugin_path.string());
+#else
+    cfg.plugin_dirs.push_back(plugin_path.directory_string());
+#endif 
+	
 }
 
 void PionPlugin::resetPluginDirectories(void)
@@ -204,7 +209,11 @@ bool PionPlugin::checkForFile(std::string& final_path, const std::string& start_
 	try {
 		// is_regular may throw if directory is not readable
 		if (boost::filesystem::is_regular(test_path)) {
-			final_path = test_path.string();
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+            final_path = test_path.string();
+#else
+            final_path = test_path.file_string();
+#endif 
 			return true;
 		}
 	} catch (...) {}
@@ -225,7 +234,11 @@ bool PionPlugin::checkForFile(std::string& final_path, const std::string& start_
 	try {
 		// is_regular may throw if directory is not readable
 		if (boost::filesystem::is_regular(test_path)) {
-			final_path = test_path.string();
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+            final_path = test_path.string();
+#else
+            final_path = test_path.file_string();
+#endif 
 			return true;
 		}
 	} catch (...) {}
@@ -293,7 +306,11 @@ void PionPlugin::getAllPluginNames(std::vector<std::string>& plugin_names)
 		for (boost::filesystem::directory_iterator it2(*it); it2 != end; ++it2) {
 			if (boost::filesystem::is_regular(*it2)) {
 				if (boost::filesystem::extension(it2->path()) == PionPlugin::PION_PLUGIN_EXTENSION) {
-					plugin_names.push_back(PionPlugin::getPluginName(it2->path().filename().string()));
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+                    plugin_names.push_back(PionPlugin::getPluginName(it2->path().filename().string()));
+#else
+                    plugin_names.push_back(PionPlugin::getPluginName(it2->path().leaf()));
+#endif 
 				}
 			}
 		}
@@ -319,11 +336,19 @@ void *PionPlugin::loadDynamicLibrary(const std::string& plugin_file)
 #else
 	// convert into a full/absolute/complete path since dlopen()
 	// does not always search the CWD on some operating systems
-	const boost::filesystem::path full_path = boost::filesystem::absolute(plugin_file);
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+    const boost::filesystem::path full_path = boost::filesystem::absolute(plugin_file);
+#else
+    const boost::filesystem::path full_path = boost::filesystem::complete(plugin_file);
+#endif 
 	// NOTE: you must load shared libraries using RTLD_GLOBAL on Unix platforms
 	// due to a bug in GCC (or Boost::any, depending on which crowd you want to believe).
 	// see: http://svn.boost.org/trac/boost/ticket/754
-	return dlopen(full_path.string().c_str(), RTLD_LAZY | RTLD_GLOBAL);
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+    return dlopen(full_path.string().c_str(), RTLD_LAZY | RTLD_GLOBAL);
+#else
+    return dlopen(full_path.file_string().c_str(), RTLD_LAZY | RTLD_GLOBAL);
+#endif 
 #endif
 }
 
