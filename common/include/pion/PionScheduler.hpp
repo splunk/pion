@@ -105,7 +105,7 @@ public:
 	 * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
 	 */
 	inline static void sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec) {
-		boost::xtime wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
+		boost::system_time wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
 		boost::thread::sleep(wakeup_time);
 	}
 
@@ -122,7 +122,7 @@ public:
 	inline static void sleep(ConditionType& wakeup_condition, LockType& wakeup_lock,
 							 boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
 	{
-		boost::xtime wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
+		boost::system_time wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
 		wakeup_condition.timed_wait(wakeup_lock, wakeup_time);
 	}
 	
@@ -134,15 +134,15 @@ public:
 protected:
 
 	/**
-	 * calculates a wakeup time in boost::xtime format
+	 * calculates a wakeup time in boost::system_time format
 	 *
 	 * @param sleep_sec number of seconds to sleep for
 	 * @param sleep_nsec number of nanoseconds to sleep for
 	 *
-	 * @return boost::xtime time to wake up from sleep
+	 * @return boost::system_time time to wake up from sleep
 	 */
-	static boost::xtime getWakeupTime(boost::uint32_t sleep_sec,
-									  boost::uint32_t sleep_nsec);
+	static boost::system_time getWakeupTime(boost::uint32_t sleep_sec,
+		boost::uint32_t sleep_nsec);
 
 	/// stops all services used to schedule work
 	virtual void stopServices(void) {}

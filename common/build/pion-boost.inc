@@ -5,7 +5,7 @@
 # Check for Boost
 AX_BOOST_BASE([1.35])
 # AC_MSG_NOTICE(Boost home directory: $BOOST_HOME_DIR)
-CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS -DBOOST_FILESYSTEM_VERSION=2"
+CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
 LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
 
 # Check for Boost library extension
@@ -52,25 +52,6 @@ LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_DATE_TIME_LIB)
 
 
-# Check for Boost Thread library
-BOOST_TRY_LIB=thread
-BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
-LIBS_SAVED="$LIBS"
-LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK} ${BOOST_DATE_TIME_LIB}"
-AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
-AC_TRY_LINK([#include <boost/thread/thread.hpp>
-	#include <boost/thread/condition.hpp>],
-	[ boost::thread current_thread; return 0; ],
-	[ AC_MSG_RESULT(ok)
-	  BOOST_THREAD_LIB="-l${BOOST_TRY_LINK}"
-	],
-	[ AC_MSG_RESULT(not found)
-	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
-	])
-LIBS="$LIBS_SAVED"
-AC_SUBST(BOOST_THREAD_LIB)
-
-
 # Check for Boost System library
 BOOST_TRY_LIB=system
 BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
@@ -87,6 +68,25 @@ AC_TRY_LINK([#include <boost/system/error_code.hpp>],
 	])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_SYSTEM_LIB)
+
+
+# Check for Boost Thread library
+BOOST_TRY_LIB=thread
+BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
+LIBS_SAVED="$LIBS"
+LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK} ${BOOST_SYSTEM_LIB} ${BOOST_DATE_TIME_LIB}"
+AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
+AC_TRY_LINK([#include <boost/thread/thread.hpp>
+	#include <boost/thread/condition.hpp>],
+	[ boost::thread current_thread; return 0; ],
+	[ AC_MSG_RESULT(ok)
+	  BOOST_THREAD_LIB="-l${BOOST_TRY_LINK}"
+	],
+	[ AC_MSG_RESULT(not found)
+	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+	])
+LIBS="$LIBS_SAVED"
+AC_SUBST(BOOST_THREAD_LIB)
 
 
 # Check for Boost Filesystem library

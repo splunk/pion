@@ -98,18 +98,10 @@ void PionScheduler::removeActiveUser(void)
 		m_no_more_active_users.notify_all();
 }
 
-boost::xtime PionScheduler::getWakeupTime(boost::uint32_t sleep_sec,
-										  boost::uint32_t sleep_nsec)
+boost::system_time PionScheduler::getWakeupTime(boost::uint32_t sleep_sec,
+	boost::uint32_t sleep_nsec)
 {
-	boost::xtime wakeup_time;
-	boost::xtime_get(&wakeup_time, boost::TIME_UTC);
-	wakeup_time.sec += sleep_sec;
-	wakeup_time.nsec += sleep_nsec;
-	if (static_cast<boost::uint32_t>(wakeup_time.nsec) >= NSEC_IN_SECOND) {
-		wakeup_time.sec++;
-		wakeup_time.nsec -= NSEC_IN_SECOND;
-	}
-	return wakeup_time;
+	return boost::get_system_time() + boost::posix_time::seconds(sleep_sec) + boost::posix_time::microseconds(sleep_nsec / 1000);
 }
 					 
 void PionScheduler::processServiceWork(boost::asio::io_service& service) {
