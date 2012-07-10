@@ -137,8 +137,13 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
 
 	// make sure that the requested file is within the configured directory
 	file_path.normalize();
-	std::string file_string = file_path.string();
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+    std::string file_string = file_path.string();
 	if (file_string.find(m_directory.string()) != 0) {
+#else
+    std::string file_string = file_path.file_string();
+    if (file_string.find(m_directory.directory_string()) != 0) {
+#endif 
 		PION_LOG_WARN(m_logger, "Request for file outside of directory ("
 					  << getResource() << "): " << relative_path);
 		static const std::string FORBIDDEN_HTML_START =
@@ -319,7 +324,11 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
 						   << getResource() << "): " << relative_path);
 
 			// determine the MIME type
-			response_file.setMimeType(findMIMEType( response_file.getFilePath().filename().string()));
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+            response_file.setMimeType(findMIMEType( response_file.getFilePath().filename().string()));
+#else
+            response_file.setMimeType(findMIMEType( response_file.getFilePath().leaf() ));
+#endif 
 
 			// get the file_size and last_modified timestamp
 			response_file.update();
@@ -596,8 +605,12 @@ void FileService::stop(void)
 
 void FileService::scanDirectory(const boost::filesystem::path& dir_path)
 {
-	PION_LOG_DEBUG(m_logger, "Scanning directory (" << getResource() << "): "
-				   << dir_path.string());
+	PION_LOG_DEBUG(m_logger, "Scanning directory (" << getResource() << "): "				   
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+    << dir_path.string());
+#else
+    << dir_path.directory_string());
+#endif 
 
 	// iterate through items in the directory
 	boost::filesystem::directory_iterator end_itr;
@@ -614,9 +627,14 @@ void FileService::scanDirectory(const boost::filesystem::path& dir_path)
 			// item is a regular file
 
 			// figure out relative path to the file
-			std::string file_path_string( itr->path().string() );
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+            std::string file_path_string( itr->path().string() );
 			std::string relative_path( file_path_string.substr(m_directory.string().size() + 1) );
-
+#else
+            std::string file_path_string( itr->path().file_string() );
+            std::string relative_path( file_path_string.substr(m_directory.directory_string().size() + 1) );
+#endif 
+        
 			// add item to cache (use placeholder if scan == 1)
 			addCacheEntry(relative_path, *itr, m_scan_setting == 1);
 		}
@@ -628,7 +646,11 @@ FileService::addCacheEntry(const std::string& relative_path,
 						   const boost::filesystem::path& file_path,
 						   const bool placeholder)
 {
-	DiskFile cache_entry(file_path, NULL, 0, 0, findMIMEType(file_path.filename().string()));
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+    DiskFile cache_entry(file_path, NULL, 0, 0, findMIMEType(file_path.filename().string()));
+#else
+    DiskFile cache_entry(file_path, NULL, 0, 0, findMIMEType(file_path.leaf()));
+#endif 
 	if (! placeholder) {
 		cache_entry.update();
 		// only read the file if its size is <= max_cache_size
@@ -636,7 +658,11 @@ FileService::addCacheEntry(const std::string& relative_path,
 			try { cache_entry.read(); }
 			catch (std::exception&) {
 				PION_LOG_ERROR(m_logger, "Unable to add file to cache: "
-							   << file_path.string());
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+                               << file_path.string());
+#else
+                               << file_path.file_string());
+#endif 
 				return std::make_pair(m_cache_map.end(), false);
 			}
 		}
@@ -647,10 +673,18 @@ FileService::addCacheEntry(const std::string& relative_path,
 
 	if (add_entry_result.second) {
 		PION_LOG_DEBUG(m_logger, "Added file to cache: "
-					   << file_path.string());
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+                       << file_path.string());
+#else
+                       << file_path.file_string());
+#endif 
 	} else {
 		PION_LOG_ERROR(m_logger, "Unable to insert cache entry for file: "
-					   << file_path.string());
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+                       << file_path.string());
+#else
+                       << file_path.file_string());
+#endif 
 	}
 
 	return add_entry_result;
@@ -713,7 +747,11 @@ void DiskFile::read(void)
 
 	// read the file into memory
 	if (!file_stream.is_open() || !file_stream.read(m_file_content.get(), m_file_size))
-		throw FileService::FileReadException(m_file_path.string());
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+        throw FileService::FileReadException(m_file_path.string());
+#else
+        throw FileService::FileReadException(m_file_path.file_string());
+#endif 
 }
 
 bool DiskFile::checkUpdated(void)
@@ -751,7 +789,11 @@ DiskFileSender::DiskFileSender(DiskFile& file, pion::net::HTTPRequestPtr& reques
 {
 	PION_LOG_DEBUG(m_logger, "Preparing to send file"
 				   << (m_disk_file.hasFileContent() ? " (cached): " : ": ")
-				   << m_disk_file.getFilePath().string());
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+                   << m_disk_file.getFilePath().string());
+#else
+                   << m_disk_file.getFilePath().file_string());
+#endif 
 
 		// set the Content-Type HTTP header using the file's MIME type
 	m_writer->getResponse().setContentType(m_disk_file.getMimeType());
@@ -795,7 +837,11 @@ void DiskFileSender::send(void)
 			m_file_stream.open(m_disk_file.getFilePath(), std::ios::in | std::ios::binary);
 			if (! m_file_stream.is_open()) {
 				PION_LOG_ERROR(m_logger, "Unable to open file: "
-							   << m_disk_file.getFilePath().string());
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+                               << m_disk_file.getFilePath().string());
+#else
+                               << m_disk_file.getFilePath().file_string());
+#endif 
 				return;
 			}
 		}
@@ -811,10 +857,18 @@ void DiskFileSender::send(void)
 		if (! m_file_stream.read(m_content_buf.get(), m_file_bytes_to_send)) {
 			if (m_file_stream.gcount() > 0) {
 				PION_LOG_ERROR(m_logger, "File size inconsistency: "
-							   << m_disk_file.getFilePath().string());
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+                               << m_disk_file.getFilePath().string());
+#else
+                               << m_disk_file.getFilePath().file_string());
+#endif 
 			} else {
 				PION_LOG_ERROR(m_logger, "Unable to read file: "
-							   << m_disk_file.getFilePath().string());
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+                               << m_disk_file.getFilePath().string());
+#else
+                               << m_disk_file.getFilePath().file_string());
+#endif 
 			}
 			return;
 		}
