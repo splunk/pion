@@ -605,10 +605,12 @@ void FileService::stop(void)
 
 void FileService::scanDirectory(const boost::filesystem::path& dir_path)
 {
-	PION_LOG_DEBUG(m_logger, "Scanning directory (" << getResource() << "): "				   
+					   
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+    PION_LOG_DEBUG(m_logger, "Scanning directory (" << getResource() << "): "
     << dir_path.string());
 #else
+    PION_LOG_DEBUG(m_logger, "Scanning directory (" << getResource() << "): "
     << dir_path.directory_string());
 #endif 
 
