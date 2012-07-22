@@ -1,0 +1,133 @@
+FreeBSD Build Instructions
+==========================
+
+Building Boost with ASIO:
+-------------------------
+
+Please see the README.boost file for instructions.
+
+
+Installing zlib, bzlib & openssl:
+---------------------------------
+
+Pion requires zlib, bzlib and openssl for compression and SSL/TLS encryption
+support, respectively.  These libraries are pre-installed on FreeBSD.
+However, you may instead choose to download and install the latest
+versions from the "Third Party Libraries" page on our website, or from
+the following sites:
+
+http://www.zlib.net
+http://www.bzip.org
+http://www.openssl.org
+
+
+Logging frameworks:
+-------------------
+
+Note that the use of a logging framework is entirely optional, so you may
+skip this step if you like.
+
+We recommend that you use log4cxx for logging.  The easiest way to install
+log4cxx is to use the included ports package:
+
+# pkg_add -r log4cxx
+
+However, we suggest that you use the most recent version of log4cxx instead
+of the included packages, which are several years old.  The most recent
+versions of log4cxx (starting with 0.10.x) require the Apache Portable
+Runtime (APR).  The best way to install APR on FreeBSD is to use the included
+ports package:
+
+# pkg_add -r apr
+
+After installing APR, please visit the "Third Party Libraries" page on our
+website to obtain the latest source code tarball for log4cxx. Then, just run:
+
+# tar xvfj log4cxx-<version>.tar.bz2
+# cd log4cxx-<version>
+# ./configure
+# make all
+# make install
+
+
+Installing libxml2:
+-------------------
+
+The Pion Platform requires the libxml2 development library for 
+manipulating configuration files, and other things.  This library is not 
+used by the Pion Network Library, so you may skip this step if you are 
+only building the Network Library.
+
+The easiest way to install libxml2 on FreeBSD is to use the included ports
+package:
+
+# pkg_add -r libxml2
+
+
+Installing OSSP uuid:
+---------------------
+
+The Pion Platform requires the OSSP uuid library to generate universally 
+unique identifiers for most platforms, including FreeBSD.  This library is 
+not used by the Pion Network Library, so you may skip this step if you 
+are only building the Network Library.
+
+You can download the source code tarball for the uuid library from the 
+"Third Party Libraries" page on our website.  After downloading it, just 
+run:
+
+# tar xvfz uuid-<version>.tar.gz
+# cd uuid-<version>
+# ./configure
+# make all
+# make install
+
+
+Installing YAJL:
+----------------
+
+YAJL ("Yet Another JSON Library") is required to build support for the
+JSONCodec plugin.  You may skip this step if you do not want to build
+support for JSON.
+
+To build YAJL, you must first have CMake installed on your system.  You
+can download the source tarball for CMake from the "Third Party
+Libraries" page on our website, or from the following site:
+
+http://cmake.org
+
+You can download the source code tarball for YAJL from the "Third Party
+Libraries" page on our website.  After downloading it, just run:
+
+# tar xvfz yajl-<version>.tgz
+# cd yajl-<version>
+# ./configure
+# make
+
+To install YAJL, we recommend that you just move the build files in the
+"build/yajl-<version>" subdirectory into /usr/local:
+
+# sudo mv build/yajl-<version>/lib/* /usr/local/lib
+# sudo mv build/yajl-<version>/include/yajl /usr/local/include
+
+
+Building and installing Pion:
+-----------------------------
+
+Now you should be able to build and install Pion:
+
+# tar xvfz pion-<PROJECT>-<VERSION>.tar.gz
+# cd pion-<PROJECT>-<VERSION>
+# ./configure [--with-openssl] [--with-log4cxx=/usr/local] [--with-yajl] [--disable-tests]
+# make all
+# make install
+
+To build and run Pion's unit tests, run "make check"
+
+
+Known Problems
+--------------
+
+The Boost.Test library v1.35.0 does not seem to build properly for FreeBSD.
+We recommend that you just disable unit tests using the "--disable-tests"
+configure script option.
