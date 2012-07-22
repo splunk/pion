@@ -13,10 +13,14 @@ config.log
 config.status
 doc/html
 doc/*.tag
+common/doc/html
+common/doc/*.tag
 include/pion/stamp-h1
-tests/Pion*UnitTests
 utils/Pion*Server
-pion-net.pc
+common/include/pion/PionConfig.hpp
+common/include/pion/stamp-h1
+pion-*.pc
+Pion*UnitTests
 *.o
 *.lo
 *.la

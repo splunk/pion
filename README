@@ -1,8 +1,8 @@
 Pion Network Library: a C++ framework for building lightweight HTTP interfaces
 
-Copyright (C) 2007-2012 Atomic Labs, Inc.
+Copyright (C) 2007-2012 Cloudmeter, Inc.
 
-Home page:  https://github.com/atomiclabs/pion-net
+Home page:  https://github.com/cloudmeter/pion
 
 The Pion Network Library is published under the Boost Software License.
 See COPYING for licensing information.
@@ -13,8 +13,6 @@ Please read these instructions first.
 
 Build and installation summary:
 
-# git submodule init     (only if using a git clone)
-# git submodule update   (only if using a git clone)
 # ./autogen.sh           (only required if using a git clone)
 # ./configure            (run ./configure --help to see available options)
 # make all               (this will build everything except the unit tests)

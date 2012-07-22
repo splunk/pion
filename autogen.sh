@@ -7,5 +7,10 @@
 AUTOHEADER=`which true`
 export AUTOHEADER
 
+# Make sure m4 directory exists
+if [ ! -d "m4" ]; then
+  mkdir m4
+fi
+
 # Generate configure script
 autoreconf -ifs

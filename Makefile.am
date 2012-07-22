@@ -1,10 +1,10 @@
-# ------------------------------------
-# pion-net automake configuration file 
-# ------------------------------------
+# --------------------------------
+# pion automake configuration file 
+# --------------------------------
 
-ACLOCAL_AMFLAGS = -I @PION_COMMON_HOME@/build
+ACLOCAL_AMFLAGS = -I m4 -I common/build
 
-SUBDIRS = @PION_COMMON_MAKEDIRS@ include src services utils @PION_TESTS_MAKEDIRS@
+SUBDIRS = common include src services utils @PION_TESTS_MAKEDIRS@
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = pion-net.pc
