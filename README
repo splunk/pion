@@ -1,30 +1,33 @@
-libpion: a C++ framework for building lightweight HTTP interfaces
+Pion Network Library: a C++ framework for building lightweight HTTP interfaces
 
-Copyright (C) 2007 Atomic Labs, Inc.
+Copyright (C) 2007-2012 Cloudmeter, Inc.
 
-Home page: http://www.atomiclabs.com/libpion
+Home page:  https://github.com/cloudmeter/pion
 
+The Pion Network Library is published under the Boost Software License.
 See COPYING for licensing information.
+
+Detailed build instructions are available for all of the platforms
+supported by Pion within the "common/doc" subdirectory (README.platform).
+Please read these instructions first.
 
 Build and installation summary:
 
-# ./autogen.sh
-# ./configure --with-boost=/path/to/boost [--with-log4cxx=/path/to/log4cxx]
-# make all
-# [su root]
-# make install
+# ./autogen.sh           (only required if using a git clone)
+# ./configure            (run ./configure --help to see available options)
+# make all               (this will build everything except the unit tests)
+# make check	         (this will build and run the unit tests)
+# make docs              (this will build the Doxygen source documentation)
+# make install           (this may require superuser/Administrator privileges)
 
-See INSTALL or run "./configure --help" for more detailed instructions.
+Pion REQUIRES the Boost C++ libraries (version 1.35.0 or greater). Please see
+the README.boost file within the "common/doc" subdirectory for instructions on
+how to download, build and install Boost.
 
-libpion REQUIRES the Boost C++ libraries (version 1.33 or greater),
-including the Boost ASIO library.  Boost ASIO has been accepted into Boost
-but is not yet included in the distribution.  Boost ASIO additionally
-requires OpenSSL for SSL/TLS support and zlib for compression.  To enable
-logging support, libpion must also be built with the Apache log4cxx library.
-You can download these libraries from the following locations:
+For logging, Pion may be configured to:
 
-http://www.boost.org
-http://asio.sourceforge.net
-http://www.openssl.org
-http://www.zlib.net
-http://logging.apache.org/log4cxx
+a) use std::cout and std::cerr for logging (the default configuration)
+b) use one of the following open source libraries: log4cxx, log4cpp or
+   log4cplus (configure using one of --with-log4cxx, --with-log4cpp or
+   --with-log4cplus, respectively; also may be auto-detected)
+c) disable logging entirely (configure --disable-logging)

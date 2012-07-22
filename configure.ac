@@ -1,98 +1,57 @@
-# -----------------------------------
-# libpion autoconf configuration file
-# -----------------------------------
+# ------------------------------------------------
+# Pion Network Library autoconf configuration file
+# ------------------------------------------------
 
-AC_INIT([libpion], [0.1.0], [support@atomiclabs.com])
+# Set pion version information
+AC_INIT([pion], [5.0.0], [pion-users@lists.sourceforge.net])
 
-AC_CONFIG_AUX_DIR(build)
-AC_CONFIG_SRCDIR(src/lib/PionEngine.cpp)
-AM_INIT_AUTOMAKE()
+# Initialize some other things
+AC_PREREQ([2.59])
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_AUX_DIR([m4])
+AC_CONFIG_SRCDIR(src/TCPServer.cpp)
+
+# package and version args are now taken from AC_INIT()
+AM_INIT_AUTOMAKE
+
+# Use "silent mode" for less verbose build commands in automake 1.11+
+m4_ifdef( [AM_SILENT_RULES], [AM_SILENT_RULES([yes])] )
+
+# Needed to set per-target compilation flags
+AM_PROG_CC_C_O
+
+# Setup libtool
+AC_LIBTOOL_WIN32_DLL
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
+
+# Setup doxygen support
+DX_DOXYGEN_FEATURE(ON)
+DX_HTML_FEATURE(ON)
+DX_INIT_DOXYGEN(pion, doc/Doxyfile, doc)
 
 # Define CXXFLAGS before AC_PROG_CXX to suppress the default autoconf
 # compiler options
-CXXFLAGS="-D_REENTRANT -Wall"
+CFLAGS="-DPION_NETWORK_LIBRARY"
+CXXFLAGS="-DPION_NETWORK_LIBRARY"
 
-# Check for programs
-AC_PROG_CXX
-AC_PROG_INSTALL
-AC_PROG_LIBTOOL
+# Currently only the embedded common library can be used
+PION_COMMON_HOME=`pwd`/common
+PION_COMMON_LIB="$PION_COMMON_HOME/src/libpion-common.la"
+PION_COMMON_MAKEDIRS=common
+AC_SUBST(PION_COMMON_HOME)
+AC_SUBST(PION_COMMON_LIB)
+AC_SUBST(PION_COMMON_MAKEDIRS)
+AC_MSG_NOTICE([Using the embedded pion-common library])
 
-# Use C++ language for tests
-AC_LANG_CPLUSPLUS
-
-
-# Debug setting
-AC_ARG_WITH([debug],
-    AC_HELP_STRING([--with-debug],[build with debugging information]),
-    [with_debug=$withval],
-    [with_debug=no])
-if test "$with_debug" = "no"
-then
-	CXXFLAGS="$CXXFLAGS -O2 -DNDEBUG"
-	#BOOST_LIB_SUFFIX="-1_33_1"
-else
-	AC_MSG_NOTICE(Building with debugging information)
-	CXXFLAGS="$CXXFLAGS -ggdb -DDEBUG"
-	#BOOST_LIB_SUFFIX="-d-1_33_1"
-fi
-
-
-# Check for unordered container support
-AC_CHECK_HEADERS([unordered_map hash_map ext/hash_map],,)
-#AC_MSG_ERROR([C++ compiler does not seem to support unordered containers]))
-
-
-# Check for Boost
-AX_BOOST_BASE([1.33])
-CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
-BOOST_LIBRARIES="-lboost_thread$BOOST_LIB_SUFFIX"
-LDFLAGS="$LDFLAGS $BOOST_LDFLAGS -lpthread $BOOST_LIBRARIES"
-
-
-# Check for Boost asio headers
-AC_CHECK_HEADERS([boost/asio.hpp],,AC_MSG_ERROR(Unable to find the boost::asio headers))
-
-
-# Check for Boost threads headers
-AC_CHECK_HEADERS([boost/thread/thread.hpp],,AC_MSG_ERROR(Unable to find the boost::thread headers))
-
-
-# Check for Boost threads library
-AC_TRY_LINK([#include <boost/thread/thread.hpp>],[ boost::thread_group threads; return 0; ],
-	AC_MSG_NOTICE(Linking with boost::thread works),
-	AC_MSG_ERROR(Unable to link with the boost::thread library))
-
-
-# Check for log4cxx library
-AC_ARG_WITH([log4cxx],
-    AC_HELP_STRING([--with-log4cxx\[=DIR\]],[location of log4cxx library (enables logging)]),
-    [ log4cxx_location=$withval ], [ without_log4cxx=true ])
-if test "$without_log4cxx" = "true"
-then
-	AC_MSG_NOTICE([Logging is disabled (use --with-log4cxx) to enable])
-else
-	# Check if log4cxx location is specified
-	if test "$log4cxx_location" != ""
-	then
-		CPPFLAGS="$CPPFLAGS -I$log4cxx_location/include"
-		LDFLAGS="$LDFLAGS -L$log4cxx_location/lib"
-	fi
-
-	# Check for log4cxx headers
-	AC_CHECK_HEADERS([log4cxx/logger.h],,AC_MSG_ERROR([Unable to find the log4cxx headers]))
-	
-	# Check for log4cxx library
-	LDFLAGS="$LDFLAGS -llog4cxx"
-	AC_TRY_LINK([#include <log4cxx/logger.h>],[ log4cxx::Logger::getRootLogger(); return 0; ],
-		AC_MSG_NOTICE(Linking with log4cxx works),
-		AC_MSG_ERROR(Unable to link with the log4cxx library))
-
-	# Found the log4cxx library
-	AC_MSG_NOTICE(Using the log4cxx library for logging)
-	AC_DEFINE([HAVE_LOG4CXX],[1],[Define to 1 if you have the `log4cxx' library (-llog4cxx).])
-fi
-
+# Include pion-config.inc
+m4_include([common/build/pion-setup.inc])
+m4_include([common/build/pion-boost.inc])
+m4_include([common/build/pion-config.inc])
 
 # Output Makefiles
-AC_OUTPUT(Makefile src/Makefile \
-	src/lib/Makefile src/modules/Makefile src/tests/Makefile)
+AC_OUTPUT(pion-net.pc Makefile
+	include/Makefile include/pion/Makefile include/pion/net/Makefile
+	common/pion-common.pc common/Makefile common/include/Makefile common/include/pion/Makefile
+	common/src/Makefile common/tests/Makefile common/tests/PluginsUsedByUnitTests/Makefile
+	src/Makefile services/Makefile utils/Makefile tests/Makefile)
