@@ -1,13 +1,13 @@
-# ------------------------------------
-# pion-net automake configuration file
-# ------------------------------------
+# --------------------------------
+# pion automake configuration file
+# --------------------------------
 
-pion_common_includedir = $(includedir)/pion
-pion_common_include_HEADERS = \
-	PionAdminRights.hpp PionAlgorithms.hpp PionException.hpp \
-	PionHashMap.hpp PionLogger.hpp PionPlugin.hpp \
-	PionScheduler.hpp PionUnitTestDefs.hpp PluginManager.hpp PionProcess.hpp
+pion_includedir = $(includedir)/pion
+pion_include_HEADERS = \
+	admin_rights.hpp algorithm.hpp exception.hpp hash_map.hpp logger.hpp \
+	plugin.hpp plugin_manager.hpp process.hpp scheduler.hpp \
+	unit_test_defs.hpp
 
-EXTRA_DIST = PionConfig.hpp.win PionConfig.hpp.xcode PionConfig.hpp.in
+EXTRA_DIST = config.hpp.win config.hpp.xcode config.hpp.in
 
-SUBDIRS = net
+SUBDIRS = tcp http

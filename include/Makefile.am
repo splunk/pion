@@ -1,5 +1,5 @@
-# ------------------------------------
-# pion-net automake configuration file
-# ------------------------------------
+# --------------------------------
+# pion automake configuration file
+# --------------------------------
 
 SUBDIRS = pion
