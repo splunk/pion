@@ -35,23 +35,13 @@ DX_INIT_DOXYGEN(pion, doc/Doxyfile, doc)
 CFLAGS="-DPION_NETWORK_LIBRARY"
 CXXFLAGS="-DPION_NETWORK_LIBRARY"
 
-# Currently only the embedded common library can be used
-PION_COMMON_HOME=`pwd`/common
-PION_COMMON_LIB="$PION_COMMON_HOME/src/libpion-common.la"
-PION_COMMON_MAKEDIRS=common
-AC_SUBST(PION_COMMON_HOME)
-AC_SUBST(PION_COMMON_LIB)
-AC_SUBST(PION_COMMON_MAKEDIRS)
-AC_MSG_NOTICE([Using the embedded pion-common library])
-
 # Include pion-config.inc
-m4_include([common/build/pion-setup.inc])
-m4_include([common/build/pion-boost.inc])
-m4_include([common/build/pion-config.inc])
+m4_include([build/pion-setup.inc])
+m4_include([build/pion-boost.inc])
+m4_include([build/pion-config.inc])
 
 # Output Makefiles
-AC_OUTPUT(pion-net.pc Makefile
+AC_OUTPUT(pion.pc Makefile
 	include/Makefile include/pion/Makefile include/pion/net/Makefile
-	common/pion-common.pc common/Makefile common/include/Makefile common/include/pion/Makefile
-	common/src/Makefile common/tests/Makefile common/tests/PluginsUsedByUnitTests/Makefile
-	src/Makefile services/Makefile utils/Makefile tests/Makefile)
+	src/Makefile services/Makefile utils/Makefile tests/Makefile
+	tests/PluginsUsedByUnitTests/Makefile)

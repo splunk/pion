@@ -15,7 +15,7 @@
 #include <boost/random.hpp>
 #include <pion/PionConfig.hpp>
 #include <pion/net/HTTPAuth.hpp>
-#include <pion/PionDateTime.hpp>  // order important, otherwise compiling error under win32
+#include <boost/date_time/posix_time/posix_time.hpp>	// order important, otherwise compiling error under win32
 
 
 namespace pion {	// begin namespace pion
@@ -125,13 +125,13 @@ protected:
 	/**
 	 * Cache expiration cleanup. (Call it periodically)
 	 */
-	void expireCache(const PionDateTime &time_now);
+	void expireCache(const boost::posix_time::ptime &time_now);
 
 	
 private:
 	
 	/// data type used to map authentication credentials to PionUser objects
-	typedef std::map<std::string, std::pair<PionDateTime, PionUserPtr> >  PionUserCache;
+	typedef std::map<std::string, std::pair<boost::posix_time::ptime, PionUserPtr> >  PionUserCache;
 	
 	/// number of seconds after which entries in the user cache will be expired
 	static const unsigned int	CACHE_EXPIRATION;
@@ -161,7 +161,7 @@ private:
 	boost::variate_generator<boost::mt19937&, boost::uniform_int<> >    m_random_die;
 
 	/// time of the last cache clean up
-	PionDateTime				m_cache_cleanup_time;
+	boost::posix_time::ptime	m_cache_cleanup_time;
 		
 	/// cache of users that are currently active
 	PionUserCache				m_user_cache;
