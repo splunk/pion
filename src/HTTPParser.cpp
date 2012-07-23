@@ -74,7 +74,7 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg,
 				rc = parseChunks(http_msg.getChunkCache(), ec);
 				total_bytes_parsed += m_bytes_last_read;
 				// check if we have finished parsing all chunks
-				if (rc == true) {
+				if (rc == true && !m_payload_handler) {
 					http_msg.concatenateChunks();
 				}
 				break;
@@ -137,8 +137,13 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg,
 				&& (m_size_of_current_chunk - m_bytes_read_in_current_chunk) >= len)
 			{
 				// use dummy content for missing data
-				for (std::size_t n = 0; n < len && http_msg.getChunkCache().size() < m_max_content_length; ++n) 
-					http_msg.getChunkCache().push_back(MISSING_DATA_CHAR);
+				if (m_payload_handler) {
+					for (std::size_t n = 0; n < len; ++n)
+						m_payload_handler(&MISSING_DATA_CHAR, 1);
+				} else {
+					for (std::size_t n = 0; n < len && http_msg.getChunkCache().size() < m_max_content_length; ++n) 
+						http_msg.getChunkCache().push_back(MISSING_DATA_CHAR);
+				}
 
 				m_bytes_read_in_current_chunk += len;
 				m_bytes_last_read = len;
@@ -168,7 +173,10 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg,
 			} else {
 
 				// make sure content buffer is not already full
-				if ( (m_bytes_content_read+len) <= m_max_content_length) {
+				if (m_payload_handler) {
+					for (std::size_t n = 0; n < len; ++n)
+						m_payload_handler(&MISSING_DATA_CHAR, 1);
+				} else if ( (m_bytes_content_read+len) <= m_max_content_length) {
 					// use dummy content for missing data
 					for (std::size_t n = 0; n < len; ++n)
 						http_msg.getContent()[m_bytes_content_read++] = MISSING_DATA_CHAR;
@@ -188,8 +196,13 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg,
 		// parsing payload content with no length (until EOF)
 		case PARSE_CONTENT_NO_LENGTH:
 			// use dummy content for missing data
-			for (std::size_t n = 0; n < len && http_msg.getChunkCache().size() < m_max_content_length; ++n) 
-				http_msg.getChunkCache().push_back(MISSING_DATA_CHAR);
+			if (m_payload_handler) {
+				for (std::size_t n = 0; n < len; ++n)
+					m_payload_handler(&MISSING_DATA_CHAR, 1);
+			} else {
+				for (std::size_t n = 0; n < len && http_msg.getChunkCache().size() < m_max_content_length; ++n) 
+					http_msg.getChunkCache().push_back(MISSING_DATA_CHAR);
+			}
 			m_bytes_last_read = len;
 			m_bytes_total_read += len;
 			m_bytes_content_read += len;
@@ -757,6 +770,9 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg,
 				if (m_bytes_content_remaining > m_max_content_length)
 					http_msg.setContentLength(m_max_content_length);
 
+				// allocate a buffer for payload content (may be zero-size)
+				http_msg.createContentBuffer();
+				
 				// return true if parsing headers only
 				if (m_parse_headers_only)
 					rc = true;
@@ -784,9 +800,8 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg,
 		}
 	}
 
-	// allocate a buffer for payload content (may be zero-size)
-	http_msg.createContentBuffer();
-
+	finishedParsingHeaders(ec);
+	
 	return rc;
 }
 
@@ -1054,9 +1069,17 @@ boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_cache,
 
 		case PARSE_CHUNK:
 			if (m_bytes_read_in_current_chunk < m_size_of_current_chunk) {
-				if (chunk_cache.size() < m_max_content_length)
+				if (m_payload_handler) {
+					const std::size_t bytes_avail = bytes_available();
+					const std::size_t bytes_in_chunk = m_size_of_current_chunk - m_bytes_read_in_current_chunk;
+					const std::size_t len = (bytes_in_chunk > bytes_avail) ? bytes_avail : bytes_in_chunk;
+					m_payload_handler(m_read_ptr, len);
+					m_bytes_read_in_current_chunk += len;
+					if (len > 1) m_read_ptr += (len - 1);
+				} else if (chunk_cache.size() < m_max_content_length) {
 					chunk_cache.push_back(*m_read_ptr);
-				m_bytes_read_in_current_chunk++;
+					m_bytes_read_in_current_chunk++;
+				}
 			}
 			if (m_bytes_read_in_current_chunk == m_size_of_current_chunk) {
 				m_chunked_content_parse_state = PARSE_EXPECTING_CR_AFTER_CHUNK;
@@ -1140,7 +1163,9 @@ boost::tribool HTTPParser::consumeContent(HTTPMessage& http_msg,
 	}
 
 	// make sure content buffer is not already full
-	if (m_bytes_content_read < m_max_content_length) {
+	if (m_payload_handler) {
+		m_payload_handler(m_read_ptr, content_bytes_to_read);
+	} else if (m_bytes_content_read < m_max_content_length) {
 		if (m_bytes_content_read + content_bytes_to_read > m_max_content_length) {
 			// read would exceed maximum size for content buffer
 			// copy only enough bytes to fill up the content buffer
@@ -1166,10 +1191,15 @@ std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk
 		m_bytes_last_read = 0;
 	} else {
 		m_bytes_last_read = (m_read_end_ptr - m_read_ptr);
-		while (m_read_ptr < m_read_end_ptr) {
-			if (chunk_cache.size() < m_max_content_length)
-				chunk_cache.push_back(*m_read_ptr);
-			++m_read_ptr;
+		if (m_payload_handler) {
+			if (m_bytes_last_read)
+				m_payload_handler(m_read_ptr, m_bytes_last_read);
+		} else {
+			while (m_read_ptr < m_read_end_ptr) {
+				if (chunk_cache.size() < m_max_content_length)
+					chunk_cache.push_back(*m_read_ptr);
+				++m_read_ptr;
+			}
 		}
 		m_bytes_total_read += m_bytes_last_read;
 		m_bytes_content_read += m_bytes_last_read;
@@ -1201,17 +1231,19 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
 		break;
 	case PARSE_CHUNKS:
 		http_msg.setIsValid(m_chunked_content_parse_state==PARSE_CHUNK_SIZE_START);
-		http_msg.concatenateChunks();
+		if (!m_payload_handler)
+			http_msg.concatenateChunks();
 		break;
 	case PARSE_CONTENT_NO_LENGTH:
 		http_msg.setIsValid(true);
-		http_msg.concatenateChunks();
+		if (!m_payload_handler)
+			http_msg.concatenateChunks();
 		break;
 	}
 
 	computeMsgStatus(http_msg, http_msg.isValid());
 
-	if (isParsingRequest()) {
+	if (isParsingRequest() && !m_payload_handler) {
 		// Parse query pairs from post content if content type is x-www-form-urlencoded.
 		// Type could be followed by parameters (as defined in section 3.6 of RFC 2616)
 		// e.g. Content-Type: application/x-www-form-urlencoded; charset=UTF-8

@@ -12,6 +12,7 @@
 
 #include <string>
 #include <boost/noncopyable.hpp>
+#include <boost/function/function2.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/thread/once.hpp>
@@ -39,6 +40,9 @@ public:
 	/// maximum length for HTTP payload content
 	static const std::size_t		DEFAULT_CONTENT_MAX;
 
+	/// callback type used to consume payload content
+	typedef boost::function2<void, const char *, std::size_t>	PayloadHandler;
+	
 	/// class-specific error code values
 	enum ErrorValue {
 		ERROR_METHOD_CHAR = 1,
@@ -266,6 +270,9 @@ public:
 	/// returns true if the parser is being used to parse an HTTP response
 	inline bool isParsingResponse(void) const { return ! m_is_request; }
 
+	/// defines a callback function to be used for consuming payload content
+	inline void setPayloadHandler(PayloadHandler& h) { m_payload_handler = h; }
+
 	/// sets the maximum length for HTTP payload content
 	inline void setMaxContentLength(std::size_t n) { m_max_content_length = n; }
 
@@ -361,6 +368,9 @@ public:
 
 protected:
 
+	/// Called after we have finished parsing the HTTP message headers
+	virtual void finishedParsingHeaders(const boost::system::error_code& ec) {}
+	
 	/**
 	 * parses an HTTP message up to the end of the headers using bytes 
 	 * available in the read buffer
@@ -551,6 +561,9 @@ private:
 
 	/// the current state of parsing chunked content
 	ChunkedContentParseState			m_chunked_content_parse_state;
+	
+	/// if defined, this function is used to consume payload content
+	PayloadHandler						m_payload_handler;
 
 	/// Used for parsing the HTTP response status code
 	boost::uint16_t						m_status_code;

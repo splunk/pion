@@ -135,8 +135,10 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferReturnsPointer) {
 	BOOST_CHECK(F::createContentBuffer() != NULL);
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsNull) {
-	BOOST_CHECK(F::getContent() == NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsEmptyString) {
+	BOOST_CHECK(F::getContent() != NULL);
+	BOOST_CHECK_EQUAL(strcmp(F::getContent(), ""), 0);
+	BOOST_CHECK(!F::isContentBufferAllocated());
 }
 
 // Is this what we want?  Note that the length is zero here.
@@ -193,12 +195,17 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthAfterSettingLengthAga
 	BOOST_CHECK_EQUAL(F::getContentLength(), static_cast<size_t>(0));
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferReturnsPointer) {
-	BOOST_CHECK(F::createContentBuffer() != NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferVarious) {
+	char *ptr = F::createContentBuffer();
+	BOOST_CHECK(ptr != NULL);
+	BOOST_CHECK_EQUAL(ptr, F::getContent());
+	BOOST_CHECK_EQUAL(F::getContentBufferSize(), 20);
+	BOOST_CHECK(F::isContentBufferAllocated());
 }
 
-BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsNull) {
-	BOOST_CHECK(F::getContent() == NULL);
+BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsEmptyString) {
+	BOOST_CHECK(F::getContent() != NULL);
+	BOOST_CHECK_EQUAL(strcmp(F::getContent(), ""), 0);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkIsValidReturnsFalse) {

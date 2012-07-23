@@ -376,8 +376,14 @@ public:
 	
 	/// destroys an instance of the plug-in object
 	inline void destroy(InterfaceClassType *object_ptr) {
-		DestroyObjectFunction *destroy_func =
-			(DestroyObjectFunction*)(getDestroyFunction());
+	    // fix warning ISO C++ forbids casting from pointer-to-object
+	    // to pointer to function
+	    union {
+	        void* v_;
+	        DestroyObjectFunction* f_;
+	    } Cast;
+	    Cast.v_ = getDestroyFunction();
+	    DestroyObjectFunction *destroy_func = Cast.f_;
 		if (destroy_func == NULL)
 			throw PluginUndefinedException();
 		destroy_func(object_ptr);
