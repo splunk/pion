@@ -78,7 +78,7 @@ public:
 	HTTPMessage(void)
 		: m_is_valid(false), m_is_chunked(false), m_chunks_supported(false),
 		m_do_not_send_content_length(false),
-		m_version_major(1), m_version_minor(1), m_content_length(0),
+		m_version_major(1), m_version_minor(1), m_content_length(0), m_content_buf(),
 		m_status(STATUS_NONE), m_has_missing_packets(false), m_has_data_after_missing(false)
 	{}
 
@@ -93,17 +93,13 @@ public:
 		m_version_major(http_msg.m_version_major),
 		m_version_minor(http_msg.m_version_minor),
 		m_content_length(http_msg.m_content_length),
+		m_content_buf(http_msg.m_content_buf),
 		m_chunk_cache(http_msg.m_chunk_cache),
 		m_headers(http_msg.m_headers),
 		m_status(http_msg.m_status),
 		m_has_missing_packets(http_msg.m_has_missing_packets),
 		m_has_data_after_missing(http_msg.m_has_data_after_missing)
-	{
-		if (http_msg.m_content_buf) {
-			char *ptr = createContentBuffer();
-			memcpy(ptr, http_msg.m_content_buf.get(), m_content_length);
-		}
-	}
+	{}
 
 	/// assignment operator
 	inline HTTPMessage& operator=(const HTTPMessage& http_msg) {
@@ -116,15 +112,12 @@ public:
 		m_version_major = http_msg.m_version_major;
 		m_version_minor = http_msg.m_version_minor;
 		m_content_length = http_msg.m_content_length;
+		m_content_buf = http_msg.m_content_buf;
 		m_chunk_cache = http_msg.m_chunk_cache;
 		m_headers = http_msg.m_headers;
 		m_status = http_msg.m_status;
 		m_has_missing_packets = http_msg.m_has_missing_packets;
 		m_has_data_after_missing = http_msg.m_has_data_after_missing;
-		if (http_msg.m_content_buf) {
-			char *ptr = createContentBuffer();
-			memcpy(ptr, http_msg.m_content_buf.get(), m_content_length);
-		}
 		return *this;
 	}
 
@@ -139,7 +132,7 @@ public:
 		m_remote_ip = boost::asio::ip::address_v4(0);
 		m_version_major = m_version_minor = 1;
 		m_content_length = 0;
-		m_content_buf.reset();
+		m_content_buf.clear();
 		m_chunk_cache.clear();
 		m_headers.clear();
 		m_cookie_params.clear();
@@ -178,15 +171,21 @@ public:
 	}
 
 	/// returns the length of the payload content (in bytes)
-	inline std::size_t getContentLength(void) const { return m_content_length; }
+	inline boost::uint64_t getContentLength(void) const { return m_content_length; }
 
 	/// returns true if the message content is chunked
 	inline bool isChunked(void) const { return m_is_chunked; }
 
-	/// returns a pointer to the payload content, or NULL if there is none
+	/// returns true if buffer for content is allocated
+	bool isContentBufferAllocated() const { return !m_content_buf.is_empty(); }
+	
+	/// returns size of allocated buffer
+	inline std::size_t getContentBufferSize() const { return m_content_buf.size(); }
+	
+	/// returns a pointer to the payload content, or empty string if there is none
 	inline char *getContent(void) { return m_content_buf.get(); }
 
-	/// returns a const pointer to the payload content, or NULL if there is none
+	/// returns a const pointer to the payload content, or empty string if there is none
 	inline const char *getContent(void) const { return m_content_buf.get(); }
 
 	/// returns a reference to the chunk cache
@@ -282,7 +281,7 @@ public:
 	}
 
 	/// sets the length of the payload content (in bytes)
-	inline void setContentLength(const std::size_t n) { m_content_length = n; }
+	inline void setContentLength(const boost::uint64_t n) { m_content_length = n; }
 
 	/// if called, the content-length will not be sent in the HTTP headers
 	inline void setDoNotSendContentLength(void) { m_do_not_send_content_length = true; }
@@ -301,7 +300,7 @@ public:
 		} else {
 			std::string trimmed_length(i->second);
 			boost::algorithm::trim(trimmed_length);
-			m_content_length = boost::lexical_cast<std::size_t>(trimmed_length);
+			m_content_length = boost::lexical_cast<boost::uint64_t>(trimmed_length);
 		}
 	}
 
@@ -319,8 +318,7 @@ public:
 	///creates a payload content buffer of size m_content_length and returns
 	/// a pointer to the new buffer (memory is managed by HTTPMessage class)
 	inline char *createContentBuffer(void) {
-		m_content_buf.reset(new char[m_content_length + 1]);
-		m_content_buf[m_content_length] = '\0';
+		m_content_buf.resize(m_content_length);
 		return m_content_buf.get();
 	}
 	
@@ -441,6 +439,71 @@ public:
 
 
 protected:
+	
+	/// a simple helper class used to manage a fixed-size payload content buffer
+	class ContentBuffer {
+	public:
+		/// simple destructor
+		~ContentBuffer() {}
+
+		/// default constructor
+		ContentBuffer() : m_buf(), m_len(0), m_empty(0), m_ptr(&m_empty) {}
+
+		/// copy constructor
+		ContentBuffer(const ContentBuffer& buf)
+			: m_buf(), m_len(0), m_empty(0), m_ptr(&m_empty)
+		{
+			if (buf.size()) {
+				resize(buf.size());
+				memcpy(get(), buf.get(), buf.size());
+			}
+		}
+
+		/// assignment operator
+		ContentBuffer& operator=(const ContentBuffer& buf) {
+			if (buf.size()) {
+				resize(buf.size());
+				memcpy(get(), buf.get(), buf.size());
+			} else {
+				clear();
+			}
+			return *this;
+		}
+		
+		/// returns true if buffer is empty
+		inline bool is_empty() const { return m_len == 0; }
+		
+		/// returns size in bytes
+		inline std::size_t size() const { return m_len; }
+		
+		/// returns const pointer to data
+		inline const char *get() const { return m_ptr; }
+		
+		/// returns mutable pointer to data
+		inline char *get() { return m_ptr; }
+		
+		/// changes the size of the content buffer
+		inline void resize(std::size_t len) {
+			m_len = len;
+			if (len == 0) {
+				m_buf.reset();
+				m_ptr = &m_empty;
+			} else {
+				m_buf.reset(new char[len+1]);
+				m_buf[len] = '\0';
+				m_ptr = m_buf.get();
+			}
+		}
+		
+		/// clears the content buffer
+		inline void clear() { resize(0); }
+		
+	private:
+		boost::scoped_array<char>	m_buf;
+		std::size_t					m_len;
+		char						m_empty;
+		char						*m_ptr;
+	};
 
 	/**
 	 * prepares HTTP headers for a send operation
@@ -586,10 +649,10 @@ private:
 	boost::uint16_t					m_version_minor;
 
 	/// the length of the payload content (in bytes)
-	std::size_t						m_content_length;
+	boost::uint64_t					m_content_length;
 
 	/// the payload content, if any was sent with the message
-	boost::scoped_array<char>		m_content_buf;
+	ContentBuffer					m_content_buf;
 
 	/// buffers for holding chunked data
 	ChunkCache						m_chunk_cache;

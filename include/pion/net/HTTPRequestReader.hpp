@@ -55,7 +55,10 @@ public:
 		return boost::shared_ptr<HTTPRequestReader>
 			(new HTTPRequestReader(tcp_conn, handler));
 	}
-
+	
+	/// sets a function to be called after HTTP headers have been parsed
+	inline void setHeadersParsedCallback(FinishedHandler& h) { m_parsed_headers = h; }
+	
 	
 protected:
 
@@ -81,6 +84,12 @@ protected:
 														boost::asio::placeholders::bytes_transferred));
 	}
 
+	/// Called after we have finished parsing the HTTP message headers
+	virtual void finishedParsingHeaders(const boost::system::error_code& ec) {
+		// call the finished headers handler with the HTTP message
+		if (m_parsed_headers) m_parsed_headers(m_http_msg, getTCPConnection(), ec);
+	}
+	
 	/// Called after we have finished reading/parsing the HTTP message
 	virtual void finishedReading(const boost::system::error_code& ec) {
 		// call the finished handler with the finished HTTP message
@@ -95,6 +104,9 @@ protected:
 
 	/// function called after the HTTP message has been parsed
 	FinishedHandler				m_finished;
+
+	/// function called after the HTTP message headers have been parsed
+	FinishedHandler				m_parsed_headers;
 };
 
 
