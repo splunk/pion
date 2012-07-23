@@ -39,8 +39,8 @@ PION_DECLARE_PLUGIN(FileService)
 #endif
 
 
-struct PluginPtrWithPluginLoaded_F : public PionPluginPtr<WebService> {
-	PluginPtrWithPluginLoaded_F() { 
+struct PluginPtrWithFileServiceLoaded_F : public PionPluginPtr<WebService> {
+	PluginPtrWithFileServiceLoaded_F() { 
 		PionPlugin::resetPluginDirectories();
 #ifndef PION_STATIC_LINKING
 		PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
@@ -48,14 +48,14 @@ struct PluginPtrWithPluginLoaded_F : public PionPluginPtr<WebService> {
 		s = NULL;
 		open("FileService");
 	}
-	~PluginPtrWithPluginLoaded_F() {
+	~PluginPtrWithFileServiceLoaded_F() {
 		if (s) destroy(s);
 	}
 
 	WebService* s;
 };
 
-BOOST_FIXTURE_TEST_SUITE(PluginPtrWithPluginLoaded_S, PluginPtrWithPluginLoaded_F)
+BOOST_FIXTURE_TEST_SUITE(PluginPtrWithFileServiceLoaded_S, PluginPtrWithFileServiceLoaded_F)
 
 BOOST_AUTO_TEST_CASE(checkIsOpenReturnsTrue) {
 	BOOST_CHECK(is_open());

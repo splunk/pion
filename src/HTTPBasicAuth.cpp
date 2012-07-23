@@ -38,7 +38,7 @@ bool HTTPBasicAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp
 		return true; // this request does not require authentication
 	}
 	
-	PionDateTime time_now(boost::posix_time::second_clock::universal_time());
+	boost::posix_time::ptime time_now(boost::posix_time::second_clock::universal_time());
 	if (time_now > m_cache_cleanup_time + boost::posix_time::seconds(CACHE_EXPIRATION)) {
 		// expire cache
 		boost::mutex::scoped_lock cache_lock(m_cache_mutex);

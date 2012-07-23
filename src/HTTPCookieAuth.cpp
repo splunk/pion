@@ -66,7 +66,7 @@ bool HTTPCookieAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tc
 	}
 	
 	// check cache for expiration
-	PionDateTime time_now(boost::posix_time::second_clock::universal_time());
+	boost::posix_time::ptime time_now(boost::posix_time::second_clock::universal_time());
 	expireCache(time_now);
 
 	// if we are here, we need to check if access authorized...
@@ -138,7 +138,7 @@ bool HTTPCookieAuth::processLogin(HTTPRequestPtr& http_request, TCPConnectionPtr
 		algo::base64_encode(rand_binary, new_cookie);
 
 		// add new session to cache
-		PionDateTime time_now(boost::posix_time::second_clock::universal_time());
+		boost::posix_time::ptime time_now(boost::posix_time::second_clock::universal_time());
 		boost::mutex::scoped_lock cache_lock(m_cache_mutex);
 		m_user_cache.insert(std::make_pair(new_cookie,std::make_pair(time_now,user)));
 	} else {
@@ -258,7 +258,7 @@ void HTTPCookieAuth::handleOk(HTTPRequestPtr& http_request,
 	writer->send();
 }
 
-void HTTPCookieAuth::expireCache(const PionDateTime &time_now)
+void HTTPCookieAuth::expireCache(const boost::posix_time::ptime &time_now)
 {
 	if (time_now > m_cache_cleanup_time + boost::posix_time::seconds(CACHE_EXPIRATION)) {
 		// expire cache

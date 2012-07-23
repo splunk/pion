@@ -9,7 +9,7 @@ AC_SUBST(PION_LIBRARY_VERSION)
 AC_DEFINE_UNQUOTED([PION_VERSION],["$PACKAGE_VERSION"],[Define to the version number of Pion.])
 
 # Note: AM_CONFIG_HEADER is deprecated
-AC_CONFIG_HEADERS(common/include/pion/PionConfig.hpp)
+AC_CONFIG_HEADERS(include/pion/PionConfig.hpp)
 
 # Check for --with-cygwin
 AC_MSG_CHECKING([for cygwin directory])
@@ -184,32 +184,6 @@ else
 	AC_MSG_RESULT(no)
 fi
 AC_SUBST(PION_SSL_LIB)
-
-
-# Check for boost::lockfree library
-AC_ARG_ENABLE([lockfree],
-    AC_HELP_STRING([--disable-lockfree],[disable lock-free support]),
-    [enable_lockfree=$enableval], [enable_lockfree=yes])
-AC_MSG_CHECKING([for boost::lockfree library])
-if test "x$enable_lockfree" == "xno"; then
-	# Display notice if lock-free is disabled
-	AC_MSG_RESULT(disabled)
-else
-	CPPFLAGS_SAVED="$CPPFLAGS"
-	CPPFLAGS="$CPPFLAGS -I$PION_COMMON_HOME/include"
-	AC_TRY_LINK([#include <boost/lockfree/detail/tagged_ptr.hpp>],
-		[
-		BOOST_STATIC_ASSERT(boost::lockfree::tagged_ptr<int>::is_lockfree);
-		boost::lockfree::tagged_ptr<int> ptr_a(NULL);
-		boost::lockfree::tagged_ptr<int> ptr_b = ptr_a;
-		int * ptr_c = NULL;
-		ptr_a.cas(ptr_b, ptr_c);
-		return 0;
-		],[ AC_MSG_RESULT(yes)
-			AC_DEFINE([PION_HAVE_LOCKFREE],[1],[Define to 1 if you have the `boost.lockfree' library.]) ],
-		  [ AC_MSG_RESULT(no) ])
-	CPPFLAGS="$CPPFLAGS_SAVED"
-fi
 
 
 # Check for logging support
