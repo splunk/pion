@@ -32,8 +32,8 @@ DX_INIT_DOXYGEN(pion, doc/Doxyfile, doc)
 
 # Define CXXFLAGS before AC_PROG_CXX to suppress the default autoconf
 # compiler options
-CFLAGS="-DPION_NETWORK_LIBRARY"
-CXXFLAGS="-DPION_NETWORK_LIBRARY"
+CFLAGS="$CFLAGS -DPION_NETWORK_LIBRARY"
+CXXFLAGS="$CXXFLAGS -DPION_NETWORK_LIBRARY"
 
 # Currently only the embedded common library can be used
 PION_COMMON_HOME=`pwd`/common
