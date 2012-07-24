@@ -7,6 +7,7 @@ Makefile.in
 aclocal.m4
 autom4te.cache/
 m4/
+bin/
 configure
 libtool
 config.log
@@ -22,3 +23,5 @@ pion.pc
 *.o
 *.lo
 *.la
+pion.xcodeproj/xcuserdata/
+pion.xcodeproj/project.xcworkspace/xcuserdata/

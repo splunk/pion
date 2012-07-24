@@ -26,11 +26,12 @@ else
             break
         fi
     done
-    if test "x$BOOST_LIB_EXTENSION" = "x"; then
-        AC_MSG_NOTICE(Unable to determine Boost library extension)
-    fi
 fi
-AC_MSG_RESULT($BOOST_LIB_EXTENSION)
+if test "x$BOOST_LIB_EXTENSION" = "x"; then
+	AC_MSG_RESULT("(none)")
+else
+	AC_MSG_RESULT($BOOST_LIB_EXTENSION)
+fi
 AC_SUBST(BOOST_LIB_EXTENSION)
 
 
@@ -123,45 +124,6 @@ AC_TRY_LINK([#include <boost/regex.hpp>],
 	])
 LIBS="$LIBS_SAVED"
 AC_SUBST(BOOST_REGEX_LIB)
-
-
-# Check for Boost Signals library
-BOOST_TRY_LIB=signals
-BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
-LIBS_SAVED="$LIBS"
-LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
-AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
-AC_TRY_LINK([#include <boost/signal.hpp>],
-	[ boost::signal0<void> sig; sig(); return 0; ],
-	[ AC_MSG_RESULT(ok)
-	  BOOST_SIGNALS_LIB="-l${BOOST_TRY_LINK}"
-	],
-	[ AC_MSG_RESULT(not found)
-	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
-	])
-LIBS="$LIBS_SAVED"
-AC_SUBST(BOOST_SIGNALS_LIB)
-
-
-# Check for Boost Iostreams library
-BOOST_TRY_LIB=iostreams
-BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
-LIBS_SAVED="$LIBS"
-LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
-AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
-AC_TRY_LINK([#include <boost/iostreams/filtering_stream.hpp>
-	#include <boost/range/iterator_range.hpp>],
-	[ std::string  input = "Hello World!";
-	  boost::iostreams::filtering_istream  in(boost::make_iterator_range(input));
-	  return 0; ],
-	[ AC_MSG_RESULT(ok)
-	  BOOST_IOSTREAMS_LIB="-l${BOOST_TRY_LINK}"
-	],
-	[ AC_MSG_RESULT(not found)
-	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
-	])
-LIBS="$LIBS_SAVED"
-AC_SUBST(BOOST_IOSTREAMS_LIB)
 
 
 # Check for Boost Unit Test Framework

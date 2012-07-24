@@ -12,4 +12,7 @@ pkgconfig_DATA = pion.pc
 EXTRA_DIST = autogen.sh *.sln *.xcodeproj doc build/*.vsprops *.vcproj
 
 include $(top_srcdir)/build/doxygen.inc
-include build/net.inc
+
+docs: doxygen-doc
+
+clean-docs: doxygen-clean
