@@ -21,9 +21,9 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/thread/condition.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionException.hpp>
-#include <pion/PionLogger.hpp>
+#include <pion/config.hpp>
+#include <pion/exception.hpp>
+#include <pion/logger.hpp>
 
 
 namespace pion {	// begin namespace pion

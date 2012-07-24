@@ -18,10 +18,10 @@
 #include <boost/function/function2.hpp>
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionLogger.hpp>
-#include <pion/net/HTTPMessage.hpp>
-#include <pion/net/TCPConnection.hpp>
+#include <pion/config.hpp>
+#include <pion/logger.hpp>
+#include <pion/tcp/connection.hpp>
+#include <pion/http/message.hpp>
 
 
 namespace pion {	// begin namespace pion

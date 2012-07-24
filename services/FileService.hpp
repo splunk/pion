@@ -16,13 +16,13 @@
 #include <boost/thread/once.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_array.hpp>
-#include <pion/PionLogger.hpp>
-#include <pion/PionException.hpp>
-#include <pion/PionHashMap.hpp>
-#include <pion/net/WebService.hpp>
-#include <pion/net/HTTPRequest.hpp>
-#include <pion/net/HTTPResponseWriter.hpp>
-#include <pion/net/HTTPServer.hpp>
+#include <pion/logger.hpp>
+#include <pion/exception.hpp>
+#include <pion/hash_map.hpp>
+#include <pion/http/plugin_service.hpp>
+#include <pion/http/request.hpp>
+#include <pion/http/response_writer.hpp>
+#include <pion/http/server.hpp>
 #include <string>
 #include <map>
 

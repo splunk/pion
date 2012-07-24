@@ -8,8 +8,8 @@
 //
 
 #include "CookieService.hpp"
-#include <pion/PionAlgorithms.hpp>
-#include <pion/net/HTTPResponseWriter.hpp>
+#include <pion/algorithm.hpp>
+#include <pion/http/response_writer.hpp>
 
 using namespace pion;
 using namespace pion::net;

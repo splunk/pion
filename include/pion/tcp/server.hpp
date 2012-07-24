@@ -16,10 +16,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionLogger.hpp>
-#include <pion/PionScheduler.hpp>
-#include <pion/net/TCPConnection.hpp>
+#include <pion/config.hpp>
+#include <pion/logger.hpp>
+#include <pion/scheduler.hpp>
+#include <pion/tcp/connection.hpp>
 
 
 namespace pion {	// begin namespace pion

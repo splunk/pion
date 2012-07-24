@@ -15,7 +15,7 @@
 #include <boost/thread/once.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include <pion/PionConfig.hpp>
+#include <pion/config.hpp>
 
 
 namespace pion {	// begin namespace pion

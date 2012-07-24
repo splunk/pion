@@ -18,12 +18,12 @@
 #include <boost/function/function3.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/net/TCPServer.hpp>
-#include <pion/net/TCPConnection.hpp>
-#include <pion/net/HTTPRequest.hpp>
-#include <pion/net/HTTPAuth.hpp>
-#include <pion/net/HTTPParser.hpp>
+#include <pion/config.hpp>
+#include <pion/tcp/server.hpp>
+#include <pion/tcp/connection.hpp>
+#include <pion/http/request.hpp>
+#include <pion/http/auth.hpp>
+#include <pion/http/parser.hpp>
 
 
 namespace pion {	// begin namespace pion

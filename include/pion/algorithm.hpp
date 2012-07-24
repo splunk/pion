@@ -11,7 +11,7 @@
 #define __PION_ALGORITHMS_HEADER__
 
 #include <string>
-#include <pion/PionConfig.hpp>
+#include <pion/config.hpp>
 
 
 namespace pion {	// begin namespace pion

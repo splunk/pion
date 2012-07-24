@@ -1,17 +1,17 @@
-# ------------------------------------
-# pion-net automake configuration file 
-# ------------------------------------
+# --------------------------------
+# pion automake configuration file
+# --------------------------------
 
 AM_CPPFLAGS = -I../include
 
-bin_PROGRAMS = PionHelloServer PionWebServer
+bin_PROGRAMS = helloserver piond
 
-PionHelloServer_SOURCES = PionHelloServer.cpp
-PionHelloServer_LDADD = ../src/libpion-net.la @PION_EXTERNAL_LIBS@
-PionHelloServer_DEPENDENCIES = ../src/libpion-net.la
+helloserver_SOURCES = helloserver.cpp
+helloserver_LDADD = ../src/libpion.la @PION_EXTERNAL_LIBS@
+helloserver_DEPENDENCIES = ../src/libpion.la
 
-PionWebServer_SOURCES = PionWebServer.cpp
-PionWebServer_LDADD = ../src/libpion-net.la @PION_EXTERNAL_LIBS@
-PionWebServer_DEPENDENCIES = ../src/libpion-net.la
+piond_SOURCES = piond.cpp
+piond_LDADD = ../src/libpion.la @PION_EXTERNAL_LIBS@
+piond_DEPENDENCIES = ../src/libpion.la
 
 EXTRA_DIST = sslkey.pem testservices.html *.conf *.vcproj

@@ -12,9 +12,9 @@
 
 #include <boost/thread/mutex.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <pion/PionLogger.hpp>
-#include <pion/net/WebService.hpp>
-#include <pion/net/HTTPResponseWriter.hpp>
+#include <pion/logger.hpp>
+#include <pion/http/plugin_service.hpp>
+#include <pion/http/response_writer.hpp>
 #include <string>
 #include <list>
 

@@ -13,8 +13,8 @@
 #include <map>
 #include <string>
 #include <boost/random.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/net/HTTPAuth.hpp>
+#include <pion/config.hpp>
+#include <pion/http/auth.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>	// order important, otherwise compiling error under win32
 
 

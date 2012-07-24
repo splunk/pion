@@ -10,7 +10,7 @@
 #ifndef __PION_PIONEXCEPTION_HEADER__
 #define __PION_PIONEXCEPTION_HEADER__
 
-#include <pion/PionConfig.hpp>
+#include <pion/config.hpp>
 #include <exception>
 #include <string>
 #include <cstdio>

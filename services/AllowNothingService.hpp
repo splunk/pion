@@ -10,7 +10,7 @@
 #ifndef __PION_ALLOW_NOTHING_SERVICE_HEADER__
 #define __PION_ALLOW_NOTHING_SERVICE_HEADER__
 
-#include <pion/net/WebService.hpp>
+#include <pion/http/plugin_service.hpp>
 
 
 namespace pion {		// begin namespace pion

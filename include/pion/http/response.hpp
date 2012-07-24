@@ -12,9 +12,9 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/net/HTTPMessage.hpp>
-#include <pion/net/HTTPRequest.hpp>
+#include <pion/config.hpp>
+#include <pion/http/message.hpp>
+#include <pion/http/request.hpp>
 
 
 namespace pion {	// begin namespace pion

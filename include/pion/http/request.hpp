@@ -11,9 +11,9 @@
 #define __PION_HTTPREQUEST_HEADER__
 
 #include <boost/shared_ptr.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/net/HTTPMessage.hpp>
-#include <pion/net/PionUser.hpp>
+#include <pion/config.hpp>
+#include <pion/http/message.hpp>
+#include <pion/http/user.hpp>
 
 namespace pion {	// begin namespace pion
 namespace net {		// begin namespace net (Pion Network Library)

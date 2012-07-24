@@ -8,7 +8,7 @@
 //
 
 #include "HelloService.hpp"
-#include <pion/net/HTTPResponseWriter.hpp>
+#include <pion/http/response_writer.hpp>
 
 using namespace pion;
 using namespace pion::net;

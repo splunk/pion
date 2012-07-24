@@ -9,7 +9,7 @@ AC_SUBST(PION_LIBRARY_VERSION)
 AC_DEFINE_UNQUOTED([PION_VERSION],["$PACKAGE_VERSION"],[Define to the version number of Pion.])
 
 # Note: AM_CONFIG_HEADER is deprecated
-AC_CONFIG_HEADERS(include/pion/PionConfig.hpp)
+AC_CONFIG_HEADERS(include/pion/config.hpp)
 
 # Check for --with-cygwin
 AC_MSG_CHECKING([for cygwin directory])

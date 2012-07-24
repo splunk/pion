@@ -16,9 +16,9 @@
 #include <boost/logic/tribool.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/thread/once.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionLogger.hpp>
-#include <pion/net/HTTPMessage.hpp>
+#include <pion/config.hpp>
+#include <pion/logger.hpp>
+#include <pion/http/message.hpp>
 
 
 namespace pion {	// begin namespace pion

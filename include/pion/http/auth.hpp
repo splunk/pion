@@ -13,12 +13,12 @@
 #include <set>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionLogger.hpp>
-#include <pion/PionException.hpp>
-#include <pion/net/PionUser.hpp>
-#include <pion/net/TCPConnection.hpp>
-#include <pion/net/HTTPRequest.hpp>
+#include <pion/config.hpp>
+#include <pion/logger.hpp>
+#include <pion/exception.hpp>
+#include <pion/tcp/connection.hpp>
+#include <pion/http/user.hpp>
+#include <pion/http/request.hpp>
 
 
 namespace pion {	// begin namespace pion

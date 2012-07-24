@@ -14,7 +14,7 @@
 #include <fstream>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
-#include <pion/PionLogger.hpp>
+#include <pion/logger.hpp>
 
 #ifdef _MSC_VER
 	#include <direct.h>

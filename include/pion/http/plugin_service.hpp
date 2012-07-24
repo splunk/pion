@@ -11,11 +11,11 @@
 #define __PION_WEBSERVICE_HEADER__
 
 #include <boost/noncopyable.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionException.hpp>
-#include <pion/PionAlgorithms.hpp>
-#include <pion/net/HTTPRequest.hpp>
-#include <pion/net/TCPConnection.hpp>
+#include <pion/config.hpp>
+#include <pion/exception.hpp>
+#include <pion/algorithm.hpp>
+#include <pion/http/request.hpp>
+#include <pion/tcp/connection.hpp>
 #include <string>
 
 

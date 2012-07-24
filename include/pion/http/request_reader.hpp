@@ -16,9 +16,9 @@
 #include <boost/function/function2.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/net/HTTPRequest.hpp>
-#include <pion/net/HTTPReader.hpp>
+#include <pion/config.hpp>
+#include <pion/http/request.hpp>
+#include <pion/http/reader.hpp>
 
 
 namespace pion {	// begin namespace pion

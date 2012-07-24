@@ -11,11 +11,12 @@
 #define __PION_TCPTIMER_HEADER__
 
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/thread/mutex.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/net/TCPConnection.hpp>
+#include <pion/config.hpp>
+#include <pion/tcp/connection.hpp>
 
 
 namespace pion {	// begin namespace pion
@@ -56,7 +57,6 @@ private:
 	 * @param ec deadline timer error status code
 	 */
 	void timerCallback(const boost::system::error_code& ec);
-
 
 	/// pointer to the TCP connection that is being monitored
 	TCPConnectionPtr						m_conn_ptr;

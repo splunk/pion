@@ -19,8 +19,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/regex.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/net/HTTPTypes.hpp>
+#include <pion/config.hpp>
+#include <pion/http/types.hpp>
 
 
 namespace pion {	// begin namespace pion

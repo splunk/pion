@@ -10,7 +10,7 @@
 #ifndef __PION_PIONLOGGER_HEADER__
 #define __PION_PIONLOGGER_HEADER__
 
-#include <pion/PionConfig.hpp>
+#include <pion/config.hpp>
 
 
 #if defined(PION_USE_LOG4CXX)

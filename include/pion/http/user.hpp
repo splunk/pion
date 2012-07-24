@@ -17,8 +17,8 @@
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/numeric/conversion/cast.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionException.hpp>
+#include <pion/config.hpp>
+#include <pion/exception.hpp>
 
 #ifdef PION_HAVE_SSL
 	#if defined(__APPLE__)

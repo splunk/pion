@@ -1,23 +1,22 @@
-# ------------------------------------
-# pion-net automake configuration file 
-# ------------------------------------
+# --------------------------------
+# pion automake configuration file
+# --------------------------------
 
-SUBDIRS = PluginsUsedByUnitTests
+SUBDIRS = plugins
 
 AM_CPPFLAGS = -I../include @PION_TESTS_CPPFLAGS@
 
-check_PROGRAMS = PionNetUnitTests
+check_PROGRAMS = piontests
 TESTS = $(check_PROGRAMS)
 
-PionNetUnitTests_SOURCES = PionNetUnitTests.cpp \
-	PionPluginPtrTests.cpp PluginManagerTests.cpp PionAlgorithmsTests.cpp \
-	HTTPTypesTests.cpp \
-	HTTPMessageTests.cpp HTTPRequestTests.cpp HTTPResponseTests.cpp \
-	TCPStreamTests.cpp TCPServerTests.cpp WebServerTests.cpp \
-	FileServiceTests.cpp HTTPParserTests.cpp
-PionNetUnitTests_LDADD = ../src/libpion-net.la @PION_EXTERNAL_LIBS@ @BOOST_TEST_LIB@
-PionNetUnitTests_DEPENDENCIES = ../src/libpion-net.la \
-	PluginsUsedByUnitTests/hasCreateAndDestroy.la PluginsUsedByUnitTests/hasCreateButNoDestroy.la \
-	PluginsUsedByUnitTests/hasNoCreate.la
+piontests_SOURCES = piontests.cpp \
+	algorithm_tests.cpp file_service_tests.cpp http_message_tests.cpp \
+	http_parser_tests.cpp http_plugin_server_tests.cpp http_request_tests.cpp \
+	http_response_tests.cpp http_types_tests.cpp plugin_manager_tests.cpp \
+	plugin_tests.cpp tcp_server_tests.cpp tcp_stream_tests.cpp
+piontests_LDADD = ../src/libpion.la @PION_EXTERNAL_LIBS@ @BOOST_TEST_LIB@
+piontests_DEPENDENCIES = ../src/libpion.la \
+	plugins/hasCreateAndDestroy.la plugins/hasCreateButNoDestroy.la \
+	plugins/hasNoCreate.la
 
-EXTRA_DIST = *.vcproj HTTPParserTestsData.inc config doc
+EXTRA_DIST = *.vcproj http_parser_tests_data.inc
