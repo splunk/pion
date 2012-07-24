@@ -30,8 +30,8 @@ using namespace pion::net;
 /// displays an error message if the arguments are invalid
 void argument_error(void)
 {
-	std::cerr << "usage:   PionWebServer [OPTIONS] RESOURCE WEBSERVICE" << std::endl
-		      << "         PionWebServer [OPTIONS] -c SERVICE_CONFIG_FILE" << std::endl
+	std::cerr << "usage:   piond [OPTIONS] RESOURCE WEBSERVICE" << std::endl
+		      << "         piond [OPTIONS] -c SERVICE_CONFIG_FILE" << std::endl
 		      << "options: [-ssl PEM_FILE] [-i IP] [-p PORT] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v]" << std::endl;
 }
 
@@ -70,7 +70,7 @@ int main (int argc, char *argv[])
 				// add the service plug-ins directory to the search path
 				try { PionPlugin::addPluginDirectory(argv[++argnum]); }
 				catch (PionPlugin::DirectoryNotFoundException&) {
-					std::cerr << "PionWebServer: Web service plug-ins directory does not exist: "
+					std::cerr << "piond: Web service plug-ins directory does not exist: "
 						<< argv[argnum] << std::endl;
 					return 1;
 				}
@@ -115,7 +115,7 @@ int main (int argc, char *argv[])
 	PionProcess::initialize();
 	
 	// initialize log system (use simple configuration)
-	PionLogger main_log(PION_GET_LOGGER("PionWebServer"));
+	PionLogger main_log(PION_GET_LOGGER("piond"));
 	PionLogger pion_log(PION_GET_LOGGER("pion"));
 	if (verbose_flag) {
 		PION_LOG_SETLEVEL_DEBUG(main_log);

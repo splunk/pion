@@ -45,7 +45,7 @@ int main (int argc, char *argv[])
 		port = strtoul(argv[1], 0, 10);
 		if (port == 0) port = DEFAULT_PORT;
 	} else if (argc != 1) {
-		std::cerr << "usage: PionHelloServer [port]" << std::endl;
+		std::cerr << "usage: helloserver [port]" << std::endl;
 		return 1;
 	}
 
@@ -53,7 +53,7 @@ int main (int argc, char *argv[])
 	PionProcess::initialize();
 
 	// initialize log system (use simple configuration)
-	PionLogger main_log(PION_GET_LOGGER("PionHelloServer"));
+	PionLogger main_log(PION_GET_LOGGER("helloserver"));
 	PionLogger pion_log(PION_GET_LOGGER("pion"));
 	PION_LOG_SETLEVEL_INFO(main_log);
 	PION_LOG_SETLEVEL_INFO(pion_log);

@@ -32,7 +32,7 @@ using boost::asio::ip::tcp;
 PION_DECLARE_PLUGIN(FileService)
 
 #if defined(PION_XCODE)
-	static const std::string PATH_TO_PLUGINS(".");
+	static const std::string PATH_TO_PLUGINS("../bin/Debug");
 #else
 	// same for Unix and Windows
 	static const std::string PATH_TO_PLUGINS("../services/.libs");
