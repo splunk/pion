@@ -9,9 +9,9 @@
 
 #include "EchoService.hpp"
 #include <boost/bind.hpp>
-#include <pion/PionAlgorithms.hpp>
-#include <pion/net/HTTPResponseWriter.hpp>
-#include <pion/net/PionUser.hpp>
+#include <pion/algorithm.hpp>
+#include <pion/http/response_writer.hpp>
+#include <pion/http/user.hpp>
 
 using namespace pion;
 using namespace pion::net;

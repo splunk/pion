@@ -14,12 +14,12 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionException.hpp>
-#include <pion/PionPlugin.hpp>
-#include <pion/PluginManager.hpp>
-#include <pion/net/HTTPServer.hpp>
-#include <pion/net/WebService.hpp>
+#include <pion/config.hpp>
+#include <pion/exception.hpp>
+#include <pion/plugin.hpp>
+#include <pion/plugin_manager.hpp>
+#include <pion/http/server.hpp>
+#include <pion/http/plugin_service.hpp>
 
 
 namespace pion {	// begin namespace pion

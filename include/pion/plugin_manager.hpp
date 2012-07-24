@@ -16,9 +16,9 @@
 #include <boost/function.hpp>
 #include <boost/function/function1.hpp>
 #include <boost/thread/mutex.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionException.hpp>
-#include <pion/PionPlugin.hpp>
+#include <pion/config.hpp>
+#include <pion/exception.hpp>
+#include <pion/plugin.hpp>
 
 
 namespace pion {	// begin namespace pion

@@ -18,8 +18,8 @@
 #include <boost/thread/once.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/filesystem/path.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionException.hpp>
+#include <pion/config.hpp>
+#include <pion/exception.hpp>
 
 
 namespace pion {	// begin namespace pion

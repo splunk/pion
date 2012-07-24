@@ -11,8 +11,8 @@
 #define __PION_HTTPTYPES_HEADER__
 
 #include <string>
-#include <pion/PionConfig.hpp>
-#include <pion/PionHashMap.hpp>
+#include <pion/config.hpp>
+#include <pion/hash_map.hpp>
 
 
 namespace pion {	// begin namespace pion

@@ -11,11 +11,11 @@
 #define __PION_HTTPREADER_HEADER__
 
 #include <boost/asio.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/net/HTTPParser.hpp>
-#include <pion/net/HTTPMessage.hpp>
-#include <pion/net/TCPConnection.hpp>
-#include <pion/net/TCPTimer.hpp>
+#include <pion/config.hpp>
+#include <pion/http/parser.hpp>
+#include <pion/http/message.hpp>
+#include <pion/tcp/connection.hpp>
+#include <pion/tcp/timer.hpp>
 
 
 namespace pion {	// begin namespace pion

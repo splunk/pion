@@ -19,7 +19,7 @@
 	#include <log4cpp/BasicLayout.hh>
 #endif
 
-#include <pion/net/HTTPResponseWriter.hpp>
+#include <pion/http/response_writer.hpp>
 
 using namespace pion;
 using namespace pion::net;

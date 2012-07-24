@@ -15,10 +15,10 @@
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/net/HTTPWriter.hpp>
-#include <pion/net/HTTPRequest.hpp>
-#include <pion/net/HTTPResponse.hpp>
+#include <pion/config.hpp>
+#include <pion/http/writer.hpp>
+#include <pion/http/request.hpp>
+#include <pion/http/response.hpp>
 
 
 namespace pion {	// begin namespace pion

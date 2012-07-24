@@ -10,8 +10,8 @@
 #ifndef __PION_PIONADMINRIGHTS_HEADER__
 #define __PION_PIONADMINRIGHTS_HEADER__
 
-#include <pion/PionConfig.hpp>
-#include <pion/PionLogger.hpp>
+#include <pion/config.hpp>
+#include <pion/logger.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/thread/mutex.hpp>
 

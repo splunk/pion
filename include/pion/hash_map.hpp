@@ -13,7 +13,7 @@
 #include <string>
 #include <cctype>
 #include <boost/functional/hash.hpp>
-#include <pion/PionConfig.hpp>
+#include <pion/config.hpp>
 
 #if defined(PION_HAVE_UNORDERED_MAP)
 	#include <tr1/unordered_map>
