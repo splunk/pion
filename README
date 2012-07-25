@@ -16,7 +16,7 @@ Build and installation summary:
 # ./autogen.sh           (only required if using a git clone)
 # ./configure            (run ./configure --help to see available options)
 # make all               (this will build everything except the unit tests)
-# make check	         (this will build and run the unit tests)
+# make check             (this will build and run the unit tests)
 # make docs              (this will build the Doxygen source documentation)
 # make install           (this may require superuser/Administrator privileges)
 

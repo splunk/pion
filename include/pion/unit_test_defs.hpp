@@ -1,7 +1,7 @@
-// -----------------------------------------------------------------------
-// pion-common: a collection of common libraries used by the Pion Platform
-// -----------------------------------------------------------------------
-// Copyright (C) 2007-2008 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// ---------------------------------------------------------------------
+// pion:  a Boost C++ framework for building lightweight HTTP interfaces
+// ---------------------------------------------------------------------
+// Copyright (C) 2007-2012 Cloudmeter, Inc.  (http://www.cloudmeter.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
@@ -17,124 +17,124 @@
 #include <pion/logger.hpp>
 
 #ifdef _MSC_VER
-	#include <direct.h>
-	#define CHANGE_DIRECTORY _chdir
-	#define GET_DIRECTORY(a,b) _getcwd(a,b)
+    #include <direct.h>
+    #define CHANGE_DIRECTORY _chdir
+    #define GET_DIRECTORY(a,b) _getcwd(a,b)
 #else
-	#include <unistd.h>
-	#define CHANGE_DIRECTORY chdir
-	#define GET_DIRECTORY(a,b) getcwd(a,b)
+    #include <unistd.h>
+    #define CHANGE_DIRECTORY chdir
+    #define GET_DIRECTORY(a,b) getcwd(a,b)
 #endif
 
 #define DIRECTORY_MAX_SIZE 1000
 
 
 struct PionUnitTest {
-	// This is passed to xmlSetGenericErrorFunc() to make libxml do nothing when an error
-	// occurs, rather than its default behavior of writing a message to stderr.
-	static void doNothing(void* ctx, const char* msg, ...) {
-	}
+    // This is passed to xmlSetGenericErrorFunc() to make libxml do nothing when an error
+    // occurs, rather than its default behavior of writing a message to stderr.
+    static void doNothing(void* ctx, const char* msg, ...) {
+    }
 
-	// removes line endings from a c-style string
-	static char* trim(char* str) {
-		for (long len = strlen(str) - 1; len >= 0; len--) {
-			if (str[len] == '\n' || str[len] == '\r')
-				str[len] = '\0';
-			else
-				break;
-		}
-		return str;
-	}
+    // removes line endings from a c-style string
+    static char* trim(char* str) {
+        for (long len = strlen(str) - 1; len >= 0; len--) {
+            if (str[len] == '\n' || str[len] == '\r')
+                str[len] = '\0';
+            else
+                break;
+        }
+        return str;
+    }
 
-	// reads lines from a file, stripping line endings and ignoring blank lines
-	// and comment lines (starting with a '#')
-	static bool read_lines_from_file(const std::string& filename, std::list<std::string>& lines) {
-		// open file
-		std::ifstream a_file(filename.c_str(), std::ios::in | std::ios::binary);
-		if (! a_file.is_open())
-			return false;
+    // reads lines from a file, stripping line endings and ignoring blank lines
+    // and comment lines (starting with a '#')
+    static bool read_lines_from_file(const std::string& filename, std::list<std::string>& lines) {
+        // open file
+        std::ifstream a_file(filename.c_str(), std::ios::in | std::ios::binary);
+        if (! a_file.is_open())
+            return false;
 
-		// read data from file
-		static const unsigned int BUF_SIZE = 4096;
-		char *ptr, buf[BUF_SIZE+1];
-		buf[BUF_SIZE] = '\0';
-		lines.clear();
+        // read data from file
+        static const unsigned int BUF_SIZE = 4096;
+        char *ptr, buf[BUF_SIZE+1];
+        buf[BUF_SIZE] = '\0';
+        lines.clear();
 
-		while (a_file.getline(buf, BUF_SIZE)) {
-			ptr = trim(buf);
-			if (*ptr != '\0' && *ptr != '#')
-				lines.push_back(ptr);
-		}
+        while (a_file.getline(buf, BUF_SIZE)) {
+            ptr = trim(buf);
+            if (*ptr != '\0' && *ptr != '#')
+                lines.push_back(ptr);
+        }
 
-		// close file
-		a_file.close();
+        // close file
+        a_file.close();
 
-		return true;
-	}
+        return true;
+    }
 
-	// Check for file match, use std::list for sorting the files, which will allow
-	// random order matching...
-	static bool check_files_match(const std::string& fileA, const std::string& fileB) {
-		// open and read data from files
-		std::list<std::string> a_lines, b_lines;
-		BOOST_REQUIRE(read_lines_from_file(fileA, a_lines));
-		BOOST_REQUIRE(read_lines_from_file(fileB, b_lines));
+    // Check for file match, use std::list for sorting the files, which will allow
+    // random order matching...
+    static bool check_files_match(const std::string& fileA, const std::string& fileB) {
+        // open and read data from files
+        std::list<std::string> a_lines, b_lines;
+        BOOST_REQUIRE(read_lines_from_file(fileA, a_lines));
+        BOOST_REQUIRE(read_lines_from_file(fileB, b_lines));
 
-		// sort lines read
-		a_lines.sort();
-		b_lines.sort();
+        // sort lines read
+        a_lines.sort();
+        b_lines.sort();
 
-		// files match if lines match
-		return (a_lines == b_lines);
-	}
+        // files match if lines match
+        return (a_lines == b_lines);
+    }
 
-	static bool check_files_exact_match(const std::string& fileA, const std::string& fileB, bool ignore_line_endings = false) {
-		// open files
-		std::ifstream a_file(fileA.c_str(), std::ios::in | std::ios::binary);
-		BOOST_REQUIRE(a_file.is_open());
+    static bool check_files_exact_match(const std::string& fileA, const std::string& fileB, bool ignore_line_endings = false) {
+        // open files
+        std::ifstream a_file(fileA.c_str(), std::ios::in | std::ios::binary);
+        BOOST_REQUIRE(a_file.is_open());
 
-		std::ifstream b_file(fileB.c_str(), std::ios::in | std::ios::binary);
-		BOOST_REQUIRE(b_file.is_open());
+        std::ifstream b_file(fileB.c_str(), std::ios::in | std::ios::binary);
+        BOOST_REQUIRE(b_file.is_open());
 
-		// read and compare data in files
-		static const unsigned int BUF_SIZE = 4096;
-		char a_buf[BUF_SIZE];
-		char b_buf[BUF_SIZE];
+        // read and compare data in files
+        static const unsigned int BUF_SIZE = 4096;
+        char a_buf[BUF_SIZE];
+        char b_buf[BUF_SIZE];
 
-		if (ignore_line_endings) {
-			while (a_file.getline(a_buf, BUF_SIZE)) {
-				if (! b_file.getline(b_buf, BUF_SIZE))
-					return false;
-				PionUnitTest::trim(a_buf);
-				PionUnitTest::trim(b_buf);
-				if (strlen(a_buf) != strlen(b_buf))
-					return false;
-				if (memcmp(a_buf, b_buf, strlen(a_buf)) != 0)
-					return false;
-			}
-			if (b_file.getline(b_buf, BUF_SIZE))
-				return false;
-		} else {
-			while (a_file.read(a_buf, BUF_SIZE)) {
-				if (! b_file.read(b_buf, BUF_SIZE))
-					return false;
-				if (memcmp(a_buf, b_buf, BUF_SIZE) != 0)
-					return false;
-			}
-			if (b_file.read(b_buf, BUF_SIZE))
-				return false;
-		}
-		if (a_file.gcount() != b_file.gcount())
-			return false;
-		if (memcmp(a_buf, b_buf, a_file.gcount()) != 0)
-			return false;
+        if (ignore_line_endings) {
+            while (a_file.getline(a_buf, BUF_SIZE)) {
+                if (! b_file.getline(b_buf, BUF_SIZE))
+                    return false;
+                PionUnitTest::trim(a_buf);
+                PionUnitTest::trim(b_buf);
+                if (strlen(a_buf) != strlen(b_buf))
+                    return false;
+                if (memcmp(a_buf, b_buf, strlen(a_buf)) != 0)
+                    return false;
+            }
+            if (b_file.getline(b_buf, BUF_SIZE))
+                return false;
+        } else {
+            while (a_file.read(a_buf, BUF_SIZE)) {
+                if (! b_file.read(b_buf, BUF_SIZE))
+                    return false;
+                if (memcmp(a_buf, b_buf, BUF_SIZE) != 0)
+                    return false;
+            }
+            if (b_file.read(b_buf, BUF_SIZE))
+                return false;
+        }
+        if (a_file.gcount() != b_file.gcount())
+            return false;
+        if (memcmp(a_buf, b_buf, a_file.gcount()) != 0)
+            return false;
 
-		a_file.close();
-		b_file.close();
+        a_file.close();
+        b_file.close();
 
-		// files match
-		return true;
-	}
+        // files match
+        return true;
+    }
 };
 
 
@@ -145,30 +145,30 @@ struct PionUnitTest {
 // BOOST_GLOBAL_FIXTURE(PionUnitTestsConfig);
 
 struct PionUnitTestsConfig {
-	PionUnitTestsConfig() {
-		std::cout << "global setup for all pion unit tests\n";
+    PionUnitTestsConfig() {
+        std::cout << "global setup for all pion unit tests\n";
 
-		// argc and argv do not include parameters handled by the boost unit test framework, such as --log_level.
-		int argc = boost::unit_test::framework::master_test_suite().argc;
-		char** argv = boost::unit_test::framework::master_test_suite().argv;
+        // argc and argv do not include parameters handled by the boost unit test framework, such as --log_level.
+        int argc = boost::unit_test::framework::master_test_suite().argc;
+        char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-		bool verbose = false;
-		if (argc > 1) {
-			if (argv[1][0] == '-' && argv[1][1] == 'v') {
-				verbose = true;
-			}
-		}
-		if (verbose) {
-			PION_LOG_CONFIG_BASIC;
-		} else {
-			std::cout << "Use '-v' to enable logging of errors and warnings from pion.\n";
-		}
-		pion::PionLogger log_ptr = PION_GET_LOGGER("pion");
-		PION_LOG_SETLEVEL_WARN(log_ptr);
-	}
-	~PionUnitTestsConfig() {
-		std::cout << "global teardown for all pion unit tests\n";
-	}
+        bool verbose = false;
+        if (argc > 1) {
+            if (argv[1][0] == '-' && argv[1][1] == 'v') {
+                verbose = true;
+            }
+        }
+        if (verbose) {
+            PION_LOG_CONFIG_BASIC;
+        } else {
+            std::cout << "Use '-v' to enable logging of errors and warnings from pion.\n";
+        }
+        pion::PionLogger log_ptr = PION_GET_LOGGER("pion");
+        PION_LOG_SETLEVEL_WARN(log_ptr);
+    }
+    ~PionUnitTestsConfig() {
+        std::cout << "global teardown for all pion unit tests\n";
+    }
 };
 
 
@@ -198,29 +198,29 @@ Minimal example demonstrating usage of BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE:
 
 class ObjectToTest_F { // suffix _F is used for fixtures
 public:
-	ObjectToTest_F() {
-		m_value = 2;
-	}
-	int m_value;
-	int getValue() { return m_value; }
+    ObjectToTest_F() {
+        m_value = 2;
+    }
+    int m_value;
+    int getValue() { return m_value; }
 };
 
 // This illustrates the most common case, where just one fixture will be used,
 // so the list only has one fixture in it.
 // ObjectToTest_S is the name of the test suite.
 BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(ObjectToTest_S,
-									   boost::mpl::list<ObjectToTest_F>)
+                                       boost::mpl::list<ObjectToTest_F>)
 
 // One method for testing the fixture...
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwo) {
-	BOOST_CHECK_EQUAL(F::m_value, 2);
-	BOOST_CHECK_EQUAL(F::getValue(), 2);
+    BOOST_CHECK_EQUAL(F::m_value, 2);
+    BOOST_CHECK_EQUAL(F::getValue(), 2);
 }
 
 // Another method for testing the fixture...
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwoAgain) {
-	BOOST_CHECK_EQUAL(this->m_value, 2);
-	BOOST_CHECK_EQUAL(this->getValue(), 2);
+    BOOST_CHECK_EQUAL(this->m_value, 2);
+    BOOST_CHECK_EQUAL(this->getValue(), 2);
 }
 
 // The simplest, but, alas, non conformant to the C++ standard, method for testing the fixture.
@@ -228,8 +228,8 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwoAgain) {
 // It won't compile with gcc unless -fpermissive is used.
 // See http://gcc.gnu.org/onlinedocs/gcc/Name-lookup.html.
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwoNonConformant) {
-	BOOST_CHECK_EQUAL(m_value, 2);
-	BOOST_CHECK_EQUAL(getValue(), 2);
+    BOOST_CHECK_EQUAL(m_value, 2);
+    BOOST_CHECK_EQUAL(getValue(), 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -240,43 +240,43 @@ BOOST_AUTO_TEST_SUITE(suite_name)                                         \
 typedef fixture_types BOOST_AUTO_TEST_CASE_FIXTURE_TYPES;                 \
 /**/
 
-#define BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(test_name)		\
-template<typename F>											\
-struct test_name : public F										\
-{ void test_method(); };										\
-																\
-struct BOOST_AUTO_TC_INVOKER( test_name ) {						\
-	template<typename TestType>									\
-	static void run( boost::type<TestType>* = 0 )				\
-	{															\
-		test_name<TestType> t;									\
-		t.test_method();										\
-	}															\
-};																\
-																\
-BOOST_AUTO_TU_REGISTRAR( test_name )(							\
-	boost::unit_test::ut_detail::template_test_case_gen<		\
-		BOOST_AUTO_TC_INVOKER( test_name ),						\
-		BOOST_AUTO_TEST_CASE_FIXTURE_TYPES >(					\
-			BOOST_STRINGIZE( test_name ) ) );					\
-																\
-template<typename F>											\
-void test_name<F>::test_method()								\
+#define BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(test_name)        \
+template<typename F>                                            \
+struct test_name : public F                                     \
+{ void test_method(); };                                        \
+                                                                \
+struct BOOST_AUTO_TC_INVOKER( test_name ) {                     \
+    template<typename TestType>                                 \
+    static void run( boost::type<TestType>* = 0 )               \
+    {                                                           \
+        test_name<TestType> t;                                  \
+        t.test_method();                                        \
+    }                                                           \
+};                                                              \
+                                                                \
+BOOST_AUTO_TU_REGISTRAR( test_name )(                           \
+    boost::unit_test::ut_detail::template_test_case_gen<        \
+        BOOST_AUTO_TC_INVOKER( test_name ),                     \
+        BOOST_AUTO_TEST_CASE_FIXTURE_TYPES >(                   \
+            BOOST_STRINGIZE( test_name ) ) );                   \
+                                                                \
+template<typename F>                                            \
+void test_name<F>::test_method()                                \
 /**/
 
 // Macro for checking that a particular exception is thrown, for situations where the type of the exception is not in scope.  
 // For instance, in checkEmptyQueryMapException(), we'd really just like to say:
-//		BOOST_CHECK_THROW(p->setConfig(*m_vocab, config_ptr), pion::plugins::WebTrendsAnalyticsReactor::EmptyQueryMap);
+//      BOOST_CHECK_THROW(p->setConfig(*m_vocab, config_ptr), pion::plugins::WebTrendsAnalyticsReactor::EmptyQueryMap);
 // but pion::plugins::WebTrendsAnalyticsReactor::EmptyQueryMap isn't defined, and the overhead to bring it into scope is prohibitive.
 #define CHECK_THROW_WITH_SPECIFIC_MESSAGE(S, M) \
-	bool exception_caught = false;              \
-	try {                                       \
-		S;                                      \
-	} catch (pion::PionException& e) {          \
-		exception_caught = true;                \
-		BOOST_CHECK_EQUAL(e.what(), M);         \
-	}                                           \
-	BOOST_CHECK(exception_caught);
+    bool exception_caught = false;              \
+    try {                                       \
+        S;                                      \
+    } catch (pion::PionException& e) {          \
+        exception_caught = true;                \
+        BOOST_CHECK_EQUAL(e.what(), M);         \
+    }                                           \
+    BOOST_CHECK(exception_caught);
 /**/
 
 #endif

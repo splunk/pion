@@ -19,7 +19,7 @@ require File::Spec->catfile( ("..", "pion-core", "common", "build"), "common.pl"
 
 # check command line parameters
 die("usage: make_rpm.pl <VERSION> <RELEASE.ARCH> [--nostrip]")
-	if ($#ARGV < 1 || $#ARGV > 2 || ($#ARGV == 2 && $ARGV[2] ne "--nostrip"));
+    if ($#ARGV < 1 || $#ARGV > 2 || ($#ARGV == 2 && $ARGV[2] ne "--nostrip"));
 
 # must be run as root
 die("This script must be run as root!") if $>!=0;
@@ -30,16 +30,16 @@ $RELEASE = $ARGV[1];
 
 # check for --nostrip option
 if ($ARGV[2] eq "--nostrip") {
-	$INSTALL_BIN = 'install';
-	$SPEC_OPTIONS = '%define __os_install_post %{nil}';
+    $INSTALL_BIN = 'install';
+    $SPEC_OPTIONS = '%define __os_install_post %{nil}';
 } else {
-	$INSTALL_BIN = 'install -s';
-	$SPEC_OPTIONS = '';
+    $INSTALL_BIN = 'install -s';
+    $SPEC_OPTIONS = '';
 }
 
 # check validity of RELEASE parameter
 die("Second parameter must be format <RELEASE.ARCH> (i.e. \"1.el5\")")
-	if ($RELEASE !~ m/^\d+\..+$/);
+    if ($RELEASE !~ m/^\d+\..+$/);
 
 # find binary directory
 $BIN_DIR = "bin";
@@ -50,11 +50,11 @@ $DIR_GLOB = $BIN_DIR . "/pion-*" . $VERSION;
 die("error: unable to find binary directory") if ($#PACKAGES != 0);
 $EDITION = $PACKAGE_BASE = $PACKAGE_DIR = $PACKAGES[0];
 if ( $PACKAGE_DIR =~ m/.*pion-[a-z]+-.*/ ) {
-	$PACKAGE_BASE =~ s/.*(pion-[a-z]+)-.*/$1/;
-	$EDITION =~ s/.*pion-([a-z]+)-.*/$1/;
+    $PACKAGE_BASE =~ s/.*(pion-[a-z]+)-.*/$1/;
+    $EDITION =~ s/.*pion-([a-z]+)-.*/$1/;
 } else {
-	$PACKAGE_BASE =~ s/.*(pion)-.*/$1/;
-	$EDITION = "";
+    $PACKAGE_BASE =~ s/.*(pion)-.*/$1/;
+    $EDITION = "";
 }
 $BIN_SRC_BASE = $PACKAGE_BASE . "-" . $VERSION . "-" . $RELEASE;
 $BIN_SRC_DIR = "$BUILD_DIR/$BIN_SRC_BASE";
@@ -81,15 +81,15 @@ print "* Generating RPM spec file..\n";
 
 # prepare some vars for spec file
 if ($EDITION eq "core") {
-	$spec_license = "GPL";
-	$config_file_glob = "*.{xml,txt,pem}";
-	$install_perl_scripts = "";
-	$extra_config_files = "";
+    $spec_license = "GPL";
+    $config_file_glob = "*.{xml,txt,pem}";
+    $install_perl_scripts = "";
+    $extra_config_files = "";
 } else {
-	$spec_license = "commercial";
-	$config_file_glob = "*.{xml,txt,pem}";
-	$install_perl_scripts = "install -m 660 $BIN_SRC_DIR/config/*.pl \$RPM_BUILD_ROOT/var/lib/pion";
-	$extra_config_files = "\%config /etc/pion/SearchEngines.xml\n\%config(noreplace) /etc/pion/ReplayQueries.xml\n\%config(noreplace) /etc/pion/robots.xml";
+    $spec_license = "commercial";
+    $config_file_glob = "*.{xml,txt,pem}";
+    $install_perl_scripts = "install -m 660 $BIN_SRC_DIR/config/*.pl \$RPM_BUILD_ROOT/var/lib/pion";
+    $extra_config_files = "\%config /etc/pion/SearchEngines.xml\n\%config(noreplace) /etc/pion/ReplayQueries.xml\n\%config(noreplace) /etc/pion/robots.xml";
 }
 $SPEC_POST="/sbin/ldconfig";
 $SPEC_POSTUN="/sbin/ldconfig";
@@ -221,14 +221,14 @@ END_SPEC_FILE
 
 # output library file names
 foreach $_ (@spec_libs) {
-	s[$LIBS_DIR][/usr/lib];
-	print SPEC_FILE $_ . "\n";
+    s[$LIBS_DIR][/usr/lib];
+    print SPEC_FILE $_ . "\n";
 }
 
 # output purge scripts (if any)
 foreach $_ (@purge_scripts) {
-	s[$CONFIG_DIR][/var/lib/pion];
-	print SPEC_FILE $_ . "\n";
+    s[$CONFIG_DIR][/var/lib/pion];
+    print SPEC_FILE $_ . "\n";
 }
 
 
@@ -241,25 +241,25 @@ print "* Preparing binary source directory..\n";
 `rm -rf $BIN_SRC_DIR`;
 copyDirWithoutDotFiles($PACKAGE_DIR, $BIN_SRC_DIR);
 if ($EDITION eq "core") {
-	copyDirWithoutDotFiles("platform/build/rpm", $BIN_SRC_DIR);
+    copyDirWithoutDotFiles("platform/build/rpm", $BIN_SRC_DIR);
 } else {
-	# find the pion-core directory
-	$_ = getcwd();
-	if (/pion-[^-]+-/) {
-		s,/$,,;
-		s,\\$,,;
-		s,pion-[^-]+-(.*),pion-core-$1,;
-		if (-d $_) {
-			$PION_PLATFORM_DIR = $_;
-		} else {
-			$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-core") );
-		}
-	} else {
-		$PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-core") );
-	}
-	die("Could not find pion-core directory: $PION_CORE_DIR") if (! -d $PION_PLATFORM_DIR);
-	copyDirWithoutDotFiles($PION_PLATFORM_DIR . "/platform/build/rpm", $BIN_SRC_DIR);
-	copyDirWithoutDotFiles("enterprise/build/rpm", $BIN_SRC_DIR);
+    # find the pion-core directory
+    $_ = getcwd();
+    if (/pion-[^-]+-/) {
+        s,/$,,;
+        s,\\$,,;
+        s,pion-[^-]+-(.*),pion-core-$1,;
+        if (-d $_) {
+            $PION_PLATFORM_DIR = $_;
+        } else {
+            $PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-core") );
+        }
+    } else {
+        $PION_PLATFORM_DIR = File::Spec->catdir( ("..", "pion-core") );
+    }
+    die("Could not find pion-core directory: $PION_CORE_DIR") if (! -d $PION_PLATFORM_DIR);
+    copyDirWithoutDotFiles($PION_PLATFORM_DIR . "/platform/build/rpm", $BIN_SRC_DIR);
+    copyDirWithoutDotFiles("enterprise/build/rpm", $BIN_SRC_DIR);
 }
 
 
