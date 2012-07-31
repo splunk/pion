@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug_DLL|Win32"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -43,7 +43,7 @@
 		<Configuration
 			Name="Debug_DLL|x64"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -66,7 +66,7 @@
 		<Configuration
 			Name="Debug_DLL_full|Win32"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -88,7 +88,7 @@
 		<Configuration
 			Name="Debug_DLL_full|x64"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -111,7 +111,7 @@
 		<Configuration
 			Name="Release_DLL|Win32"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -133,7 +133,7 @@
 		<Configuration
 			Name="Release_DLL|x64"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -156,7 +156,7 @@
 		<Configuration
 			Name="Release_DLL_full|Win32"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -178,7 +178,7 @@
 		<Configuration
 			Name="Release_DLL_full|x64"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -201,7 +201,7 @@
 		<Configuration
 			Name="Release_static|Win32"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -219,7 +219,7 @@
 		<Configuration
 			Name="Release_static|x64"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -238,7 +238,7 @@
 		<Configuration
 			Name="Debug_static|Win32"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -256,7 +256,7 @@
 		<Configuration
 			Name="Debug_static|x64"
 			ConfigurationType="10"
-			InheritedPropertySheets="..\common\build\pion.vsprops"
+			InheritedPropertySheets="build\pion.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
