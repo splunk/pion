@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPMESSAGE_HEADER__
-#define __PION_HTTPMESSAGE_HEADER__
+#ifndef __PION_HTTP_MESSAGE_HEADER__
+#define __PION_HTTP_MESSAGE_HEADER__
 
 #include <iosfwd>
 #include <vector>
@@ -34,7 +34,7 @@ class TCPConnection;
 ///
 /// HTTPMessage: base container for HTTP messages
 /// 
-class PION_NET_API HTTPMessage
+class PION_API HTTPMessage
     : public HTTPTypes
 {
 public:

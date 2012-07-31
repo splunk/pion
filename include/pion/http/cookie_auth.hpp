@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPCOOKIEAUTH_HEADER__
-#define __PION_HTTPCOOKIEAUTH_HEADER__
+#ifndef __PION_HTTP_COOKIE_AUTH_HEADER__
+#define __PION_HTTP_COOKIE_AUTH_HEADER__
 
 #include <map>
 #include <string>
@@ -25,7 +25,7 @@ namespace net {     // begin namespace net (Pion Network Library)
 /// HTTPCookieAuth: handles HTTP authentication and session management in
 /// accordance with RFC 2617 (http://tools.ietf.org/html/rfc2617 ) using cookies.
 ///
-class PION_NET_API HTTPCookieAuth :
+class PION_API HTTPCookieAuth :
     public HTTPAuth
 {
 public:

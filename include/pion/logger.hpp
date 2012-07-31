@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PIONLOGGER_HEADER__
-#define __PION_PIONLOGGER_HEADER__
+#ifndef __PION_LOGGER_HEADER__
+#define __PION_LOGGER_HEADER__
 
 #include <pion/config.hpp>
 
@@ -227,7 +227,7 @@
     #include <ctime>
 
     namespace pion {
-        struct PION_COMMON_API PionLogger {
+        struct PION_API PionLogger {
             enum PionPriorityType {
                 LOG_LEVEL_DEBUG, LOG_LEVEL_INFO, LOG_LEVEL_WARN,
                 LOG_LEVEL_ERROR, LOG_LEVEL_FATAL

@@ -7,16 +7,16 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_WEBSERVICE_HEADER__
-#define __PION_WEBSERVICE_HEADER__
+#ifndef __PION_PLUGIN_SERVICE_HEADER__
+#define __PION_PLUGIN_SERVICE_HEADER__
 
+#include <string>
 #include <boost/noncopyable.hpp>
 #include <pion/config.hpp>
-#include <pion/exception.hpp>
+#include <pion/error.hpp>
 #include <pion/algorithm.hpp>
 #include <pion/http/request.hpp>
 #include <pion/tcp/connection.hpp>
-#include <string>
 
 
 namespace pion {    // begin namespace pion
@@ -29,13 +29,6 @@ class WebService :
     private boost::noncopyable
 {
 public:
-
-    /// exception thrown if the service does not recognize a configuration option
-    class UnknownOptionException : public PionException {
-    public:
-        UnknownOptionException(const std::string& name)
-            : PionException("Option not recognized by web service: ", name) {}
-    };
 
     /// default constructor
     WebService(void) {}
@@ -58,7 +51,7 @@ public:
      * @param value the value of the option
      */
     virtual void setOption(const std::string& name, const std::string& value) {
-        throw UnknownOptionException(name);
+        BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
     }
     
     /// called when the web service's server is starting

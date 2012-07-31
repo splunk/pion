@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_TCPTIMER_HEADER__
-#define __PION_TCPTIMER_HEADER__
+#ifndef __PION_TCP_TIMER_HEADER__
+#define __PION_TCP_TIMER_HEADER__
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>

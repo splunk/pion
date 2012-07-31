@@ -7,11 +7,12 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PIONSCHEDULER_HEADER__
-#define __PION_PIONSCHEDULER_HEADER__
+#ifndef __PION_SCHEDULER_HEADER__
+#define __PION_SCHEDULER_HEADER__
 
 #include <vector>
 #include <boost/asio.hpp>
+#include <boost/assert.hpp>
 #include <boost/bind.hpp>
 #include <boost/function/function0.hpp>
 #include <boost/cstdint.hpp>
@@ -22,7 +23,6 @@
 #include <boost/thread/xtime.hpp>
 #include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
-#include <pion/exception.hpp>
 #include <pion/logger.hpp>
 
 
@@ -31,7 +31,7 @@ namespace pion {    // begin namespace pion
 ///
 /// PionScheduler: combines Boost.ASIO with a managed thread pool for scheduling
 /// 
-class PION_COMMON_API PionScheduler :
+class PION_API PionScheduler :
     private boost::noncopyable
 {
 public:
@@ -196,7 +196,7 @@ protected:
 ///
 /// PionMultiThreadScheduler: uses a pool of threads to perform work
 /// 
-class PION_COMMON_API PionMultiThreadScheduler :
+class PION_API PionMultiThreadScheduler :
     public PionScheduler
 {
 public:
@@ -243,7 +243,7 @@ protected:
 ///
 /// PionSingleServiceScheduler: uses a single IO service to schedule work
 /// 
-class PION_COMMON_API PionSingleServiceScheduler :
+class PION_API PionSingleServiceScheduler :
     public PionMultiThreadScheduler
 {
 public:
@@ -283,7 +283,7 @@ protected:
 ///
 /// PionOneToOneScheduler: uses a single IO service for each thread
 /// 
-class PION_COMMON_API PionOneToOneScheduler :
+class PION_API PionOneToOneScheduler :
     public PionMultiThreadScheduler
 {
 public:
@@ -305,7 +305,7 @@ public:
         }
         if (++m_next_service >= m_num_threads)
             m_next_service = 0;
-        PION_ASSERT(m_next_service < m_num_threads);
+        BOOST_ASSERT(m_next_service < m_num_threads);
         return m_service_pool[m_next_service]->first;
     }
     
@@ -316,8 +316,8 @@ public:
      * @param n integer number representing the service object
      */
     virtual boost::asio::io_service& getIOService(boost::uint32_t n) {
-        PION_ASSERT(n < m_num_threads);
-        PION_ASSERT(n < m_service_pool.size());
+        BOOST_ASSERT(n < m_num_threads);
+        BOOST_ASSERT(n < m_service_pool.size());
         return m_service_pool[n]->first;
     }
 

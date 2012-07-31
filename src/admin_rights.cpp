@@ -23,35 +23,35 @@
 namespace pion {    // begin namespace pion
 
 
-// static members of PionAdminRights
+// static members of admin_rights
 
-const boost::int16_t            PionAdminRights::ADMIN_USER_ID = 0;
-boost::mutex                    PionAdminRights::m_mutex;
+const boost::int16_t    admin_rights::ADMIN_USER_ID = 0;
+boost::mutex            admin_rights::m_mutex;
 
 
-// PionAdminRights member functions
+// admin_rights member functions
 
 #ifdef _MSC_VER
 
-PionAdminRights::PionAdminRights(bool use_log)
-    : m_logger(PION_GET_LOGGER("pion.PionAdminRights")),
+admin_rights::admin_rights(bool use_log)
+    : m_logger(PION_GET_LOGGER("pion.admin_rights")),
     m_lock(m_mutex), m_user_id(-1), m_has_rights(false), m_use_log(use_log)
 {}
 
-void PionAdminRights::release(void)
+void admin_rights::release(void)
 {}
 
-long PionAdminRights::runAsUser(const std::string& user_name)
+long admin_rights::run_as_user(const std::string& user_name)
 {
     return -1;
 }
 
-long PionAdminRights::runAsGroup(const std::string& group_name)
+long admin_rights::run_as_group(const std::string& group_name)
 {
     return -1;
 }
 
-long PionAdminRights::findSystemId(const std::string& name,
+long admin_rights::find_system_id(const std::string& name,
     const std::string& file)
 {
     return -1;
@@ -59,8 +59,8 @@ long PionAdminRights::findSystemId(const std::string& name,
 
 #else   // NOT #ifdef _MSC_VER
 
-PionAdminRights::PionAdminRights(bool use_log)
-    : m_logger(PION_GET_LOGGER("pion.PionAdminRights")),
+admin_rights::admin_rights(bool use_log)
+    : m_logger(PION_GET_LOGGER("pion.admin_rights")),
     m_lock(m_mutex), m_user_id(-1), m_has_rights(false), m_use_log(use_log)
 {
     m_user_id = geteuid();
@@ -76,7 +76,7 @@ PionAdminRights::PionAdminRights(bool use_log)
     }
 }
 
-void PionAdminRights::release(void)
+void admin_rights::release(void)
 {
     if (m_has_rights) {
         if ( seteuid(m_user_id) == 0 ) {
@@ -91,9 +91,9 @@ void PionAdminRights::release(void)
     }
 }
 
-long PionAdminRights::runAsUser(const std::string& user_name)
+long admin_rights::run_as_user(const std::string& user_name)
 {
-    long user_id = findSystemId(user_name, "/etc/passwd");
+    long user_id = find_system_id(user_name, "/etc/passwd");
     if (user_id != -1) {
         if ( seteuid(user_id) != 0 )
             user_id = -1;
@@ -103,9 +103,9 @@ long PionAdminRights::runAsUser(const std::string& user_name)
     return user_id;
 }
 
-long PionAdminRights::runAsGroup(const std::string& group_name)
+long admin_rights::run_as_group(const std::string& group_name)
 {
-    long group_id = findSystemId(group_name, "/etc/group");
+    long group_id = find_system_id(group_name, "/etc/group");
     if (group_id != -1) {
         if ( setegid(group_id) != 0 )
             group_id = -1;
@@ -115,7 +115,7 @@ long PionAdminRights::runAsGroup(const std::string& group_name)
     return group_id;
 }
 
-long PionAdminRights::findSystemId(const std::string& name,
+long admin_rights::find_system_id(const std::string& name,
     const std::string& file)
 {
     // check if name is the system id

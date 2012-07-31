@@ -10,6 +10,7 @@
 #include <iostream>
 #include <algorithm>
 #include <boost/asio.hpp>
+#include <boost/assert.hpp>
 #include <boost/regex.hpp>
 #include <boost/logic/tribool.hpp>
 #include <pion/http/message.hpp>
@@ -68,7 +69,7 @@ std::size_t HTTPMessage::receive(TCPConnection& tcp_conn,
         // read buffer is empty (not pipelined) -> read some bytes from the connection
         last_bytes_read = tcp_conn.read_some(ec);
         if (ec) return 0;
-        PION_ASSERT(last_bytes_read > 0);
+        BOOST_ASSERT(last_bytes_read > 0);
         http_parser.setReadBuffer(tcp_conn.getReadBuffer().data(), last_bytes_read);
     }
 

@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPREQUEST_HEADER__
-#define __PION_HTTPREQUEST_HEADER__
+#ifndef __PION_HTTP_REQUEST_HEADER__
+#define __PION_HTTP_REQUEST_HEADER__
 
 #include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>

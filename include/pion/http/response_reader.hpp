@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPRESPONSEREADER_HEADER__
-#define __PION_HTTPRESPONSEREADER_HEADER__
+#ifndef __PION_HTTP_RESPONSE_READER_HEADER__
+#define __PION_HTTP_RESPONSE_READER_HEADER__
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>

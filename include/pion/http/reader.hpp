@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPREADER_HEADER__
-#define __PION_HTTPREADER_HEADER__
+#ifndef __PION_HTTP_READER_HEADER__
+#define __PION_HTTP_READER_HEADER__
 
 #include <boost/asio.hpp>
 #include <pion/config.hpp>
@@ -25,7 +25,7 @@ namespace net {     // begin namespace net (Pion Network Library)
 ///
 /// HTTPReader: asynchronously reads and parses HTTP messages
 ///
-class PION_NET_API HTTPReader :
+class PION_API HTTPReader :
     public HTTPParser
 {
 public:

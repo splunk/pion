@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPRESPONSEWRITER_HEADER__
-#define __PION_HTTPRESPONSEWRITER_HEADER__
+#ifndef __PION_HTTP_RESPONSE_WRITER_HEADER__
+#define __PION_HTTP_RESPONSE_WRITER_HEADER__
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -27,7 +27,7 @@ namespace net {     // begin namespace net (Pion Network Library)
 ///
 /// HTTPResponseWriter: used to asynchronously send HTTP responses
 /// 
-class PION_NET_API HTTPResponseWriter :
+class PION_API HTTPResponseWriter :
     public HTTPWriter,
     public boost::enable_shared_from_this<HTTPResponseWriter>
 {

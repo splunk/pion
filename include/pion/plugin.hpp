@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PIONPLUGIN_HEADER__
-#define __PION_PIONPLUGIN_HEADER__
+#ifndef __PION_PLUGIN_HEADER__
+#define __PION_PLUGIN_HEADER__
 
 #include <vector>
 #include <string>
@@ -19,7 +19,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/filesystem/path.hpp>
 #include <pion/config.hpp>
-#include <pion/exception.hpp>
+#include <pion/error.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -27,51 +27,8 @@ namespace pion {    // begin namespace pion
 ///
 /// PionPlugin: base class for plug-in management
 ///
-class PION_COMMON_API PionPlugin {
+class PION_API PionPlugin {
 public:
-
-    /// exception thrown if the plug-in file cannot be opened
-    class PluginUndefinedException : public std::exception {
-    public:
-        virtual const char* what() const throw() {
-            return "Plug-in was not loaded properly";
-        }
-    };
-    
-    /// exception thrown if the plug-in directory does not exist
-    class DirectoryNotFoundException : public PionException {
-    public:
-        DirectoryNotFoundException(const std::string& dir)
-            : PionException("Plug-in directory not found: ", dir) {}
-    };
-
-    /// exception thrown if the plug-in file cannot be found
-    class PluginNotFoundException : public PionException {
-    public:
-        PluginNotFoundException(const std::string& file)
-            : PionException("Plug-in library not found: ", file) {}
-    };
-    
-    /// exception thrown if the plug-in file cannot be opened
-    class OpenPluginException : public PionException {
-    public:
-        OpenPluginException(const std::string& file)
-            : PionException("Unable to open plug-in library: ", file) {}
-    };
-    
-    /// exception thrown if a plug-in library is missing the create() function
-    class PluginMissingCreateException : public PionException {
-    public:
-        PluginMissingCreateException(const std::string& file)
-            : PionException("Plug-in library does not include create() symbol: ", file) {}
-    };
-    
-    /// exception thrown if a plug-in library is missing the destroy() function
-    class PluginMissingDestroyException : public PionException {
-    public:
-        PluginMissingDestroyException(const std::string& file)
-            : PionException("Plug-in library does not include destroy() symbol: ", file) {}
-    };
 
     /**
      * searches directories for a valid plug-in file
@@ -370,7 +327,7 @@ public:
         CreateObjectFunction *create_func =
             (CreateObjectFunction*)(getCreateFunction());
         if (create_func == NULL)
-            throw PluginUndefinedException();
+            BOOST_THROW_EXCEPTION( error::plugin_undefined() );
         return create_func();
     }
     
@@ -385,7 +342,7 @@ public:
         Cast.v_ = getDestroyFunction();
         DestroyObjectFunction *destroy_func = Cast.f_;
         if (destroy_func == NULL)
-            throw PluginUndefinedException();
+            BOOST_THROW_EXCEPTION( error::plugin_undefined() );
         destroy_func(object_ptr);
     }
 };

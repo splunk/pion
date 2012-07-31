@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPWRITER_HEADER__
-#define __PION_HTTPWRITER_HEADER__
+#ifndef __PION_HTTP_WRITER_HEADER__
+#define __PION_HTTP_WRITER_HEADER__
 
 #include <vector>
 #include <string>
@@ -30,7 +30,7 @@ namespace net {     // begin namespace net (Pion Network Library)
 ///
 /// HTTPWriter: used to asynchronously send HTTP messages
 /// 
-class PION_NET_API HTTPWriter :
+class PION_API HTTPWriter :
     private boost::noncopyable
 {
 protected:

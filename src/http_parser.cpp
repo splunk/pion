@@ -9,6 +9,7 @@
 
 #include <cstdlib>
 #include <boost/regex.hpp>
+#include <boost/assert.hpp>
 #include <boost/logic/tribool.hpp>
 #include <pion/http/parser.hpp>
 #include <pion/http/request.hpp>
@@ -42,7 +43,7 @@ boost::once_flag            HTTPParser::m_instance_flag = BOOST_ONCE_INIT;
 boost::tribool HTTPParser::parse(HTTPMessage& http_msg,
     boost::system::error_code& ec)
 {
-    PION_ASSERT(! eof() );
+    BOOST_ASSERT(! eof() );
 
     boost::tribool rc = boost::indeterminate;
     std::size_t total_bytes_parsed = 0;

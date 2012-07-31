@@ -16,8 +16,8 @@
 #include <boost/thread/once.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_array.hpp>
+#include <pion/config.hpp>
 #include <pion/logger.hpp>
-#include <pion/exception.hpp>
 #include <pion/hash_map.hpp>
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/request.hpp>
@@ -236,70 +236,6 @@ class FileService :
     public pion::net::WebService
 {
 public:
-
-    /// exception thrown if the directory configured is not found
-    class DirectoryNotFoundException : public PionException {
-    public:
-        DirectoryNotFoundException(const std::string& dir)
-            : PionException("FileService directory not found: ", dir) {}
-    };
-
-    /// exception thrown if the directory configuration option is not a directory
-    class NotADirectoryException : public PionException {
-    public:
-        NotADirectoryException(const std::string& dir)
-            : PionException("FileService option is not a directory: ", dir) {}
-    };
-
-    /// exception thrown if the file configured is not found
-    class FileNotFoundException : public PionException {
-    public:
-        FileNotFoundException(const std::string& file)
-            : PionException("FileService file not found: ", file) {}
-    };
-
-    /// exception thrown if the file configuration option is not a file
-    class NotAFileException : public PionException {
-    public:
-        NotAFileException(const std::string& file)
-            : PionException("FileService option is not a file: ", file) {}
-    };
-
-    /// exception thrown if the cache option is set to an invalid value
-    class InvalidCacheException : public PionException {
-    public:
-        InvalidCacheException(const std::string& value)
-            : PionException("FileService invalid value for cache option: ", value) {}
-    };
-
-    /// exception thrown if the scan option is set to an invalid value
-    class InvalidScanException : public PionException {
-    public:
-        InvalidScanException(const std::string& value)
-            : PionException("FileService invalid value for scan option: ", value) {}
-    };
-
-    /// exception thrown if an option is set to an invalid value
-    class InvalidOptionValueException : public PionException {
-    public:
-        InvalidOptionValueException(const std::string& option, const std::string& value)
-            : PionException("FileService invalid value for " + option + " option: ", value) {}
-    };
-
-    /// exception thrown if we are unable to read a file from disk
-    class FileReadException : public PionException {
-    public:
-        FileReadException(const std::string& value)
-            : PionException("FileService unable to read file: ", value) {}
-    };
-
-    /// exception thrown if we do not know how to respond (should never happen)
-    class UndefinedResponseException : public PionException {
-    public:
-        UndefinedResponseException(const std::string& value)
-            : PionException("FileService has an undefined response: ", value) {}
-    };
-
 
     // default constructor and destructor
     FileService(void);

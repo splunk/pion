@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithExistingDirectoryDoesntTh
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithNonexistentDirectoryThrows) {
-    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "directory", "NotADirectory"), WebServer::WebServiceException);
+    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "directory", "NotADirectory"), error::directory_not_found);
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithExistingFileDoesntThrow) {
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithExistingFileDoesntThrow) {
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithNonexistentFileThrows) {
-    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "file", "NotAFile"), WebServer::WebServiceException);
+    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "file", "NotAFile"), error::file_not_found);
 }
 
 // TODO: tests for options "cache" and "scan"
@@ -149,17 +149,11 @@ BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToFalseDoesntThrow) {
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToNonBooleanThrows) {
-    BOOST_REQUIRE_THROW(m_server.setServiceOption("/resource1", "writable", "3"), WebServer::WebServiceException);
-    try {
-        m_server.setServiceOption("/resource1", "writable", "3");
-    } catch (WebServer::WebServiceException& e) {
-        BOOST_CHECK_EQUAL(e.what(), "WebService (/resource1): FileService invalid value for writable option: 3");
-    }
-    //Original exception is FileService::InvalidOptionValueException
+    BOOST_REQUIRE_THROW(m_server.setServiceOption("/resource1", "writable", "3"), error::bad_arg);
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWithInvalidOptionNameThrows) {
-    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "NotAnOption", "value1"), WebServer::WebServiceException);
+    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "NotAnOption", "value1"), error::bad_arg);
 }
 
 BOOST_AUTO_TEST_SUITE_END() 

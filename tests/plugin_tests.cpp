@@ -55,17 +55,17 @@ BOOST_AUTO_TEST_CASE(checkIsOpenReturnsFalse) {
 }
 
 BOOST_AUTO_TEST_CASE(checkCreateThrowsException) {
-    BOOST_CHECK_THROW(create(), PluginUndefinedException);
+    BOOST_CHECK_THROW(create(), error::plugin_undefined);
 }
 
 BOOST_AUTO_TEST_CASE(checkDestroyThrowsException) {
     InterfaceStub* s = NULL;
-    BOOST_CHECK_THROW(destroy(s), PluginUndefinedException);
+    BOOST_CHECK_THROW(destroy(s), error::plugin_undefined);
 }
 
 BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonExistentPlugin) {
     BOOST_REQUIRE(!boost::filesystem::exists("NoSuchPlugin" + sharedLibExt));
-    BOOST_CHECK_THROW(open("NoSuchPlugin"), PluginNotFoundException);
+    BOOST_CHECK_THROW(open("NoSuchPlugin"), error::plugin_not_found);
 }
 
 BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
@@ -96,12 +96,12 @@ BOOST_AUTO_TEST_CASE(checkPluginInstancePtrDereferencing) {
 
 BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonPluginDll) {
     BOOST_REQUIRE(boost::filesystem::exists("hasNoCreate" + sharedLibExt));
-    BOOST_CHECK_THROW(open("hasNoCreate"), PluginMissingCreateException);
+    BOOST_CHECK_THROW(open("hasNoCreate"), error::plugin_missing_symbol);
 }
 
 BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForPluginWithoutDestroy) {
     BOOST_REQUIRE(boost::filesystem::exists("hasCreateButNoDestroy" + sharedLibExt));
-    BOOST_CHECK_THROW(open("hasCreateButNoDestroy"), PluginMissingDestroyException);
+    BOOST_CHECK_THROW(open("hasCreateButNoDestroy"), error::plugin_missing_symbol);
 }
 
 BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
@@ -175,16 +175,16 @@ BOOST_AUTO_TEST_CASE(checkIsOpenReturnsFalse) {
 }
 
 BOOST_AUTO_TEST_CASE(checkCreateThrowsException) {
-    BOOST_CHECK_THROW(m_pluginPtr.create(), PionPlugin::PluginUndefinedException);
+    BOOST_CHECK_THROW(m_pluginPtr.create(), error::plugin_undefined);
 }
 
 BOOST_AUTO_TEST_CASE(checkDestroyThrowsException) {
     InterfaceStub* s = NULL;
-    BOOST_CHECK_THROW(m_pluginPtr.destroy(s), PionPlugin::PluginUndefinedException);
+    BOOST_CHECK_THROW(m_pluginPtr.destroy(s), error::plugin_undefined);
 }
 
 BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonExistentPlugin) {
-    BOOST_CHECK_THROW(m_pluginPtr.open("NoSuchPlugin"), PionPlugin::PluginNotFoundException);
+    BOOST_CHECK_THROW(m_pluginPtr.open("NoSuchPlugin"), error::plugin_not_found);
 }
 
 BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE(checkFindConfigFileReturnsCorrectPathForExistingConfigFile)
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryThrowsExceptionForNonexistentDirectory) {
-    BOOST_CHECK_THROW(PionPlugin::addPluginDirectory("nonexistentDir"), PionPlugin::DirectoryNotFoundException);
+    BOOST_CHECK_THROW(PionPlugin::addPluginDirectory("nonexistentDir"), error::directory_not_found);
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithCurrentDirectory) {
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithUpAndDownPath) {
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryThrowsExceptionForInvalidDirectory) {
-    BOOST_CHECK_THROW(PionPlugin::addPluginDirectory("x:y"), PionPlugin::DirectoryNotFoundException);
+    BOOST_CHECK_THROW(PionPlugin::addPluginDirectory("x:y"), error::directory_not_found);
 }
 
 BOOST_AUTO_TEST_CASE(checkResetPluginDirectoriesDoesntThrowException) {

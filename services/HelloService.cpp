@@ -37,13 +37,13 @@ void HelloService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_con
 
 
 /// creates new HelloService objects
-extern "C" PION_SERVICE_API pion::plugins::HelloService *pion_create_HelloService(void)
+extern "C" PION_API pion::plugins::HelloService *pion_create_HelloService(void)
 {
     return new pion::plugins::HelloService();
 }
 
 /// destroys HelloService objects
-extern "C" PION_SERVICE_API void pion_destroy_HelloService(pion::plugins::HelloService *service_ptr)
+extern "C" PION_API void pion_destroy_HelloService(pion::plugins::HelloService *service_ptr)
 {
     delete service_ptr;
 }

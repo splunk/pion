@@ -7,6 +7,7 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <boost/exception/diagnostic_information.hpp>
 #include <pion/http/server.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/request_reader.hpp>
@@ -100,8 +101,8 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
             throw;
         } catch (std::exception& e) {
             // recover gracefully from other exceptions thrown request handlers
-            PION_LOG_ERROR(m_logger, "HTTP request handler: " << e.what());
-            m_server_error_handler(http_request, tcp_conn, e.what());
+            PION_LOG_ERROR(m_logger, "HTTP request handler: " << boost::diagnostic_information(e));
+            m_server_error_handler(http_request, tcp_conn, boost::diagnostic_information(e));
         }
         
     } else {

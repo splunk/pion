@@ -99,7 +99,7 @@ void HTTPCookieAuth::setOption(const std::string& name, const std::string& value
     else if (name=="redirect")
         m_redirect = value;
     else
-        throw UnknownOptionException(name);
+        BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
 }
 
 bool HTTPCookieAuth::processLogin(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn)

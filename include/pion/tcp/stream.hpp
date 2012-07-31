@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_TCPSTREAM_HEADER__
-#define __PION_TCPSTREAM_HEADER__
+#ifndef __PION_TCP_STREAM_HEADER__
+#define __PION_TCP_STREAM_HEADER__
 
 #include <cstring>
 #include <istream>

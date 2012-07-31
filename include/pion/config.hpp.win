@@ -79,10 +79,6 @@
 /* Define to 1 if you have the `bzlib' library. */
 #undef PION_HAVE_BZLIB
 
-/* Define to 1 if you have the `boost.lockfree' library. */
-#undef PION_HAVE_LOCKFREE
-//#define PION_HAVE_LOCKFREE 1
-
 /* If you have the `OpenSSL' library installed, include PION_HAVE_SSL or PION_FULL
    in Preprocessor Definitions, or uncomment the following line, to use SSL. */
 //#define PION_HAVE_SSL
@@ -116,48 +112,12 @@
 
 #ifdef _MSC_VER
 
-	#ifdef PION_COMMON_EXPORTS
-		#define PION_COMMON_API __declspec(dllexport)
+	#ifdef PION_EXPORTS
+		#define PION_API __declspec(dllexport)
 	#elif defined PION_STATIC_LINKING
-		#define PION_COMMON_API
+		#define PION_API
 	#else
-		#define PION_COMMON_API __declspec(dllimport)
-	#endif
-
-	#ifdef PION_NET_EXPORTS
-		#define PION_NET_API __declspec(dllexport)
-	#elif defined PION_STATIC_LINKING
-		#define PION_NET_API
-	#else
-		#define PION_NET_API __declspec(dllimport)
-	#endif
-
-	#ifdef PION_STATIC_LINKING
-		#define PION_SERVICE_API 
-	#else
-		#define PION_SERVICE_API __declspec(dllexport)
-	#endif
-
-	#ifdef PION_STATIC_LINKING
-		#define PION_PLUGIN_API
-	#else
-		#define PION_PLUGIN_API __declspec(dllexport)
-	#endif
-
-	#ifdef PION_PLATFORM_EXPORTS
-		#define PION_PLATFORM_API __declspec(dllexport)
-	#elif defined PION_STATIC_LINKING
-		#define PION_PLATFORM_API
-	#else
-		#define PION_PLATFORM_API __declspec(dllimport)
-	#endif
-
-	#ifdef PION_SERVER_EXPORTS
-		#define PION_SERVER_API __declspec(dllexport)
-	#elif defined PION_STATIC_LINKING
-		#define PION_SERVER_API
-	#else
-		#define PION_SERVER_API __declspec(dllimport)
+		#define PION_API __declspec(dllimport)
 	#endif
 
 	/*
