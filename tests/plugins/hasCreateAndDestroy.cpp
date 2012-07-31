@@ -11,13 +11,13 @@
 #include <pion/config.hpp>
 
 /// creates new hasCreateAndDestroy objects
-extern "C" PION_SERVICE_API hasCreateAndDestroy *pion_create_hasCreateAndDestroy(void)
+extern "C" PION_API hasCreateAndDestroy *pion_create_hasCreateAndDestroy(void)
 {
     return new hasCreateAndDestroy();
 }
 
 /// destroys hasCreateAndDestroy objects
-extern "C" PION_SERVICE_API void pion_destroy_hasCreateAndDestroy(hasCreateAndDestroy *service_ptr)
+extern "C" PION_API void pion_destroy_hasCreateAndDestroy(hasCreateAndDestroy *service_ptr)
 {
     delete service_ptr;
 }

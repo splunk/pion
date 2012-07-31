@@ -98,7 +98,7 @@ void HTTPBasicAuth::setOption(const std::string& name, const std::string& value)
     if (name=="realm")
         m_realm = value;
     else
-        throw UnknownOptionException(name);
+        BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
 }
     
 bool HTTPBasicAuth::parseAuthorization(const std::string& authorization, std::string &credentials)

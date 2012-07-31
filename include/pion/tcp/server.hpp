@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_TCPSERVER_HEADER__
-#define __PION_TCPSERVER_HEADER__
+#ifndef __PION_TCP_SERVER_HEADER__
+#define __PION_TCP_SERVER_HEADER__
 
 #include <set>
 #include <boost/asio.hpp>
@@ -28,7 +28,7 @@ namespace net {     // begin namespace net (Pion Network Library)
 ///
 /// TCPServer: a multi-threaded, asynchronous TCP server
 /// 
-class PION_NET_API TCPServer :
+class PION_API TCPServer :
     private boost::noncopyable
 {
 public:

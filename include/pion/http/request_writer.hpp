@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPREQUESTWRITER_HEADER__
-#define __PION_HTTPREQUESTWRITER_HEADER__
+#ifndef __PION_HTTP_REQUEST_WRITER_HEADER__
+#define __PION_HTTP_REQUEST_WRITER_HEADER__
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>

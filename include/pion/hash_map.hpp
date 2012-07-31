@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PIONHASHMAP_HEADER__
-#define __PION_PIONHASHMAP_HEADER__
+#ifndef __PION_HASH_MAP_HEADER__
+#define __PION_HASH_MAP_HEADER__
 
 #include <string>
 #include <cctype>

@@ -7,15 +7,15 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPAUTH_HEADER__
-#define __PION_HTTPAUTH_HEADER__
+#ifndef __PION_HTTP_AUTH_HEADER__
+#define __PION_HTTP_AUTH_HEADER__
 
 #include <set>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
+#include <pion/error.hpp>
 #include <pion/logger.hpp>
-#include <pion/exception.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/http/user.hpp>
 #include <pion/http/request.hpp>
@@ -27,18 +27,10 @@ namespace net {     // begin namespace net (Pion Network Library)
 ///
 /// HTTPAuth: a base class for handling HTTP Authentication and session management
 ///
-class PION_NET_API HTTPAuth :
+class PION_API HTTPAuth :
     private boost::noncopyable
 {
 public:
-    
-    /// exception thrown if the service does not recognize a configuration option
-    class UnknownOptionException : public PionException {
-    public:
-        UnknownOptionException(const std::string& name)
-            : PionException("Option not recognized by authentication service: ", name) {}
-    };
-    
     
     /// default constructor
     HTTPAuth(PionUserManagerPtr userManager) 
@@ -70,7 +62,7 @@ public:
      * @param value the value of the option
      */
     virtual void setOption(const std::string& name, const std::string& value) {
-        throw UnknownOptionException(name);
+        BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
     }
     
     /**

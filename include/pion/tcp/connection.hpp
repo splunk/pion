@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_TCPCONNECTION_HEADER__
-#define __PION_TCPCONNECTION_HEADER__
+#ifndef __PION_TCP_CONNECTION_HEADER__
+#define __PION_TCP_CONNECTION_HEADER__
 
 #ifdef PION_HAVE_SSL
     #ifdef PION_XCODE

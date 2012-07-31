@@ -7,15 +7,14 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_WEBSERVER_HEADER__
-#define __PION_WEBSERVER_HEADER__
+#ifndef __PION_PLUGIN_SERVER_HEADER__
+#define __PION_PLUGIN_SERVER_HEADER__
 
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
-#include <pion/exception.hpp>
 #include <pion/plugin.hpp>
 #include <pion/plugin_manager.hpp>
 #include <pion/http/server.hpp>
@@ -28,50 +27,12 @@ namespace net {     // begin namespace net (Pion Network Library)
 ///
 /// WebServer: a server that handles HTTP connections using WebService plug-ins
 ///
-class PION_NET_API WebServer :
+class PION_API WebServer :
     public HTTPServer
 {
 
 public:
 
-    /// exception thrown if a web service cannot be found
-    class ServiceNotFoundException : public PionException {
-    public:
-        ServiceNotFoundException(const std::string& resource)
-            : PionException("No web services are identified by the resource: ", resource) {}
-    };
-
-    /// exception thrown if the web service configuration file cannot be found
-    class ConfigNotFoundException : public PionException {
-    public:
-        ConfigNotFoundException(const std::string& file)
-            : PionException("Web service configuration file not found: ", file) {}
-    };
-    
-    /// exception thrown if the plug-in file cannot be opened
-    class ConfigParsingException : public PionException {
-    public:
-        ConfigParsingException(const std::string& file)
-            : PionException("Unable to parse configuration file: ", file) {}
-    };
-
-    /// exception thrown if there is an error parsing the authorization config
-    class AuthConfigException : public PionException {
-    public:
-        AuthConfigException(const std::string& error_msg)
-            : PionException("Error in web server authorization config: ", error_msg) {}
-    };
-    
-    /// exception used to propagate exceptions thrown by web services
-    class WebServiceException : public PionException {
-    public:
-        WebServiceException(const std::string& resource, const std::string& file)
-            : PionException(std::string("WebService (") + resource,
-                            std::string("): ") + file)
-        {}
-    };
-        
-    
     /// default destructor
     virtual ~WebServer() { clear(); }
     
@@ -175,23 +136,13 @@ protected:
     /// called before the TCP server starts listening for new connections
     virtual void beforeStarting(void) {
         // call the start() method for each web service associated with this server
-        try { m_services.run(boost::bind(&WebService::start, _1)); }
-        catch (std::exception& e) {
-            // catch exceptions thrown by services since their exceptions may be free'd
-            // from memory before they are caught
-            throw WebServiceException("[Startup]", e.what());
-        }
+        m_services.run(boost::bind(&WebService::start, _1));
     }
     
     /// called after the TCP server has stopped listening for new connections
     virtual void afterStopping(void) {
         // call the stop() method for each web service associated with this server
-        try { m_services.run(boost::bind(&WebService::stop, _1)); }
-        catch (std::exception& e) {
-            // catch exceptions thrown by services since their exceptions may be free'd
-            // from memory before they are caught
-            throw WebServiceException("[Shutdown]", e.what());
-        }
+        m_services.run(boost::bind(&WebService::stop, _1));
     }
 
     

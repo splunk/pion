@@ -7,17 +7,18 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PLUGINMANAGER_HEADER__
-#define __PION_PLUGINMANAGER_HEADER__
+#ifndef __PION_PLUGIN_MANAGER_HEADER__
+#define __PION_PLUGIN_MANAGER_HEADER__
 
 #include <map>
 #include <string>
 #include <boost/cstdint.hpp>
+#include <boost/assert.hpp>
 #include <boost/function.hpp>
 #include <boost/function/function1.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
-#include <pion/exception.hpp>
+#include <pion/error.hpp>
 #include <pion/plugin.hpp>
 
 
@@ -31,20 +32,6 @@ class PluginManager
 {
 public:
 
-    /// exception thrown if a plug-in cannot be found
-    class PluginNotFoundException : public PionException {
-    public:
-        PluginNotFoundException(const std::string& plugin_id)
-            : PionException("No plug-ins found for identifier: ", plugin_id) {}
-    };
-
-    /// exception thrown if we try to add or load a duplicate plug-in
-    class DuplicatePluginException : public PionException {
-    public:
-        DuplicatePluginException(const std::string& plugin_id)
-            : PionException("A plug-in already exists for identifier: ", plugin_id) {}
-    };
-    
     /// data type for a function that may be called by the run() method
     typedef boost::function1<void, PLUGIN_TYPE*>    PluginRunFunction;
 
@@ -213,7 +200,7 @@ inline void PluginManager<PLUGIN_TYPE>::remove(const std::string& plugin_id)
     boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
     typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i = m_plugin_map.find(plugin_id);
     if (i == m_plugin_map.end())
-        throw PluginNotFoundException(plugin_id);
+        BOOST_THROW_EXCEPTION( error::plugin_not_found() << error::errinfo_plugin_name(plugin_id) );
     if (i->second.second.is_open()) {
         i->second.second.destroy(i->second.first);
     } else {
@@ -225,11 +212,11 @@ inline void PluginManager<PLUGIN_TYPE>::remove(const std::string& plugin_id)
 template <typename PLUGIN_TYPE>
 inline void PluginManager<PLUGIN_TYPE>::replace(const std::string& plugin_id, PLUGIN_TYPE *plugin_ptr)
 {
-    PION_ASSERT(plugin_ptr);
+    BOOST_ASSERT(plugin_ptr);
     boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
     typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i = m_plugin_map.find(plugin_id);
     if (i == m_plugin_map.end())
-        throw PluginNotFoundException(plugin_id);
+        BOOST_THROW_EXCEPTION( error::plugin_not_found() << error::errinfo_plugin_name(plugin_id) );
     if (i->second.second.is_open()) {
         i->second.second.destroy(i->second.first);
     } else {
@@ -244,7 +231,7 @@ inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::clone(const std::string& plugin_
     boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
     typename pion::PluginManager<PLUGIN_TYPE>::PluginMap::iterator i = m_plugin_map.find(plugin_id);
     if (i == m_plugin_map.end())
-        throw PluginNotFoundException(plugin_id);
+        BOOST_THROW_EXCEPTION( error::plugin_not_found() << error::errinfo_plugin_name(plugin_id) );
     return i->second.second.create();
 }
 
@@ -254,7 +241,7 @@ inline PLUGIN_TYPE *PluginManager<PLUGIN_TYPE>::load(const std::string& plugin_i
 {
     // search for the plug-in file using the configured paths
     if (m_plugin_map.find(plugin_id) != m_plugin_map.end())
-        throw DuplicatePluginException(plugin_id);
+        BOOST_THROW_EXCEPTION( error::duplicate_plugin() << error::errinfo_plugin_name(plugin_id) );
     
     // open up the plug-in's shared object library
     PionPluginPtr<PLUGIN_TYPE> plugin_ptr;
@@ -364,7 +351,7 @@ inline void PluginManager<PLUGIN_TYPE>::run(const std::string& plugin_id,
     // no need to lock (handled by PluginManager::get())
     PLUGIN_TYPE *plugin_object_ptr = get(plugin_id);
     if (plugin_object_ptr == NULL)
-        throw PluginNotFoundException(plugin_id);
+        BOOST_THROW_EXCEPTION( error::plugin_not_found() << error::errinfo_plugin_name(plugin_id) );
     run_func(plugin_object_ptr);
 }
 
@@ -388,7 +375,7 @@ inline boost::uint64_t PluginManager<PLUGIN_TYPE>::getStatistic(const std::strin
     // no need to lock (handled by PluginManager::get())
     const PLUGIN_TYPE *plugin_object_ptr = const_cast<PluginManager<PLUGIN_TYPE>*>(this)->get(plugin_id);
     if (plugin_object_ptr == NULL)
-        throw PluginNotFoundException(plugin_id);
+        BOOST_THROW_EXCEPTION( error::plugin_not_found() << error::errinfo_plugin_name(plugin_id) );
     return stat_func(plugin_object_ptr);
 }
 

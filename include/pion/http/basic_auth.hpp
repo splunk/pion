@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPBASICAUTH_HEADER__
-#define __PION_HTTPBASICAUTH_HEADER__
+#ifndef __PION_HTTP_BASIC_AUTH_HEADER__
+#define __PION_HTTP_BASIC_AUTH_HEADER__
 
 #include <map>
 #include <string>
@@ -24,7 +24,7 @@ namespace net {     // begin namespace net (Pion Network Library)
 /// HTTPBasicAuth: a base class for handling HTTP Authentication and session management
 /// in accordance with RFC 2617 http://tools.ietf.org/html/rfc2617 
 ///
-class PION_NET_API HTTPBasicAuth :
+class PION_API HTTPBasicAuth :
     public HTTPAuth
 {
 public:

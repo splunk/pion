@@ -130,13 +130,13 @@ void EchoService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
 
 
 /// creates new EchoService objects
-extern "C" PION_SERVICE_API pion::plugins::EchoService *pion_create_EchoService(void)
+extern "C" PION_API pion::plugins::EchoService *pion_create_EchoService(void)
 {
     return new pion::plugins::EchoService();
 }
 
 /// destroys EchoService objects
-extern "C" PION_SERVICE_API void pion_destroy_EchoService(pion::plugins::EchoService *service_ptr)
+extern "C" PION_API void pion_destroy_EchoService(pion::plugins::EchoService *service_ptr)
 {
     delete service_ptr;
 }

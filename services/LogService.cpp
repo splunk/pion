@@ -161,13 +161,13 @@ void LogService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 
 
 /// creates new LogService objects
-extern "C" PION_SERVICE_API pion::plugins::LogService *pion_create_LogService(void)
+extern "C" PION_API pion::plugins::LogService *pion_create_LogService(void)
 {
     return new pion::plugins::LogService();
 }
 
 /// destroys LogService objects
-extern "C" PION_SERVICE_API void pion_destroy_LogService(pion::plugins::LogService *service_ptr)
+extern "C" PION_API void pion_destroy_LogService(pion::plugins::LogService *service_ptr)
 {
     delete service_ptr;
 }

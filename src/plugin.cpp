@@ -11,6 +11,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
+#include <pion/error.hpp>
 #include <pion/plugin.hpp>
 
 #ifdef PION_WIN32
@@ -60,7 +61,7 @@ void PionPlugin::addPluginDirectory(const std::string& dir)
     boost::filesystem::path plugin_path = boost::filesystem::system_complete(dir);
     checkCygwinPath(plugin_path, dir);
     if (! boost::filesystem::exists(plugin_path) )
-        throw DirectoryNotFoundException(dir);
+        BOOST_THROW_EXCEPTION( error::directory_not_found() << error::errinfo_dir_name(dir) );
     PionPluginConfig& cfg = getPionPluginConfig();
     boost::mutex::scoped_lock plugin_lock(cfg.plugin_mutex);
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
@@ -97,7 +98,7 @@ void PionPlugin::open(const std::string& plugin_name)
     std::string plugin_file;
 
     if (!findPluginFile(plugin_file, plugin_name))
-        throw PluginNotFoundException(plugin_name);
+        BOOST_THROW_EXCEPTION( error::plugin_not_found() << error::errinfo_plugin_name(plugin_name) );
         
     openFile(plugin_file);
 }
@@ -264,10 +265,13 @@ void PionPlugin::openPlugin(const std::string& plugin_file,
             error_str += " (";
             error_str += error_msg;
             error_str += ')';
-            throw OpenPluginException(error_str);
+            BOOST_THROW_EXCEPTION( error::open_plugin()
+                                  << error::errinfo_plugin_name(plugin_data.m_plugin_name)
+                                  << error::errinfo_message(error_str) );
         } else
 #endif
-        throw OpenPluginException(plugin_file);
+            BOOST_THROW_EXCEPTION( error::open_plugin()
+                                  << error::errinfo_plugin_name(plugin_data.m_plugin_name) );
     }
     
     // find the function used to create new plugin objects
@@ -276,7 +280,9 @@ void PionPlugin::openPlugin(const std::string& plugin_file,
                          PION_PLUGIN_CREATE + plugin_data.m_plugin_name);
     if (plugin_data.m_create_func == NULL) {
         closeDynamicLibrary(plugin_data.m_lib_handle);
-        throw PluginMissingCreateException(plugin_file);
+        BOOST_THROW_EXCEPTION( error::plugin_missing_symbol()
+                              << error::errinfo_plugin_name(plugin_data.m_plugin_name)
+                              << error::errinfo_symbol_name(PION_PLUGIN_CREATE + plugin_data.m_plugin_name) );
     }
 
     // find the function used to destroy existing plugin objects
@@ -285,7 +291,9 @@ void PionPlugin::openPlugin(const std::string& plugin_file,
                          PION_PLUGIN_DESTROY + plugin_data.m_plugin_name);
     if (plugin_data.m_destroy_func == NULL) {
         closeDynamicLibrary(plugin_data.m_lib_handle);
-        throw PluginMissingDestroyException(plugin_file);
+        BOOST_THROW_EXCEPTION( error::plugin_missing_symbol()
+                              << error::errinfo_plugin_name(plugin_data.m_plugin_name)
+                              << error::errinfo_symbol_name(PION_PLUGIN_DESTROY + plugin_data.m_plugin_name) );
     }
 }
 

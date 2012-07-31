@@ -9,12 +9,15 @@
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <boost/assert.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 #include "FileService.hpp"
+#include <pion/error.hpp>
 #include <pion/plugin.hpp>
 #include <pion/http/response_writer.hpp>
 
@@ -53,18 +56,26 @@ void FileService::setOption(const std::string& name, const std::string& value)
         m_directory = value;
         PionPlugin::checkCygwinPath(m_directory, value);
         // make sure that the directory exists
-        if (! boost::filesystem::exists(m_directory) )
-            throw DirectoryNotFoundException(value);
-        if (! boost::filesystem::is_directory(m_directory) )
-            throw NotADirectoryException(value);
+        if (! boost::filesystem::exists(m_directory) || ! boost::filesystem::is_directory(m_directory)) {
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+            const std::string dir_name = m_directory.string();
+#else
+            const std::string dir_name = m_directory.directory_string();
+#endif
+            BOOST_THROW_EXCEPTION( error::directory_not_found() << error::errinfo_dir_name(dir_name) );
+        }
     } else if (name == "file") {
         m_file = value;
         PionPlugin::checkCygwinPath(m_file, value);
         // make sure that the directory exists
-        if (! boost::filesystem::exists(m_file) )
-            throw FileNotFoundException(value);
-        if (boost::filesystem::is_directory(m_file) )
-            throw NotAFileException(value);
+        if (! boost::filesystem::exists(m_file) || boost::filesystem::is_directory(m_file)) {
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+            const std::string file_name = m_file.string();
+#else
+            const std::string file_name = m_file.file_string();
+#endif
+            BOOST_THROW_EXCEPTION( error::file_not_found() << error::errinfo_file_name(file_name) );
+        }
     } else if (name == "cache") {
         if (value == "0") {
             m_cache_setting = 0;
@@ -73,7 +84,7 @@ void FileService::setOption(const std::string& name, const std::string& value)
         } else if (value == "2") {
             m_cache_setting = 2;
         } else {
-            throw InvalidCacheException(value);
+            BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
         }
     } else if (name == "scan") {
         if (value == "0") {
@@ -85,7 +96,7 @@ void FileService::setOption(const std::string& name, const std::string& value)
         } else if (value == "3") {
             m_scan_setting = 3;
         } else {
-            throw InvalidScanException(value);
+            BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
         }
     } else if (name == "max_chunk_size") {
         m_max_chunk_size = boost::lexical_cast<unsigned long>(value);
@@ -95,10 +106,10 @@ void FileService::setOption(const std::string& name, const std::string& value)
         } else if (value == "false") {
             m_writable = false;
         } else {
-            throw InvalidOptionValueException("writable", value);
+            BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
         }
     } else {
-        throw UnknownOptionException(name);
+        BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
     }
 }
 
@@ -380,7 +391,7 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                 case RESPONSE_NOT_FOUND:
                 case RESPONSE_OK:
                     // this should never happen
-                    throw UndefinedResponseException(request->getResource());
+                    BOOST_ASSERT(false);
                     break;
                 case RESPONSE_NOT_MODIFIED:
                     // set "Not Modified" response
@@ -498,7 +509,7 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                         writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NO_CONTENT);
                         writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NO_CONTENT);
                         writer->send();
-                    } catch (...) {
+                    } catch (std::exception& e) {
                         static const std::string DELETE_FAILED_HTML_START =
                             "<html><head>\n"
                             "<title>500 Server Error</title>\n"
@@ -511,7 +522,9 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                         writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
                         writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR);
                         writer->writeNoCopy(DELETE_FAILED_HTML_START);
-                        writer << request->getResource();
+                        writer << request->getResource()
+                            << ".</p><p>"
+                            << boost::diagnostic_information(e);
                         writer->writeNoCopy(DELETE_FAILED_HTML_FINISH);
                         writer->send();
                     }
@@ -750,12 +763,14 @@ void DiskFile::read(void)
     file_stream.open(m_file_path, std::ios::in | std::ios::binary);
 
     // read the file into memory
-    if (!file_stream.is_open() || !file_stream.read(m_file_content.get(), m_file_size))
+    if (!file_stream.is_open() || !file_stream.read(m_file_content.get(), m_file_size)) {
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
-        throw FileService::FileReadException(m_file_path.string());
+        const std::string file_name = m_file_path.string();
 #else
-        throw FileService::FileReadException(m_file_path.file_string());
+        const std::string file_name = m_file_path.file_string();
 #endif
+        BOOST_THROW_EXCEPTION( error::read_file() << error::errinfo_file_name(file_name) );
+    }
 }
 
 bool DiskFile::checkUpdated(void)
@@ -956,13 +971,13 @@ void DiskFileSender::handleWrite(const boost::system::error_code& write_error,
 
 
 /// creates new FileService objects
-extern "C" PION_SERVICE_API pion::plugins::FileService *pion_create_FileService(void)
+extern "C" PION_API pion::plugins::FileService *pion_create_FileService(void)
 {
     return new pion::plugins::FileService();
 }
 
 /// destroys FileService objects
-extern "C" PION_SERVICE_API void pion_destroy_FileService(pion::plugins::FileService *service_ptr)
+extern "C" PION_API void pion_destroy_FileService(pion::plugins::FileService *service_ptr)
 {
     delete service_ptr;
 }

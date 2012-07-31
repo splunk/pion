@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PIONUSER_HEADER__
-#define __PION_PIONUSER_HEADER__
+#ifndef __PION_HTTP_USER_HEADER__
+#define __PION_HTTP_USER_HEADER__
 
 #include <map>
 #include <string>
@@ -18,7 +18,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <pion/config.hpp>
-#include <pion/exception.hpp>
+#include <pion/error.hpp>
 
 #ifdef PION_HAVE_SSL
     #if defined(__APPLE__)
@@ -39,15 +39,6 @@ class PionUser :
     private boost::noncopyable
 {
 public:
-
-    /// exception thrown if a bad password hash is given to setPasswordHash()
-    class BadPasswordHash : public std::exception {
-    public:
-        virtual const char* what() const throw() {
-            return "Invalid password hash provided";
-        }
-    };
-
 
     /// construct a new PionUser object
     PionUser(std::string const &username) :
@@ -108,7 +99,7 @@ public:
     virtual void setPasswordHash(const std::string& password_hash) {
         // update password string representation
         if (password_hash.size() != SHA_DIGEST_LENGTH*2)
-            throw BadPasswordHash();
+            BOOST_THROW_EXCEPTION( error::bad_password_hash() );
         m_password = password_hash;
 
         // convert string from hex to binary value

@@ -7,6 +7,7 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <boost/exception/diagnostic_information.hpp>
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
 #include <pion/scheduler.hpp>
 
@@ -109,7 +110,7 @@ void PionScheduler::processServiceWork(boost::asio::io_service& service) {
         try {
             service.run();
         } catch (std::exception& e) {
-            PION_LOG_ERROR(m_logger, e.what());
+            PION_LOG_ERROR(m_logger, boost::diagnostic_information(e));
         } catch (...) {
             PION_LOG_ERROR(m_logger, "caught unrecognized exception");
         }

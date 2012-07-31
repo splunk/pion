@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPPARSER_HEADER__
-#define __PION_HTTPPARSER_HEADER__
+#ifndef __PION_HTTP_PARSER_HEADER__
+#define __PION_HTTP_PARSER_HEADER__
 
 #include <string>
 #include <boost/noncopyable.hpp>
@@ -31,7 +31,7 @@ class HTTPResponse;
 ///
 /// HTTPParser: parses HTTP messages
 ///
-class PION_NET_API HTTPParser :
+class PION_API HTTPParser :
     private boost::noncopyable
 {
 

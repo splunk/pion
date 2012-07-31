@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPTYPES_HEADER__
-#define __PION_HTTPTYPES_HEADER__
+#ifndef __PION_HTTP_TYPES_HEADER__
+#define __PION_HTTP_TYPES_HEADER__
 
 #include <string>
 #include <pion/config.hpp>
@@ -21,7 +21,7 @@ namespace net {     // begin namespace net (Pion Network Library)
 ///
 /// HTTPTypes: common data types used by HTTP
 /// 
-struct PION_NET_API HTTPTypes
+struct PION_API HTTPTypes
 {
     /// virtual destructor
     virtual ~HTTPTypes() {}

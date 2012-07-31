@@ -4,7 +4,7 @@
 
 pion_includedir = $(includedir)/pion
 pion_include_HEADERS = \
-	admin_rights.hpp algorithm.hpp exception.hpp hash_map.hpp logger.hpp \
+	admin_rights.hpp algorithm.hpp error.hpp hash_map.hpp logger.hpp \
 	plugin.hpp plugin_manager.hpp process.hpp scheduler.hpp \
 	unit_test_defs.hpp
 

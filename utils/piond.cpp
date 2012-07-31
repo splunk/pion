@@ -10,6 +10,7 @@
 #include <vector>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 #include <pion/plugin.hpp>
 #include <pion/process.hpp>
 #include <pion/http/plugin_server.hpp>
@@ -69,7 +70,7 @@ int main (int argc, char *argv[])
             } else if (argv[argnum][1] == 'd' && argv[argnum][2] == '\0' && argnum+1 < argc) {
                 // add the service plug-ins directory to the search path
                 try { PionPlugin::addPluginDirectory(argv[++argnum]); }
-                catch (PionPlugin::DirectoryNotFoundException&) {
+                catch (error::directory_not_found&) {
                     std::cerr << "piond: Web service plug-ins directory does not exist: "
                         << argv[argnum] << std::endl;
                     return 1;
@@ -129,14 +130,14 @@ int main (int argc, char *argv[])
     try {
         // add the Pion plug-ins installation directory to our path
         try { PionPlugin::addPluginDirectory(PION_PLUGINS_DIRECTORY); }
-        catch (PionPlugin::DirectoryNotFoundException&) {
+        catch (error::directory_not_found&) {
             PION_LOG_WARN(main_log, "Default plug-ins directory does not exist: "
                 << PION_PLUGINS_DIRECTORY);
         }
 
         // add the directory of the program we're running to our path
         try { PionPlugin::addPluginDirectory(boost::filesystem::path(argv[0]).branch_path().string()); }
-        catch (PionPlugin::DirectoryNotFoundException&) {
+        catch (error::directory_not_found&) {
             PION_LOG_WARN(main_log, "Directory of current executable does not exist: "
                 << boost::filesystem::path(argv[0]).branch_path());
         }
@@ -174,7 +175,7 @@ int main (int argc, char *argv[])
         PionProcess::wait_for_shutdown();
         
     } catch (std::exception& e) {
-        PION_LOG_FATAL(main_log, e.what());
+        PION_LOG_FATAL(main_log, boost::diagnostic_information(e));
     }
 
     return 0;

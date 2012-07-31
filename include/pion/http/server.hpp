@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPSERVER_HEADER__
-#define __PION_HTTPSERVER_HEADER__
+#ifndef __PION_HTTP_SERVER_HEADER__
+#define __PION_HTTP_SERVER_HEADER__
 
 #include <map>
 #include <string>
@@ -32,7 +32,7 @@ namespace net {     // begin namespace net (Pion Network Library)
 ///
 /// HTTPServer: a server that handles HTTP connections
 ///
-class PION_NET_API HTTPServer :
+class PION_API HTTPServer :
     public TCPServer
 {
 

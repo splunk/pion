@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PIONPROCESS_HEADER__
-#define __PION_PIONPROCESS_HEADER__
+#ifndef __PION_PROCESS_HEADER__
+#define __PION_PROCESS_HEADER__
 
 #include <string>
 #include <boost/noncopyable.hpp>
@@ -23,7 +23,7 @@ namespace pion {    // begin namespace pion
 ///
 /// PionProcess: class for managing process/service related functions
 ///
-class PION_COMMON_API PionProcess :
+class PION_API PionProcess :
     private boost::noncopyable
 {
 public:

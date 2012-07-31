@@ -83,7 +83,7 @@ void TCPServer::start(void)
         // configure the acceptor service
         try {
             // get admin permissions in case we're binding to a privileged port
-            pion::PionAdminRights use_admin_rights(getPort() < 1024);
+            pion::admin_rights use_admin_rights(getPort() < 1024);
             m_tcp_acceptor.open(m_endpoint.protocol());
             // allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
             // ...except when running not on Windows - see http://msdn.microsoft.com/en-us/library/ms740621%28VS.85%29.aspx
