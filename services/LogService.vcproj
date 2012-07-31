@@ -22,7 +22,7 @@
 		<Configuration
 			Name="Debug_DLL|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\common\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_win32.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_win32.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -82,7 +82,7 @@
 		<Configuration
 			Name="Debug_static|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\common\build\Debug_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_static_libs_win32.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Debug_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_static_libs_win32.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -133,7 +133,7 @@
 		<Configuration
 			Name="Release_DLL|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\common\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_win32.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_win32.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -193,7 +193,7 @@
 		<Configuration
 			Name="Release_static|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\common\build\Release_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_static_libs_win32.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Release_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_static_libs_win32.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -244,7 +244,7 @@
 		<Configuration
 			Name="Debug_DLL_full|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\common\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_win32.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_win32.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -304,7 +304,7 @@
 		<Configuration
 			Name="Release_DLL_full|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\common\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_win32.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_win32.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -364,7 +364,7 @@
 		<Configuration
 			Name="Debug_DLL|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\common\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_x64.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_x64.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -427,7 +427,7 @@
 		<Configuration
 			Name="Debug_static|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\common\build\Debug_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_static_libs_x64.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Debug_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_static_libs_x64.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -480,7 +480,7 @@
 		<Configuration
 			Name="Release_DLL|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\common\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_x64.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_x64.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -542,7 +542,7 @@
 		<Configuration
 			Name="Release_static|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\common\build\Release_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_static_libs_x64.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Release_static_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_static_libs_x64.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -594,7 +594,7 @@
 		<Configuration
 			Name="Debug_DLL_full|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\common\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_x64.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Debug_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_x64.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -657,7 +657,7 @@
 		<Configuration
 			Name="Release_DLL_full|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\common\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\..\common\build\third_party_libs_x64.vsprops;..\..\common\build\pion_plugin.vsprops"
+			InheritedPropertySheets="..\build\Release_DLL_pion.vsprops;..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_x64.vsprops;..\build\pion_plugin.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
