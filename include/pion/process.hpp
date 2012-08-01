@@ -23,7 +23,7 @@ namespace pion {    // begin namespace pion
 ///
 /// PionProcess: class for managing process/service related functions
 ///
-class PION_COMMON_API PionProcess :
+class PION_NET_API PionProcess :
     private boost::noncopyable
 {
 public:

@@ -27,7 +27,7 @@ namespace pion {    // begin namespace pion
 ///
 /// PionPlugin: base class for plug-in management
 ///
-class PION_COMMON_API PionPlugin {
+class PION_NET_API PionPlugin {
 public:
 
     /// exception thrown if the plug-in file cannot be opened
