@@ -22,7 +22,7 @@ namespace pion {    // begin namespace pion
 ///
 /// PionAdminRights: obtains administrative rights for the process
 ///
-class PION_COMMON_API PionAdminRights {
+class PION_NET_API PionAdminRights {
 public:
 
     /**

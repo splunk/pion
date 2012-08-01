@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="9.00"
+	Name="TestPluigins"
+	ProjectGUID="{7080E9F1-318F-4152-9E36-9F427F5CE9B7}"
+	RootNamespace="TestPluigins"
+	TargetFrameworkVersion="131072"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+		<Platform
+			Name="x64"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug_DLL|Win32"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from plugins\.libs"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_DLL|x64"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from plugins\.libs"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_DLL_full|Win32"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from plugins\.libs"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_DLL_full|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from plugins\.libs"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL|Win32"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from plugins\.libs"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL|x64"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from plugins\.libs"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL_full|Win32"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from plugins\.libs"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_DLL_full|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Remove all files from plugins\.libs"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_static|Win32"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release_static|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_static|Win32"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_static|x64"
+			ConfigurationType="10"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="if exist $(ProjectDir)\plugins\.libs del /Q $(ProjectDir)\plugins\.libs\*.*"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy the plugin DLLs for the current configuration into plugins\.libs"
+				CommandLine="if not exist $(ProjectDir)\plugins\.libs md $(ProjectDir)\plugins\.libs&#x0D;&#x0A;copy $(ProjectDir)\plugins\$(PlatformName)\$(ConfigurationName)\*.dll $(ProjectDir)\plugins\.libs&#x0D;&#x0A;"
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

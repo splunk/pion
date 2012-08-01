@@ -21,6 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug_DLL|Win32"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_win32.vsprops;..\build\Debug_DLL_pion.vsprops"
 			>
@@ -81,6 +83,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_DLL|x64"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\Debug_DLL_pion.vsprops;..\build\third_party_static_libs_x64.vsprops"
 			>
@@ -144,6 +148,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_static|Win32"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\Debug_static_pion.vsprops;..\build\third_party_static_libs_win32.vsprops"
 			>
@@ -195,6 +201,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_static|x64"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\Debug_static_pion.vsprops"
 			>
@@ -248,6 +256,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release_DLL|Win32"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_win32.vsprops;..\build\Release_DLL_pion.vsprops"
 			>
@@ -309,6 +319,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release_DLL|x64"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\Release_DLL_pion.vsprops;..\build\third_party_static_libs_x64.vsprops"
 			>
@@ -372,6 +384,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release_static|Win32"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\Release_static_pion.vsprops;..\build\third_party_static_libs_win32.vsprops"
 			>
@@ -423,8 +437,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release_static|x64"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\Release_static_pion.vsprops"
+			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\Release_static_pion.vsprops;..\build\third_party_static_libs_x64.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -475,6 +491,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_DLL_full|Win32"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_win32.vsprops;..\build\Debug_DLL_pion.vsprops"
 			>
@@ -535,6 +553,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_DLL_full|x64"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\Debug_DLL_pion.vsprops;..\build\third_party_static_libs_x64.vsprops"
 			>
@@ -598,8 +618,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release_DLL_full|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\third_party_libs_win32.vsprops;..\build\Release_DLL_pion.vsprops"
 			>
@@ -660,6 +680,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release_DLL_full|x64"
+			OutputDirectory="$(ConfigurationName)_$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)IntermediateOutput\$(ProjectName)\$(ConfigurationName)_$(PlatformName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\build\depth_2_pion-net.vsprops;..\build\Release_DLL_pion.vsprops;..\build\third_party_static_libs_x64.vsprops"
 			>

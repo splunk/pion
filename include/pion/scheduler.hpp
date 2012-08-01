@@ -31,7 +31,7 @@ namespace pion {    // begin namespace pion
 ///
 /// PionScheduler: combines Boost.ASIO with a managed thread pool for scheduling
 /// 
-class PION_COMMON_API PionScheduler :
+class PION_NET_API PionScheduler :
     private boost::noncopyable
 {
 public:
@@ -196,7 +196,7 @@ protected:
 ///
 /// PionMultiThreadScheduler: uses a pool of threads to perform work
 /// 
-class PION_COMMON_API PionMultiThreadScheduler :
+class PION_NET_API PionMultiThreadScheduler :
     public PionScheduler
 {
 public:
@@ -243,7 +243,7 @@ protected:
 ///
 /// PionSingleServiceScheduler: uses a single IO service to schedule work
 /// 
-class PION_COMMON_API PionSingleServiceScheduler :
+class PION_NET_API PionSingleServiceScheduler :
     public PionMultiThreadScheduler
 {
 public:
@@ -283,7 +283,7 @@ protected:
 ///
 /// PionOneToOneScheduler: uses a single IO service for each thread
 /// 
-class PION_COMMON_API PionOneToOneScheduler :
+class PION_NET_API PionOneToOneScheduler :
     public PionMultiThreadScheduler
 {
 public:
