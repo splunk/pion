@@ -12,7 +12,6 @@
 #include <pion/http/response_writer.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
@@ -21,7 +20,7 @@ namespace plugins {     // begin namespace plugins
 // CookieService member functions
 
 /// handles requests for CookieService
-void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void CookieService::operator()(HTTPRequestPtr& request, tcp::connection_ptr& tcp_conn)
 {
     static const std::string HEADER_HTML = "<html>\n<head>\n<title>Cookie Service</title>\n"
         "</head>\n<body>\n\n<h1>Cookie Service</h1>\n";
@@ -29,13 +28,13 @@ void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_co
 
     // Set Content-type for HTML and write the header
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+                                                            boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setContentType(HTTPTypes::CONTENT_TYPE_HTML);
     writer->writeNoCopy(HEADER_HTML);
 
     // Check if we have an action to perform
     if (request->hasQuery("action")) {
-        if (algo::url_decode(request->getQuery("action")) == "Add Cookie") {
+        if (algorithm::url_decode(request->getQuery("action")) == "Add Cookie") {
             // add a new cookie
             const std::string cookie_name(request->getQuery("cookie_name"));
             const std::string cookie_value(request->getQuery("cookie_value"));

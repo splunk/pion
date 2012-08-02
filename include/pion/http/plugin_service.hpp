@@ -20,7 +20,8 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
 /// WebService: interface class for web services
@@ -42,7 +43,7 @@ public:
      * @param request the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    virtual void operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) = 0;
+    virtual void operator()(HTTPRequestPtr& request, tcp::connection_ptr& tcp_conn) = 0;
     
     /**
      * sets a configuration option
@@ -74,7 +75,7 @@ public:
             return std::string();
         }
         // strip the web service's resource path plus the slash after it
-        return algo::url_decode(resource_requested.substr(getResource().size() + 1));
+        return algorithm::url_decode(resource_requested.substr(getResource().size() + 1));
     }
     
     
@@ -109,7 +110,8 @@ private:
 // }
 //
 
-}   // end namespace net
+
+}   // end namespace http
 }   // end namespace pion
 
 #endif

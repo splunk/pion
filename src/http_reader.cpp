@@ -14,7 +14,7 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
 // HTTPReader static members
@@ -26,14 +26,14 @@ const boost::uint32_t       HTTPReader::DEFAULT_READ_TIMEOUT = 10;
 
 void HTTPReader::receive(void)
 {
-    if (m_tcp_conn->getPipelined()) {
+    if (m_tcp_conn->get_pipelined()) {
         // there are pipelined messages available in the connection's read buffer
-        m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);   // default to close the connection
-        m_tcp_conn->loadReadPosition(m_read_ptr, m_read_end_ptr);
+        m_tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE);   // default to close the connection
+        m_tcp_conn->load_read_pos(m_read_ptr, m_read_end_ptr);
         consumeBytes();
     } else {
         // no pipelined messages available in the read buffer -> read bytes from the socket
-        m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);   // default to close the connection
+        m_tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE);   // default to close the connection
         readBytesWithTimeout();
     }
 }
@@ -57,7 +57,7 @@ void HTTPReader::consumeBytes(const boost::system::error_code& read_error,
                    << (isParsingRequest() ? "request" : "response"));
 
     // set pointers for new HTTP header data to be consumed
-    setReadBuffer(m_tcp_conn->getReadBuffer().data(), bytes_read);
+    set_read_buffer(m_tcp_conn->get_read_buffer().data(), bytes_read);
 
     consumeBytes();
 }
@@ -88,22 +88,22 @@ void HTTPReader::consumeBytes(void)
         if (getMessage().checkKeepAlive()) {
             if ( eof() ) {
                 // the connection should be kept alive, but does not have pipelined messages
-                m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+                m_tcp_conn->set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
             } else {
                 // the connection has pipelined messages
-                m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_PIPELINED);
+                m_tcp_conn->set_lifecycle(connection::LIFECYCLE_PIPELINED);
 
                 // save the read position as a bookmark so that it can be retrieved
                 // by a new HTTP parser, which will be created after the current
                 // message has been handled
-                m_tcp_conn->saveReadPosition(m_read_ptr, m_read_end_ptr);
+                m_tcp_conn->save_read_pos(m_read_ptr, m_read_end_ptr);
 
                 PION_LOG_DEBUG(m_logger, "HTTP pipelined "
                                << (isParsingRequest() ? "request (" : "response (")
                                << bytes_available() << " bytes available)");
             }
         } else {
-            m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);
+            m_tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE);
         }
 
         // we have finished parsing the HTTP message
@@ -111,7 +111,7 @@ void HTTPReader::consumeBytes(void)
 
     } else if (result == false) {
         // the message is invalid or an error occured
-        m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);   // make sure it will get closed
+        m_tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE);   // make sure it will get closed
         getMessage().setIsValid(false);
         finishedReading(ec);
     } else {
@@ -123,7 +123,7 @@ void HTTPReader::consumeBytes(void)
 void HTTPReader::readBytesWithTimeout(void)
 {
     if (m_read_timeout > 0) {
-        m_timer_ptr.reset(new TCPTimer(m_tcp_conn));
+        m_timer_ptr.reset(new tcp::timer(m_tcp_conn));
         m_timer_ptr->start(m_read_timeout);
     } else if (m_timer_ptr) {
         m_timer_ptr.reset();
@@ -134,7 +134,7 @@ void HTTPReader::readBytesWithTimeout(void)
 void HTTPReader::handleReadError(const boost::system::error_code& read_error)
 {
     // close the connection, forcing the client to establish a new one
-    m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);   // make sure it will get closed
+    m_tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE);   // make sure it will get closed
 
     // check if this is just a message with unknown content length
     if (! checkPrematureEOF(getMessage())) {
@@ -159,6 +159,5 @@ void HTTPReader::handleReadError(const boost::system::error_code& read_error)
     finishedReading(read_error);
 }
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
-

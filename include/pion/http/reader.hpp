@@ -19,14 +19,14 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
 ///
 /// HTTPReader: asynchronously reads and parses HTTP messages
 ///
 class PION_API HTTPReader :
-    public HTTPParser
+    public http::parser
 {
 public:
 
@@ -37,7 +37,7 @@ public:
     void receive(void);
     
     /// returns a shared pointer to the TCP connection
-    inline TCPConnectionPtr& getTCPConnection(void) { return m_tcp_conn; }
+    inline tcp::connection_ptr& get_connection(void) { return m_tcp_conn; }
     
     /// sets the maximum number of seconds for read operations
     inline void setTimeout(boost::uint32_t seconds) { m_read_timeout = seconds; }
@@ -52,8 +52,8 @@ protected:
      *                   if false, the message is parsed as an HTTP response
      * @param tcp_conn TCP connection containing a new message to parse
      */
-    HTTPReader(const bool is_request, TCPConnectionPtr& tcp_conn)
-        : HTTPParser(is_request), m_tcp_conn(tcp_conn),
+    HTTPReader(const bool is_request, tcp::connection_ptr& tcp_conn)
+        : http::parser(is_request), m_tcp_conn(tcp_conn),
         m_read_timeout(DEFAULT_READ_TIMEOUT)
         {}  
     
@@ -76,7 +76,7 @@ protected:
     virtual void finishedReading(const boost::system::error_code& ec) = 0;
 
     /// Returns a reference to the HTTP message being parsed
-    virtual HTTPMessage& getMessage(void) = 0;
+    virtual http::message& getMessage(void) = 0;
 
 
 private:
@@ -97,17 +97,17 @@ private:
 
 
     /// The HTTP connection that has a new HTTP message to parse
-    TCPConnectionPtr                        m_tcp_conn;
+    tcp::connection_ptr                        m_tcp_conn;
     
-    /// pointer to a TCPTimer object if read timeouts are enabled
-    TCPTimerPtr                             m_timer_ptr;
+    /// pointer to a tcp::timer object if read timeouts are enabled
+    tcp::timer_ptr                             m_timer_ptr;
 
     /// maximum number of seconds for read operations
     boost::uint32_t                         m_read_timeout;
 };
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

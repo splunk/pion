@@ -22,16 +22,17 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 // forward declarations used for finishing HTTP messages
 class HTTPRequest;
 class HTTPResponse;
 
 ///
-/// HTTPParser: parses HTTP messages
+/// parser: parses HTTP messages
 ///
-class PION_API HTTPParser :
+class PION_API parser :
     private boost::noncopyable
 {
 
@@ -41,10 +42,10 @@ public:
     static const std::size_t        DEFAULT_CONTENT_MAX;
 
     /// callback type used to consume payload content
-    typedef boost::function2<void, const char *, std::size_t>   PayloadHandler;
+    typedef boost::function2<void, const char *, std::size_t>   payload_handler_t;
     
     /// class-specific error code values
-    enum ErrorValue {
+    enum error_value_t {
         ERROR_METHOD_CHAR = 1,
         ERROR_METHOD_SIZE,
         ERROR_URI_CHAR,
@@ -66,11 +67,11 @@ public:
     };
     
     /// class-specific error category
-    class ErrorCategory
+    class error_category_t
         : public boost::system::error_category
     {
     public:
-        const char *name() const { return "HTTPParser"; }
+        const char *name() const { return "parser"; }
         std::string message(int ev) const {
             switch (ev) {
             case ERROR_METHOD_CHAR:
@@ -110,19 +111,19 @@ public:
             case ERROR_MISSING_TOO_MUCH_CONTENT:
                 return "missing too much content";
             }
-            return "HTTPParser error";
+            return "parser error";
         }
     };
 
     /**
-     * creates new HTTPParser objects
+     * creates new parser objects
      *
      * @param is_request if true, the message is parsed as an HTTP request;
      *                   if false, the message is parsed as an HTTP response
      * @param max_content_length maximum length for HTTP payload content
      */
-    HTTPParser(const bool is_request, std::size_t max_content_length = DEFAULT_CONTENT_MAX)
-        : m_logger(PION_GET_LOGGER("pion.net.HTTPParser")), m_is_request(is_request),
+    parser(const bool is_request, std::size_t max_content_length = DEFAULT_CONTENT_MAX)
+        : m_logger(PION_GET_LOGGER("pion.http.parser")), m_is_request(is_request),
         m_read_ptr(NULL), m_read_end_ptr(NULL), m_message_parse_state(PARSE_START),
         m_headers_parse_state(is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H),
         m_chunked_content_parse_state(PARSE_CHUNK_SIZE_START), m_status_code(0),
@@ -133,7 +134,7 @@ public:
     {}
 
     /// default destructor
-    virtual ~HTTPParser() {}
+    virtual ~parser() {}
 
     /**
      * parses an HTTP message including all payload content it might contain
@@ -146,7 +147,7 @@ public:
      *                        true = finished parsing HTTP message,
      *                        indeterminate = not yet finished parsing HTTP message
      */
-    boost::tribool parse(HTTPMessage& http_msg, boost::system::error_code& ec);
+    boost::tribool parse(http::message& http_msg, boost::system::error_code& ec);
 
     /**
      * attempts to continue parsing despite having missed data (length is known but content is not)
@@ -160,7 +161,7 @@ public:
      *                        true = finished parsing HTTP message,
      *                        indeterminate = not yet finished parsing HTTP message
      */
-    boost::tribool parseMissingData(HTTPMessage& http_msg, std::size_t len,
+    boost::tribool parseMissingData(http::message& http_msg, std::size_t len,
         boost::system::error_code& ec);
 
     /**
@@ -168,7 +169,7 @@ public:
      *
      * @param http_msg the HTTP message object to finish
      */
-    void finish(HTTPMessage& http_msg) const;
+    void finish(http::message& http_msg) const;
 
     /**
      * resets the location and size of the read buffer
@@ -176,7 +177,7 @@ public:
      * @param ptr pointer to the first bytes available to be read
      * @param len number of bytes available to be read
      */
-    inline void setReadBuffer(const char *ptr, size_t len) {
+    inline void set_read_buffer(const char *ptr, size_t len) {
         m_read_ptr = ptr;
         m_read_end_ptr = ptr + len;
     }
@@ -187,7 +188,7 @@ public:
      * @param read_ptr points to the next character to be consumed in the read_buffer
      * @param read_end_ptr points to the end of the read_buffer (last byte + 1)
      */
-    inline void loadReadPosition(const char *&read_ptr, const char *&read_end_ptr) const {
+    inline void load_read_pos(const char *&read_ptr, const char *&read_end_ptr) const {
         read_ptr = m_read_ptr;
         read_end_ptr = m_read_end_ptr;
     }
@@ -200,7 +201,7 @@ public:
      * @param http_msg the HTTP message object being parsed
      * @return true if premature EOF, false if message is OK & finished parsing
      */
-    inline bool checkPrematureEOF(HTTPMessage& http_msg) {
+    inline bool checkPrematureEOF(http::message& http_msg) {
         if (m_message_parse_state != PARSE_CONTENT_NO_LENGTH)
             return true;
         m_message_parse_state = PARSE_END;
@@ -221,7 +222,7 @@ public:
      *
      * @param http_msg the HTTP message object being parsed
      */
-    inline void skipHeaderParsing(HTTPMessage& http_msg) {
+    inline void skipHeaderParsing(http::message& http_msg) {
         boost::system::error_code ec;
         finishHeaderParsing(http_msg, ec);
     }
@@ -271,7 +272,7 @@ public:
     inline bool isParsingResponse(void) const { return ! m_is_request; }
 
     /// defines a callback function to be used for consuming payload content
-    inline void setPayloadHandler(PayloadHandler& h) { m_payload_handler = h; }
+    inline void setpayload_handler_t(payload_handler_t& h) { m_payload_handler = h; }
 
     /// sets the maximum length for HTTP payload content
     inline void setMaxContentLength(std::size_t n) { m_max_content_length = n; }
@@ -283,10 +284,10 @@ public:
     inline void setSaveRawHeaders(bool b) { m_save_raw_headers = b; }
 
     /// sets the logger to be used
-    inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
+    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
 
     /// returns the logger currently in use
-    inline PionLogger getLogger(void) { return m_logger; }
+    inline logger getLogger(void) { return m_logger; }
 
 
     /**
@@ -359,9 +360,9 @@ public:
      */
     static bool parseForwardedFor(const std::string& header, std::string& public_ip);
     
-    /// returns an instance of HTTPParser::ErrorCategory
-    static inline ErrorCategory& getErrorCategory(void) {
-        boost::call_once(HTTPParser::createErrorCategory, m_instance_flag);
+    /// returns an instance of parser::error_category_t
+    static inline error_category_t& get_error_category(void) {
+        boost::call_once(parser::create_error_category, m_instance_flag);
         return *m_error_category_ptr;
     }
 
@@ -383,14 +384,14 @@ protected:
      *                        true = finished parsing HTTP headers,
      *                        indeterminate = not yet finished parsing HTTP headers
      */
-    boost::tribool parseHeaders(HTTPMessage& http_msg, boost::system::error_code& ec);
+    boost::tribool parseHeaders(http::message& http_msg, boost::system::error_code& ec);
 
     /**
-     * updates an HTTPMessage object with data obtained from parsing headers
+     * updates an http::message object with data obtained from parsing headers
      *
      * @param http_msg the HTTP message object to populate from parsing
      */
-    void updateMessageWithHeaderData(HTTPMessage& http_msg) const;
+    void updateMessageWithHeaderData(http::message& http_msg) const;
 
     /**
      * should be called after parsing HTTP headers, to prepare for payload content parsing
@@ -404,7 +405,7 @@ protected:
      *                        true = finished parsing HTTP message (no content),
      *                        indeterminate = payload content is available to be parsed
      */
-    boost::tribool finishHeaderParsing(HTTPMessage& http_msg,
+    boost::tribool finishHeaderParsing(http::message& http_msg,
         boost::system::error_code& ec);
 
     /**
@@ -418,7 +419,7 @@ protected:
      *                        true = finished parsing message,
      *                        indeterminate = message is not yet finished
      */
-    boost::tribool parseChunks(HTTPMessage::ChunkCache& chunk_buffers,
+    boost::tribool parseChunks(http::message::chunk_cache_t& chunk_buffers,
         boost::system::error_code& ec);
 
     /**
@@ -432,7 +433,7 @@ protected:
      *                        true = finished parsing message,
      *                        indeterminate = message is not yet finished
      */
-    boost::tribool consumeContent(HTTPMessage& http_msg,
+    boost::tribool consumeContent(http::message& http_msg,
         boost::system::error_code& ec);
 
     /**
@@ -442,14 +443,14 @@ protected:
      * @param chunk_buffers buffers to be populated from parsing chunked content
      * @return std::size_t number of content bytes consumed, if any
      */
-    std::size_t consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_buffers);
+    std::size_t consumeContentAsNextChunk(http::message::chunk_cache_t& chunk_buffers);
 
     /**
      * compute and sets a HTTP Message data integrity status
      * @param http_msg target HTTP message 
      * @param msg_parsed_ok message parsing result
      */
-    static void computeMsgStatus(HTTPMessage& http_msg, bool msg_parsed_ok);
+    static void computeMsgStatus(http::message& http_msg, bool msg_parsed_ok);
 
     /**
      * sets an error code
@@ -457,12 +458,12 @@ protected:
      * @param ec error code variable to define
      * @param ev error value to raise
      */
-    static inline void setError(boost::system::error_code& ec, ErrorValue ev) {
-        ec = boost::system::error_code(static_cast<int>(ev), getErrorCategory());
+    static inline void setError(boost::system::error_code& ec, error_value_t ev) {
+        ec = boost::system::error_code(static_cast<int>(ev), get_error_category());
     }
 
-    /// creates the unique HTTPParser ErrorCategory
-    static void createErrorCategory(void);
+    /// creates the unique parser error_category_t
+    static void create_error_category(void);
 
 
     // misc functions used by the parsing functions
@@ -506,7 +507,7 @@ protected:
 
 
     /// primary logging interface used by this class
-    mutable PionLogger                  m_logger;
+    mutable logger                  m_logger;
 
     /// true if the message is an HTTP request; false if it is an HTTP response
     const bool                          m_is_request;
@@ -521,14 +522,14 @@ protected:
 private:
 
     /// state used to keep track of where we are in parsing the HTTP message
-    enum MessageParseState {
+    enum message_parse_state_t {
         PARSE_START, PARSE_HEADERS, PARSE_CONTENT,
         PARSE_CONTENT_NO_LENGTH, PARSE_CHUNKS, PARSE_END
     };
 
     /// state used to keep track of where we are in parsing the HTTP headers
-    /// (only used if MessageParseState == PARSE_HEADERS)
-    enum HeadersParseState {
+    /// (only used if message_parse_state_t == PARSE_HEADERS)
+    enum header_parse_state_t {
         PARSE_METHOD_START, PARSE_METHOD, PARSE_URI_STEM, PARSE_URI_QUERY,
         PARSE_HTTP_VERSION_H, PARSE_HTTP_VERSION_T_1, PARSE_HTTP_VERSION_T_2,
         PARSE_HTTP_VERSION_P, PARSE_HTTP_VERSION_SLASH,
@@ -542,8 +543,8 @@ private:
     };
 
     /// state used to keep track of where we are in parsing chunked content
-    /// (only used if MessageParseState == PARSE_CHUNKS)
-    enum ChunkedContentParseState {
+    /// (only used if message_parse_state_t == PARSE_CHUNKS)
+    enum chunk_parse_state_t {
         PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE, 
         PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE,
         PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE, PARSE_CHUNK, 
@@ -554,16 +555,16 @@ private:
 
 
     /// the current state of parsing HTTP headers
-    MessageParseState                   m_message_parse_state;
+    message_parse_state_t                   m_message_parse_state;
 
     /// the current state of parsing HTTP headers
-    HeadersParseState                   m_headers_parse_state;
+    header_parse_state_t                   m_headers_parse_state;
 
     /// the current state of parsing chunked content
-    ChunkedContentParseState            m_chunked_content_parse_state;
+    chunk_parse_state_t            m_chunked_content_parse_state;
     
     /// if defined, this function is used to consume payload content
-    PayloadHandler                      m_payload_handler;
+    payload_handler_t                      m_payload_handler;
 
     /// Used for parsing the HTTP response status code
     boost::uint16_t                     m_status_code;
@@ -619,27 +620,27 @@ private:
     /// if true, the raw contents of HTTP headers are stored into m_raw_headers
     bool                                m_save_raw_headers;
 
-    /// points to a single and unique instance of the HTTPParser ErrorCategory
-    static ErrorCategory *              m_error_category_ptr;
+    /// points to a single and unique instance of the parser error_category_t
+    static error_category_t *              m_error_category_ptr;
         
-    /// used to ensure thread safety of the HTTPParser ErrorCategory
+    /// used to ensure thread safety of the parser error_category_t
     static boost::once_flag             m_instance_flag;
 };
 
 
-// inline functions for HTTPParser
+// inline functions for parser
 
-inline bool HTTPParser::isChar(int c)
+inline bool parser::isChar(int c)
 {
     return(c >= 0 && c <= 127);
 }
 
-inline bool HTTPParser::isControl(int c)
+inline bool parser::isControl(int c)
 {
     return( (c >= 0 && c <= 31) || c == 127);
 }
 
-inline bool HTTPParser::isSpecial(int c)
+inline bool parser::isSpecial(int c)
 {
     switch (c) {
     case '(': case ')': case '<': case '>': case '@':
@@ -652,24 +653,24 @@ inline bool HTTPParser::isSpecial(int c)
     }
 }
 
-inline bool HTTPParser::isDigit(int c)
+inline bool parser::isDigit(int c)
 {
     return(c >= '0' && c <= '9');
 }
 
-inline bool HTTPParser::isHexDigit(int c)
+inline bool parser::isHexDigit(int c)
 {
     return((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
 }
 
-inline bool HTTPParser::isCookieAttribute(const std::string& name, bool set_cookie_header)
+inline bool parser::isCookieAttribute(const std::string& name, bool set_cookie_header)
 {
     return (name.empty() || name[0] == '$' || (set_cookie_header &&
         (name=="Comment" || name=="Domain" || name=="Max-Age" || name=="Path" || name=="Secure" || name=="Version" || name=="Expires")
         ) );
 }
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

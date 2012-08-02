@@ -20,7 +20,6 @@
 
 using namespace std;
 using namespace pion;
-using namespace pion::net;
 using boost::asio::ip::tcp;
 
 
@@ -28,7 +27,7 @@ using boost::asio::ip::tcp;
 /// HelloServer: simple TCP server that sends "Hello there!" after receiving some data
 /// 
 class HelloServer
-    : public pion::net::TCPServer
+    : public pion::tcp::server
 {
 public:
     virtual ~HelloServer() {}
@@ -38,16 +37,16 @@ public:
      *
      * @param tcp_port port number used to listen for new connections (IPv4)
      */
-    HelloServer(const unsigned int tcp_port = 0) : pion::net::TCPServer(tcp_port) {}
+    HelloServer(const unsigned int tcp_port = 0) : pion::tcp::server(tcp_port) {}
     
     /**
      * handles a new TCP connection
      * 
      * @param tcp_conn the new TCP connection to handle
      */
-    virtual void handleConnection(pion::net::TCPConnectionPtr& tcp_conn) {
+    virtual void handleConnection(pion::tcp::connection_ptr& tcp_conn) {
         static const std::string HELLO_MESSAGE("Hello there!\n");
-        tcp_conn->setLifecycle(pion::net::TCPConnection::LIFECYCLE_CLOSE);  // make sure it will get closed
+        tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);  // make sure it will get closed
         tcp_conn->async_write(boost::asio::buffer(HELLO_MESSAGE),
                               boost::bind(&HelloServer::handleWrite, this, tcp_conn,
                                           boost::asio::placeholders::error));
@@ -62,7 +61,7 @@ private:
      * @param tcp_conn the TCP connection to the server
      * @param write_error message that explains what went wrong (if anything)
      */
-    void handleWrite(pion::net::TCPConnectionPtr& tcp_conn,
+    void handleWrite(pion::tcp::connection_ptr& tcp_conn,
                      const boost::system::error_code& write_error)
     {
         if (write_error) {
@@ -81,18 +80,18 @@ private:
      * @param read_error message that explains what went wrong (if anything)
      * @param bytes_read number of bytes read from the client
      */
-    void handleRead(pion::net::TCPConnectionPtr& tcp_conn,
+    void handleRead(pion::tcp::connection_ptr& tcp_conn,
                     const boost::system::error_code& read_error,
                     std::size_t bytes_read)
     {
         static const std::string GOODBYE_MESSAGE("Goodbye!\n");
         if (read_error) {
             tcp_conn->finish();
-        } else if (bytes_read == 5 && memcmp(tcp_conn->getReadBuffer().data(), "throw", 5) == 0) {
+        } else if (bytes_read == 5 && memcmp(tcp_conn->get_read_buffer().data(), "throw", 5) == 0) {
             throw int(1);
         } else {
             tcp_conn->async_write(boost::asio::buffer(GOODBYE_MESSAGE),
-                                  boost::bind(&pion::net::TCPConnection::finish, tcp_conn));
+                                  boost::bind(&pion::tcp::connection::finish, tcp_conn));
         }
     }
 };
@@ -113,7 +112,7 @@ public:
     ~HelloServerTests_F() {
         hello_server_ptr->stop();
     }
-    inline TCPServerPtr& getServerPtr(void) { return hello_server_ptr; }
+    inline tcp::server_ptr& getServerPtr(void) { return hello_server_ptr; }
 
     /**
      * check at 0.1 second intervals for up to one second to see if the number
@@ -125,13 +124,13 @@ public:
     {
         for (int i = 0; i < 10; ++i) {
             if (getServerPtr()->getConnections() == expectedNumberOfConnections) break;
-            PionScheduler::sleep(0, 100000000); // 0.1 seconds
+            scheduler::sleep(0, 100000000); // 0.1 seconds
         }
         BOOST_CHECK_EQUAL(getServerPtr()->getConnections(), expectedNumberOfConnections);
     }
 
 private:
-    TCPServerPtr    hello_server_ptr;
+    tcp::server_ptr    hello_server_ptr;
 };
 
 
@@ -139,7 +138,7 @@ private:
 
 BOOST_FIXTURE_TEST_SUITE(HelloServerTests_S, HelloServerTests_F)
 
-BOOST_AUTO_TEST_CASE(checkTCPServerIsListening) {
+BOOST_AUTO_TEST_CASE(checktcp::serverIsListening) {
     BOOST_CHECK(getServerPtr()->isListening());
 }
 
@@ -185,14 +184,14 @@ BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
     tcp::iostream tcp_stream_a(localhost);
 
     // read greeting from the server
-    std::string message;
-    std::getline(tcp_stream_a, message);
-    BOOST_CHECK(message == "Hello there!");
+    std::string str;
+    std::getline(tcp_stream_a, str);
+    BOOST_CHECK(str == "Hello there!");
 
     // open a second connection & read the greeting
     tcp::iostream tcp_stream_b(localhost);
-    std::getline(tcp_stream_b, message);
-    BOOST_CHECK(message == "Hello there!");
+    std::getline(tcp_stream_b, str);
+    BOOST_CHECK(str == "Hello there!");
 
     // send greeting to the first server
     tcp_stream_a << "Hi!\n";
@@ -203,14 +202,14 @@ BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
     tcp_stream_b.flush();
     
     // receive goodbye from the first server
-    std::getline(tcp_stream_a, message);
+    std::getline(tcp_stream_a, str);
     tcp_stream_a.close();
-    BOOST_CHECK(message == "Goodbye!");
+    BOOST_CHECK(str == "Goodbye!");
 
     // receive goodbye from the second server
-    std::getline(tcp_stream_b, message);
+    std::getline(tcp_stream_b, str);
     tcp_stream_b.close();
-    BOOST_CHECK(message == "Goodbye!");
+    BOOST_CHECK(str == "Goodbye!");
 }
 
 BOOST_AUTO_TEST_CASE(checkServerExceptionsGetCaught) {
@@ -219,9 +218,9 @@ BOOST_AUTO_TEST_CASE(checkServerExceptionsGetCaught) {
     tcp::iostream tcp_stream_a(localhost);
 
     // read greeting from the server
-    std::string message;
-    std::getline(tcp_stream_a, message);
-    BOOST_CHECK(message == "Hello there!");
+    std::string str;
+    std::getline(tcp_stream_a, str);
+    BOOST_CHECK(str == "Hello there!");
 
     // send throw request to the server
     tcp_stream_a << "throw";
@@ -232,21 +231,21 @@ BOOST_AUTO_TEST_CASE(checkServerExceptionsGetCaught) {
 BOOST_AUTO_TEST_SUITE_END()
 
 ///
-/// MockSyncServer: simple TCP server that synchronously receives HTTP requests using HTTPMessage::receive(),
+/// MockSyncServer: simple TCP server that synchronously receives HTTP requests using http::message::receive(),
 /// and checks that the received request object has some expected properties.
 ///
 class MockSyncServer
-    : public pion::net::TCPServer
+    : public pion::tcp::server
 {
 public:
     /**
      * MockSyncServer constructor
      *
-     * @param scheduler the PionScheduler that will be used to manage worker threads
+     * @param sched the scheduler that will be used to manage worker threads
      * @param tcp_port port number used to listen for new connections (IPv4)
      */
-    MockSyncServer(PionScheduler& scheduler, const unsigned int tcp_port = 0)
-        : pion::net::TCPServer(scheduler, tcp_port) {}
+    MockSyncServer(scheduler& sched, const unsigned int tcp_port = 0)
+        : pion::tcp::server(sched, tcp_port) {}
     
     virtual ~MockSyncServer() {}
 
@@ -255,7 +254,7 @@ public:
      * 
      * @param tcp_conn the new TCP connection to handle
      */
-    virtual void handleConnection(pion::net::TCPConnectionPtr& tcp_conn) {
+    virtual void handleConnection(pion::tcp::connection_ptr& tcp_conn) {
         // wait until an HTTP request is received or an error occurs
         boost::system::error_code error_code;
         HTTPRequest http_request;
@@ -276,7 +275,7 @@ public:
         tcp_conn->write(boost::asio::buffer(GOODBYE_MESSAGE), error_code);
 
         // wrap up
-        tcp_conn->setLifecycle(pion::net::TCPConnection::LIFECYCLE_CLOSE);
+        tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
         tcp_conn->finish();
     }
 
@@ -310,10 +309,10 @@ public:
         m_sync_server_ptr->stop();
     }
     inline boost::shared_ptr<MockSyncServer>& getServerPtr(void) { return m_sync_server_ptr; }
-    inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }
+    inline boost::asio::io_service& get_io_service(void) { return m_scheduler.get_io_service(); }
 
 private:
-    PionSingleServiceScheduler          m_scheduler;
+    single_service_scheduler          m_scheduler;
     boost::shared_ptr<MockSyncServer>   m_sync_server_ptr;
 };
 
@@ -344,9 +343,9 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingStream) {
     tcp_stream.flush();
 
     // receive goodbye from the server
-    std::string message;
-    std::getline(tcp_stream, message);
-    BOOST_CHECK(message == "Goodbye!");
+    std::string str;
+    std::getline(tcp_stream, str);
+    BOOST_CHECK(str == "Goodbye!");
     tcp_stream.close();
 }
 
@@ -378,9 +377,9 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingChunkedStream) {
     tcp_stream.flush();
 
     // receive goodbye from the server
-    std::string message;
-    std::getline(tcp_stream, message);
-    BOOST_CHECK(message == "Goodbye!");
+    std::string str;
+    std::getline(tcp_stream, str);
+    BOOST_CHECK(str == "Goodbye!");
     tcp_stream.close();
 }
 
@@ -415,15 +414,15 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingExtraWhiteSpaceAroundChunkSizes) {
     tcp_stream.flush();
 
     // receive goodbye from the server
-    std::string message;
-    std::getline(tcp_stream, message);
-    BOOST_CHECK(message == "Goodbye!");
+    std::string str;
+    std::getline(tcp_stream, str);
+    BOOST_CHECK(str == "Goodbye!");
     tcp_stream.close();
 }
 
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
     // open a connection
-    TCPConnection tcp_conn(getIOService());
+    connection tcp_conn(get_io_service());
     boost::system::error_code error_code;
     error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->getPort());
     BOOST_REQUIRE(!error_code);
@@ -446,7 +445,7 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
     // receive the response from the server
     tcp_conn.read_some(error_code);
     BOOST_CHECK(!error_code);
-    BOOST_CHECK(strncmp(tcp_conn.getReadBuffer().data(), "Goodbye!", strlen("Goodbye!")) == 0);
+    BOOST_CHECK(strncmp(tcp_conn.get_read_buffer().data(), "Goodbye!", strlen("Goodbye!")) == 0);
 }
 
 bool queryKeyXHasValueY(HTTPRequest& http_request) {
@@ -467,9 +466,9 @@ BOOST_AUTO_TEST_CASE(checkQueryOfReceivedRequestParsed) {
     tcp_stream.flush();
 
     // receive goodbye from the server
-    std::string message;
-    std::getline(tcp_stream, message);
-    BOOST_CHECK(message == "Goodbye!");
+    std::string str;
+    std::getline(tcp_stream, str);
+    BOOST_CHECK(str == "Goodbye!");
     tcp_stream.close();
 }
 
@@ -492,9 +491,9 @@ BOOST_AUTO_TEST_CASE(checkUrlEncodedQueryInPostContentParsed) {
     tcp_stream.flush();
 
     // receive goodbye from the server
-    std::string message;
-    std::getline(tcp_stream, message);
-    BOOST_CHECK(message == "Goodbye!");
+    std::string str;
+    std::getline(tcp_stream, str);
+    BOOST_CHECK(str == "Goodbye!");
     tcp_stream.close();
 }
 /*
@@ -523,9 +522,9 @@ BOOST_AUTO_TEST_CASE(checkCharsetOfReceivedRequest) {
     tcp_stream.flush();
 
     // receive goodbye from the server
-    std::string message;
-    std::getline(tcp_stream, message);
-    BOOST_CHECK(message == "Goodbye!");
+    std::string str;
+    std::getline(tcp_stream, str);
+    BOOST_CHECK(str == "Goodbye!");
     tcp_stream.close();
 }
 */

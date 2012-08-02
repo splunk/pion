@@ -16,7 +16,8 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
 /// HTTPTypes: common data types used by HTTP
@@ -97,13 +98,13 @@ struct PION_API HTTPTypes
     static const unsigned int   RESPONSE_CODE_CONTINUE;
     
     /// data type for HTTP headers
-    typedef StringDictionary    Headers;
+    typedef ihash_multimap    Headers;
 
     /// data type for HTTP cookie parameters
-    typedef StringDictionary    CookieParams;
+    typedef ihash_multimap    CookieParams;
 
     /// data type for HTTP query parameters
-    typedef StringDictionary    QueryParams;
+    typedef ihash_multimap    QueryParams;
 
     
     /// converts time_t format into an HTTP-date string
@@ -130,7 +131,8 @@ struct PION_API HTTPTypes
                                               const unsigned long max_age = 0);     
 };
 
-}   // end namespace net
+
+}   // end namespace http
 }   // end namespace pion
 
 #endif

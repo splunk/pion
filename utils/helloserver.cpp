@@ -16,20 +16,19 @@
 
 using namespace std;
 using namespace pion;
-using namespace pion::net;
 
 
 /// simple TCP server that just sends "Hello there!" to each connection
-class HelloServer : public TCPServer {
+class HelloServer : public tcp::server {
 public:
-    HelloServer(const unsigned int tcp_port) : TCPServer(tcp_port) {}
+    HelloServer(const unsigned int tcp_port) : tcp::server(tcp_port) {}
     virtual ~HelloServer() {}
-    virtual void handleConnection(TCPConnectionPtr& tcp_conn)
+    virtual void handleConnection(tcp::connection_ptr& tcp_conn)
     {
         static const std::string HELLO_MESSAGE("Hello there!\x0D\x0A");
-        tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE); // make sure it will get closed
+        tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE); // make sure it will get closed
         tcp_conn->async_write(boost::asio::buffer(HELLO_MESSAGE),
-                              boost::bind(&TCPConnection::finish, tcp_conn));
+                              boost::bind(&connection::finish, tcp_conn));
     }
 };
 
@@ -51,11 +50,11 @@ int main (int argc, char *argv[])
     }
 
     // initialize signal handlers, etc.
-    PionProcess::initialize();
+    process::initialize();
 
     // initialize log system (use simple configuration)
-    PionLogger main_log(PION_GET_LOGGER("helloserver"));
-    PionLogger pion_log(PION_GET_LOGGER("pion"));
+    logger main_log(PION_GET_LOGGER("helloserver"));
+    logger pion_log(PION_GET_LOGGER("pion"));
     PION_LOG_SETLEVEL_INFO(main_log);
     PION_LOG_SETLEVEL_INFO(pion_log);
     PION_LOG_CONFIG_BASIC;
@@ -63,9 +62,9 @@ int main (int argc, char *argv[])
     try {
         
         // create a new server to handle the Hello TCP protocol
-        TCPServerPtr hello_server(new HelloServer(port));
+        tcp::server_ptr hello_server(new HelloServer(port));
         hello_server->start();
-        PionProcess::wait_for_shutdown();
+        process::wait_for_shutdown();
 
     } catch (std::exception& e) {
         PION_LOG_FATAL(main_log, boost::diagnostic_information(e));

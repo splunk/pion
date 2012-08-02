@@ -20,13 +20,13 @@ namespace plugins {     // begin namespace plugins
 /// EchoService: web service that echos back requests (to test request parsing)
 /// 
 class EchoService :
-    public pion::net::WebService
+    public pion::http::WebService
 {
 public:
     EchoService(void) {}
     virtual ~EchoService() {}
-    virtual void operator()(pion::net::HTTPRequestPtr& request,
-                            pion::net::TCPConnectionPtr& tcp_conn);
+    virtual void operator()(pion::http::HTTPRequestPtr& request,
+                            pion::tcp::connection_ptr& tcp_conn);
 };
 
 }   // end namespace plugins

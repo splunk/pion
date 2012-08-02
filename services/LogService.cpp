@@ -22,7 +22,6 @@
 #include <pion/http/response_writer.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
@@ -95,7 +94,7 @@ void LogServiceAppender::addLogString(const std::string& log_string)
     }
 }
 
-void LogServiceAppender::writeLogEvents(pion::net::HTTPResponseWriterPtr& writer)
+void LogServiceAppender::writeLogEvents(pion::http::HTTPResponseWriterPtr& writer)
 {
 #if defined(PION_USE_LOG4CXX) || defined(PION_USE_LOG4CPLUS) || defined(PION_USE_LOG4CPP)
     boost::mutex::scoped_lock log_lock(m_log_mutex);
@@ -145,11 +144,11 @@ LogService::~LogService()
 }
 
 /// handles requests for LogService
-void LogService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void LogService::operator()(HTTPRequestPtr& request, tcp::connection_ptr& tcp_conn)
 {
     // Set Content-type to "text/plain" (plain ascii text)
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+                                                            boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
     getLogAppender().writeLogEvents(writer);
     writer->send();

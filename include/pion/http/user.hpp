@@ -28,8 +28,9 @@
     #include <openssl/sha.h>
 #endif
 
+
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
 ///
@@ -293,7 +294,7 @@ protected:
 typedef boost::shared_ptr<PionUserManager>  PionUserManagerPtr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

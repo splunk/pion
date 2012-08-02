@@ -11,7 +11,8 @@
 #define __PION_HASH_MAP_HEADER__
 
 #include <string>
-#include <cctype>
+#include <locale>
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/functional/hash.hpp>
 #include <pion/config.hpp>
 
@@ -56,74 +57,57 @@ namespace pion {    // begin namespace pion
     #endif
 #endif
 
-
-/// returns true if two strings are equal (ignoring case)
-struct CaseInsensitiveEqual {
-    inline bool operator()(const std::string& str1, const std::string& str2) const {
-        if (str1.size() != str2.size())
-            return false;
-        std::string::const_iterator it1 = str1.begin();
-        std::string::const_iterator it2 = str2.begin();
-        while ( (it1!=str1.end()) && (it2!=str2.end()) ) {
-            if (tolower(*it1) != tolower(*it2))
-                return false;
-            ++it1;
-            ++it2;
-        }
-        return true;
-    }
-};
-
-
-/// case insensitive hash function for std::string
-struct CaseInsensitiveHash {
-    inline unsigned long operator()(const std::string& str) const {
-        unsigned long value = 0;
-        for (std::string::const_iterator i = str.begin(); i!= str.end(); ++i)
-            value = static_cast<unsigned char>(tolower(*i)) + (value << 6) + (value << 16) - value;
-        return value;
-    }
-};
-
-
-/// returns true if str1 < str2 (ignoring case)
-struct CaseInsensitiveLess {
-    inline bool operator()(const std::string& str1, const std::string& str2) const {
-        std::string::const_iterator it1 = str1.begin();
-        std::string::const_iterator it2 = str2.begin();
-        while ( (it1 != str1.end()) && (it2 != str2.end()) ) {
-            if (tolower(*it1) != tolower(*it2))
-                return (tolower(*it1) < tolower(*it2));
-            ++it1;
-            ++it2;
-        }
-        return (str1.size() < str2.size());
-    }
-};
-
-
-#ifdef _MSC_VER
-    /// case insensitive extension of stdext::hash_compare for std::string
-    struct CaseInsensitiveHashCompare : public stdext::hash_compare<std::string, CaseInsensitiveLess> {
-        // makes operator() with two arguments visible, otherwise it would be hidden by the operator() defined here
-        using stdext::hash_compare<std::string, CaseInsensitiveLess>::operator();
-    
-        inline size_t operator()(const std::string& str) const {
-            return CaseInsensitiveHash()(str);
+    /// case insensitive string equality predicate
+    /// copied from boost.unordered hash_equality documentation
+    /// http://www.boost.org/doc/libs/1_50_0/doc/html/unordered/hash_equality.html
+    struct iequal_to
+        : std::binary_function<std::string, std::string, bool>
+    {
+        bool operator()(std::string const& x,
+                        std::string const& y) const
+        {
+            return boost::algorithm::iequals(x, y, std::locale());
         }
     };
-#endif
-
-
-/// data type for case-insensitive dictionary of strings
+    
+    /// case insensitive hash generic function
+    /// copied from boost.unordered hash_equality documentation
+    /// http://www.boost.org/doc/libs/1_50_0/doc/html/unordered/hash_equality.html
+    struct ihash
+        : std::unary_function<std::string, std::size_t>
+    {
+        std::size_t operator()(std::string const& x) const
+        {
+            std::size_t seed = 0;
+            std::locale locale;
+            
+            for(std::string::const_iterator it = x.begin();
+                it != x.end(); ++it)
+            {
+                boost::hash_combine(seed, std::toupper(*it, locale));
+            }
+            
+            return seed;
+        }
+    };
+    
 #ifdef _MSC_VER
-    typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHashCompare>    StringDictionary;
-#else
-    typedef PION_HASH_MULTIMAP<std::string, std::string, CaseInsensitiveHash, CaseInsensitiveEqual >    StringDictionary;
-#endif
+    /// case insensitive extension of stdext::hash_compare for std::string
+    struct ihash_windows : public stdext::hash_compare<std::string, boost::algorithm::is_iless > {
+        // makes operator() with two arguments visible, otherwise it would be hidden by the operator() defined here
+        using stdext::hash_compare<std::string, boost::algorithm::is_iless>::operator();
+        
+        inline size_t operator()(const std::string& str) const {
+            return ihash()(str);
+        }
+    };
 
-/// data type for a dictionary of strings
-//typedef PION_HASH_MULTIMAP<std::string, std::string, PION_HASH_STRING >   StringDictionary;
+    /// data type for case-insensitive dictionary of strings
+    typedef PION_HASH_MULTIMAP<std::string, std::string, algorithm::ihash_windows >    ihash_multimap;
+#else
+    /// data type for case-insensitive dictionary of strings
+    typedef PION_HASH_MULTIMAP<std::string, std::string, ihash, iequal_to >    ihash_multimap;
+#endif
 
 
 }   // end namespace pion

@@ -15,8 +15,8 @@
 #include <ctime>
 
 
-namespace pion {        // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace pion {    // begin namespace pion
+namespace http {    // begin namespace http
 
 
 // generic strings used by HTTP
@@ -114,9 +114,9 @@ std::string HTTPTypes::make_query_string(const QueryParams& query_params)
     for (QueryParams::const_iterator i = query_params.begin(); i != query_params.end(); ++i) {
         if (i != query_params.begin())
             query_string += '&';
-        query_string += algo::url_encode(i->first);
+        query_string += algorithm::url_encode(i->first);
         query_string += '=';
-        query_string += algo::url_encode(i->second);
+        query_string += algorithm::url_encode(i->second);
     }
     return query_string;
 }
@@ -145,6 +145,5 @@ std::string HTTPTypes::make_set_cookie_header(const std::string& name,
 }
 
     
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
-

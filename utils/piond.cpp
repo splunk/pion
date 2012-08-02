@@ -25,7 +25,6 @@ PION_DECLARE_PLUGIN(CookieService)
 
 using namespace std;
 using namespace pion;
-using namespace pion::net;
 
 
 /// displays an error message if the arguments are invalid
@@ -69,7 +68,7 @@ int main (int argc, char *argv[])
                 service_config_file = argv[++argnum];
             } else if (argv[argnum][1] == 'd' && argv[argnum][2] == '\0' && argnum+1 < argc) {
                 // add the service plug-ins directory to the search path
-                try { PionPlugin::addPluginDirectory(argv[++argnum]); }
+                try { plugin::addPluginDirectory(argv[++argnum]); }
                 catch (error::directory_not_found&) {
                     std::cerr << "piond: Web service plug-ins directory does not exist: "
                         << argv[argnum] << std::endl;
@@ -113,11 +112,11 @@ int main (int argc, char *argv[])
     }
     
     // initialize signal handlers, etc.
-    PionProcess::initialize();
+    process::initialize();
     
     // initialize log system (use simple configuration)
-    PionLogger main_log(PION_GET_LOGGER("piond"));
-    PionLogger pion_log(PION_GET_LOGGER("pion"));
+    logger main_log(PION_GET_LOGGER("piond"));
+    logger pion_log(PION_GET_LOGGER("pion"));
     if (verbose_flag) {
         PION_LOG_SETLEVEL_DEBUG(main_log);
         PION_LOG_SETLEVEL_DEBUG(pion_log);
@@ -129,14 +128,14 @@ int main (int argc, char *argv[])
     
     try {
         // add the Pion plug-ins installation directory to our path
-        try { PionPlugin::addPluginDirectory(PION_PLUGINS_DIRECTORY); }
+        try { plugin::addPluginDirectory(PION_PLUGINS_DIRECTORY); }
         catch (error::directory_not_found&) {
             PION_LOG_WARN(main_log, "Default plug-ins directory does not exist: "
                 << PION_PLUGINS_DIRECTORY);
         }
 
         // add the directory of the program we're running to our path
-        try { PionPlugin::addPluginDirectory(boost::filesystem::path(argv[0]).branch_path().string()); }
+        try { plugin::addPluginDirectory(boost::filesystem::path(argv[0]).branch_path().string()); }
         catch (error::directory_not_found&) {
             PION_LOG_WARN(main_log, "Directory of current executable does not exist: "
                 << boost::filesystem::path(argv[0]).branch_path());
@@ -172,7 +171,7 @@ int main (int argc, char *argv[])
 
         // startup the server
         web_server.start();
-        PionProcess::wait_for_shutdown();
+        process::wait_for_shutdown();
         
     } catch (std::exception& e) {
         PION_LOG_FATAL(main_log, boost::diagnostic_information(e));

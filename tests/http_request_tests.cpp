@@ -12,7 +12,6 @@
 #include <boost/test/unit_test.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 class NewHTTPRequest_F : public HTTPRequest {
 public:

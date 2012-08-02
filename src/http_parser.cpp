@@ -18,29 +18,29 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
-// static members of HTTPParser
+// static members of parser
 
-const boost::uint32_t   HTTPParser::STATUS_MESSAGE_MAX = 1024;  // 1 KB
-const boost::uint32_t   HTTPParser::METHOD_MAX = 1024;  // 1 KB
-const boost::uint32_t   HTTPParser::RESOURCE_MAX = 256 * 1024;  // 256 KB
-const boost::uint32_t   HTTPParser::QUERY_STRING_MAX = 1024 * 1024; // 1 MB
-const boost::uint32_t   HTTPParser::HEADER_NAME_MAX = 1024; // 1 KB
-const boost::uint32_t   HTTPParser::HEADER_VALUE_MAX = 1024 * 1024; // 1 MB
-const boost::uint32_t   HTTPParser::QUERY_NAME_MAX = 1024;  // 1 KB
-const boost::uint32_t   HTTPParser::QUERY_VALUE_MAX = 1024 * 1024;  // 1 MB
-const boost::uint32_t   HTTPParser::COOKIE_NAME_MAX = 1024; // 1 KB
-const boost::uint32_t   HTTPParser::COOKIE_VALUE_MAX = 1024 * 1024; // 1 MB
-const std::size_t       HTTPParser::DEFAULT_CONTENT_MAX = 1024 * 1024;  // 1 MB
-HTTPParser::ErrorCategory * HTTPParser::m_error_category_ptr = NULL;
-boost::once_flag            HTTPParser::m_instance_flag = BOOST_ONCE_INIT;
+const boost::uint32_t   parser::STATUS_MESSAGE_MAX = 1024;  // 1 KB
+const boost::uint32_t   parser::METHOD_MAX = 1024;  // 1 KB
+const boost::uint32_t   parser::RESOURCE_MAX = 256 * 1024;  // 256 KB
+const boost::uint32_t   parser::QUERY_STRING_MAX = 1024 * 1024; // 1 MB
+const boost::uint32_t   parser::HEADER_NAME_MAX = 1024; // 1 KB
+const boost::uint32_t   parser::HEADER_VALUE_MAX = 1024 * 1024; // 1 MB
+const boost::uint32_t   parser::QUERY_NAME_MAX = 1024;  // 1 KB
+const boost::uint32_t   parser::QUERY_VALUE_MAX = 1024 * 1024;  // 1 MB
+const boost::uint32_t   parser::COOKIE_NAME_MAX = 1024; // 1 KB
+const boost::uint32_t   parser::COOKIE_VALUE_MAX = 1024 * 1024; // 1 MB
+const std::size_t       parser::DEFAULT_CONTENT_MAX = 1024 * 1024;  // 1 MB
+parser::error_category_t * parser::m_error_category_ptr = NULL;
+boost::once_flag            parser::m_instance_flag = BOOST_ONCE_INIT;
 
 
-// HTTPParser member functions
+// parser member functions
 
-boost::tribool HTTPParser::parse(HTTPMessage& http_msg,
+boost::tribool parser::parse(http::message& http_msg,
     boost::system::error_code& ec)
 {
     BOOST_ASSERT(! eof() );
@@ -72,7 +72,7 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg,
 
             // parsing chunked payload content
             case PARSE_CHUNKS:
-                rc = parseChunks(http_msg.getChunkCache(), ec);
+                rc = parseChunks(http_msg.get_chunk_cache(), ec);
                 total_bytes_parsed += m_bytes_last_read;
                 // check if we have finished parsing all chunks
                 if (rc == true && !m_payload_handler) {
@@ -88,7 +88,7 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg,
 
             // parsing payload content with no length (until EOF)
             case PARSE_CONTENT_NO_LENGTH:
-                consumeContentAsNextChunk(http_msg.getChunkCache());
+                consumeContentAsNextChunk(http_msg.get_chunk_cache());
                 total_bytes_parsed += m_bytes_last_read;
                 break;
 
@@ -113,7 +113,7 @@ boost::tribool HTTPParser::parse(HTTPMessage& http_msg,
     return rc;
 }
 
-boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg,
+boost::tribool parser::parseMissingData(http::message& http_msg,
     std::size_t len, boost::system::error_code& ec)
 {
     static const char MISSING_DATA_CHAR = 'X';
@@ -142,8 +142,8 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg,
                     for (std::size_t n = 0; n < len; ++n)
                         m_payload_handler(&MISSING_DATA_CHAR, 1);
                 } else {
-                    for (std::size_t n = 0; n < len && http_msg.getChunkCache().size() < m_max_content_length; ++n) 
-                        http_msg.getChunkCache().push_back(MISSING_DATA_CHAR);
+                    for (std::size_t n = 0; n < len && http_msg.get_chunk_cache().size() < m_max_content_length; ++n) 
+                        http_msg.get_chunk_cache().push_back(MISSING_DATA_CHAR);
                 }
 
                 m_bytes_read_in_current_chunk += len;
@@ -201,8 +201,8 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg,
                 for (std::size_t n = 0; n < len; ++n)
                     m_payload_handler(&MISSING_DATA_CHAR, 1);
             } else {
-                for (std::size_t n = 0; n < len && http_msg.getChunkCache().size() < m_max_content_length; ++n) 
-                    http_msg.getChunkCache().push_back(MISSING_DATA_CHAR);
+                for (std::size_t n = 0; n < len && http_msg.get_chunk_cache().size() < m_max_content_length; ++n) 
+                    http_msg.get_chunk_cache().push_back(MISSING_DATA_CHAR);
             }
             m_bytes_last_read = len;
             m_bytes_total_read += len;
@@ -226,7 +226,7 @@ boost::tribool HTTPParser::parseMissingData(HTTPMessage& http_msg,
     return rc;
 }
 
-boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg,
+boost::tribool parser::parseHeaders(http::message& http_msg,
     boost::system::error_code& ec)
 {
     //
@@ -666,7 +666,7 @@ boost::tribool HTTPParser::parseHeaders(HTTPMessage& http_msg,
     return boost::indeterminate;
 }
 
-void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
+void parser::updateMessageWithHeaderData(http::message& http_msg) const
 {
     if (isParsingRequest()) {
 
@@ -720,7 +720,7 @@ void HTTPParser::updateMessageWithHeaderData(HTTPMessage& http_msg) const
     }
 }
 
-boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg,
+boost::tribool parser::finishHeaderParsing(http::message& http_msg,
     boost::system::error_code& ec)
 {
     boost::tribool rc = boost::indeterminate;
@@ -786,7 +786,7 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg,
             // only if not a request, read through the close of the connection
             if (! m_is_request) {
                 // clear the chunk buffers before we start
-                http_msg.getChunkCache().clear();
+                http_msg.get_chunk_cache().clear();
 
                 // continue reading content until there is no more data
                 m_message_parse_state = PARSE_CONTENT_NO_LENGTH;
@@ -806,7 +806,7 @@ boost::tribool HTTPParser::finishHeaderParsing(HTTPMessage& http_msg,
     return rc;
 }
 
-bool HTTPParser::parseURLEncoded(HTTPTypes::QueryParams& dict,
+bool parser::parseURLEncoded(HTTPTypes::QueryParams& dict,
                                  const char *ptr, const size_t len)
 {
     // used to track whether we are parsing the name or value
@@ -878,7 +878,7 @@ bool HTTPParser::parseURLEncoded(HTTPTypes::QueryParams& dict,
     return true;
 }
 
-bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
+bool parser::parseCookieHeader(HTTPTypes::CookieParams& dict,
                                    const char *ptr, const size_t len,
                                    bool set_cookie_header)
 {
@@ -992,7 +992,7 @@ bool HTTPParser::parseCookieHeader(HTTPTypes::CookieParams& dict,
     return true;
 }
 
-boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_cache,
+boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
     boost::system::error_code& ec)
 {
     //
@@ -1077,8 +1077,8 @@ boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_cache,
                     m_payload_handler(m_read_ptr, len);
                     m_bytes_read_in_current_chunk += len;
                     if (len > 1) m_read_ptr += (len - 1);
-                } else if (chunk_cache.size() < m_max_content_length) {
-                    chunk_cache.push_back(*m_read_ptr);
+                } else if (chunks.size() < m_max_content_length) {
+                    chunks.push_back(*m_read_ptr);
                     m_bytes_read_in_current_chunk++;
                 }
             }
@@ -1141,7 +1141,7 @@ boost::tribool HTTPParser::parseChunks(HTTPMessage::ChunkCache& chunk_cache,
     return boost::indeterminate;
 }
 
-boost::tribool HTTPParser::consumeContent(HTTPMessage& http_msg,
+boost::tribool parser::consumeContent(http::message& http_msg,
     boost::system::error_code& ec)
 {
     size_t content_bytes_to_read;
@@ -1186,7 +1186,7 @@ boost::tribool HTTPParser::consumeContent(HTTPMessage& http_msg,
     return rc;
 }
 
-std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk_cache)
+std::size_t parser::consumeContentAsNextChunk(http::message::chunk_cache_t& chunks)
 {
     if (bytes_available() == 0) {
         m_bytes_last_read = 0;
@@ -1197,8 +1197,8 @@ std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk
                 m_payload_handler(m_read_ptr, m_bytes_last_read);
         } else {
             while (m_read_ptr < m_read_end_ptr) {
-                if (chunk_cache.size() < m_max_content_length)
-                    chunk_cache.push_back(*m_read_ptr);
+                if (chunks.size() < m_max_content_length)
+                    chunks.push_back(*m_read_ptr);
                 ++m_read_ptr;
             }
         }
@@ -1208,7 +1208,7 @@ std::size_t HTTPParser::consumeContentAsNextChunk(HTTPMessage::ChunkCache& chunk
     return m_bytes_last_read;
 }
 
-void HTTPParser::finish(HTTPMessage& http_msg) const
+void parser::finish(http::message& http_msg) const
 {
     switch (m_message_parse_state) {
     case PARSE_START:
@@ -1261,27 +1261,27 @@ void HTTPParser::finish(HTTPMessage& http_msg) const
     }
 }
 
-void HTTPParser::computeMsgStatus(HTTPMessage& http_msg, bool msg_parsed_ok )
+void parser::computeMsgStatus(http::message& http_msg, bool msg_parsed_ok )
 {
-    HTTPMessage::DataStatus st = HTTPMessage::STATUS_NONE;
+    http::message::data_status_t st = http::message::STATUS_NONE;
 
     if(http_msg.hasMissingPackets()) {
         st = http_msg.hasDataAfterMissingPackets() ?
-                        HTTPMessage::STATUS_PARTIAL : HTTPMessage::STATUS_TRUNCATED;
+                        http::message::STATUS_PARTIAL : http::message::STATUS_TRUNCATED;
     } else {
-        st = msg_parsed_ok ? HTTPMessage::STATUS_OK : HTTPMessage::STATUS_TRUNCATED;
+        st = msg_parsed_ok ? http::message::STATUS_OK : http::message::STATUS_TRUNCATED;
     }
 
     http_msg.setStatus(st);
 }
 
-void HTTPParser::createErrorCategory(void)
+void parser::create_error_category(void)
 {
-    static ErrorCategory UNIQUE_ERROR_CATEGORY;
+    static error_category_t UNIQUE_ERROR_CATEGORY;
     m_error_category_ptr = &UNIQUE_ERROR_CATEGORY;
 }
 
-bool HTTPParser::parseForwardedFor(const std::string& header, std::string& public_ip)
+bool parser::parseForwardedFor(const std::string& header, std::string& public_ip)
 {
     // static regex's used to check for ipv4 address
     static const boost::regex IPV4_ADDR_RX("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
@@ -1319,6 +1319,5 @@ bool HTTPParser::parseForwardedFor(const std::string& header, std::string& publi
     return false;
 }
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
-

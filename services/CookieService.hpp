@@ -20,13 +20,13 @@ namespace plugins {     // begin namespace plugins
 /// CookieService: web service that displays and updates cookies
 /// 
 class CookieService :
-    public pion::net::WebService
+    public pion::http::WebService
 {
 public:
     CookieService(void) {}
     virtual ~CookieService() {}
-    virtual void operator()(pion::net::HTTPRequestPtr& request,
-                            pion::net::TCPConnectionPtr& tcp_conn);
+    virtual void operator()(pion::http::HTTPRequestPtr& request,
+                            pion::tcp::connection_ptr& tcp_conn);
 };
 
 }   // end namespace plugins

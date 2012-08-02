@@ -13,12 +13,12 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
 // HTTPWriter member functions
 
-void HTTPWriter::prepareWriteBuffers(HTTPMessage::WriteBuffers& write_buffers,
+void HTTPWriter::preparewrite_buffers_t(http::message::write_buffers_t& write_buffers,
                                      const bool send_final_chunk)
 {
     // check if the HTTP headers have been sent yet
@@ -73,6 +73,6 @@ void HTTPWriter::prepareWriteBuffers(HTTPMessage::WriteBuffers& write_buffers,
     }
 }
 
-}   // end namespace net
+    
+}   // end namespace http
 }   // end namespace pion
-

@@ -22,7 +22,8 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
 /// HTTPResponseWriter: used to asynchronously send HTTP responses
@@ -46,7 +47,7 @@ public:
      * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn,
+    static inline boost::shared_ptr<HTTPResponseWriter> create(tcp::connection_ptr& tcp_conn,
                                                                HTTPResponsePtr& http_response,
                                                                FinishedHandler handler = FinishedHandler())
     {
@@ -63,7 +64,7 @@ public:
      * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn,
+    static inline boost::shared_ptr<HTTPResponseWriter> create(tcp::connection_ptr& tcp_conn,
                                                                const HTTPRequest& http_request,
                                                                FinishedHandler handler = FinishedHandler())
     {
@@ -83,11 +84,11 @@ protected:
      * @param http_response pointer to the response that will be sent
      * @param handler function called after the request has been sent
      */
-    HTTPResponseWriter(TCPConnectionPtr& tcp_conn, HTTPResponsePtr& http_response,
+    HTTPResponseWriter(tcp::connection_ptr& tcp_conn, HTTPResponsePtr& http_response,
                        FinishedHandler handler)
         : HTTPWriter(tcp_conn, handler), m_http_response(http_response)
     {
-        setLogger(PION_GET_LOGGER("pion.net.HTTPResponseWriter"));
+        setLogger(PION_GET_LOGGER("pion.http.HTTPResponseWriter"));
         // tell the HTTPWriter base class whether or not the client supports chunks
         supportsChunkedMessages(m_http_response->getChunksSupported());
         // check if we should initialize the payload content using
@@ -107,11 +108,11 @@ protected:
      * @param http_request the request we are responding to
      * @param handler function called after the request has been sent
      */
-    HTTPResponseWriter(TCPConnectionPtr& tcp_conn, const HTTPRequest& http_request,
+    HTTPResponseWriter(tcp::connection_ptr& tcp_conn, const HTTPRequest& http_request,
                        FinishedHandler handler)
         : HTTPWriter(tcp_conn, handler), m_http_response(new HTTPResponse(http_request))
     {
-        setLogger(PION_GET_LOGGER("pion.net.HTTPResponseWriter"));
+        setLogger(PION_GET_LOGGER("pion.http.HTTPResponseWriter"));
         // tell the HTTPWriter base class whether or not the client supports chunks
         supportsChunkedMessages(m_http_response->getChunksSupported());
     }
@@ -122,11 +123,11 @@ protected:
      *
      * @param write_buffers vector of write buffers to initialize
      */
-    virtual void prepareBuffersForSend(HTTPMessage::WriteBuffers& write_buffers) {
+    virtual void prepareBuffersForSend(http::message::write_buffers_t& write_buffers) {
         if (getContentLength() > 0)
             m_http_response->setContentLength(getContentLength());
         m_http_response->prepareBuffersForSend(write_buffers,
-                                               getTCPConnection()->getKeepAlive(),
+                                               get_connection()->get_keep_alive(),
                                                sendingChunkedMessage());
     }   
 
@@ -146,14 +147,14 @@ protected:
     virtual void handleWrite(const boost::system::error_code& write_error,
                              std::size_t bytes_written)
     {
-        PionLogger log_ptr(getLogger());
+        logger log_ptr(getLogger());
         if (!write_error) {
             // response sent OK
             if (sendingChunkedMessage()) {
                 PION_LOG_DEBUG(log_ptr, "Sent HTTP response chunk of " << bytes_written << " bytes");
             } else {
                 PION_LOG_DEBUG(log_ptr, "Sent HTTP response of " << bytes_written << " bytes ("
-                               << (getTCPConnection()->getKeepAlive() ? "keeping alive)" : "closing)"));
+                               << (get_connection()->get_keep_alive() ? "keeping alive)" : "closing)"));
             }
         }
         finishedWriting(write_error);
@@ -182,7 +183,7 @@ const HTTPResponseWriterPtr& operator<<(const HTTPResponseWriterPtr& writer, con
 }
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

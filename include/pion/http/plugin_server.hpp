@@ -22,7 +22,8 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
 /// WebServer: a server that handles HTTP connections using WebService plug-ins
@@ -44,7 +45,7 @@ public:
     explicit WebServer(const unsigned int tcp_port = 0)
         : HTTPServer(tcp_port)
     { 
-        setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+        setLogger(PION_GET_LOGGER("pion.http.WebServer"));
     }
     
     /**
@@ -55,31 +56,31 @@ public:
     explicit WebServer(const boost::asio::ip::tcp::endpoint& endpoint)
         : HTTPServer(endpoint)
     { 
-        setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+        setLogger(PION_GET_LOGGER("pion.http.WebServer"));
     }
 
     /**
      * creates a new WebServer object
      * 
-     * @param scheduler the PionScheduler that will be used to manage worker threads
+     * @param sched the scheduler that will be used to manage worker threads
      * @param tcp_port port number used to listen for new connections (IPv4)
      */
-    explicit WebServer(PionScheduler& scheduler, const unsigned int tcp_port = 0)
-        : HTTPServer(scheduler, tcp_port)
+    explicit WebServer(scheduler& sched, const unsigned int tcp_port = 0)
+        : HTTPServer(sched, tcp_port)
     { 
-        setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+        setLogger(PION_GET_LOGGER("pion.http.WebServer"));
     }
     
     /**
      * creates a new WebServer object
      * 
-     * @param scheduler the PionScheduler that will be used to manage worker threads
+     * @param sched the scheduler that will be used to manage worker threads
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    WebServer(PionScheduler& scheduler, const boost::asio::ip::tcp::endpoint& endpoint)
-        : HTTPServer(scheduler, endpoint)
+    WebServer(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint)
+        : HTTPServer(sched, endpoint)
     { 
-        setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+        setLogger(PION_GET_LOGGER("pion.http.WebServer"));
     }
 
     /**
@@ -149,7 +150,7 @@ protected:
 private:
     
     /// data type for a collection of web services
-    typedef PluginManager<WebService>   WebServiceManager;
+    typedef plugin_manager<WebService>   WebServiceManager;
     
     
     /// Web services associated with this server
@@ -161,7 +162,7 @@ private:
 typedef boost::shared_ptr<WebServer>        WebServerPtr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif
