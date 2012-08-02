@@ -16,15 +16,16 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
-/// HTTPTypes: common data types used by HTTP
+/// types: common data types used by HTTP
 /// 
-struct PION_API HTTPTypes
+struct PION_API types
 {
     /// virtual destructor
-    virtual ~HTTPTypes() {}
+    virtual ~types() {}
     
     // generic strings used by HTTP
     static const std::string    STRING_EMPTY;
@@ -96,21 +97,12 @@ struct PION_API HTTPTypes
     static const unsigned int   RESPONSE_CODE_NOT_IMPLEMENTED;
     static const unsigned int   RESPONSE_CODE_CONTINUE;
     
-    /// data type for HTTP headers
-    typedef StringDictionary    Headers;
 
-    /// data type for HTTP cookie parameters
-    typedef StringDictionary    CookieParams;
-
-    /// data type for HTTP query parameters
-    typedef StringDictionary    QueryParams;
-
-    
     /// converts time_t format into an HTTP-date string
     static std::string get_date_string(const time_t t);
 
     /// builds an HTTP query string from a collection of query parameters
-    static std::string make_query_string(const QueryParams& query_params);
+    static std::string make_query_string(const ihash_multimap& query_params);
     
     /**
      * creates a "Set-Cookie" header
@@ -130,7 +122,8 @@ struct PION_API HTTPTypes
                                               const unsigned long max_age = 0);     
 };
 
-}   // end namespace net
+
+}   // end namespace http
 }   // end namespace pion
 
 #endif

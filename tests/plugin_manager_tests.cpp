@@ -11,7 +11,7 @@
 
 #include <pion/config.hpp>
 #include <pion/plugin_manager.hpp>
-#include <pion/unit_test_defs.hpp>
+#include <pion/test/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
 
@@ -31,15 +31,15 @@ using namespace pion;
 #endif
 
 
-/// fixture for unit tests on a newly created PluginManager
+/// fixture for unit tests on a newly created plugin_manager
 template <class T>
-class NewPluginManager_F : public PluginManager<T> {
+class new_plugin_manager_F : public plugin_manager<T> {
 public:
-    NewPluginManager_F() {
+    new_plugin_manager_F() {
         BOOST_REQUIRE(GET_DIRECTORY(m_old_cwd, DIRECTORY_MAX_SIZE) != NULL);
         BOOST_REQUIRE(CHANGE_DIRECTORY(directoryOfPluginsForTests.c_str()) == 0);
     }
-    ~NewPluginManager_F() {
+    ~new_plugin_manager_F() {
         BOOST_CHECK(CHANGE_DIRECTORY(m_old_cwd) == 0);
     }
 
@@ -50,8 +50,8 @@ private:
 struct InterfaceStub {
 };
 
-BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(NewPluginManager_S, 
-                                       boost::mpl::list<NewPluginManager_F<InterfaceStub> >)
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(new_plugin_manager_S, 
+                                       boost::mpl::list<new_plugin_manager_F<InterfaceStub> >)
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkEmptyIsTrue) {
     BOOST_CHECK(F::empty());
@@ -83,18 +83,18 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkClear) {
 BOOST_AUTO_TEST_SUITE_END()
 
 
-/// fixture for unit tests on a PluginManager with a plugin loaded
-class PluginManagerWithPluginLoaded_F : public NewPluginManager_F<InterfaceStub> {
+/// fixture for unit tests on a plugin_manager with a plugin loaded
+class plugin_manager_with_plugin_loaded_F : public new_plugin_manager_F<InterfaceStub> {
 public:
-    PluginManagerWithPluginLoaded_F() {
+    plugin_manager_with_plugin_loaded_F() {
         BOOST_REQUIRE(load("urn:id_1", "hasCreateAndDestroy") != NULL);
     }
-    ~PluginManagerWithPluginLoaded_F() {
+    ~plugin_manager_with_plugin_loaded_F() {
     }
 };
 
-BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(PluginManagerWithPluginLoaded_S, 
-                                       boost::mpl::list<PluginManagerWithPluginLoaded_F>)
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(plugin_manager_with_plugin_loaded_S, 
+                                       boost::mpl::list<plugin_manager_with_plugin_loaded_F>)
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkEmptyIsFalse) {
     BOOST_CHECK(!F::empty());

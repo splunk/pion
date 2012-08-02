@@ -20,13 +20,13 @@ namespace plugins {     // begin namespace plugins
 /// HelloService: web service that responds with "Hello World"
 /// 
 class HelloService :
-    public pion::net::WebService
+    public pion::http::plugin_service
 {
 public:
     HelloService(void) {}
     virtual ~HelloService() {}
-    virtual void operator()(pion::net::HTTPRequestPtr& request,
-                            pion::net::TCPConnectionPtr& tcp_conn);
+    virtual void operator()(pion::http::request_ptr& http_request_ptr,
+                            pion::tcp::connection_ptr& tcp_conn);
 };
 
 }   // end namespace plugins

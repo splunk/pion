@@ -72,9 +72,6 @@ namespace error {    // begin namespace error
     /// exception thrown if a plugin cannot be found
     struct plugin_not_found : virtual std::exception, virtual boost::exception {};
     
-    /// exception thrown if a web service plugin cannot be found
-    struct service_not_found : virtual std::exception, virtual boost::exception {};
-    
     /// exception thrown if we try to add or load a duplicate plugin
     struct duplicate_plugin : virtual std::exception, virtual boost::exception {};
 

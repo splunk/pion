@@ -40,9 +40,9 @@
     #endif 
 
     namespace pion {
-        typedef log4cxx::LoggerPtr  PionLogger;
-        typedef log4cxx::AppenderSkeleton   PionLogAppender;
-        typedef PionLogAppender *   PionLogAppenderPtr;
+        typedef log4cxx::LoggerPtr  logger;
+        typedef log4cxx::AppenderSkeleton   log_appender;
+        typedef log_appender *   log_appender_ptr;
     }
     
     #define PION_HAS_LOG_APPENDER   1
@@ -94,21 +94,21 @@
     #endif 
 
     namespace pion {
-        typedef log4cplus::Logger   PionLogger;
-        typedef log4cplus::Appender PionLogAppender;
-        typedef log4cplus::SharedAppenderPtr    PionLogAppenderPtr;
+        typedef log4cplus::Logger   logger;
+        typedef log4cplus::Appender log_appender;
+        typedef log4cplus::SharedAppenderPtr    log_appender_ptr;
 
         ///
-        /// CircularBufferAppender: caches log events in a circular buffer
+        /// circular_buffer_appender: caches log events in a circular buffer
         /// 
-        class CircularBufferAppender : public log4cplus::Appender
+        class circular_buffer_appender : public log4cplus::Appender
         {
         public:
             typedef boost::circular_buffer<log4cplus::spi::InternalLoggingEvent> LogEventBuffer;
 
             // default constructor and destructor
-            CircularBufferAppender(void) : m_log_events(1000) {};
-            virtual ~CircularBufferAppender() {}
+            circular_buffer_appender(void) : m_log_events(1000) {};
+            virtual ~circular_buffer_appender() {}
             
             /// returns an iterator to the log events in the buffer
             const LogEventBuffer& getLogIterator() const {
@@ -163,9 +163,9 @@
     #include <log4cpp/AppenderSkeleton.hh>
 
     namespace pion {
-        typedef log4cpp::Category*  PionLogger;
-        typedef log4cpp::AppenderSkeleton   PionLogAppender;
-        typedef PionLogAppender *   PionLogAppenderPtr;
+        typedef log4cpp::Category*  logger;
+        typedef log4cpp::AppenderSkeleton   log_appender;
+        typedef log_appender *   log_appender_ptr;
     }
 
     #define PION_HAS_LOG_APPENDER   1
@@ -191,9 +191,9 @@
 
     // Logging is disabled -> add do-nothing stubs for logging
     namespace pion {
-        typedef int     PionLogger;
-        typedef int     PionLogAppender;
-        typedef PionLogAppender *   PionLogAppenderPtr;
+        typedef int     logger;
+        typedef int     log_appender;
+        typedef log_appender *   log_appender_ptr;
     }
 
     #undef PION_HAS_LOG_APPENDER
@@ -227,40 +227,40 @@
     #include <ctime>
 
     namespace pion {
-        struct PION_API PionLogger {
-            enum PionPriorityType {
+        struct PION_API logger {
+            enum log_priority_type {
                 LOG_LEVEL_DEBUG, LOG_LEVEL_INFO, LOG_LEVEL_WARN,
                 LOG_LEVEL_ERROR, LOG_LEVEL_FATAL
             };
-            ~PionLogger() {}
-            PionLogger(void) : m_name("pion") {}
-            PionLogger(const std::string& name) : m_name(name) {}
-            PionLogger(const PionLogger& p) : m_name(p.m_name) {}
+            ~logger() {}
+            logger(void) : m_name("pion") {}
+            logger(const std::string& name) : m_name(name) {}
+            logger(const logger& p) : m_name(p.m_name) {}
             std::string                 m_name;
-            static PionPriorityType     m_priority;
+            static log_priority_type     m_priority;
         };
-        typedef int     PionLogAppender;
-        typedef PionLogAppender *   PionLogAppenderPtr;
+        typedef int     log_appender;
+        typedef log_appender *   log_appender_ptr;
     }
 
     #undef PION_HAS_LOG_APPENDER
     #define PION_LOG_CONFIG_BASIC   {}
     #define PION_LOG_CONFIG(FILE)   {}
-    #define PION_GET_LOGGER(NAME)   pion::PionLogger(NAME)
+    #define PION_GET_LOGGER(NAME)   pion::logger(NAME)
 
-    #define PION_LOG_SETLEVEL_DEBUG(LOG)    { LOG.m_priority = pion::PionLogger::LOG_LEVEL_DEBUG; }
-    #define PION_LOG_SETLEVEL_INFO(LOG)     { LOG.m_priority = pion::PionLogger::LOG_LEVEL_INFO; }
-    #define PION_LOG_SETLEVEL_WARN(LOG)     { LOG.m_priority = pion::PionLogger::LOG_LEVEL_WARN; }
-    #define PION_LOG_SETLEVEL_ERROR(LOG)    { LOG.m_priority = pion::PionLogger::LOG_LEVEL_ERROR; }
-    #define PION_LOG_SETLEVEL_FATAL(LOG)    { LOG.m_priority = pion::PionLogger::LOG_LEVEL_FATAL; }
+    #define PION_LOG_SETLEVEL_DEBUG(LOG)    { LOG.m_priority = pion::logger::LOG_LEVEL_DEBUG; }
+    #define PION_LOG_SETLEVEL_INFO(LOG)     { LOG.m_priority = pion::logger::LOG_LEVEL_INFO; }
+    #define PION_LOG_SETLEVEL_WARN(LOG)     { LOG.m_priority = pion::logger::LOG_LEVEL_WARN; }
+    #define PION_LOG_SETLEVEL_ERROR(LOG)    { LOG.m_priority = pion::logger::LOG_LEVEL_ERROR; }
+    #define PION_LOG_SETLEVEL_FATAL(LOG)    { LOG.m_priority = pion::logger::LOG_LEVEL_FATAL; }
     #define PION_LOG_SETLEVEL_UP(LOG)       { ++LOG.m_priority; }
     #define PION_LOG_SETLEVEL_DOWN(LOG)     { --LOG.m_priority; }
 
-    #define PION_LOG_DEBUG(LOG, MSG)    if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_DEBUG) { std::cout << time(NULL) << " DEBUG " << LOG.m_name << ' ' << MSG << std::endl; }
-    #define PION_LOG_INFO(LOG, MSG)     if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_INFO) { std::cout << time(NULL) << " INFO " << LOG.m_name << ' ' << MSG << std::endl; }
-    #define PION_LOG_WARN(LOG, MSG)     if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_WARN) { std::cerr << time(NULL) << " WARN " << LOG.m_name << ' ' << MSG << std::endl; }
-    #define PION_LOG_ERROR(LOG, MSG)    if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_ERROR) { std::cerr << time(NULL) << " ERROR " << LOG.m_name << ' ' << MSG << std::endl; }
-    #define PION_LOG_FATAL(LOG, MSG)    if (LOG.m_priority <= pion::PionLogger::LOG_LEVEL_FATAL) { std::cerr << time(NULL) << " FATAL " << LOG.m_name << ' ' << MSG << std::endl; }
+    #define PION_LOG_DEBUG(LOG, MSG)    if (LOG.m_priority <= pion::logger::LOG_LEVEL_DEBUG) { std::cout << time(NULL) << " DEBUG " << LOG.m_name << ' ' << MSG << std::endl; }
+    #define PION_LOG_INFO(LOG, MSG)     if (LOG.m_priority <= pion::logger::LOG_LEVEL_INFO) { std::cout << time(NULL) << " INFO " << LOG.m_name << ' ' << MSG << std::endl; }
+    #define PION_LOG_WARN(LOG, MSG)     if (LOG.m_priority <= pion::logger::LOG_LEVEL_WARN) { std::cerr << time(NULL) << " WARN " << LOG.m_name << ' ' << MSG << std::endl; }
+    #define PION_LOG_ERROR(LOG, MSG)    if (LOG.m_priority <= pion::logger::LOG_LEVEL_ERROR) { std::cerr << time(NULL) << " ERROR " << LOG.m_name << ' ' << MSG << std::endl; }
+    #define PION_LOG_FATAL(LOG, MSG)    if (LOG.m_priority <= pion::logger::LOG_LEVEL_FATAL) { std::cerr << time(NULL) << " FATAL " << LOG.m_name << ' ' << MSG << std::endl; }
 
 #endif
 

@@ -20,29 +20,30 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
-/// WebService: interface class for web services
+/// plugin_service: interface class for web services
 /// 
-class WebService :
+class plugin_service :
     private boost::noncopyable
 {
 public:
 
     /// default constructor
-    WebService(void) {}
+    plugin_service(void) {}
 
     /// virtual destructor
-    virtual ~WebService() {}
+    virtual ~plugin_service() {}
 
     /**
      * attempts to handle a new HTTP request
      *
-     * @param request the new HTTP request to handle
+     * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    virtual void operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) = 0;
+    virtual void operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn) = 0;
     
     /**
      * sets a configuration option
@@ -74,7 +75,7 @@ public:
             return std::string();
         }
         // strip the web service's resource path plus the slash after it
-        return algo::url_decode(resource_requested.substr(getResource().size() + 1));
+        return algorithm::url_decode(resource_requested.substr(getResource().size() + 1));
     }
     
     
@@ -87,11 +88,11 @@ private:
 
 //
 // The following symbols must be defined for any web service that you would
-// like to be able to load dynamically using the HTTPServer::loadService()
+// like to be able to load dynamically using the http::server::loadService()
 // function.  These are not required for any services that you only want to link
 // directly into your programs.
 //
-// Make sure that you replace "WebService" with the name of your derived class.
+// Make sure that you replace "MyPluginName" with the name of your derived class.
 // This name must also match the name of the object file (excluding the
 // extension).  These symbols must be linked into your service's object file,
 // not included in any headers that it may use (declarations are OK in headers
@@ -100,16 +101,17 @@ private:
 // The "pion_create" function is used to create new instances of your service.
 // The "pion_destroy" function is used to destroy instances of your service.
 //
-// extern "C" WebService *pion_create_WebService(void) {
-//      return new WebService;
+// extern "C" MyPluginName *pion_create_MyPluginName(void) {
+//      return new MyPluginName;
 // }
 //
-// extern "C" void pion_destroy_WebService(WebService *service_ptr) {
+// extern "C" void pion_destroy_MyPluginName(MyPluginName *service_ptr) {
 //      delete service_ptr;
 // }
 //
 
-}   // end namespace net
+
+}   // end namespace http
 }   // end namespace pion
 
 #endif

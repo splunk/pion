@@ -22,17 +22,17 @@
 
 namespace pion {    // begin namespace pion
     
-// static members of PionProcess
+// static members of process
     
-boost::once_flag                PionProcess::m_instance_flag = BOOST_ONCE_INIT;
-PionProcess::PionProcessConfig *PionProcess::m_config_ptr = NULL;
+boost::once_flag                process::m_instance_flag = BOOST_ONCE_INIT;
+process::config_type *process::m_config_ptr = NULL;
 
     
-// PionProcess member functions
+// process member functions
     
-void PionProcess::shutdown(void)
+void process::shutdown(void)
 {
-    PionProcessConfig& cfg = getPionProcessConfig();
+    config_type& cfg = get_config();
     boost::mutex::scoped_lock shutdown_lock(cfg.shutdown_mutex);
     if (! cfg.shutdown_now) {
         cfg.shutdown_now = true;
@@ -40,17 +40,17 @@ void PionProcess::shutdown(void)
     }
 }
 
-void PionProcess::wait_for_shutdown(void)
+void process::wait_for_shutdown(void)
 {
-    PionProcessConfig& cfg = getPionProcessConfig();
+    config_type& cfg = get_config();
     boost::mutex::scoped_lock shutdown_lock(cfg.shutdown_mutex);
     while (! cfg.shutdown_now)
         cfg.shutdown_cond.wait(shutdown_lock);
 }
 
-void PionProcess::createPionProcessConfig(void)
+void process::create_config(void)
 {
-    static PionProcessConfig UNIQUE_PION_PROCESS_CONFIG;
+    static config_type UNIQUE_PION_PROCESS_CONFIG;
     m_config_ptr = &UNIQUE_PION_PROCESS_CONFIG;
 }
 
@@ -65,19 +65,19 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
         case CTRL_BREAK_EVENT:
         case CTRL_CLOSE_EVENT:
         case CTRL_SHUTDOWN_EVENT:
-            PionProcess::shutdown();
+            process::shutdown();
             return TRUE;
         default:
             return FALSE;
     }
 }
 
-void PionProcess::initialize(void)
+void process::initialize(void)
 {
     SetConsoleCtrlHandler(console_ctrl_handler, TRUE);
 }
 
-void PionProcess::daemonize(void)
+void process::daemonize(void)
 {
     // not supported
 }
@@ -86,10 +86,10 @@ void PionProcess::daemonize(void)
 
 void handle_signal(int sig)
 {
-    PionProcess::shutdown();
+    process::shutdown();
 }
 
-void PionProcess::initialize(void)
+void process::initialize(void)
 {
     signal(SIGPIPE, SIG_IGN);
     signal(SIGCHLD, SIG_IGN);
@@ -101,7 +101,7 @@ void PionProcess::initialize(void)
     signal(SIGTERM, handle_signal);
 }
 
-void PionProcess::daemonize(void)
+void process::daemonize(void)
 {
     // adopted from "Unix Daemon Server Programming"
     // http://www.enderunix.org/docs/eng/daemon.php

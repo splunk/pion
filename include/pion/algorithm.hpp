@@ -16,7 +16,7 @@
 
 namespace pion {    // begin namespace pion
 
-struct PION_API algo {
+struct PION_API algorithm {
 
     /** base64 decoding
      *

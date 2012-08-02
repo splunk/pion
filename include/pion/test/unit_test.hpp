@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_UNIT_TEST_DEFS_HEADER__
-#define __PION_UNIT_TEST_DEFS_HEADER__
+#ifndef __PION_TEST_UNIT_TEST_HEADER__
+#define __PION_TEST_UNIT_TEST_HEADER__
 
 #include <iostream>
 #include <fstream>
@@ -29,14 +29,50 @@
 #define DIRECTORY_MAX_SIZE 1000
 
 
-struct PionUnitTest {
+namespace pion {    // begin namespace pion
+namespace test {    // begin namespace test
+
+    
+    /// config is intended for use as a global fixture.  By including the 
+    /// following line in one source code file of a unit test project, the constructor will
+    /// run once before the first test and the destructor will run once after the last test:
+    ///
+    /// BOOST_GLOBAL_FIXTURE(pion::test::config);
+    struct config {
+        config() {
+            std::cout << "global setup for all pion unit tests\n";
+            
+            // argc and argv do not include parameters handled by the boost unit test framework, such as --log_level.
+            int argc = boost::unit_test::framework::master_test_suite().argc;
+            char** argv = boost::unit_test::framework::master_test_suite().argv;
+            
+            bool verbose = false;
+            if (argc > 1) {
+                if (argv[1][0] == '-' && argv[1][1] == 'v') {
+                    verbose = true;
+                }
+            }
+            if (verbose) {
+                PION_LOG_CONFIG_BASIC;
+            } else {
+                std::cout << "Use '-v' to enable logging of errors and warnings from pion.\n";
+            }
+            pion::logger log_ptr = PION_GET_LOGGER("pion");
+            PION_LOG_SETLEVEL_WARN(log_ptr);
+        }
+        virtual ~config() {
+            std::cout << "global teardown for all pion unit tests\n";
+        }
+    };
+    
+
     // This is passed to xmlSetGenericErrorFunc() to make libxml do nothing when an error
     // occurs, rather than its default behavior of writing a message to stderr.
-    static void doNothing(void* ctx, const char* msg, ...) {
+    static inline void doNothing(void* ctx, const char* msg, ...) {
     }
 
     // removes line endings from a c-style string
-    static char* trim(char* str) {
+    static inline char* trim(char* str) {
         for (long len = strlen(str) - 1; len >= 0; len--) {
             if (str[len] == '\n' || str[len] == '\r')
                 str[len] = '\0';
@@ -48,7 +84,7 @@ struct PionUnitTest {
 
     // reads lines from a file, stripping line endings and ignoring blank lines
     // and comment lines (starting with a '#')
-    static bool read_lines_from_file(const std::string& filename, std::list<std::string>& lines) {
+    static inline bool read_lines_from_file(const std::string& filename, std::list<std::string>& lines) {
         // open file
         std::ifstream a_file(filename.c_str(), std::ios::in | std::ios::binary);
         if (! a_file.is_open())
@@ -74,7 +110,7 @@ struct PionUnitTest {
 
     // Check for file match, use std::list for sorting the files, which will allow
     // random order matching...
-    static bool check_files_match(const std::string& fileA, const std::string& fileB) {
+    static inline bool check_files_match(const std::string& fileA, const std::string& fileB) {
         // open and read data from files
         std::list<std::string> a_lines, b_lines;
         BOOST_REQUIRE(read_lines_from_file(fileA, a_lines));
@@ -88,7 +124,7 @@ struct PionUnitTest {
         return (a_lines == b_lines);
     }
 
-    static bool check_files_exact_match(const std::string& fileA, const std::string& fileB, bool ignore_line_endings = false) {
+    static inline bool check_files_exact_match(const std::string& fileA, const std::string& fileB, bool ignore_line_endings = false) {
         // open files
         std::ifstream a_file(fileA.c_str(), std::ios::in | std::ios::binary);
         BOOST_REQUIRE(a_file.is_open());
@@ -105,8 +141,8 @@ struct PionUnitTest {
             while (a_file.getline(a_buf, BUF_SIZE)) {
                 if (! b_file.getline(b_buf, BUF_SIZE))
                     return false;
-                PionUnitTest::trim(a_buf);
-                PionUnitTest::trim(b_buf);
+                trim(a_buf);
+                trim(b_buf);
                 if (strlen(a_buf) != strlen(b_buf))
                     return false;
                 if (memcmp(a_buf, b_buf, strlen(a_buf)) != 0)
@@ -135,41 +171,10 @@ struct PionUnitTest {
         // files match
         return true;
     }
-};
 
 
-// PionUnitTestsConfig is intended for use as a global fixture.  By including the 
-// following line in one source code file of a unit test project, the constructor will
-// run once before the first test and the destructor will run once after the last test:
-
-// BOOST_GLOBAL_FIXTURE(PionUnitTestsConfig);
-
-struct PionUnitTestsConfig {
-    PionUnitTestsConfig() {
-        std::cout << "global setup for all pion unit tests\n";
-
-        // argc and argv do not include parameters handled by the boost unit test framework, such as --log_level.
-        int argc = boost::unit_test::framework::master_test_suite().argc;
-        char** argv = boost::unit_test::framework::master_test_suite().argv;
-
-        bool verbose = false;
-        if (argc > 1) {
-            if (argv[1][0] == '-' && argv[1][1] == 'v') {
-                verbose = true;
-            }
-        }
-        if (verbose) {
-            PION_LOG_CONFIG_BASIC;
-        } else {
-            std::cout << "Use '-v' to enable logging of errors and warnings from pion.\n";
-        }
-        pion::PionLogger log_ptr = PION_GET_LOGGER("pion");
-        PION_LOG_SETLEVEL_WARN(log_ptr);
-    }
-    ~PionUnitTestsConfig() {
-        std::cout << "global teardown for all pion unit tests\n";
-    }
-};
+}   // end namespace test
+}   // end namespace pion
 
 
 /*
@@ -180,7 +185,7 @@ using BOOST_FIXTURE_TEST_SUITE and BOOST_AUTO_TEST_CASE:
 2) it makes the current fixture part of the test name, e.g. 
    checkPropertyX<myFixture_F>
 
-For an example of 1), see HTTPMessageTests.cpp.
+For an example of 1), see http_message_tests.cpp.
 
 There are probably simpler ways to achieve 2), but since it comes for free,
 it makes sense to use it.  The benefit of this is that the test names don't
@@ -263,5 +268,6 @@ BOOST_AUTO_TU_REGISTRAR( test_name )(                           \
 template<typename F>                                            \
 void test_name<F>::test_method()                                \
 /**/
+
 
 #endif

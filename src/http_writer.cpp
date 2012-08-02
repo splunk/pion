@@ -13,12 +13,12 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
-// HTTPWriter member functions
+// writer member functions
 
-void HTTPWriter::prepareWriteBuffers(HTTPMessage::WriteBuffers& write_buffers,
+void writer::preparewrite_buffers_t(http::message::write_buffers_t& write_buffers,
                                      const bool send_final_chunk)
 {
     // check if the HTTP headers have been sent yet
@@ -47,13 +47,13 @@ void HTTPWriter::prepareWriteBuffers(HTTPMessage::WriteBuffers& write_buffers,
             // append length of chunk to write_buffers
             write_buffers.push_back(boost::asio::buffer(m_text_cache.back()));
             // append an extra CRLF for chunk formatting
-            write_buffers.push_back(boost::asio::buffer(HTTPTypes::STRING_CRLF));
+            write_buffers.push_back(boost::asio::buffer(http::types::STRING_CRLF));
             
             // append response content buffers
             write_buffers.insert(write_buffers.end(), m_content_buffers.begin(),
                                  m_content_buffers.end());
             // append an extra CRLF for chunk formatting
-            write_buffers.push_back(boost::asio::buffer(HTTPTypes::STRING_CRLF));
+            write_buffers.push_back(boost::asio::buffer(http::types::STRING_CRLF));
         } else {
             // append response content buffers
             write_buffers.insert(write_buffers.end(), m_content_buffers.begin(),
@@ -68,11 +68,11 @@ void HTTPWriter::prepareWriteBuffers(HTTPMessage::WriteBuffers& write_buffers,
         // append length of chunk to write_buffers
         write_buffers.push_back(boost::asio::buffer(m_text_cache.back()));
         // append an extra CRLF for chunk formatting
-        write_buffers.push_back(boost::asio::buffer(HTTPTypes::STRING_CRLF));
-        write_buffers.push_back(boost::asio::buffer(HTTPTypes::STRING_CRLF));
+        write_buffers.push_back(boost::asio::buffer(http::types::STRING_CRLF));
+        write_buffers.push_back(boost::asio::buffer(http::types::STRING_CRLF));
     }
 }
 
-}   // end namespace net
+    
+}   // end namespace http
 }   // end namespace pion
-

@@ -22,7 +22,6 @@
 #include <pion/http/response_writer.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
@@ -54,7 +53,7 @@ void FileService::setOption(const std::string& name, const std::string& value)
 {
     if (name == "directory") {
         m_directory = value;
-        PionPlugin::checkCygwinPath(m_directory, value);
+        plugin::checkCygwinPath(m_directory, value);
         // make sure that the directory exists
         if (! boost::filesystem::exists(m_directory) || ! boost::filesystem::is_directory(m_directory)) {
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
@@ -66,7 +65,7 @@ void FileService::setOption(const std::string& name, const std::string& value)
         }
     } else if (name == "file") {
         m_file = value;
-        PionPlugin::checkCygwinPath(m_file, value);
+        plugin::checkCygwinPath(m_file, value);
         // make sure that the directory exists
         if (! boost::filesystem::exists(m_file) || boost::filesystem::is_directory(m_file)) {
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
@@ -113,10 +112,10 @@ void FileService::setOption(const std::string& name, const std::string& value)
     }
 }
 
-void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
 {
     // get the relative resource path for the request
-    const std::string relative_path(getRelativeResource(request->getResource()));
+    const std::string relative_path(getRelativeResource(http_request_ptr->getResource()));
 
     // determine the path of the file being requested
     boost::filesystem::path file_path;
@@ -127,7 +126,7 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
             // no file is specified, either in the request or in the options
             PION_LOG_WARN(m_logger, "No file option defined ("
                           << getResource() << ")");
-            sendNotFoundResponse(request, tcp_conn);
+            sendNotFoundResponse(http_request_ptr, tcp_conn);
             return;
         } else {
             file_path = m_file;
@@ -139,7 +138,7 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
             // no directory is specified for the relative file
             PION_LOG_WARN(m_logger, "No directory option defined ("
                           << getResource() << "): " << relative_path);
-            sendNotFoundResponse(request, tcp_conn);
+            sendNotFoundResponse(http_request_ptr, tcp_conn);
             return;
         } else {
             file_path = m_directory / relative_path;
@@ -166,13 +165,13 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
         static const std::string FORBIDDEN_HTML_FINISH =
             " is not in the configured directory.</p>\n"
             "</body></html>\n";
-        HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                     boost::bind(&TCPConnection::finish, tcp_conn)));
-        writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_FORBIDDEN);
-        writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_FORBIDDEN);
-        if (request->getMethod() != HTTPTypes::REQUEST_METHOD_HEAD) {
+        http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                     boost::bind(&tcp::connection::finish, tcp_conn)));
+        writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_FORBIDDEN);
+        writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_FORBIDDEN);
+        if (http_request_ptr->getMethod() != http::types::REQUEST_METHOD_HEAD) {
             writer->writeNoCopy(FORBIDDEN_HTML_START);
-            writer << request->getResource();
+            writer << http_request_ptr->getResource();
             writer->writeNoCopy(FORBIDDEN_HTML_FINISH);
         }
         writer->send();
@@ -192,21 +191,21 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
         static const std::string FORBIDDEN_HTML_FINISH =
             " is a directory.</p>\n"
             "</body></html>\n";
-        HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                     boost::bind(&TCPConnection::finish, tcp_conn)));
-        writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_FORBIDDEN);
-        writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_FORBIDDEN);
-        if (request->getMethod() != HTTPTypes::REQUEST_METHOD_HEAD) {
+        http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                     boost::bind(&tcp::connection::finish, tcp_conn)));
+        writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_FORBIDDEN);
+        writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_FORBIDDEN);
+        if (http_request_ptr->getMethod() != http::types::REQUEST_METHOD_HEAD) {
             writer->writeNoCopy(FORBIDDEN_HTML_START);
-            writer << request->getResource();
+            writer << http_request_ptr->getResource();
             writer->writeNoCopy(FORBIDDEN_HTML_FINISH);
         }
         writer->send();
         return;
     }
 
-    if (request->getMethod() == HTTPTypes::REQUEST_METHOD_GET 
-        || request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD)
+    if (http_request_ptr->getMethod() == http::types::REQUEST_METHOD_GET 
+        || http_request_ptr->getMethod() == http::types::REQUEST_METHOD_HEAD)
     {
         // the type of response we will send
         enum ResponseType {
@@ -221,7 +220,7 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
         DiskFile response_file;
 
         // get the If-Modified-Since request header
-        const std::string if_modified_since(request->getHeader(HTTPTypes::HEADER_IF_MODIFIED_SINCE));
+        const std::string if_modified_since(http_request_ptr->getHeader(http::types::HEADER_IF_MODIFIED_SINCE));
 
         // check the cache for a corresponding entry (if enabled)
         // note that m_cache_setting may equal 0 if m_scan_setting == 1
@@ -267,7 +266,7 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                         // no need to read the file; the modified times match!
                         response_type = RESPONSE_NOT_MODIFIED;
                     } else {
-                        if (request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD) {
+                        if (http_request_ptr->getMethod() == http::types::REQUEST_METHOD_HEAD) {
                             response_type = RESPONSE_HEAD_OK;
                         } else {
                             response_type = RESPONSE_OK;
@@ -304,7 +303,7 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                     // get the response type
                     if (cache_itr->second.getLastModifiedString() == if_modified_since) {
                         response_type = RESPONSE_NOT_MODIFIED;
-                    } else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD) {
+                    } else if (http_request_ptr->getMethod() == http::types::REQUEST_METHOD_HEAD) {
                         response_type = RESPONSE_HEAD_OK;
                     } else {
                         response_type = RESPONSE_OK;
@@ -325,7 +324,7 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
             if (! boost::filesystem::exists(file_path)) {
                 PION_LOG_WARN(m_logger, "File not found ("
                               << getResource() << "): " << relative_path);
-                sendNotFoundResponse(request, tcp_conn);
+                sendNotFoundResponse(http_request_ptr, tcp_conn);
                 return;
             }
 
@@ -348,7 +347,7 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
             if (response_file.getLastModifiedString() == if_modified_since) {
                 // no need to read the file; the modified times match!
                 response_type = RESPONSE_NOT_MODIFIED;
-            } else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_HEAD) {
+            } else if (http_request_ptr->getMethod() == http::types::REQUEST_METHOD_HEAD) {
                 response_type = RESPONSE_HEAD_OK;
             } else {
                 response_type = RESPONSE_OK;
@@ -369,21 +368,21 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
         if (response_type == RESPONSE_OK) {
             // use DiskFileSender to send a file
             DiskFileSenderPtr sender_ptr(DiskFileSender::create(response_file,
-                                                                request, tcp_conn,
+                                                                http_request_ptr, tcp_conn,
                                                                 m_max_chunk_size));
             sender_ptr->send();
         } else if (response_type == RESPONSE_NOT_FOUND) {
-            sendNotFoundResponse(request, tcp_conn);
+            sendNotFoundResponse(http_request_ptr, tcp_conn);
         } else {
             // sending headers only -> use our own response object
 
             // prepare a response and set the Content-Type
-            HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                         boost::bind(&TCPConnection::finish, tcp_conn)));
+            http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                         boost::bind(&tcp::connection::finish, tcp_conn)));
             writer->getResponse().setContentType(response_file.getMimeType());
 
             // set Last-Modified header to enable client-side caching
-            writer->getResponse().addHeader(HTTPTypes::HEADER_LAST_MODIFIED,
+            writer->getResponse().addHeader(http::types::HEADER_LAST_MODIFIED,
                                             response_file.getLastModifiedString());
 
             switch(response_type) {
@@ -395,22 +394,22 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                     break;
                 case RESPONSE_NOT_MODIFIED:
                     // set "Not Modified" response
-                    writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_MODIFIED);
-                    writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_MODIFIED);
+                    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_NOT_MODIFIED);
+                    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_NOT_MODIFIED);
                     break;
                 case RESPONSE_HEAD_OK:
                     // set "OK" response (not really necessary since this is the default)
-                    writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_OK);
-                    writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_OK);
+                    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_OK);
+                    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_OK);
                     break;
             }
 
             // send the response
             writer->send();
         }
-    } else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_POST
-               || request->getMethod() == HTTPTypes::REQUEST_METHOD_PUT
-               || request->getMethod() == HTTPTypes::REQUEST_METHOD_DELETE)
+    } else if (http_request_ptr->getMethod() == http::types::REQUEST_METHOD_POST
+               || http_request_ptr->getMethod() == http::types::REQUEST_METHOD_PUT
+               || http_request_ptr->getMethod() == http::types::REQUEST_METHOD_DELETE)
     {
         // If not writable, then send 405 (Method Not Allowed) response for POST, PUT or DELETE requests.
         if (!m_writable) {
@@ -423,24 +422,24 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
             static const std::string NOT_ALLOWED_HTML_FINISH =
                 " is not allowed on this server.</p>\n"
                 "</body></html>\n";
-            HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                         boost::bind(&TCPConnection::finish, tcp_conn)));
-            writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
-            writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
+            http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                         boost::bind(&tcp::connection::finish, tcp_conn)));
+            writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
+            writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
             writer->writeNoCopy(NOT_ALLOWED_HTML_START);
-            writer << request->getMethod();
+            writer << http_request_ptr->getMethod();
             writer->writeNoCopy(NOT_ALLOWED_HTML_FINISH);
             writer->getResponse().addHeader("Allow", "GET, HEAD");
             writer->send();
         } else {
-            HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                         boost::bind(&TCPConnection::finish, tcp_conn)));
-            if (request->getMethod() == HTTPTypes::REQUEST_METHOD_POST
-                || request->getMethod() == HTTPTypes::REQUEST_METHOD_PUT)
+            http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                         boost::bind(&tcp::connection::finish, tcp_conn)));
+            if (http_request_ptr->getMethod() == http::types::REQUEST_METHOD_POST
+                || http_request_ptr->getMethod() == http::types::REQUEST_METHOD_PUT)
             {
                 if (boost::filesystem::exists(file_path)) {
-                    writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NO_CONTENT);
-                    writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NO_CONTENT);
+                    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_NO_CONTENT);
+                    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_NO_CONTENT);
                 } else {
                     // The file doesn't exist yet, so it will be created below, unless the
                     // directory of the requested file also doesn't exist.
@@ -454,10 +453,10 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                         static const std::string NOT_FOUND_HTML_FINISH =
                             " was not found on this server.</p>\n"
                             "</body></html>\n";
-                        writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
-                        writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+                        writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_NOT_FOUND);
+                        writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_NOT_FOUND);
                         writer->writeNoCopy(NOT_FOUND_HTML_START);
-                        writer << request->getResource();
+                        writer << http_request_ptr->getResource();
                         writer->writeNoCopy(NOT_FOUND_HTML_FINISH);
                         writer->send();
                         return;
@@ -471,17 +470,17 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                     static const std::string CREATED_HTML_FINISH =
                         "</p>\n"
                         "</body></html>\n";
-                    writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_CREATED);
-                    writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_CREATED);
-                    writer->getResponse().addHeader(HTTPTypes::HEADER_LOCATION, request->getResource());
+                    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_CREATED);
+                    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_CREATED);
+                    writer->getResponse().addHeader(http::types::HEADER_LOCATION, http_request_ptr->getResource());
                     writer->writeNoCopy(CREATED_HTML_START);
-                    writer << request->getResource();
+                    writer << http_request_ptr->getResource();
                     writer->writeNoCopy(CREATED_HTML_FINISH);
                 }
-                std::ios_base::openmode mode = request->getMethod() == HTTPTypes::REQUEST_METHOD_POST?
+                std::ios_base::openmode mode = http_request_ptr->getMethod() == http::types::REQUEST_METHOD_POST?
                                                std::ios::app : std::ios::out;
                 boost::filesystem::ofstream file_stream(file_path, mode);
-                file_stream.write(request->getContent(), request->getContentLength());
+                file_stream.write(http_request_ptr->getContent(), http_request_ptr->getContentLength());
                 file_stream.close();
                 if (!boost::filesystem::exists(file_path)) {
                     static const std::string PUT_FAILED_HTML_START =
@@ -493,21 +492,21 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                     static const std::string PUT_FAILED_HTML_FINISH =
                         ".</p>\n"
                         "</body></html>\n";
-                    writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
-                    writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR);
+                    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_SERVER_ERROR);
+                    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_SERVER_ERROR);
                     writer->writeNoCopy(PUT_FAILED_HTML_START);
-                    writer << request->getResource();
+                    writer << http_request_ptr->getResource();
                     writer->writeNoCopy(PUT_FAILED_HTML_FINISH);
                 }
                 writer->send();
-            } else if (request->getMethod() == HTTPTypes::REQUEST_METHOD_DELETE) {
+            } else if (http_request_ptr->getMethod() == http::types::REQUEST_METHOD_DELETE) {
                 if (!boost::filesystem::exists(file_path)) {
-                    sendNotFoundResponse(request, tcp_conn);
+                    sendNotFoundResponse(http_request_ptr, tcp_conn);
                 } else {
                     try {
                         boost::filesystem::remove(file_path);
-                        writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NO_CONTENT);
-                        writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NO_CONTENT);
+                        writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_NO_CONTENT);
+                        writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_NO_CONTENT);
                         writer->send();
                     } catch (std::exception& e) {
                         static const std::string DELETE_FAILED_HTML_START =
@@ -519,10 +518,10 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                         static const std::string DELETE_FAILED_HTML_FINISH =
                             ".</p>\n"
                             "</body></html>\n";
-                        writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
-                        writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR);
+                        writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_SERVER_ERROR);
+                        writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_SERVER_ERROR);
                         writer->writeNoCopy(DELETE_FAILED_HTML_START);
-                        writer << request->getResource()
+                        writer << http_request_ptr->getResource()
                             << ".</p><p>"
                             << boost::diagnostic_information(e);
                         writer->writeNoCopy(DELETE_FAILED_HTML_FINISH);
@@ -531,8 +530,8 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
                 }
             } else {
                 // This should never be reached.
-                writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
-                writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR);
+                writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_SERVER_ERROR);
+                writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_SERVER_ERROR);
                 writer->send();
             }
         }
@@ -548,19 +547,19 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
         static const std::string NOT_IMPLEMENTED_HTML_FINISH =
             " is not implemented on this server.</p>\n"
             "</body></html>\n";
-        HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                     boost::bind(&TCPConnection::finish, tcp_conn)));
-        writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_IMPLEMENTED);
-        writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_IMPLEMENTED);
+        http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                     boost::bind(&tcp::connection::finish, tcp_conn)));
+        writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_NOT_IMPLEMENTED);
+        writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_NOT_IMPLEMENTED);
         writer->writeNoCopy(NOT_IMPLEMENTED_HTML_START);
-        writer << request->getMethod();
+        writer << http_request_ptr->getMethod();
         writer->writeNoCopy(NOT_IMPLEMENTED_HTML_FINISH);
         writer->send();
     }
 }
 
-void FileService::sendNotFoundResponse(HTTPRequestPtr& http_request,
-                                       TCPConnectionPtr& tcp_conn)
+void FileService::sendNotFoundResponse(http::request_ptr& http_request_ptr,
+                                       tcp::connection_ptr& tcp_conn)
 {
     static const std::string NOT_FOUND_HTML_START =
         "<html><head>\n"
@@ -571,13 +570,13 @@ void FileService::sendNotFoundResponse(HTTPRequestPtr& http_request,
     static const std::string NOT_FOUND_HTML_FINISH =
         " was not found on this server.</p>\n"
         "</body></html>\n";
-    HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
-                                 boost::bind(&TCPConnection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
-    writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
-    if (http_request->getMethod() != HTTPTypes::REQUEST_METHOD_HEAD) {
+    http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                 boost::bind(&tcp::connection::finish, tcp_conn)));
+    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_NOT_FOUND);
+    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_NOT_FOUND);
+    if (http_request_ptr->getMethod() != http::types::REQUEST_METHOD_HEAD) {
         writer->writeNoCopy(NOT_FOUND_HTML_START);
-        writer << http_request->getResource();
+        writer << http_request_ptr->getResource();
         writer->writeNoCopy(NOT_FOUND_HTML_FINISH);
     }
     writer->send();
@@ -750,7 +749,7 @@ void DiskFile::update(void)
     // set file_size and last_modified
     m_file_size = boost::numeric_cast<std::streamsize>(boost::filesystem::file_size( m_file_path ));
     m_last_modified = boost::filesystem::last_write_time( m_file_path );
-    m_last_modified_string = HTTPTypes::get_date_string( m_last_modified );
+    m_last_modified_string = http::types::get_date_string( m_last_modified );
 }
 
 void DiskFile::read(void)
@@ -788,7 +787,7 @@ bool DiskFile::checkUpdated(void)
     // update file_size and last_modified timestamp
     m_file_size = cur_size;
     m_last_modified = cur_modified;
-    m_last_modified_string = HTTPTypes::get_date_string( m_last_modified );
+    m_last_modified_string = http::types::get_date_string( m_last_modified );
 
     // read new contents
     read();
@@ -799,11 +798,11 @@ bool DiskFile::checkUpdated(void)
 
 // DiskFileSender member functions
 
-DiskFileSender::DiskFileSender(DiskFile& file, pion::net::HTTPRequestPtr& request,
-                               pion::net::TCPConnectionPtr& tcp_conn,
+DiskFileSender::DiskFileSender(DiskFile& file, pion::http::request_ptr& http_request_ptr,
+                               pion::tcp::connection_ptr& tcp_conn,
                                unsigned long max_chunk_size)
     : m_logger(PION_GET_LOGGER("pion.FileService.DiskFileSender")), m_disk_file(file),
-    m_writer(pion::net::HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn))),
+    m_writer(pion::http::response_writer::create(tcp_conn, *http_request_ptr, boost::bind(&tcp::connection::finish, tcp_conn))),
     m_max_chunk_size(max_chunk_size), m_file_bytes_to_send(0), m_bytes_sent(0)
 {
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
@@ -820,12 +819,12 @@ DiskFileSender::DiskFileSender(DiskFile& file, pion::net::HTTPRequestPtr& reques
     m_writer->getResponse().setContentType(m_disk_file.getMimeType());
 
     // set Last-Modified header to enable client-side caching
-    m_writer->getResponse().addHeader(HTTPTypes::HEADER_LAST_MODIFIED,
+    m_writer->getResponse().addHeader(http::types::HEADER_LAST_MODIFIED,
                                       m_disk_file.getLastModifiedString());
 
     // use "200 OK" HTTP response
-    m_writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_OK);
-    m_writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_OK);
+    m_writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_OK);
+    m_writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_OK);
 }
 
 void DiskFileSender::send(void)
@@ -932,7 +931,7 @@ void DiskFileSender::handleWrite(const boost::system::error_code& write_error,
 
     if (write_error) {
         // encountered error sending response data
-        m_writer->getTCPConnection()->setLifecycle(TCPConnection::LIFECYCLE_CLOSE); // make sure it will get closed
+        m_writer->get_connection()->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE); // make sure it will get closed
         PION_LOG_WARN(m_logger, "Error sending file (" << write_error.message() << ')');
     } else {
         // response data sent OK
@@ -946,7 +945,7 @@ void DiskFileSender::handleWrite(const boost::system::error_code& write_error,
             PION_LOG_DEBUG(m_logger, "Sent "
                            << (m_file_bytes_to_send < m_disk_file.getFileSize() ? "file chunk" : "complete file")
                            << " of " << m_file_bytes_to_send << " bytes (finished"
-                           << (m_writer->getTCPConnection()->getKeepAlive() ? ", keeping alive)" : ", closing)") );
+                           << (m_writer->get_connection()->get_keep_alive() ? ", keeping alive)" : ", closing)") );
         } else {
             // NOT finished sending
             PION_LOG_DEBUG(m_logger, "Sent file chunk of " << m_file_bytes_to_send << " bytes");
@@ -956,10 +955,10 @@ void DiskFileSender::handleWrite(const boost::system::error_code& write_error,
     }
 
     if (finished_sending) {
-        // TCPConnection::finish() calls TCPServer::finishConnection, which will either:
-        // a) call HTTPServer::handleConnection again if keep-alive is true; or,
+        // connection::finish() calls tcp::server::finishConnection, which will either:
+        // a) call http::server::handleConnection again if keep-alive is true; or,
         // b) close the socket and remove it from the server's connection pool
-        m_writer->getTCPConnection()->finish();
+        m_writer->get_connection()->finish();
     } else {
         send();
     }
