@@ -24,33 +24,33 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
 // forward declaration for class used by send() and receive()
-class TCPConnection;
+class connection;
 
 
 ///
-/// HTTPMessage: base container for HTTP messages
+/// message: base container for HTTP messages
 /// 
-class PION_API HTTPMessage
+class PION_API message
     : public HTTPTypes
 {
 public:
 
     /// data type for I/O write buffers (these wrap existing data to be sent)
-    typedef std::vector<boost::asio::const_buffer>  WriteBuffers;
+    typedef std::vector<boost::asio::const_buffer>  write_buffers_t;
 
     /// used to cache chunked data
-    typedef std::vector<char>   ChunkCache;
+    typedef std::vector<char>   chunk_cache_t;
 
     /// data type for library errors returned during receive() operations
-    struct ReceiveError
+    struct receive_error_t
         : public boost::system::error_category
     {
-        virtual ~ReceiveError() {}
-        virtual inline const char *name() const { return "ReceiveError"; }
+        virtual ~receive_error_t() {}
+        virtual inline const char *name() const { return "receive_error_t"; }
         virtual inline std::string message(int ev) const {
             std::string result;
             switch(ev) {
@@ -66,7 +66,7 @@ public:
     };
 
     /// defines message data integrity status codes
-    enum DataStatus
+    enum data_status_t
     {
         STATUS_NONE,        // no data received (i.e. all lost)
         STATUS_TRUNCATED,   // one or more missing packets at the end 
@@ -75,7 +75,7 @@ public:
     };
 
     /// constructs a new HTTP message object
-    HTTPMessage(void)
+    message(void)
         : m_is_valid(false), m_is_chunked(false), m_chunks_supported(false),
         m_do_not_send_content_length(false),
         m_version_major(1), m_version_minor(1), m_content_length(0), m_content_buf(),
@@ -83,7 +83,7 @@ public:
     {}
 
     /// copy constructor
-    HTTPMessage(const HTTPMessage& http_msg)
+    message(const message& http_msg)
         : m_first_line(http_msg.m_first_line),
         m_is_valid(http_msg.m_is_valid),
         m_is_chunked(http_msg.m_is_chunked),
@@ -102,7 +102,7 @@ public:
     {}
 
     /// assignment operator
-    inline HTTPMessage& operator=(const HTTPMessage& http_msg) {
+    inline message& operator=(const message& http_msg) {
         m_first_line = http_msg.m_first_line;
         m_is_valid = http_msg.m_is_valid;
         m_is_chunked = http_msg.m_is_chunked;
@@ -122,7 +122,7 @@ public:
     }
 
     /// virtual destructor
-    virtual ~HTTPMessage() {}
+    virtual ~message() {}
 
     /// clears all message data
     virtual void clear(void) {
@@ -151,7 +151,7 @@ public:
     inline bool getChunksSupported(void) const { return m_chunks_supported; }
 
     /// returns IP address of the remote endpoint
-    inline boost::asio::ip::address& getRemoteIp(void) {
+    inline boost::asio::ip::address& get_remote_ip(void) {
         return m_remote_ip;
     }
 
@@ -189,7 +189,7 @@ public:
     inline const char *getContent(void) const { return m_content_buf.get(); }
 
     /// returns a reference to the chunk cache
-    inline ChunkCache& getChunkCache(void) { return m_chunk_cache; }
+    inline chunk_cache_t& get_chunk_cache(void) { return m_chunk_cache; }
 
     /// returns a value for the header if any are defined; otherwise, an empty string
     inline const std::string& getHeader(const std::string& key) const {
@@ -287,10 +287,10 @@ public:
     inline void setDoNotSendContentLength(void) { m_do_not_send_content_length = true; }
 
     /// return the data receival status
-    inline DataStatus getStatus() const { return m_status; }
+    inline data_status_t getStatus() const { return m_status; }
 
     /// 
-    inline void setStatus(DataStatus newVal) { m_status = newVal; }
+    inline void setStatus(data_status_t newVal) { m_status = newVal; }
 
     /// sets the length of the payload content using the Content-Length header
     inline void updateContentLengthUsingHeader(void) {
@@ -316,7 +316,7 @@ public:
     }
 
     ///creates a payload content buffer of size m_content_length and returns
-    /// a pointer to the new buffer (memory is managed by HTTPMessage class)
+    /// a pointer to the new buffer (memory is managed by message class)
     inline char *createContentBuffer(void) {
         m_content_buf.resize(m_content_length);
         return m_content_buf.get();
@@ -370,7 +370,7 @@ public:
      * @param keep_alive true if the connection should be kept alive
      * @param using_chunks true if the payload content will be sent in chunks
      */
-    inline void prepareBuffersForSend(WriteBuffers& write_buffers,
+    inline void prepareBuffersForSend(write_buffers_t& write_buffers,
                                       const bool keep_alive,
                                       const bool using_chunks)
     {
@@ -393,7 +393,7 @@ public:
      *
      * @return std::size_t number of bytes written to the connection
      */
-    std::size_t send(TCPConnection& tcp_conn, boost::system::error_code& ec,
+    std::size_t send(connection& tcp_conn, boost::system::error_code& ec,
         bool headers_only = false);
 
     /**
@@ -405,7 +405,7 @@ public:
      *
      * @return std::size_t number of bytes read from the connection
      */
-    std::size_t receive(TCPConnection& tcp_conn, boost::system::error_code& ec,
+    std::size_t receive(connection& tcp_conn, boost::system::error_code& ec,
         bool headers_only = false);
 
     /**
@@ -441,16 +441,16 @@ public:
 protected:
     
     /// a simple helper class used to manage a fixed-size payload content buffer
-    class ContentBuffer {
+    class content_buffer_t {
     public:
         /// simple destructor
-        ~ContentBuffer() {}
+        ~content_buffer_t() {}
 
         /// default constructor
-        ContentBuffer() : m_buf(), m_len(0), m_empty(0), m_ptr(&m_empty) {}
+        content_buffer_t() : m_buf(), m_len(0), m_empty(0), m_ptr(&m_empty) {}
 
         /// copy constructor
-        ContentBuffer(const ContentBuffer& buf)
+        content_buffer_t(const content_buffer_t& buf)
             : m_buf(), m_len(0), m_empty(0), m_ptr(&m_empty)
         {
             if (buf.size()) {
@@ -460,7 +460,7 @@ protected:
         }
 
         /// assignment operator
-        ContentBuffer& operator=(const ContentBuffer& buf) {
+        content_buffer_t& operator=(const content_buffer_t& buf) {
             if (buf.size()) {
                 resize(buf.size());
                 memcpy(get(), buf.get(), buf.size());
@@ -528,7 +528,7 @@ protected:
      *
      * @param write_buffers the buffers to append HTTP headers into
      */
-    inline void appendHeaders(WriteBuffers& write_buffers) {
+    inline void appendHeaders(write_buffers_t& write_buffers) {
         // add HTTP headers
         for (Headers::const_iterator i = m_headers.begin(); i != m_headers.end(); ++i) {
             write_buffers.push_back(boost::asio::buffer(i->first));
@@ -652,10 +652,10 @@ private:
     boost::uint64_t                 m_content_length;
 
     /// the payload content, if any was sent with the message
-    ContentBuffer                   m_content_buf;
+    content_buffer_t                   m_content_buf;
 
     /// buffers for holding chunked data
-    ChunkCache                      m_chunk_cache;
+    chunk_cache_t                      m_chunk_cache;
 
     /// HTTP message headers
     Headers                         m_headers;
@@ -664,7 +664,7 @@ private:
     CookieParams                    m_cookie_params;
 
     /// message data integrity status
-    DataStatus                      m_status;
+    data_status_t                      m_status;
 
     /// missing packet indicator
     bool                            m_has_missing_packets;
@@ -674,7 +674,7 @@ private:
 };
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

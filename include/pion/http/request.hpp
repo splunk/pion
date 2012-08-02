@@ -15,15 +15,16 @@
 #include <pion/http/message.hpp>
 #include <pion/http/user.hpp>
 
+
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
 ///
 /// HTTPRequest: container for HTTP request information
 /// 
 class HTTPRequest
-    : public HTTPMessage
+    : public http::message
 {
 public:
 
@@ -43,7 +44,7 @@ public:
 
     /// clears all request data
     virtual void clear(void) {
-        HTTPMessage::clear();
+        http::message::clear();
         m_method.erase();
         m_resource.erase();
         m_original_resource.erase();
@@ -195,7 +196,7 @@ private:
 typedef boost::shared_ptr<HTTPRequest>      HTTPRequestPtr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

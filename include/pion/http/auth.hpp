@@ -16,30 +16,33 @@
 #include <pion/config.hpp>
 #include <pion/error.hpp>
 #include <pion/logger.hpp>
+#include <pion/hash_map.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/http/user.hpp>
 #include <pion/http/request.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>    // order important, otherwise compiling error under win32
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
-/// HTTPAuth: a base class for handling HTTP Authentication and session management
+/// auth: a base class for handling HTTP Authentication and session management
 ///
-class PION_API HTTPAuth :
+class PION_API auth :
     private boost::noncopyable
 {
 public:
     
     /// default constructor
-    HTTPAuth(PionUserManagerPtr userManager) 
-        : m_logger(PION_GET_LOGGER("pion.net.HTTPAuth")),
+    auth(PionUserManagerPtr userManager) 
+        : m_logger(PION_GET_LOGGER("pion.http.auth")),
         m_user_manager(userManager)
     {}
     
     /// virtual destructor
-    virtual ~HTTPAuth() {}
+    virtual ~auth() {}
     
     /**
      * attempts to validate authentication of a new HTTP request. 
@@ -53,7 +56,7 @@ public:
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) = 0;
+    virtual bool handleRequest(HTTPRequestPtr& request, tcp::connection_ptr& tcp_conn) = 0;
     
     /**
      * sets a configuration option
@@ -117,8 +120,11 @@ public:
 protected:
 
     /// data type for a set of resources to be authenticated
-    typedef std::set<std::string>   AuthResourceSet;
+    typedef std::set<std::string>   resource_set_type;
 
+    /// data type used to map authentication credentials to PionUser objects
+    typedef PION_HASH_MAP<std::string,std::pair<boost::posix_time::ptime,PionUserPtr> >  user_cache_type;
+    
     
     /**
      * check if given HTTP request requires authentication
@@ -135,34 +141,34 @@ protected:
      *
      * @return true if the resource was found
      */
-    bool findResource(const AuthResourceSet& resource_set,
+    bool findResource(const resource_set_type& resource_set,
                       const std::string& resource) const;
 
     /// sets the logger to be used
-    inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
+    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
     
 
     /// primary logging interface used by this class
-    mutable PionLogger              m_logger;
+    mutable logger              m_logger;
     
     /// container used to manager user objects
     PionUserManagerPtr          m_user_manager;
     
     /// collection of resources that require authentication 
-    AuthResourceSet             m_restrict_list;
+    resource_set_type             m_restrict_list;
 
     /// collection of resources that do NOT require authentication 
-    AuthResourceSet             m_white_list;
+    resource_set_type             m_white_list;
 
     /// mutex used to protect access to the resources
     mutable boost::mutex        m_resource_mutex;
 };
 
-/// data type for a HTTPAuth pointer
-typedef boost::shared_ptr<HTTPAuth> HTTPAuthPtr;
+/// data type for a auth pointer
+typedef boost::shared_ptr<auth> auth_ptr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

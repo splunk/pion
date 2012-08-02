@@ -22,7 +22,7 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
 ///
@@ -36,7 +36,7 @@ class HTTPResponseReader :
 public:
 
     /// function called after the HTTP message has been parsed
-    typedef boost::function3<void, HTTPResponsePtr, TCPConnectionPtr,
+    typedef boost::function3<void, HTTPResponsePtr, tcp::connection_ptr,
         const boost::system::error_code&>   FinishedHandler;
 
     
@@ -51,7 +51,7 @@ public:
      * @param handler function called after the message has been parsed
      */
     static inline boost::shared_ptr<HTTPResponseReader>
-        create(TCPConnectionPtr& tcp_conn, const HTTPRequest& http_request,
+        create(tcp::connection_ptr& tcp_conn, const HTTPRequest& http_request,
                FinishedHandler handler)
     {
         return boost::shared_ptr<HTTPResponseReader>
@@ -71,18 +71,18 @@ protected:
      * @param http_request the request we are responding to
      * @param handler function called after the message has been parsed
      */
-    HTTPResponseReader(TCPConnectionPtr& tcp_conn, const HTTPRequest& http_request,
+    HTTPResponseReader(tcp::connection_ptr& tcp_conn, const HTTPRequest& http_request,
                        FinishedHandler handler)
         : HTTPReader(false, tcp_conn), m_http_msg(new HTTPResponse(http_request)),
         m_finished(handler)
     {
-        m_http_msg->setRemoteIp(tcp_conn->getRemoteIp());
-        setLogger(PION_GET_LOGGER("pion.net.HTTPResponseReader"));
+        m_http_msg->setRemoteIp(tcp_conn->get_remote_ip());
+        setLogger(PION_GET_LOGGER("pion.http.HTTPResponseReader"));
     }
         
     /// Reads more bytes from the TCP connection
     virtual void readBytes(void) {
-        getTCPConnection()->async_read_some(boost::bind(&HTTPResponseReader::consumeBytes,
+        get_connection()->async_read_some(boost::bind(&HTTPResponseReader::consumeBytes,
                                                         shared_from_this(),
                                                         boost::asio::placeholders::error,
                                                         boost::asio::placeholders::bytes_transferred));
@@ -91,17 +91,17 @@ protected:
     /// Called after we have finished parsing the HTTP message headers
     virtual void finishedParsingHeaders(const boost::system::error_code& ec) {
         // call the finished headers handler with the HTTP message
-        if (m_parsed_headers) m_parsed_headers(m_http_msg, getTCPConnection(), ec);
+        if (m_parsed_headers) m_parsed_headers(m_http_msg, get_connection(), ec);
     }
     
     /// Called after we have finished reading/parsing the HTTP message
     virtual void finishedReading(const boost::system::error_code& ec) {
         // call the finished handler with the finished HTTP message
-        if (m_finished) m_finished(m_http_msg, getTCPConnection(), ec);
+        if (m_finished) m_finished(m_http_msg, get_connection(), ec);
     }
     
     /// Returns a reference to the HTTP message being parsed
-    virtual HTTPMessage& getMessage(void) { return *m_http_msg; }
+    virtual http::message& getMessage(void) { return *m_http_msg; }
 
     
     /// The new HTTP message container being created
@@ -119,7 +119,7 @@ protected:
 typedef boost::shared_ptr<HTTPResponseReader>   HTTPResponseReaderPtr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

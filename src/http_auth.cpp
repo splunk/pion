@@ -13,12 +13,12 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
-// HTTPAuth member functions
+// auth member functions
 
-void HTTPAuth::addRestrict(const std::string& resource)
+void auth::addRestrict(const std::string& resource)
 {
     boost::mutex::scoped_lock resource_lock(m_resource_mutex);
     const std::string clean_resource(HTTPServer::stripTrailingSlash(resource));
@@ -26,7 +26,7 @@ void HTTPAuth::addRestrict(const std::string& resource)
     PION_LOG_INFO(m_logger, "Set authentication restrictions for HTTP resource: " << clean_resource);
 }
 
-void HTTPAuth::addPermit(const std::string& resource)
+void auth::addPermit(const std::string& resource)
 {
     boost::mutex::scoped_lock resource_lock(m_resource_mutex);
     const std::string clean_resource(HTTPServer::stripTrailingSlash(resource));
@@ -34,7 +34,7 @@ void HTTPAuth::addPermit(const std::string& resource)
     PION_LOG_INFO(m_logger, "Set authentication permission for HTTP resource: " << clean_resource);
 }
 
-bool HTTPAuth::needAuthentication(const HTTPRequestPtr& http_request) const
+bool auth::needAuthentication(const HTTPRequestPtr& http_request) const
 {
     // if no users are defined, authentication is never required
     if (m_user_manager->empty())
@@ -62,10 +62,10 @@ bool HTTPAuth::needAuthentication(const HTTPRequestPtr& http_request) const
     return false;
 }
 
-bool HTTPAuth::findResource(const AuthResourceSet& resource_set,
+bool auth::findResource(const resource_set_type& resource_set,
                             const std::string& resource) const
 {
-    AuthResourceSet::const_iterator i = resource_set.upper_bound(resource);
+    resource_set_type::const_iterator i = resource_set.upper_bound(resource);
     while (i != resource_set.begin()) {
         --i;
         // check for a match if the first part of the strings match
@@ -81,5 +81,5 @@ bool HTTPAuth::findResource(const AuthResourceSet& resource_set,
 }
 
   
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion

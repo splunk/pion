@@ -14,7 +14,6 @@
 #include <pion/http/user.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
@@ -27,7 +26,7 @@ void writeDictionaryTerm(HTTPResponseWriterPtr& writer,
 {
     // text is copied into writer text cache
     writer << val.first << HTTPTypes::HEADER_NAME_VALUE_DELIMITER
-    << (decode ? algo::url_decode(val.second) : val.second)
+    << (decode ? algorithm::url_decode(val.second) : val.second)
     << HTTPTypes::STRING_CRLF;
 }
 
@@ -35,7 +34,7 @@ void writeDictionaryTerm(HTTPResponseWriterPtr& writer,
 // EchoService member functions
 
 /// handles requests for EchoService
-void EchoService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void EchoService::operator()(HTTPRequestPtr& request, tcp::connection_ptr& tcp_conn)
 {
     // this web service uses static text to test the mixture of "copied" with
     // "static" (no-copy) text
@@ -48,7 +47,7 @@ void EchoService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
     
     // Set Content-type to "text/plain" (plain ascii text)
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+                                                            boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
     
     // write request information

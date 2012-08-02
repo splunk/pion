@@ -12,17 +12,16 @@
 #include <pion/http/response_writer.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
 
     
-void AllowNothingService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void AllowNothingService::operator()(HTTPRequestPtr& request, tcp::connection_ptr& tcp_conn)
 {
     static const std::string DENY_HTML = "<html><body>No, you can't.</body></html>";
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+                                                            boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
     writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
 

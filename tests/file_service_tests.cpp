@@ -26,7 +26,6 @@
 #include <pion/http/plugin_server.hpp>
 
 using namespace pion;
-using namespace pion::net;
 using boost::asio::ip::tcp;
 
 PION_DECLARE_PLUGIN(FileService)
@@ -39,11 +38,11 @@ PION_DECLARE_PLUGIN(FileService)
 #endif
 
 
-struct PluginPtrWithFileServiceLoaded_F : public PionPluginPtr<WebService> {
+struct PluginPtrWithFileServiceLoaded_F : public plugin_ptr<WebService> {
     PluginPtrWithFileServiceLoaded_F() { 
-        PionPlugin::resetPluginDirectories();
+        plugin::resetPluginDirectories();
 #ifndef PION_STATIC_LINKING
-        PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+        plugin::addPluginDirectory(PATH_TO_PLUGINS);
 #endif
         s = NULL;
         open("FileService");
@@ -81,9 +80,9 @@ BOOST_AUTO_TEST_SUITE_END()
 class NewlyLoadedFileService_F {
 public:
     NewlyLoadedFileService_F() : m_scheduler(), m_server(m_scheduler) {
-        PionPlugin::resetPluginDirectories();
+        plugin::resetPluginDirectories();
 #ifndef PION_STATIC_LINKING
-        PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+        plugin::addPluginDirectory(PATH_TO_PLUGINS);
 #endif
 
         boost::filesystem::remove_all("sandbox");
@@ -106,9 +105,9 @@ public:
         boost::filesystem::remove_all("sandbox");
     }
     
-    inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }
+    inline boost::asio::io_service& get_io_service(void) { return m_scheduler.get_io_service(); }
     
-    PionSingleServiceScheduler  m_scheduler;
+    single_service_scheduler  m_scheduler;
     WebServer                   m_server;
 };
 
@@ -649,7 +648,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
 
 BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
     // open (another) connection
-    TCPConnection tcp_conn(getIOService());
+    connection tcp_conn(get_io_service());
     boost::system::error_code error_code;
     error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);

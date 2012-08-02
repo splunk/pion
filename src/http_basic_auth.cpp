@@ -15,24 +15,24 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
     
     
-// static members of HTTPBasicAuth
+// static members of basic_auth
 
-const unsigned int  HTTPBasicAuth::CACHE_EXPIRATION = 300;  // 5 minutes
+const unsigned int  basic_auth::CACHE_EXPIRATION = 300;  // 5 minutes
 
 
-// HTTPBasicAuth member functions
+// basic_auth member functions
 
-HTTPBasicAuth::HTTPBasicAuth(PionUserManagerPtr userManager, const std::string& realm)
-    : HTTPAuth(userManager), m_realm(realm),
+basic_auth::basic_auth(PionUserManagerPtr userManager, const std::string& realm)
+    : http::auth(userManager), m_realm(realm),
     m_cache_cleanup_time(boost::posix_time::second_clock::universal_time())
 {
-    setLogger(PION_GET_LOGGER("pion.net.HTTPBasicAuth"));
+    setLogger(PION_GET_LOGGER("pion.http.basic_auth"));
 }
     
-bool HTTPBasicAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+bool basic_auth::handleRequest(HTTPRequestPtr& request, tcp::connection_ptr& tcp_conn)
 {
     if (!needAuthentication(request)) {
         return true; // this request does not require authentication
@@ -42,8 +42,8 @@ bool HTTPBasicAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp
     if (time_now > m_cache_cleanup_time + boost::posix_time::seconds(CACHE_EXPIRATION)) {
         // expire cache
         boost::mutex::scoped_lock cache_lock(m_cache_mutex);
-        PionUserCache::iterator i;
-        PionUserCache::iterator next=m_user_cache.begin();
+        user_cache_type::iterator i;
+        user_cache_type::iterator next=m_user_cache.begin();
         while (next!=m_user_cache.end()) {
             i=next;
             ++next;
@@ -62,7 +62,7 @@ bool HTTPBasicAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp
         if (parseAuthorization(authorization, credentials)) {
             // to do - use fast cache to match with active credentials
             boost::mutex::scoped_lock cache_lock(m_cache_mutex);
-            PionUserCache::iterator user_cache_ptr=m_user_cache.find(credentials);
+            user_cache_type::iterator user_cache_ptr=m_user_cache.find(credentials);
             if (user_cache_ptr!=m_user_cache.end()) {
                 // we found the credentials in our cache...
                 // we can approve authorization now!
@@ -93,7 +93,7 @@ bool HTTPBasicAuth::handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp
     return false;
 }
     
-void HTTPBasicAuth::setOption(const std::string& name, const std::string& value) 
+void basic_auth::setOption(const std::string& name, const std::string& value) 
 {
     if (name=="realm")
         m_realm = value;
@@ -101,7 +101,7 @@ void HTTPBasicAuth::setOption(const std::string& name, const std::string& value)
         BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
 }
     
-bool HTTPBasicAuth::parseAuthorization(const std::string& authorization, std::string &credentials)
+bool basic_auth::parseAuthorization(const std::string& authorization, std::string &credentials)
 {
     if (!boost::algorithm::starts_with(authorization, "Basic "))
         return false;
@@ -111,12 +111,12 @@ bool HTTPBasicAuth::parseAuthorization(const std::string& authorization, std::st
     return true;
 }
     
-bool HTTPBasicAuth::parseCredentials(const std::string &credentials,
+bool basic_auth::parseCredentials(const std::string &credentials,
     std::string &username, std::string &password)
 {
     std::string user_password;
     
-    if (! algo::base64_decode(credentials, user_password))
+    if (! algorithm::base64_decode(credentials, user_password))
         return false;
 
     // find ':' symbol
@@ -130,8 +130,8 @@ bool HTTPBasicAuth::parseCredentials(const std::string &credentials,
     return true;
 }
     
-void HTTPBasicAuth::handleUnauthorized(HTTPRequestPtr& http_request,
-    TCPConnectionPtr& tcp_conn)
+void basic_auth::handleUnauthorized(HTTPRequestPtr& http_request,
+    tcp::connection_ptr& tcp_conn)
 {
     // authentication failed, send 401.....
     static const std::string CONTENT =
@@ -145,7 +145,7 @@ void HTTPBasicAuth::handleUnauthorized(HTTPRequestPtr& http_request,
         "<BODY><H1>401 Unauthorized.</H1></BODY>"
         "</HTML> ";
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
-    boost::bind(&TCPConnection::finish, tcp_conn)));
+    boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_UNAUTHORIZED);
     writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_UNAUTHORIZED);
     writer->getResponse().addHeader("WWW-Authenticate", "Basic realm=\"" + m_realm + "\"");
@@ -153,5 +153,5 @@ void HTTPBasicAuth::handleUnauthorized(HTTPRequestPtr& http_request,
     writer->send();
 }
     
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion

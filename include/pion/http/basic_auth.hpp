@@ -14,26 +14,25 @@
 #include <string>
 #include <pion/config.hpp>
 #include <pion/http/auth.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>    // order important, otherwise compiling error under win32
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 ///
-/// HTTPBasicAuth: a base class for handling HTTP Authentication and session management
+/// basic_auth: a base class for handling HTTP Authentication and session management
 /// in accordance with RFC 2617 http://tools.ietf.org/html/rfc2617 
 ///
-class PION_API HTTPBasicAuth :
-    public HTTPAuth
+class PION_API basic_auth :
+    public http::auth
 {
 public:
     
     /// default constructor
-    HTTPBasicAuth(PionUserManagerPtr userManager, const std::string& realm="PION:NET");
+    basic_auth(PionUserManagerPtr userManager, const std::string& realm="PION");
     
     /// virtual destructor
-    virtual ~HTTPBasicAuth() {}
+    virtual ~basic_auth() {}
     
     /**
      * attempts to validate authentication of a new HTTP request. 
@@ -47,7 +46,7 @@ public:
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn);
+    virtual bool handleRequest(HTTPRequestPtr& request, tcp::connection_ptr& tcp_conn);
     
     /**
      * sets a configuration option
@@ -68,7 +67,7 @@ protected:
      * @param http_request the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handleUnauthorized(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn);
+    void handleUnauthorized(HTTPRequestPtr& http_request, tcp::connection_ptr& tcp_conn);
     
     /**
      * extracts base64 user credentials from authorization string
@@ -85,28 +84,25 @@ protected:
     
 private:
     
-    /// data type used to map authentication credentials to PionUser objects
-    typedef std::map<std::string,std::pair<boost::posix_time::ptime,PionUserPtr> >  PionUserCache;
-    
     /// number of seconds after which entires in the user cache will be expired
     static const unsigned int   CACHE_EXPIRATION;
 
 
-    /// authentication realm ( "PION:NET" by default)
+    /// authentication realm ( "PION" by default)
     std::string                 m_realm; 
 
     /// time of the last cache clean up
     boost::posix_time::ptime    m_cache_cleanup_time;
         
     /// cache of users that are currently active
-    PionUserCache               m_user_cache;
+    user_cache_type               m_user_cache;
     
     /// mutex used to protect access to the user cache
     mutable boost::mutex        m_cache_mutex;
 };
 
     
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

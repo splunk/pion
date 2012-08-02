@@ -32,7 +32,6 @@
 
 using namespace std;
 using namespace pion;
-using namespace pion::net;
 using boost::asio::ip::tcp;
 
 PION_DECLARE_PLUGIN(EchoService)
@@ -66,7 +65,7 @@ public:
      * @param resource
      */
     static inline boost::shared_ptr<ChunkedPostRequestSender>
-        create(pion::net::TCPConnectionPtr& tcp_conn, const std::string& resource) 
+        create(pion::tcp::connection_ptr& tcp_conn, const std::string& resource) 
     {
         return boost::shared_ptr<ChunkedPostRequestSender>(new ChunkedPostRequestSender(tcp_conn, resource));
     }
@@ -88,7 +87,7 @@ public:
 
 protected:
 
-    ChunkedPostRequestSender(pion::net::TCPConnectionPtr& tcp_conn,
+    ChunkedPostRequestSender(pion::tcp::connection_ptr& tcp_conn,
                              const std::string& resource);
     
     /**
@@ -105,7 +104,7 @@ private:
     typedef std::pair<size_t, char*> Chunk;
 
     /// primary logging interface used by this class
-    pion::PionLogger                        m_logger;
+    pion::logger                        m_logger;
 
     /// the chunks we are sending
     std::vector<Chunk>                      m_chunks;
@@ -113,13 +112,13 @@ private:
     std::vector<Chunk>::const_iterator      m_chunk_iterator;
 
     /// the HTTP request writer we are using
-    pion::net::HTTPRequestWriterPtr         m_writer;
+    pion::http::HTTPRequestWriterPtr         m_writer;
 };
 
-ChunkedPostRequestSender::ChunkedPostRequestSender(pion::net::TCPConnectionPtr& tcp_conn,
+ChunkedPostRequestSender::ChunkedPostRequestSender(pion::tcp::connection_ptr& tcp_conn,
                                                    const std::string& resource)
     : m_logger(PION_GET_LOGGER("pion.ChunkedPostRequestSender")),
-    m_writer(pion::net::HTTPRequestWriter::create(tcp_conn))
+    m_writer(pion::http::HTTPRequestWriter::create(tcp_conn))
 {
     m_writer->getRequest().setMethod("POST");
     m_writer->getRequest().setResource(resource);
@@ -158,7 +157,7 @@ void ChunkedPostRequestSender::handleWrite(const boost::system::error_code& writ
 {
     if (write_error) {
         // encountered error sending request data
-        m_writer->getTCPConnection()->setLifecycle(TCPConnection::LIFECYCLE_CLOSE); // make sure it will get closed
+        m_writer->get_connection()->set_lifecycle(connection::LIFECYCLE_CLOSE); // make sure it will get closed
         PION_LOG_ERROR(m_logger, "Error sending chunked request (" << write_error.message() << ')');
     } else {
         // request data sent OK
@@ -182,9 +181,9 @@ public:
     // default constructor & destructor
     WebServerTests_F() : m_scheduler(), m_server(m_scheduler) {
         // initialize the list of directories in which to look for plug-ins
-        PionPlugin::resetPluginDirectories();
+        plugin::resetPluginDirectories();
 #ifndef PION_STATIC_LINKING
-        PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+        plugin::addPluginDirectory(PATH_TO_PLUGINS);
 #endif
     }
     ~WebServerTests_F() {
@@ -328,7 +327,7 @@ public:
      * 
      * @param tcp_conn open TCP connection to use for the tests
      */
-    inline void checkSendAndReceiveMessages(TCPConnection& tcp_conn) {
+    inline void checkSendAndReceiveMessages(connection& tcp_conn) {
         // send valid request to the server
         HTTPRequest http_request("/hello");
         boost::system::error_code error_code;
@@ -355,9 +354,9 @@ public:
         BOOST_CHECK_EQUAL(http_response.getStatusCode(), 404U);
     }
     
-    inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }
+    inline boost::asio::io_service& get_io_service(void) { return m_scheduler.get_io_service(); }
     
-    PionSingleServiceScheduler  m_scheduler;
+    single_service_scheduler  m_scheduler;
     WebServer                   m_server;
 };
 
@@ -384,8 +383,8 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponses) {
     m_server.start();
     
     // open a connection
-    TCPConnection tcp_conn(getIOService());
-    tcp_conn.setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    connection tcp_conn(get_io_service());
+    tcp_conn.set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(! error_code);
@@ -398,8 +397,8 @@ BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
     m_server.start();
 
     // open a connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
-    tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
+    tcp_conn->set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
@@ -502,8 +501,8 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
     m_server.start();
 
     // open a connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
-    tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
+    tcp_conn->set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
@@ -537,8 +536,8 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
     m_server.start();
 
     // open a connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
-    tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
+    tcp_conn->set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
@@ -566,8 +565,8 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
     m_server.start();
 
     // open a connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
-    tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
+    tcp_conn->set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
@@ -597,8 +596,8 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponsesUsingSSL) {
     m_server.start();
 
     // open a connection
-    TCPConnection tcp_conn(getIOService(), true);
-    tcp_conn.setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    connection tcp_conn(get_io_service(), true);
+    tcp_conn.set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(! error_code);
@@ -627,7 +626,7 @@ BOOST_AUTO_TEST_CASE(checkEchoServiceResponseContent) {
 BOOST_AUTO_TEST_CASE(checkLogServiceResponseContent) {
 #if defined(PION_USE_LOG4CXX) || defined(PION_USE_LOG4CPLUS) || defined(PION_USE_LOG4CPP)
     // make sure that the log level is high enough so that the entry will be recorded
-    pion::PionLogger log_ptr = PION_GET_LOGGER("pion.net");
+    pion::logger log_ptr = PION_GET_LOGGER("pion.net");
     PION_LOG_SETLEVEL_INFO(log_ptr);
     // make sure that the log service includes an entry for loading itself
     checkWebServerResponseContent("LogService", "/log",
@@ -690,15 +689,15 @@ BOOST_AUTO_TEST_CASE(checkPionUserPasswordSanity) {
 BOOST_AUTO_TEST_CASE(checkBasicAuthServiceFailure) {
     m_server.loadService("/auth", "EchoService");
     PionUserManagerPtr userManager(new PionUserManager());
-    HTTPAuthPtr auth_ptr(new HTTPBasicAuth(userManager));
-    m_server.setAuthentication(auth_ptr);
-    auth_ptr->addRestrict("/auth");
-    auth_ptr->addUser("mike", "123456");
+    http::auth_ptr my_auth_ptr(new http::basic_auth(userManager));
+    m_server.setAuthentication(my_auth_ptr);
+    my_auth_ptr->addRestrict("/auth");
+    my_auth_ptr->addUser("mike", "123456");
     m_server.start();
     
     // open a connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
-    tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
+    tcp_conn->set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
@@ -727,15 +726,15 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceFailure) {
 BOOST_AUTO_TEST_CASE(checkBasicAuthServiceLogin) {
     m_server.loadService("/auth", "EchoService");
     PionUserManagerPtr userManager(new PionUserManager());
-    HTTPAuthPtr auth_ptr(new HTTPBasicAuth(userManager));
-    m_server.setAuthentication(auth_ptr);
-    auth_ptr->addRestrict("/auth");
-    auth_ptr->addUser("mike", "123456");
+    http::auth_ptr my_auth_ptr(new http::basic_auth(userManager));
+    m_server.setAuthentication(my_auth_ptr);
+    my_auth_ptr->addRestrict("/auth");
+    my_auth_ptr->addUser("mike", "123456");
     m_server.start();
     
     // open a connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
-    tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
+    tcp_conn->set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
@@ -766,15 +765,15 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceLogin) {
 BOOST_AUTO_TEST_CASE(checkCookieAuthServiceFailure) {
     m_server.loadService("/auth", "EchoService");
     PionUserManagerPtr userManager(new PionUserManager());
-    HTTPAuthPtr auth_ptr(new HTTPCookieAuth(userManager));
-    m_server.setAuthentication(auth_ptr);
-    auth_ptr->addRestrict("/auth");
-    auth_ptr->addUser("mike", "123456");
+    http::auth_ptr my_auth_ptr(new http::cookie_auth(userManager));
+    m_server.setAuthentication(my_auth_ptr);
+    my_auth_ptr->addRestrict("/auth");
+    my_auth_ptr->addUser("mike", "123456");
     m_server.start();
 
     // open a connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
-    tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
+    tcp_conn->set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
@@ -803,15 +802,15 @@ BOOST_AUTO_TEST_CASE(checkCookieAuthServiceFailure) {
 BOOST_AUTO_TEST_CASE(checkCookieAuthServiceLogin) {
     m_server.loadService("/auth", "EchoService");
     PionUserManagerPtr userManager(new PionUserManager());
-    HTTPAuthPtr auth_ptr(new HTTPCookieAuth(userManager));
-    m_server.setAuthentication(auth_ptr);
-    auth_ptr->addRestrict("/auth");
-    auth_ptr->addUser("mike", "123456");
+    http::auth_ptr my_auth_ptr(new http::cookie_auth(userManager));
+    m_server.setAuthentication(my_auth_ptr);
+    my_auth_ptr->addRestrict("/auth");
+    my_auth_ptr->addUser("mike", "123456");
     m_server.start();
 
     // open a login connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
-    tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_KEEPALIVE);
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
+    tcp_conn->set_lifecycle(connection::LIFECYCLE_KEEPALIVE);
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
@@ -892,10 +891,10 @@ public:
      * @param tcp_conn the TCP connection to send the response over
      */
     void sendResponseWithContentButNoLength(HTTPRequestPtr& request,
-                                            TCPConnectionPtr& tcp_conn)
+                                            tcp::connection_ptr& tcp_conn)
     {
         // make sure it will get closed when finished
-        tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);
+        tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE);
         
         // prepare the response headers
         HTTPResponse http_response(*request);
@@ -915,7 +914,7 @@ public:
     }
     
     /// reads in a HTTP response asynchronously
-    void readAsyncResponse(TCPConnectionPtr& tcp_conn)
+    void readAsyncResponse(tcp::connection_ptr& tcp_conn)
     {
         HTTPRequest http_request("GET");
         HTTPResponseReaderPtr reader_ptr(HTTPResponseReader::create(tcp_conn, http_request,
@@ -935,7 +934,7 @@ public:
     
     /// checks the validity of the HTTP response
     void checkResponse(HTTPResponsePtr& response_ptr,
-        TCPConnectionPtr& conn_ptr, const boost::system::error_code& ec)
+        tcp::connection_ptr& conn_ptr, const boost::system::error_code& ec)
     {
         checkResponse(*response_ptr);
         boost::mutex::scoped_lock async_lock(m_mutex);
@@ -964,7 +963,7 @@ BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveSyncResponse) {
     m_server.start();
     
     // open a connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
@@ -990,7 +989,7 @@ BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveAsyncResponse) {
     m_server.start();
     
     // open a connection
-    TCPConnectionPtr tcp_conn(new TCPConnection(getIOService()));
+    tcp::connection_ptr tcp_conn(new connection(get_io_service()));
     boost::system::error_code error_code;
     error_code = tcp_conn->connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);

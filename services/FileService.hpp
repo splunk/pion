@@ -145,8 +145,8 @@ public:
      */
     static inline boost::shared_ptr<DiskFileSender>
         create(DiskFile& file,
-               pion::net::HTTPRequestPtr& request,
-               pion::net::TCPConnectionPtr& tcp_conn,
+               pion::http::HTTPRequestPtr& request,
+               pion::tcp::connection_ptr& tcp_conn,
                unsigned long max_chunk_size = 0) 
     {
         return boost::shared_ptr<DiskFileSender>(new DiskFileSender(file, request,
@@ -162,10 +162,10 @@ public:
     void send(void);
 
     /// sets the logger to be used
-    inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
+    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
 
     /// returns the logger currently in use
-    inline PionLogger getLogger(void) { return m_logger; }
+    inline logger getLogger(void) { return m_logger; }
 
 
 protected:
@@ -179,8 +179,8 @@ protected:
      * @param max_chunk_size sets the maximum chunk size
      */
     DiskFileSender(DiskFile& file,
-                   pion::net::HTTPRequestPtr& request,
-                   pion::net::TCPConnectionPtr& tcp_conn,
+                   pion::http::HTTPRequestPtr& request,
+                   pion::tcp::connection_ptr& tcp_conn,
                    unsigned long max_chunk_size);
 
     /**
@@ -194,7 +194,7 @@ protected:
 
 
     /// primary logging interface used by this class
-    PionLogger                              m_logger;
+    logger                              m_logger;
 
 
 private:
@@ -203,7 +203,7 @@ private:
     DiskFile                                m_disk_file;
 
     /// the HTTP response we are sending
-    pion::net::HTTPResponseWriterPtr        m_writer;
+    pion::http::HTTPResponseWriterPtr        m_writer;
 
     /// used to read the file from disk if it is not already cached in memory
     boost::filesystem::ifstream             m_file_stream;
@@ -233,7 +233,7 @@ typedef boost::shared_ptr<DiskFileSender>       DiskFileSenderPtr;
 /// FileService: web service that serves regular files
 /// 
 class FileService :
-    public pion::net::WebService
+    public pion::http::WebService
 {
 public:
 
@@ -254,8 +254,8 @@ public:
     virtual void setOption(const std::string& name, const std::string& value);
 
     /// handles requests for FileService
-    virtual void operator()(pion::net::HTTPRequestPtr& request,
-                            pion::net::TCPConnectionPtr& tcp_conn);
+    virtual void operator()(pion::http::HTTPRequestPtr& request,
+                            pion::tcp::connection_ptr& tcp_conn);
 
     /// called when the web service's server is starting
     virtual void start(void);
@@ -264,10 +264,10 @@ public:
     virtual void stop(void);
 
     /// sets the logger to be used
-    inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
+    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
 
     /// returns the logger currently in use
-    inline PionLogger getLogger(void) { return m_logger; }
+    inline logger getLogger(void) { return m_logger; }
 
 
 protected:
@@ -308,11 +308,11 @@ protected:
      */
     static std::string findMIMEType(const std::string& file_name);
 
-    void sendNotFoundResponse(pion::net::HTTPRequestPtr& http_request,
-                              pion::net::TCPConnectionPtr& tcp_conn);
+    void sendNotFoundResponse(pion::http::HTTPRequestPtr& http_request,
+                              pion::tcp::connection_ptr& tcp_conn);
 
     /// primary logging interface used by this class
-    PionLogger                  m_logger;
+    logger                  m_logger;
 
 
 private:

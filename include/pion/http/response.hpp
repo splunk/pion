@@ -18,14 +18,14 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
     
 ///
 /// HTTPResponse: container for HTTP response information
 /// 
 class HTTPResponse
-    : public HTTPMessage
+    : public http::message
 {
 public:
 
@@ -53,7 +53,7 @@ public:
     
     /// copy constructor
     HTTPResponse(const HTTPResponse& http_response)
-        : HTTPMessage(http_response),
+        : http::message(http_response),
         m_status_code(http_response.m_status_code),
         m_status_message(http_response.m_status_message),
         m_request_method(http_response.m_request_method)
@@ -71,7 +71,7 @@ public:
 
     /// clears all response data
     virtual void clear(void) {
-        HTTPMessage::clear();
+        http::message::clear();
         m_status_code = RESPONSE_CODE_OK;
         m_status_message = RESPONSE_MESSAGE_OK;
         m_request_method.clear();
@@ -223,7 +223,7 @@ private:
 typedef boost::shared_ptr<HTTPResponse>     HTTPResponsePtr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

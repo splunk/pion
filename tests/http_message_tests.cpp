@@ -14,13 +14,13 @@
 #include <pion/http/message.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/response.hpp>
-#include <pion/unit_test_defs.hpp>
+#include <pion/test/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/foreach.hpp>
 
-using namespace pion::net;
+using namespace pion;
 
 
 BOOST_AUTO_TEST_CASE(checkHTTPRequestCopyConstructor) {

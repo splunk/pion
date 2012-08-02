@@ -31,19 +31,20 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace tcp {     // begin namespace tcp
+
 
 ///
-/// TCPConnection: represents a single tcp connection
+/// connection: represents a single tcp connection
 /// 
-class TCPConnection :
-    public boost::enable_shared_from_this<TCPConnection>,
+class connection :
+    public boost::enable_shared_from_this<connection>,
     private boost::noncopyable
 {
 public:
 
     /// data type for the connection's lifecycle state
-    enum LifecycleType {
+    enum lifecycle_type {
         LIFECYCLE_CLOSE, LIFECYCLE_KEEPALIVE, LIFECYCLE_PIPELINED
     };
     
@@ -51,37 +52,37 @@ public:
     enum { READ_BUFFER_SIZE = 8192 };
     
     /// data type for a function that handles TCP connection objects
-    typedef boost::function1<void, boost::shared_ptr<TCPConnection> >   ConnectionHandler;
+    typedef boost::function1<void, boost::shared_ptr<connection> >   connection_handler;
     
     /// data type for an I/O read buffer
-    typedef boost::array<char, READ_BUFFER_SIZE>    ReadBuffer;
+    typedef boost::array<char, READ_BUFFER_SIZE>    read_buffer_type;
     
     /// data type for a socket connection
-    typedef boost::asio::ip::tcp::socket            Socket;
+    typedef boost::asio::ip::tcp::socket            socket_type;
 
 #ifdef PION_HAVE_SSL
     /// data type for an SSL socket connection
-    typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket>  SSLSocket;
+    typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket>  ssl_socket_type;
 
     /// data type for SSL configuration context
-    typedef boost::asio::ssl::context                               SSLContext;
+    typedef boost::asio::ssl::context                               ssl_context_type;
 #else
-    class SSLSocket {
+    class ssl_socket_type {
     public:
-        SSLSocket(boost::asio::io_service& io_service) : m_socket(io_service) {}
-        inline Socket& next_layer(void) { return m_socket; }
-        inline const Socket& next_layer(void) const { return m_socket; }
-        inline Socket& lowest_layer(void) { return m_socket.lowest_layer(); }
-        inline const Socket& lowest_layer(void) const { return m_socket.lowest_layer(); }
+        ssl_socket_type(boost::asio::io_service& io_service) : m_socket(io_service) {}
+        inline socket_type& next_layer(void) { return m_socket; }
+        inline const socket_type& next_layer(void) const { return m_socket; }
+        inline socket_type& lowest_layer(void) { return m_socket.lowest_layer(); }
+        inline const socket_type& lowest_layer(void) const { return m_socket.lowest_layer(); }
     private:
-        Socket  m_socket;
+        socket_type  m_socket;
     };
-    typedef int     SSLContext;
+    typedef int     ssl_context_type;
 #endif
 
     
     /**
-     * creates new shared TCPConnection objects
+     * creates new shared connection objects
      *
      * @param io_service asio service associated with the connection
      * @param ssl_context asio ssl context associated with the connection
@@ -89,22 +90,22 @@ public:
      * @param finished_handler function called when a server has finished
      *                         handling the connection
      */
-    static inline boost::shared_ptr<TCPConnection> create(boost::asio::io_service& io_service,
-                                                          SSLContext& ssl_context,
+    static inline boost::shared_ptr<connection> create(boost::asio::io_service& io_service,
+                                                          ssl_context_type& ssl_context,
                                                           const bool ssl_flag,
-                                                          ConnectionHandler finished_handler)
+                                                          connection_handler finished_handler)
     {
-        return boost::shared_ptr<TCPConnection>(new TCPConnection(io_service, ssl_context,
+        return boost::shared_ptr<connection>(new connection(io_service, ssl_context,
                                                                   ssl_flag, finished_handler));
     }
     
     /**
-     * creates a new TCPConnection object
+     * creates a new connection object
      *
      * @param io_service asio service associated with the connection
      * @param ssl_flag if true then the connection will be encrypted using SSL 
      */
-    explicit TCPConnection(boost::asio::io_service& io_service, const bool ssl_flag = false)
+    explicit connection(boost::asio::io_service& io_service, const bool ssl_flag = false)
         :
 #ifdef PION_HAVE_SSL
         m_ssl_context(io_service, boost::asio::ssl::context::sslv23),
@@ -117,16 +118,16 @@ public:
 #endif
         m_lifecycle(LIFECYCLE_CLOSE)
     {
-        saveReadPosition(NULL, NULL);
+        save_read_pos(NULL, NULL);
     }
     
     /**
-     * creates a new TCPConnection object for SSL
+     * creates a new connection object for SSL
      *
      * @param io_service asio service associated with the connection
      * @param ssl_context asio ssl context associated with the connection
      */
-    TCPConnection(boost::asio::io_service& io_service, SSLContext& ssl_context)
+    connection(boost::asio::io_service& io_service, ssl_context_type& ssl_context)
         :
 #ifdef PION_HAVE_SSL
         m_ssl_context(io_service, boost::asio::ssl::context::sslv23),
@@ -137,12 +138,12 @@ public:
 #endif
         m_lifecycle(LIFECYCLE_CLOSE)
     {
-        saveReadPosition(NULL, NULL);
+        save_read_pos(NULL, NULL);
     }
     
     /// returns true if the connection is currently open
     inline bool is_open(void) const {
-        return const_cast<SSLSocket&>(m_ssl_socket).lowest_layer().is_open();
+        return const_cast<ssl_socket_type&>(m_ssl_socket).lowest_layer().is_open();
     }
     
     /// closes the tcp socket and cancels any pending asynchronous operations
@@ -161,7 +162,7 @@ public:
     */
     
     /// virtual destructor
-    virtual ~TCPConnection() { close(); }
+    virtual ~connection() { close(); }
     
     /**
      * asynchronously accepts a new tcp connection
@@ -365,7 +366,7 @@ public:
     template <typename ReadHandler>
     inline void async_read_some(ReadHandler handler) {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             m_ssl_socket.async_read_some(boost::asio::buffer(m_read_buffer),
                                          handler);
         else
@@ -386,7 +387,7 @@ public:
     inline void async_read_some(ReadBufferType read_buffer,
                                 ReadHandler handler) {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             m_ssl_socket.async_read_some(read_buffer, handler);
         else
 #endif      
@@ -403,7 +404,7 @@ public:
      */
     inline std::size_t read_some(boost::system::error_code& ec) {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             return m_ssl_socket.read_some(boost::asio::buffer(m_read_buffer), ec);
         else
 #endif      
@@ -424,7 +425,7 @@ public:
                                  boost::system::error_code& ec)
     {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             return m_ssl_socket.read_some(read_buffer, ec);
         else
 #endif      
@@ -445,7 +446,7 @@ public:
                            ReadHandler handler)
     {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             boost::asio::async_read(m_ssl_socket, boost::asio::buffer(m_read_buffer),
                                     completion_condition, handler);
         else
@@ -470,7 +471,7 @@ public:
                            ReadHandler handler)
     {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             boost::asio::async_read(m_ssl_socket, buffers,
                                     completion_condition, handler);
         else
@@ -494,7 +495,7 @@ public:
                             boost::system::error_code& ec)
     {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             return boost::asio::async_read(m_ssl_socket, boost::asio::buffer(m_read_buffer),
                                            completion_condition, ec);
         else
@@ -520,7 +521,7 @@ public:
                             boost::system::error_code& ec)
     {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             return boost::asio::read(m_ssl_socket, buffers,
                                      completion_condition, ec);
         else
@@ -540,7 +541,7 @@ public:
     template <typename ConstBufferSequence, typename WriteHandler>
     inline void async_write(const ConstBufferSequence& buffers, WriteHandler handler) {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             boost::asio::async_write(m_ssl_socket, buffers, handler);
         else
 #endif      
@@ -561,7 +562,7 @@ public:
                              boost::system::error_code& ec)
     {
 #ifdef PION_HAVE_SSL
-        if (getSSLFlag())
+        if (get_ssl_flag())
             return boost::asio::write(m_ssl_socket, buffers,
                                       boost::asio::transfer_all(), ec);
         else
@@ -576,22 +577,22 @@ public:
     inline void finish(void) { if (m_finished_handler) m_finished_handler(shared_from_this()); }
 
     /// returns true if the connection is encrypted using SSL
-    inline bool getSSLFlag(void) const { return m_ssl_flag; }
+    inline bool get_ssl_flag(void) const { return m_ssl_flag; }
 
     /// sets the lifecycle type for the connection
-    inline void setLifecycle(LifecycleType t) { m_lifecycle = t; }
+    inline void set_lifecycle(lifecycle_type t) { m_lifecycle = t; }
     
     /// returns the lifecycle type for the connection
-    inline LifecycleType getLifecycle(void) const { return m_lifecycle; }
+    inline lifecycle_type get_lifecycle(void) const { return m_lifecycle; }
     
     /// returns true if the connection should be kept alive
-    inline bool getKeepAlive(void) const { return m_lifecycle != LIFECYCLE_CLOSE; }
+    inline bool get_keep_alive(void) const { return m_lifecycle != LIFECYCLE_CLOSE; }
     
     /// returns true if the HTTP requests are pipelined
-    inline bool getPipelined(void) const { return m_lifecycle == LIFECYCLE_PIPELINED; }
+    inline bool get_pipelined(void) const { return m_lifecycle == LIFECYCLE_PIPELINED; }
 
     /// returns the buffer used for reading data from the TCP connection
-    inline ReadBuffer& getReadBuffer(void) { return m_read_buffer; }
+    inline read_buffer_type& get_read_buffer(void) { return m_read_buffer; }
     
     /**
      * saves a read position bookmark
@@ -599,7 +600,7 @@ public:
      * @param read_ptr points to the next character to be consumed in the read_buffer
      * @param read_end_ptr points to the end of the read_buffer (last byte + 1)
      */
-    inline void saveReadPosition(const char *read_ptr, const char *read_end_ptr) {
+    inline void save_read_pos(const char *read_ptr, const char *read_end_ptr) {
         m_read_position.first = read_ptr;
         m_read_position.second = read_end_ptr;
     }
@@ -610,17 +611,17 @@ public:
      * @param read_ptr points to the next character to be consumed in the read_buffer
      * @param read_end_ptr points to the end of the read_buffer (last byte + 1)
      */
-    inline void loadReadPosition(const char *&read_ptr, const char *&read_end_ptr) const {
+    inline void load_read_pos(const char *&read_ptr, const char *&read_end_ptr) const {
         read_ptr = m_read_position.first;
         read_end_ptr = m_read_position.second;
     }
 
     /// returns an ASIO endpoint for the client connection
-    inline boost::asio::ip::tcp::endpoint getRemoteEndpoint(void) const {
+    inline boost::asio::ip::tcp::endpoint get_remote_endpoint(void) const {
         boost::asio::ip::tcp::endpoint remote_endpoint;
         try {
             // const_cast is required since lowest_layer() is only defined non-const in asio
-            remote_endpoint = const_cast<SSLSocket&>(m_ssl_socket).lowest_layer().remote_endpoint();
+            remote_endpoint = const_cast<ssl_socket_type&>(m_ssl_socket).lowest_layer().remote_endpoint();
         } catch (boost::system::system_error& /* e */) {
             // do nothing
         }
@@ -628,31 +629,31 @@ public:
     }
 
     /// returns the client's IP address
-    inline boost::asio::ip::address getRemoteIp(void) const {
-        return getRemoteEndpoint().address();
+    inline boost::asio::ip::address get_remote_ip(void) const {
+        return get_remote_endpoint().address();
     }
 
     /// returns the client's port number
-    inline unsigned short getRemotePort(void) const {
-        return getRemoteEndpoint().port();
+    inline unsigned short get_remote_port(void) const {
+        return get_remote_endpoint().port();
     }
     
     /// returns reference to the io_service used for async operations
-    inline boost::asio::io_service& getIOService(void) {
+    inline boost::asio::io_service& get_io_service(void) {
         return m_ssl_socket.lowest_layer().get_io_service();
     }
 
     /// returns non-const reference to underlying TCP socket object
-    inline Socket& getSocket(void) { return m_ssl_socket.next_layer(); }
+    inline socket_type& get_socket(void) { return m_ssl_socket.next_layer(); }
     
     /// returns non-const reference to underlying SSL socket object
-    inline SSLSocket& getSSLSocket(void) { return m_ssl_socket; }
+    inline ssl_socket_type& get_ssl_socket(void) { return m_ssl_socket; }
 
     /// returns const reference to underlying TCP socket object
-    inline const Socket& getSocket(void) const { return const_cast<SSLSocket&>(m_ssl_socket).next_layer(); }
+    inline const socket_type& get_socket(void) const { return const_cast<ssl_socket_type&>(m_ssl_socket).next_layer(); }
     
     /// returns const reference to underlying SSL socket object
-    inline const SSLSocket& getSSLSocket(void) const { return m_ssl_socket; }
+    inline const ssl_socket_type& get_ssl_socket(void) const { return m_ssl_socket; }
 
     
 protected:
@@ -666,10 +667,10 @@ protected:
      * @param finished_handler function called when a server has finished
      *                         handling the connection
      */
-    TCPConnection(boost::asio::io_service& io_service,
-                  SSLContext& ssl_context,
+    connection(boost::asio::io_service& io_service,
+                  ssl_context_type& ssl_context,
                   const bool ssl_flag,
-                  ConnectionHandler finished_handler)
+                  connection_handler finished_handler)
         :
 #ifdef PION_HAVE_SSL
         m_ssl_context(io_service, boost::asio::ssl::context::sslv23),
@@ -681,44 +682,44 @@ protected:
         m_lifecycle(LIFECYCLE_CLOSE),
         m_finished_handler(finished_handler)
     {
-        saveReadPosition(NULL, NULL);
+        save_read_pos(NULL, NULL);
     }
     
 
 private:
 
     /// data type for a read position bookmark
-    typedef std::pair<const char*, const char*>     ReadPosition;
+    typedef std::pair<const char*, const char*>     read_pos_type;
 
     
     /// context object for the SSL connection socket
-    SSLContext                  m_ssl_context;
+    ssl_context_type                  m_ssl_context;
 
     /// SSL connection socket
-    SSLSocket                   m_ssl_socket;
+    ssl_socket_type                   m_ssl_socket;
 
     /// true if the connection is encrypted using SSL
     bool                        m_ssl_flag;
 
     /// buffer used for reading data from the TCP connection
-    ReadBuffer                  m_read_buffer;
+    read_buffer_type                  m_read_buffer;
     
     /// saved read position bookmark
-    ReadPosition                m_read_position;
+    read_pos_type                m_read_position;
     
     /// lifecycle state for the connection
-    LifecycleType               m_lifecycle;
+    lifecycle_type               m_lifecycle;
 
     /// function called when a server has finished handling the connection
-    ConnectionHandler           m_finished_handler;
+    connection_handler           m_finished_handler;
 };
 
 
-/// data type for a TCPConnection pointer
-typedef boost::shared_ptr<TCPConnection>    TCPConnectionPtr;
+/// data type for a connection pointer
+typedef boost::shared_ptr<connection>    connection_ptr;
 
 
-}   // end namespace net
+}   // end namespace tcp
 }   // end namespace pion
 
 #endif

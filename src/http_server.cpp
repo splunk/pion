@@ -15,7 +15,7 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
 // static members of HTTPServer
@@ -25,7 +25,7 @@ const unsigned int          HTTPServer::MAX_REDIRECTS = 10;
 
 // HTTPServer member functions
 
-void HTTPServer::handleConnection(TCPConnectionPtr& tcp_conn)
+void HTTPServer::handleConnection(tcp::connection_ptr& tcp_conn)
 {
     HTTPRequestReaderPtr reader_ptr;
     reader_ptr = HTTPRequestReader::create(tcp_conn, boost::bind(&HTTPServer::handleRequest,
@@ -35,11 +35,11 @@ void HTTPServer::handleConnection(TCPConnectionPtr& tcp_conn)
 }
 
 void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
-    TCPConnectionPtr& tcp_conn, const boost::system::error_code& ec)
+    tcp::connection_ptr& tcp_conn, const boost::system::error_code& ec)
 {
     if (ec || ! http_request->isValid()) {
-        tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE); // make sure it will get closed
-        if (tcp_conn->is_open() && (&ec.category() == &HTTPParser::getErrorCategory())) {
+        tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE); // make sure it will get closed
+        if (tcp_conn->is_open() && (&ec.category() == &http::parser::get_error_category())) {
             // HTTP parser error
             PION_LOG_INFO(m_logger, "Invalid HTTP request (" << ec.message() << ")");
             m_bad_request_handler(http_request, tcp_conn);
@@ -71,9 +71,9 @@ void HTTPServer::handleRequest(HTTPRequestPtr& http_request,
     }
 
     // if authentication activated, check current request
-    if (m_auth) {
+    if (m_auth_ptr) {
         // try to verify authentication
-        if (! m_auth->handleRequest(http_request, tcp_conn)) {
+        if (! m_auth_ptr->handleRequest(http_request, tcp_conn)) {
             // the HTTP 401 message has already been sent by the authentication object
             PION_LOG_DEBUG(m_logger, "Authentication required for HTTP resource: "
                 << resource_requested);
@@ -171,7 +171,7 @@ void HTTPServer::addRedirect(const std::string& requested_resource,
 }
 
 void HTTPServer::handleBadRequest(HTTPRequestPtr& http_request,
-                                  TCPConnectionPtr& tcp_conn)
+                                  tcp::connection_ptr& tcp_conn)
 {
     static const std::string BAD_REQUEST_HTML =
         "<html><head>\n"
@@ -181,7 +181,7 @@ void HTTPServer::handleBadRequest(HTTPRequestPtr& http_request,
         "<p>Your browser sent a request that this server could not understand.</p>\n"
         "</body></html>\n";
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+                                                            boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_BAD_REQUEST);
     writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_BAD_REQUEST);
     writer->writeNoCopy(BAD_REQUEST_HTML);
@@ -189,7 +189,7 @@ void HTTPServer::handleBadRequest(HTTPRequestPtr& http_request,
 }
 
 void HTTPServer::handleNotFoundRequest(HTTPRequestPtr& http_request,
-                                       TCPConnectionPtr& tcp_conn)
+                                       tcp::connection_ptr& tcp_conn)
 {
     static const std::string NOT_FOUND_HTML_START =
         "<html><head>\n"
@@ -201,7 +201,7 @@ void HTTPServer::handleNotFoundRequest(HTTPRequestPtr& http_request,
         " was not found on this server.</p>\n"
         "</body></html>\n";
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+                                                            boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
     writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
     writer->writeNoCopy(NOT_FOUND_HTML_START);
@@ -211,7 +211,7 @@ void HTTPServer::handleNotFoundRequest(HTTPRequestPtr& http_request,
 }
 
 void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
-                                   TCPConnectionPtr& tcp_conn,
+                                   tcp::connection_ptr& tcp_conn,
                                    const std::string& error_msg)
 {
     static const std::string SERVER_ERROR_HTML_START =
@@ -224,7 +224,7 @@ void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
         "</strong></p>\n"
         "</body></html>\n";
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+                                                            boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_SERVER_ERROR);
     writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR);
     writer->writeNoCopy(SERVER_ERROR_HTML_START);
@@ -234,7 +234,7 @@ void HTTPServer::handleServerError(HTTPRequestPtr& http_request,
 }
 
 void HTTPServer::handleForbiddenRequest(HTTPRequestPtr& http_request,
-                                        TCPConnectionPtr& tcp_conn,
+                                        tcp::connection_ptr& tcp_conn,
                                         const std::string& error_msg)
 {
     static const std::string FORBIDDEN_HTML_START =
@@ -249,7 +249,7 @@ void HTTPServer::handleForbiddenRequest(HTTPRequestPtr& http_request,
         "</strong></p>\n"
         "</body></html>\n";
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+                                                            boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_FORBIDDEN);
     writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_FORBIDDEN);
     writer->writeNoCopy(FORBIDDEN_HTML_START);
@@ -261,7 +261,7 @@ void HTTPServer::handleForbiddenRequest(HTTPRequestPtr& http_request,
 }
 
 void HTTPServer::handleMethodNotAllowed(HTTPRequestPtr& http_request,
-                                        TCPConnectionPtr& tcp_conn,
+                                        tcp::connection_ptr& tcp_conn,
                                         const std::string& allowed_methods)
 {
     static const std::string NOT_ALLOWED_HTML_START =
@@ -274,7 +274,7 @@ void HTTPServer::handleMethodNotAllowed(HTTPRequestPtr& http_request,
         " is not allowed on this server.</p>\n"
         "</body></html>\n";
     HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *http_request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+                                                            boost::bind(&connection::finish, tcp_conn)));
     writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
     writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
     if (! allowed_methods.empty())
@@ -285,6 +285,5 @@ void HTTPServer::handleMethodNotAllowed(HTTPRequestPtr& http_request,
     writer->send();
 }
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
-
