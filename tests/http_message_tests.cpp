@@ -14,20 +14,20 @@
 #include <pion/http/message.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/response.hpp>
-#include <pion/unit_test_defs.hpp>
+#include <pion/test/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/foreach.hpp>
 
-using namespace pion::net;
+using namespace pion;
 
 
 BOOST_AUTO_TEST_CASE(checkHTTPRequestCopyConstructor) {
-    HTTPRequest req1;
+    http::request req1;
     req1.addHeader("Test", "HTTPMessage");
     req1.setMethod("GET");
-    HTTPRequest req2(req1);
+    http::request req2(req1);
     BOOST_CHECK_EQUAL(req1.getMethod(), "GET");
     BOOST_CHECK_EQUAL(req1.getMethod(), req2.getMethod());
     BOOST_CHECK_EQUAL(req1.getHeader("Test"), "HTTPMessage");
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(checkHTTPRequestCopyConstructor) {
 }
 
 BOOST_AUTO_TEST_CASE(checkHTTPRequestAssignmentOperator) {
-    HTTPRequest req1, req2;
+    http::request req1, req2;
     req1.setMethod("GET");
     req1.addHeader("Test", "HTTPMessage");
     req2 = req1;
@@ -46,10 +46,10 @@ BOOST_AUTO_TEST_CASE(checkHTTPRequestAssignmentOperator) {
 }
 
 BOOST_AUTO_TEST_CASE(checkHTTPResponseCopyConstructor) {
-    HTTPResponse rsp1;
+    http::response rsp1;
     rsp1.addHeader("Test", "HTTPMessage");
     rsp1.setStatusCode(199);
-    HTTPResponse rsp2(rsp1);
+    http::response rsp2(rsp1);
     BOOST_CHECK_EQUAL(rsp1.getStatusCode(), 199U);
     BOOST_CHECK_EQUAL(rsp1.getStatusCode(), rsp2.getStatusCode());
     BOOST_CHECK_EQUAL(rsp1.getHeader("Test"), "HTTPMessage");
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(checkHTTPResponseCopyConstructor) {
 }
 
 BOOST_AUTO_TEST_CASE(checkHTTPResponseAssignmentOperator) {
-    HTTPResponse rsp1, rsp2;
+    http::response rsp1, rsp2;
     rsp1.addHeader("Test", "HTTPMessage");
     rsp1.setStatusCode(199);
     rsp2 = rsp1;
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(checkHTTPResponseAssignmentOperator) {
 }
 
 BOOST_AUTO_TEST_CASE(checkGetFirstLineForRequest) {
-    HTTPRequest http_request;
+    http::request http_request;
     
     http_request.setMethod("GET");
     http_request.setResource("/");
@@ -90,24 +90,24 @@ BOOST_AUTO_TEST_CASE(checkGetFirstLineForRequest) {
 }
 
 BOOST_AUTO_TEST_CASE(checkGetFirstLineForResponse) {
-    HTTPResponse http_response;
+    http::response http_response;
     
-    http_response.setStatusCode(HTTPTypes::RESPONSE_CODE_OK);
-    http_response.setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_OK);
+    http_response.setStatusCode(http::types::RESPONSE_CODE_OK);
+    http_response.setStatusMessage(http::types::RESPONSE_MESSAGE_OK);
 
     BOOST_CHECK_EQUAL(http_response.getFirstLine(), "HTTP/1.1 200 OK");
     
-    http_response.setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+    http_response.setStatusCode(http::types::RESPONSE_CODE_NOT_FOUND);
 
     BOOST_CHECK_EQUAL(http_response.getFirstLine(), "HTTP/1.1 404 OK");
 
-    http_response.setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+    http_response.setStatusMessage(http::types::RESPONSE_MESSAGE_NOT_FOUND);
 
     BOOST_CHECK_EQUAL(http_response.getFirstLine(), "HTTP/1.1 404 Not Found");
 }
 
 
-#define FIXTURE_TYPE_LIST(F) boost::mpl::list<F<HTTPRequest>, F<HTTPResponse> >
+#define FIXTURE_TYPE_LIST(F) boost::mpl::list<F<http::request>, F<http::response> >
 
 template<typename ConcreteMessageType>
 class NewHTTPMessage_F : public ConcreteMessageType {
@@ -162,11 +162,11 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(testChunksSupportedAccessors) {
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(testHeaderCaseIsIgnored) {
     const std::string xml_content_type("text/xml");
 
-    F::addHeader(HTTPTypes::HEADER_CONTENT_TYPE, xml_content_type);
+    F::addHeader(http::types::HEADER_CONTENT_TYPE, xml_content_type);
     BOOST_CHECK_EQUAL(F::getHeader("CoNTenT-TYPe"), xml_content_type);
 
     F::addHeader("content-length", "10");
-    BOOST_CHECK_EQUAL(F::getHeader(HTTPTypes::HEADER_CONTENT_LENGTH), "10");
+    BOOST_CHECK_EQUAL(F::getHeader(http::types::HEADER_CONTENT_LENGTH), "10");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -394,7 +394,7 @@ BOOST_FIXTURE_TEST_SUITE(HTTPMessageReadWrite_S, HTTPMessageReadWrite_F)
 
 BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
     // build a request
-    HTTPRequest req;
+    http::request req;
     req.setResource("/test.html");
     req.addHeader("Test", "Something");
     
@@ -405,14 +405,14 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
     m_file.flush();
     
     // read from file
-    HTTPRequest req2;
+    http::request req2;
     m_file.clear();
     m_file.seekg(0);
     req2.read(m_file, ec);
     BOOST_REQUIRE(! ec);
 
     // make sure we're now at EOF
-    HTTPRequest req3;
+    http::request req3;
     req3.read(m_file, ec);
     BOOST_CHECK_EQUAL(ec, boost::system::errc::io_error);
     
@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
 
 BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
     // build a response
-    HTTPResponse rsp;
+    http::response rsp;
     rsp.setStatusCode(202);
     rsp.setStatusMessage("Hi There");
     rsp.addHeader("HeaderA", "a value");
@@ -450,14 +450,14 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
     m_file.flush();
     
     // read from file
-    HTTPResponse rsp2;
+    http::response rsp2;
     m_file.clear();
     m_file.seekg(0);
     rsp2.read(m_file, ec);
     BOOST_REQUIRE(! ec);
     
     // make sure we're now at EOF
-    HTTPResponse rsp3;
+    http::response rsp3;
     rsp3.read(m_file, ec);
     BOOST_CHECK_EQUAL(ec, boost::system::errc::io_error);
     
@@ -484,8 +484,8 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
 
 BOOST_AUTO_TEST_CASE(checkWriteReadMixedMessages) {
     boost::system::error_code ec;
-    HTTPRequest req;
-    HTTPResponse rsp;
+    http::request req;
+    http::response rsp;
 
     // build a request & write to file
     req.setResource("/test.html");
@@ -538,29 +538,29 @@ BOOST_AUTO_TEST_CASE(checkWriteReadMixedMessages) {
     m_file.seekg(0);
 
     // read first request
-    HTTPRequest req1;
+    http::request req1;
     req1.read(m_file, ec);
     BOOST_REQUIRE(! ec);
     
     // read first response
-    HTTPResponse rsp1;
+    http::response rsp1;
     rsp1.read(m_file, ec);
     BOOST_REQUIRE(! ec);
 
     // read second request
-    HTTPRequest req2;
+    http::request req2;
     req2.read(m_file, ec);
     BOOST_REQUIRE(! ec);
     
     // read second response
-    HTTPResponse rsp2;
+    http::response rsp2;
     rsp2.read(m_file, ec);
     BOOST_REQUIRE(! ec);
     BOOST_CHECK_EQUAL(rsp2.getStatusCode(), 302U);
     BOOST_CHECK_EQUAL(rsp2.getStatusMessage(), "Hello There");
 
     // read third request
-    HTTPRequest req3;
+    http::request req3;
     req3.read(m_file, ec);
     BOOST_REQUIRE(! ec);
     

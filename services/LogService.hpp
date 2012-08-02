@@ -42,7 +42,7 @@ namespace plugins {     // begin namespace plugins
 /// 
 class LogServiceAppender
 #ifdef PION_HAS_LOG_APPENDER
-    : public PionLogAppender
+    : public log_appender
 #endif
 {
 public:
@@ -57,7 +57,7 @@ public:
     void addLogString(const std::string& log_string);
 
     /// writes the events cached in memory to a response stream
-    void writeLogEvents(pion::net::HTTPResponseWriterPtr& writer);
+    void writeLogEvents(pion::http::response_writer_ptr& writer);
 
 private:
     /// default maximum number of events cached in memory
@@ -119,7 +119,7 @@ private:
 /// LogService: web service that displays log messages
 /// 
 class LogService :
-    public pion::net::WebService
+    public pion::http::plugin_service
 {
 public:
     // default constructor and destructor
@@ -127,8 +127,8 @@ public:
     virtual ~LogService();
     
     /// handles a new HTTP request
-    virtual void operator()(pion::net::HTTPRequestPtr& request,
-                            pion::net::TCPConnectionPtr& tcp_conn);
+    virtual void operator()(pion::http::request_ptr& http_request_ptr,
+                            pion::tcp::connection_ptr& tcp_conn);
 
     /// returns the log appender used by LogService
     inline LogServiceAppender& getLogAppender(void) {
@@ -142,7 +142,7 @@ public:
 private:
     /// this is used to keep track of log messages
 #ifdef PION_HAS_LOG_APPENDER
-    PionLogAppenderPtr      m_log_appender_ptr;
+    log_appender_ptr      m_log_appender_ptr;
 #else
     LogServiceAppender *    m_log_appender_ptr;
 #endif

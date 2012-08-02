@@ -14,7 +14,7 @@
 
 ///
 /// This class has a corresponding create function (pion_create_hasCreateAndDestroy) and
-/// destroy function (pion_destroy_hasCreateAndDestroy), as required for use by PionPlugin.
+/// destroy function (pion_destroy_hasCreateAndDestroy), as required for use by plugin.
 /// 
 class hasCreateAndDestroy : public InterfaceStub
 {

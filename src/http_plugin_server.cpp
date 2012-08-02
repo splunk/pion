@@ -19,44 +19,44 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
-// WebServer member functions
+// plugin_server member functions
 
-void WebServer::addService(const std::string& resource, WebService *service_ptr)
+void plugin_server::addService(const std::string& resource, http::plugin_service *service_ptr)
 {
-    PionPluginPtr<WebService> plugin_ptr;
+    plugin_ptr<http::plugin_service> plugin_ptr;
     const std::string clean_resource(stripTrailingSlash(resource));
     service_ptr->setResource(clean_resource);
     m_services.add(clean_resource, service_ptr);
-    HTTPServer::addResource(clean_resource, boost::ref(*service_ptr));
+    http::server::addResource(clean_resource, boost::ref(*service_ptr));
     PION_LOG_INFO(m_logger, "Loaded static web service for resource (" << clean_resource << ")");
 }
 
-void WebServer::loadService(const std::string& resource, const std::string& service_name)
+void plugin_server::loadService(const std::string& resource, const std::string& service_name)
 {
     const std::string clean_resource(stripTrailingSlash(resource));
-    WebService *service_ptr;
+    http::plugin_service *service_ptr;
     service_ptr = m_services.load(clean_resource, service_name);
-    HTTPServer::addResource(clean_resource, boost::ref(*service_ptr));
+    http::server::addResource(clean_resource, boost::ref(*service_ptr));
     service_ptr->setResource(clean_resource);
     PION_LOG_INFO(m_logger, "Loaded web service plug-in for resource (" << clean_resource << "): " << service_name);
 }
 
-void WebServer::setServiceOption(const std::string& resource,
+void plugin_server::setServiceOption(const std::string& resource,
                                  const std::string& name, const std::string& value)
 {
     const std::string clean_resource(stripTrailingSlash(resource));
-    m_services.run(clean_resource, boost::bind(&WebService::setOption, _1, name, value));
+    m_services.run(clean_resource, boost::bind(&http::plugin_service::setOption, _1, name, value));
     PION_LOG_INFO(m_logger, "Set web service option for resource ("
                   << resource << "): " << name << '=' << value);
 }
 
-void WebServer::loadServiceConfig(const std::string& config_name)
+void plugin_server::loadServiceConfig(const std::string& config_name)
 {
     std::string config_file;
-    if (! PionPlugin::findConfigFile(config_file, config_name))
+    if (! plugin::findConfigFile(config_file, config_name))
         BOOST_THROW_EXCEPTION( error::file_not_found() << error::errinfo_file_name(config_name) );
     
     // open the file for reading
@@ -66,7 +66,7 @@ void WebServer::loadServiceConfig(const std::string& config_name)
         BOOST_THROW_EXCEPTION( error::open_file() << error::errinfo_file_name(config_name) );
     
     // parse the contents of the file
-    HTTPAuthPtr auth_ptr;
+    http::auth_ptr my_auth_ptr;
     enum ParseState {
         PARSE_NEWLINE, PARSE_COMMAND, PARSE_RESOURCE, PARSE_VALUE, PARSE_COMMENT, PARSE_USERNAME
     } parse_state = PARSE_NEWLINE;
@@ -165,18 +165,18 @@ void WebServer::loadServiceConfig(const std::string& config_name)
                     BOOST_THROW_EXCEPTION( error::bad_config() << error::errinfo_file_name(config_name) );
                 } else if (command_string == "path") {
                     // finished path command
-                    try { PionPlugin::addPluginDirectory(value_string); }
+                    try { plugin::addPluginDirectory(value_string); }
                     catch (std::exception& e) {
                         PION_LOG_WARN(m_logger, boost::diagnostic_information(e));
                     }
                 } else if (command_string == "auth") {
                     // finished auth command
-                    PionUserManagerPtr user_manager(new PionUserManager);
+                    user_manager_ptr user_mgr(new user_manager);
                     if (value_string == "basic"){
-                        auth_ptr.reset(new HTTPBasicAuth(user_manager));
+                        my_auth_ptr.reset(new http::basic_auth(user_mgr));
                     }
                     else if (value_string == "cookie"){
-                        auth_ptr.reset(new HTTPCookieAuth(user_manager));
+                        my_auth_ptr.reset(new http::cookie_auth(user_mgr));
                     }
                     else {
                         // only basic and cookie authentications are supported
@@ -184,22 +184,22 @@ void WebServer::loadServiceConfig(const std::string& config_name)
                     }
                 } else if (command_string == "restrict") {
                     // finished restrict command
-                    if (! auth_ptr)
+                    if (! my_auth_ptr)
                         // Authentication type must be defined before restrict
                         BOOST_THROW_EXCEPTION( error::bad_config() << error::errinfo_file_name(config_name) );
                     else if (value_string.empty())
                         // No service defined for restrict parameter
                         BOOST_THROW_EXCEPTION( error::bad_config() << error::errinfo_file_name(config_name) );
-                    auth_ptr->addRestrict(value_string);
+                    my_auth_ptr->addRestrict(value_string);
                 } else if (command_string == "user") {
                     // finished user command
-                    if (! auth_ptr)
+                    if (! my_auth_ptr)
                         // Authentication type must be defined before users
                         BOOST_THROW_EXCEPTION( error::bad_config() << error::errinfo_file_name(config_name) );
                     else if (value_string.empty())
                         // No password defined for user parameter
                         BOOST_THROW_EXCEPTION( error::bad_config() << error::errinfo_file_name(config_name) );
-                    auth_ptr->addUser(username_string, value_string);
+                    my_auth_ptr->addUser(username_string, value_string);
                 } else if (command_string == "service") {
                     // finished service command
                     loadService(resource_string, value_string);
@@ -237,9 +237,8 @@ void WebServer::loadServiceConfig(const std::string& config_name)
     }
     
     // update authentication configuration for the server
-    setAuthentication(auth_ptr);
+    setAuthentication(my_auth_ptr);
 }
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
-

@@ -25,21 +25,22 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
-/// HTTPWriter: used to asynchronously send HTTP messages
+/// writer: used to asynchronously send HTTP messages
 /// 
-class PION_API HTTPWriter :
+class PION_API writer :
     private boost::noncopyable
 {
 protected:
     
     /// function called after the HTTP message has been sent
-    typedef boost::function1<void,const boost::system::error_code&> FinishedHandler;
+    typedef boost::function1<void,const boost::system::error_code&> finished_handler_t;
 
     /// data type for a function that handles write operations
-    typedef boost::function2<void,const boost::system::error_code&,std::size_t> WriteHandler;
+    typedef boost::function2<void,const boost::system::error_code&,std::size_t> write_handler_t;
     
     
     /**
@@ -48,8 +49,8 @@ protected:
      * @param tcp_conn TCP connection used to send the message
      * @param handler function called after the request has been sent
      */
-    HTTPWriter(TCPConnectionPtr& tcp_conn, FinishedHandler handler)
-        : m_logger(PION_GET_LOGGER("pion.net.HTTPWriter")),
+    writer(tcp::connection_ptr& tcp_conn, finished_handler_t handler)
+        : m_logger(PION_GET_LOGGER("pion.http.writer")),
         m_tcp_conn(tcp_conn), m_content_length(0), m_stream_is_empty(true), 
         m_client_supports_chunks(true), m_sending_chunks(false),
         m_sent_headers(false), m_finished(handler)
@@ -70,10 +71,10 @@ protected:
      *
      * @param write_buffers vector of write buffers to initialize
      */
-    virtual void prepareBuffersForSend(HTTPMessage::WriteBuffers& write_buffers) = 0;
+    virtual void prepareBuffersForSend(http::message::write_buffers_t& write_buffers) = 0;
                                       
-    /// returns a function bound to HTTPWriter::handleWrite()
-    virtual WriteHandler bindToWriteHandler(void) = 0;
+    /// returns a function bound to writer::handleWrite()
+    virtual write_handler_t bindToWriteHandler(void) = 0;
     
     /// called after we have finished sending the HTTP message
     inline void finishedWriting(const boost::system::error_code& ec) {
@@ -84,7 +85,7 @@ protected:
 public:
 
     /// default destructor
-    virtual ~HTTPWriter() {}
+    virtual ~writer() {}
 
     /// clears out all of the memory buffers used to cache payload content data
     inline void clear(void) {
@@ -155,7 +156,7 @@ public:
     /**
      * Sends all data buffered as a single HTTP message (without chunking).
      * Following a call to this function, it is not thread safe to use your
-     * reference to the HTTPWriter object.
+     * reference to the writer object.
      */
     inline void send(void) {
         sendMoreData(false, bindToWriteHandler());
@@ -164,11 +165,11 @@ public:
     /**
      * Sends all data buffered as a single HTTP message (without chunking).
      * Following a call to this function, it is not thread safe to use your
-     * reference to the HTTPWriter object until the send_handler has been called.
+     * reference to the writer object until the send_handler has been called.
      *
      * @param send_handler function that is called after the message has been
      *                     sent to the client.  Your callback function must end
-     *                     the connection by calling TCPConnection::finish().
+     *                     the connection by calling connection::finish().
      */
     template <typename SendHandler>
     inline void send(SendHandler send_handler) {
@@ -177,7 +178,7 @@ public:
     
     /**
      * Sends all data buffered as a single HTTP chunk.  Following a call to this
-     * function, it is not thread safe to use your reference to the HTTPWriter
+     * function, it is not thread safe to use your reference to the writer
      * object until the send_handler has been called.
      * 
      * @param send_handler function that is called after the chunk has been sent
@@ -191,7 +192,7 @@ public:
         if (!supportsChunkedMessages()) {
             // sending data in chunks, but the client does not support chunking;
             // make sure that the connection will be closed when we are all done
-            m_tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE);
+            m_tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE);
         }
         // send more data
         sendMoreData(false, send_handler);
@@ -202,11 +203,11 @@ public:
      * This function (either overloaded version) must be called following any 
      * calls to sendChunk().
      * Following a call to this function, it is not thread safe to use your
-     * reference to the HTTPWriter object until the send_handler has been called.
+     * reference to the writer object until the send_handler has been called.
      *
      * @param send_handler function that is called after the message has been
      *                     sent to the client.  Your callback function must end
-     *                     the connection by calling TCPConnection::finish().
+     *                     the connection by calling connection::finish().
      */ 
     template <typename SendHandler>
     inline void sendFinalChunk(SendHandler send_handler) {
@@ -219,7 +220,7 @@ public:
      * This function (either overloaded version) must be called following any 
      * calls to sendChunk().
      * Following a call to this function, it is not thread safe to use your
-     * reference to the HTTPWriter object.
+     * reference to the writer object.
      */ 
     inline void sendFinalChunk(void) {
         m_sending_chunks = true;
@@ -228,7 +229,7 @@ public:
     
     
     /// returns a shared pointer to the TCP connection
-    inline TCPConnectionPtr& getTCPConnection(void) { return m_tcp_conn; }
+    inline tcp::connection_ptr& get_connection(void) { return m_tcp_conn; }
 
     /// returns the length of the payload content (in bytes)
     inline size_t getContentLength(void) const { return m_content_length; }
@@ -243,10 +244,10 @@ public:
     inline bool sendingChunkedMessage() const { return m_sending_chunks; }
     
     /// sets the logger to be used
-    inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
+    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
     
     /// returns the logger currently in use
-    inline PionLogger getLogger(void) { return m_logger; }
+    inline logger getLogger(void) { return m_logger; }
 
     
 private:
@@ -266,8 +267,8 @@ private:
         // make sure that the content-length is up-to-date
         flushContentStream();
         // prepare the write buffers to be sent
-        HTTPMessage::WriteBuffers write_buffers;
-        prepareWriteBuffers(write_buffers, send_final_chunk);
+        http::message::write_buffers_t write_buffers;
+        preparewrite_buffers_t(write_buffers, send_final_chunk);
         // send data in the write buffers
         m_tcp_conn->async_write(write_buffers, send_handler);
     }
@@ -278,10 +279,10 @@ private:
      * @param write_buffers buffers to which data will be appended
      * @param send_final_chunk true if the final 0-byte chunk should be included
      */
-    void prepareWriteBuffers(HTTPMessage::WriteBuffers &write_buffers,
+    void preparewrite_buffers_t(http::message::write_buffers_t &write_buffers,
                              const bool send_final_chunk);
     
-    /// flushes any text data in the content stream after caching it in the TextCache
+    /// flushes any text data in the content stream after caching it in the text_cache_t
     inline void flushContentStream(void) {
         if (! m_stream_is_empty) {
             std::string string_to_add(m_content_stream.str());
@@ -313,25 +314,25 @@ private:
     };
     
     /// used to cache text (non-binary) data included within the payload content
-    typedef std::list<std::string>              TextCache;
+    typedef std::list<std::string>              text_cache_t;
 
     
     /// primary logging interface used by this class
-    PionLogger                              m_logger;
+    logger                              m_logger;
 
     /// The HTTP connection that we are writing the message to
-    TCPConnectionPtr                        m_tcp_conn;
+    tcp::connection_ptr                        m_tcp_conn;
     
     /// I/O write buffers that wrap the payload content to be written
-    HTTPMessage::WriteBuffers               m_content_buffers;
+    http::message::write_buffers_t               m_content_buffers;
     
     /// caches binary data included within the payload content
     BinaryCache                             m_binary_cache;
 
     /// caches text (non-binary) data included within the payload content
-    TextCache                               m_text_cache;
+    text_cache_t                               m_text_cache;
     
-    /// incrementally creates strings of text data for the TextCache
+    /// incrementally creates strings of text data for the text_cache_t
     std::ostringstream                      m_content_stream;
     
     /// The length (in bytes) of the response content to be sent (Content-Length)
@@ -350,23 +351,23 @@ private:
     bool                                    m_sent_headers;
 
     /// function called after the HTTP message has been sent
-    FinishedHandler                         m_finished;
+    finished_handler_t                         m_finished;
 };
 
 
-/// data type for a HTTPWriter pointer
-typedef boost::shared_ptr<HTTPWriter>   HTTPWriterPtr;
+/// data type for a writer pointer
+typedef boost::shared_ptr<writer>   writer_ptr;
 
 
 /// override operator<< for convenience
 template <typename T>
-HTTPWriterPtr& operator<<(HTTPWriterPtr& writer, const T& data) {
+writer_ptr& operator<<(writer_ptr& writer, const T& data) {
     writer->write(data);
     return writer;
 }
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

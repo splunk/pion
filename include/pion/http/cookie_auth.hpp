@@ -15,18 +15,18 @@
 #include <boost/random.hpp>
 #include <pion/config.hpp>
 #include <pion/http/auth.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>    // order important, otherwise compiling error under win32
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
-/// HTTPCookieAuth: handles HTTP authentication and session management in
+/// cookie_auth: handles HTTP authentication and session management in
 /// accordance with RFC 2617 (http://tools.ietf.org/html/rfc2617 ) using cookies.
 ///
-class PION_API HTTPCookieAuth :
-    public HTTPAuth
+class PION_API cookie_auth :
+    public http::auth
 {
 public:
     
@@ -41,13 +41,13 @@ public:
      * @param redirect - if not empty, URL for redirection in case of authentication failure
      *                  if empty - send code 401 on authentication failure
      */
-    HTTPCookieAuth(PionUserManagerPtr userManager, 
+    cookie_auth(user_manager_ptr userManager, 
         const std::string& login="/login",
         const std::string& logout="/logout",
         const std::string& redirect="");
     
     /// virtual destructor
-    virtual ~HTTPCookieAuth() {}
+    virtual ~cookie_auth() {}
     
     /**
      * attempts to validate authentication of a new HTTP request. 
@@ -61,12 +61,12 @@ public:
      * and associated with given user session. If request contains "url" attribute,
      * then page redirection response returned. Otherwise - empty 204 response.
      *
-     * @param request the new HTTP request to handle
+     * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn);
+    virtual bool handleRequest(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
     
     /**
      * sets a configuration option
@@ -89,37 +89,37 @@ protected:
     /**
      * check if given request is a login/logout and process it
      *
-     * @param http_request the new HTTP request to handle
+     * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      *
      * @return true if it was a login/logout request and no future processing required.
      */
-    bool processLogin(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn);
+    bool processLogin(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
 
     /**
      * used to send responses when access to resource is not authorized
      *
-     * @param http_request the new HTTP request to handle
+     * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handleUnauthorized(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn);
+    void handleUnauthorized(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
     
     /**
      * used to send redirection responses 
      *
-     * @param http_request the new HTTP request to handle
+     * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handleRedirection(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn,
+    void handleRedirection(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn,
         const std::string &redirection_url, const std::string &new_cookie="", bool delete_cookie=false);
 
     /**
      * used to send OK responses with new cookie
      *
-     * @param http_request the new HTTP request to handle
+     * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handleOk(HTTPRequestPtr& http_request, TCPConnectionPtr& tcp_conn,
+    void handleOk(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn,
         const std::string &new_cookie="", bool delete_cookie=false);
 
     /**
@@ -129,9 +129,6 @@ protected:
 
     
 private:
-    
-    /// data type used to map authentication credentials to PionUser objects
-    typedef std::map<std::string, std::pair<boost::posix_time::ptime, PionUserPtr> >  PionUserCache;
     
     /// number of seconds after which entries in the user cache will be expired
     static const unsigned int   CACHE_EXPIRATION;
@@ -164,14 +161,14 @@ private:
     boost::posix_time::ptime    m_cache_cleanup_time;
         
     /// cache of users that are currently active
-    PionUserCache               m_user_cache;
+    user_cache_type               m_user_cache;
     
     /// mutex used to protect access to the user cache
     mutable boost::mutex        m_cache_mutex;
 };
 
     
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

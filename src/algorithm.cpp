@@ -12,10 +12,11 @@
 #include <pion/algorithm.hpp>
 #include <boost/assert.hpp>
 
+
 namespace pion {        // begin namespace pion
 
 
-bool algo::base64_decode(const std::string &input, std::string &output)
+bool algorithm::base64_decode(const std::string &input, std::string &output)
 {
     static const char nop = -1; 
     static const char decoding_data[] = {
@@ -95,7 +96,7 @@ bool algo::base64_decode(const std::string &input, std::string &output)
     return true;
 }
 
-bool algo::base64_encode(const std::string &input, std::string &output)
+bool algorithm::base64_encode(const std::string &input, std::string &output)
 {
     static const char encoding_data[] = 
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -144,7 +145,7 @@ bool algo::base64_encode(const std::string &input, std::string &output)
     return true;
 }
 
-std::string algo::url_decode(const std::string& str)
+std::string algorithm::url_decode(const std::string& str)
 {
     char decode_buf[3];
     std::string result;
@@ -177,7 +178,7 @@ std::string algo::url_decode(const std::string& str)
     return result;
 }
     
-std::string algo::url_encode(const std::string& str)
+std::string algorithm::url_encode(const std::string& str)
 {
     char encode_buf[4];
     std::string result;

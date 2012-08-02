@@ -12,9 +12,8 @@
 #include <boost/test/unit_test.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
-class NewHTTPResponse_F : public HTTPResponse {
+class NewHTTPResponse_F : public http::response {
 public:
     NewHTTPResponse_F() {
     }
@@ -26,23 +25,23 @@ BOOST_FIXTURE_TEST_SUITE(NewHTTPResponse_S, NewHTTPResponse_F)
 
 BOOST_AUTO_TEST_CASE(checkClear) {
     prepareHeadersForSend(true, false);
-    BOOST_CHECK(!getHeaders().empty());
+    BOOST_CHECK(!get_headers().empty());
     clear();
-    BOOST_CHECK(getHeaders().empty());
+    BOOST_CHECK(get_headers().empty());
 }
 
 BOOST_AUTO_TEST_CASE(checkStatusCodeAccessors) {
-    setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
-    BOOST_CHECK_EQUAL(getStatusCode(), HTTPTypes::RESPONSE_CODE_NOT_FOUND);
-    setStatusCode(HTTPTypes::RESPONSE_CODE_CREATED);
-    BOOST_CHECK_EQUAL(getStatusCode(), HTTPTypes::RESPONSE_CODE_CREATED);
+    setStatusCode(http::types::RESPONSE_CODE_NOT_FOUND);
+    BOOST_CHECK_EQUAL(getStatusCode(), http::types::RESPONSE_CODE_NOT_FOUND);
+    setStatusCode(http::types::RESPONSE_CODE_CREATED);
+    BOOST_CHECK_EQUAL(getStatusCode(), http::types::RESPONSE_CODE_CREATED);
 }
 
 BOOST_AUTO_TEST_CASE(checkStatusMessageAccessors) {
-    setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
-    BOOST_CHECK_EQUAL(getStatusMessage(), HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
-    setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_CREATED);
-    BOOST_CHECK_EQUAL(getStatusMessage(), HTTPTypes::RESPONSE_MESSAGE_CREATED);
+    setStatusMessage(http::types::RESPONSE_MESSAGE_NOT_FOUND);
+    BOOST_CHECK_EQUAL(getStatusMessage(), http::types::RESPONSE_MESSAGE_NOT_FOUND);
+    setStatusMessage(http::types::RESPONSE_MESSAGE_CREATED);
+    BOOST_CHECK_EQUAL(getStatusMessage(), http::types::RESPONSE_MESSAGE_CREATED);
 }
 
 BOOST_AUTO_TEST_CASE(checkSetLastModified) {

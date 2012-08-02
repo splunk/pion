@@ -12,19 +12,18 @@
 #include <pion/http/response_writer.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
 
     
-void AllowNothingService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void AllowNothingService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
 {
     static const std::string DENY_HTML = "<html><body>No, you can't.</body></html>";
-    HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
-    writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
+    http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
+    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
+    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
 
     // This is a legitimate header, but it crashes when it's sent.
     //writer->getResponse().addHeader("Allow", "");
@@ -33,8 +32,8 @@ void AllowNothingService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& 
     writer->getResponse().addHeader("Allow", "GET");
 
     writer->writeNoCopy(DENY_HTML);
-    writer->writeNoCopy(HTTPTypes::STRING_CRLF);
-    writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->writeNoCopy(http::types::STRING_CRLF);
     writer->send();
 }
 

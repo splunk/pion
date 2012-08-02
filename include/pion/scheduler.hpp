@@ -29,21 +29,21 @@
 namespace pion {    // begin namespace pion
 
 ///
-/// PionScheduler: combines Boost.ASIO with a managed thread pool for scheduling
+/// scheduler: combines Boost.ASIO with a managed thread pool for scheduling
 /// 
-class PION_API PionScheduler :
+class PION_API scheduler :
     private boost::noncopyable
 {
 public:
 
-    /// constructs a new PionScheduler
-    PionScheduler(void)
-        : m_logger(PION_GET_LOGGER("pion.PionScheduler")),
+    /// constructs a new scheduler
+    scheduler(void)
+        : m_logger(PION_GET_LOGGER("pion.scheduler")),
         m_num_threads(DEFAULT_NUM_THREADS), m_active_users(0), m_is_running(false)
     {}
     
     /// virtual destructor
-    virtual ~PionScheduler() {}
+    virtual ~scheduler() {}
 
     /// Starts the thread scheduler (this is called automatically when necessary)
     virtual void startup(void) {}
@@ -55,7 +55,7 @@ public:
     void join(void);
     
     /// registers an active user with the thread scheduler.  Shutdown of the
-    /// PionScheduler is deferred until there are no more active users.  This
+    /// scheduler is deferred until there are no more active users.  This
     /// ensures that any work queued will not reference destructed objects
     void addActiveUser(void);
 
@@ -72,13 +72,13 @@ public:
     inline boost::uint32_t getNumThreads(void) const { return m_num_threads; }
 
     /// sets the logger to be used
-    inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
+    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
 
     /// returns the logger currently in use
-    inline PionLogger getLogger(void) { return m_logger; }
+    inline logger getLogger(void) { return m_logger; }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& getIOService(void) = 0;
+    virtual boost::asio::io_service& get_io_service(void) = 0;
     
     /**
      * schedules work to be performed by one of the pooled threads
@@ -86,7 +86,7 @@ public:
      * @param work_func work function to be executed
      */
     virtual void post(boost::function0<void> work_func) {
-        getIOService().post(work_func);
+        get_io_service().post(work_func);
     }
     
     /**
@@ -174,7 +174,7 @@ protected:
     boost::mutex                    m_mutex;
     
     /// primary logging interface used by this class
-    PionLogger                      m_logger;
+    logger                      m_logger;
 
     /// condition triggered when there are no more active users
     boost::condition                m_no_more_active_users;
@@ -194,18 +194,18 @@ protected:
 
     
 ///
-/// PionMultiThreadScheduler: uses a pool of threads to perform work
+/// multi_thread_scheduler: uses a pool of threads to perform work
 /// 
-class PION_API PionMultiThreadScheduler :
-    public PionScheduler
+class PION_API multi_thread_scheduler :
+    public scheduler
 {
 public:
     
-    /// constructs a new PionSingleServiceScheduler
-    PionMultiThreadScheduler(void) {}
+    /// constructs a new single_service_scheduler
+    multi_thread_scheduler(void) {}
     
     /// virtual destructor
-    virtual ~PionMultiThreadScheduler() {}
+    virtual ~multi_thread_scheduler() {}
 
     
 protected:
@@ -241,23 +241,23 @@ protected:
     
     
 ///
-/// PionSingleServiceScheduler: uses a single IO service to schedule work
+/// single_service_scheduler: uses a single IO service to schedule work
 /// 
-class PION_API PionSingleServiceScheduler :
-    public PionMultiThreadScheduler
+class PION_API single_service_scheduler :
+    public multi_thread_scheduler
 {
 public:
     
-    /// constructs a new PionSingleServiceScheduler
-    PionSingleServiceScheduler(void)
+    /// constructs a new single_service_scheduler
+    single_service_scheduler(void)
         : m_service(), m_timer(m_service)
     {}
     
     /// virtual destructor
-    virtual ~PionSingleServiceScheduler() { shutdown(); }
+    virtual ~single_service_scheduler() { shutdown(); }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& getIOService(void) { return m_service; }
+    virtual boost::asio::io_service& get_io_service(void) { return m_service; }
     
     /// Starts the thread scheduler (this is called automatically when necessary)
     virtual void startup(void);
@@ -281,26 +281,26 @@ protected:
     
 
 ///
-/// PionOneToOneScheduler: uses a single IO service for each thread
+/// one_to_one_scheduler: uses a single IO service for each thread
 /// 
-class PION_API PionOneToOneScheduler :
-    public PionMultiThreadScheduler
+class PION_API one_to_one_scheduler :
+    public multi_thread_scheduler
 {
 public:
     
-    /// constructs a new PionOneToOneScheduler
-    PionOneToOneScheduler(void)
+    /// constructs a new one_to_one_scheduler
+    one_to_one_scheduler(void)
         : m_service_pool(), m_next_service(0)
     {}
     
     /// virtual destructor
-    virtual ~PionOneToOneScheduler() { shutdown(); }
+    virtual ~one_to_one_scheduler() { shutdown(); }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& getIOService(void) {
+    virtual boost::asio::io_service& get_io_service(void) {
         boost::mutex::scoped_lock scheduler_lock(m_mutex);
         while (m_service_pool.size() < m_num_threads) {
-            boost::shared_ptr<ServicePair>  service_ptr(new ServicePair());
+            boost::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
             m_service_pool.push_back(service_ptr);
         }
         if (++m_next_service >= m_num_threads)
@@ -315,7 +315,7 @@ public:
      *
      * @param n integer number representing the service object
      */
-    virtual boost::asio::io_service& getIOService(boost::uint32_t n) {
+    virtual boost::asio::io_service& get_io_service(boost::uint32_t n) {
         BOOST_ASSERT(n < m_num_threads);
         BOOST_ASSERT(n < m_service_pool.size());
         return m_service_pool[n]->first;
@@ -329,7 +329,7 @@ protected:
     
     /// stops all services used to schedule work
     virtual void stopServices(void) {
-        for (ServicePool::iterator i = m_service_pool.begin(); i != m_service_pool.end(); ++i) {
+        for (service_pool_type::iterator i = m_service_pool.begin(); i != m_service_pool.end(); ++i) {
             (*i)->first.stop();
         }
     }
@@ -339,18 +339,18 @@ protected:
     
 
     /// typedef for a pair object where first is an IO service and second is a deadline timer
-    struct ServicePair {
-        ServicePair(void) : first(), second(first) {}
+    struct service_pair_type {
+        service_pair_type(void) : first(), second(first) {}
         boost::asio::io_service         first;
         boost::asio::deadline_timer     second;
     };
     
     /// typedef for a pool of IO services
-    typedef std::vector<boost::shared_ptr<ServicePair> >        ServicePool;
+    typedef std::vector<boost::shared_ptr<service_pair_type> >        service_pool_type;
 
     
     /// pool of IO services used to schedule work
-    ServicePool                     m_service_pool;
+    service_pool_type                     m_service_pool;
 
     /// the next service to use for scheduling work
     boost::uint32_t                 m_next_service;

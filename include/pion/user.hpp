@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTP_USER_HEADER__
-#define __PION_HTTP_USER_HEADER__
+#ifndef __PION_USER_HEADER__
+#define __PION_USER_HEADER__
 
 #include <map>
 #include <string>
@@ -28,32 +28,32 @@
     #include <openssl/sha.h>
 #endif
 
+
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
 
 
 ///
-/// PionUser: base class to store user credentials
+/// user: base class to store user credentials
 ///
-class PionUser :
+class user :
     private boost::noncopyable
 {
 public:
 
-    /// construct a new PionUser object
-    PionUser(std::string const &username) :
+    /// construct a new user object
+    user(std::string const &username) :
         m_username(username)
     {}
 
-    /// construct a new PionUser object
-    PionUser(std::string const &username, std::string const &password) :
+    /// construct a new user object
+    user(std::string const &username, std::string const &password) :
         m_username(username)
     {
         setPassword(password);
     }
 
     /// virtual destructor
-    virtual ~PionUser() {}
+    virtual ~user() {}
 
     /// returns user name as a string
     std::string const & getUsername() const { return m_username; }
@@ -132,23 +132,23 @@ protected:
 #endif
 };
 
-/// data type for a PionUser  pointer
-typedef boost::shared_ptr<PionUser> PionUserPtr;
+/// data type for a user  pointer
+typedef boost::shared_ptr<user> user_ptr;
 
 
 ///
-/// PionUserManager base class for PionUser container/manager
+/// user_manager base class for user container/manager
 ///
-class PionUserManager :
+class user_manager :
     private boost::noncopyable
 {
 public:
 
-    /// construct a new PionUserManager object
-    PionUserManager(void) {}
+    /// construct a new user_manager object
+    user_manager(void) {}
 
     /// virtual destructor
-    virtual ~PionUserManager() {}
+    virtual ~user_manager() {}
 
     /// returns true if no users are defined
     inline bool empty(void) const {
@@ -168,11 +168,11 @@ public:
         const std::string &password)
     {
         boost::mutex::scoped_lock lock(m_mutex);
-        UserMap::iterator i = m_users.find(username);
+        user_map_t::iterator i = m_users.find(username);
         if (i!=m_users.end())
             return false;
-        PionUserPtr user(new PionUser(username, password));
-        m_users.insert(std::make_pair(username, user));
+        user_ptr user_ptr(new user(username, password));
+        m_users.insert(std::make_pair(username, user_ptr));
         return true;
     }
 
@@ -188,7 +188,7 @@ public:
         const std::string &password)
     {
         boost::mutex::scoped_lock lock(m_mutex);
-        UserMap::iterator i = m_users.find(username);
+        user_map_t::iterator i = m_users.find(username);
         if (i==m_users.end())
             return false;
         i->second->setPassword(password);
@@ -208,12 +208,12 @@ public:
         const std::string &password_hash)
     {
         boost::mutex::scoped_lock lock(m_mutex);
-        UserMap::iterator i = m_users.find(username);
+        user_map_t::iterator i = m_users.find(username);
         if (i!=m_users.end())
             return false;
-        PionUserPtr user(new PionUser(username));
-        user->setPasswordHash(password_hash);
-        m_users.insert(std::make_pair(username, user));
+        user_ptr user_ptr(new user(username));
+        user_ptr->setPasswordHash(password_hash);
+        m_users.insert(std::make_pair(username, user_ptr));
         return true;
     }
 
@@ -229,7 +229,7 @@ public:
         const std::string &password_hash)
     {
         boost::mutex::scoped_lock lock(m_mutex);
-        UserMap::iterator i = m_users.find(username);
+        user_map_t::iterator i = m_users.find(username);
         if (i==m_users.end())
             return false;
         i->second->setPasswordHash(password_hash);
@@ -244,7 +244,7 @@ public:
      */
     virtual bool removeUser(const std::string &username) {
         boost::mutex::scoped_lock lock(m_mutex);
-        UserMap::iterator i = m_users.find(username);
+        user_map_t::iterator i = m_users.find(username);
         if (i==m_users.end())
             return false;
         m_users.erase(i);
@@ -254,11 +254,11 @@ public:
     /**
      * Used to locate user object by username
      */
-    virtual PionUserPtr getUser(const std::string &username) {
+    virtual user_ptr getUser(const std::string &username) {
         boost::mutex::scoped_lock lock(m_mutex);
-        UserMap::const_iterator i = m_users.find(username);
+        user_map_t::const_iterator i = m_users.find(username);
         if (i==m_users.end())
-            return PionUserPtr();
+            return user_ptr();
         else
             return i->second;
     }
@@ -266,11 +266,11 @@ public:
     /**
      * Used to locate user object by username and password
      */
-    virtual PionUserPtr getUser(const std::string& username, const std::string& password) {
+    virtual user_ptr getUser(const std::string& username, const std::string& password) {
         boost::mutex::scoped_lock lock(m_mutex);
-        UserMap::const_iterator i = m_users.find(username);
+        user_map_t::const_iterator i = m_users.find(username);
         if (i==m_users.end() || !i->second->matchPassword(password))
-            return PionUserPtr();
+            return user_ptr();
         else
             return i->second;
     }
@@ -279,21 +279,20 @@ public:
 protected:
 
     /// data type for a map of usernames to user objects
-    typedef std::map<std::string, PionUserPtr>  UserMap;
+    typedef std::map<std::string, user_ptr>  user_map_t;
 
 
     /// mutex used to protect access to the user list
-    mutable boost::mutex        m_mutex;
+    mutable boost::mutex	m_mutex;
 
     /// user records container
-    UserMap                     m_users;
+    user_map_t				m_users;
 };
 
-/// data type for a PionUserManager pointer
-typedef boost::shared_ptr<PionUserManager>  PionUserManagerPtr;
+/// data type for a user_manager pointer
+typedef boost::shared_ptr<user_manager>  user_manager_ptr;
 
 
-}   // end namespace net
 }   // end namespace pion
 
 #endif

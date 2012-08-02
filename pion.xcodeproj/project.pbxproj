@@ -17,7 +17,6 @@
 		E35CCE6A15BF2D0E00D76F6C /* plugin.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5F15BF2D0E00D76F6C /* plugin.hpp */; };
 		E35CCE6B15BF2D0E00D76F6C /* process.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE6015BF2D0E00D76F6C /* process.hpp */; };
 		E35CCE6C15BF2D0E00D76F6C /* scheduler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE6115BF2D0E00D76F6C /* scheduler.hpp */; };
-		E35CCE6D15BF2D0E00D76F6C /* unit_test_defs.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE6215BF2D0E00D76F6C /* unit_test_defs.hpp */; };
 		E35CCE7415BF2D4700D76F6C /* connection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7015BF2D4700D76F6C /* connection.hpp */; };
 		E35CCE7515BF2D4700D76F6C /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7115BF2D4700D76F6C /* server.hpp */; };
 		E35CCE7615BF2D4700D76F6C /* stream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7215BF2D4700D76F6C /* stream.hpp */; };
@@ -38,7 +37,6 @@
 		E35CCE9715BF2D5B00D76F6C /* response.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8515BF2D5B00D76F6C /* response.hpp */; };
 		E35CCE9815BF2D5B00D76F6C /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8615BF2D5B00D76F6C /* server.hpp */; };
 		E35CCE9915BF2D5B00D76F6C /* types.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8715BF2D5B00D76F6C /* types.hpp */; };
-		E35CCE9A15BF2D5B00D76F6C /* user.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8815BF2D5B00D76F6C /* user.hpp */; };
 		E35CCE9B15BF2D5B00D76F6C /* writer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8915BF2D5B00D76F6C /* writer.hpp */; };
 		E35CCEAE15BF2D8A00D76F6C /* admin_rights.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9C15BF2D8A00D76F6C /* admin_rights.cpp */; };
 		E35CCEAF15BF2D8A00D76F6C /* algorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9D15BF2D8A00D76F6C /* algorithm.cpp */; };
@@ -89,23 +87,25 @@
 		E35CCF5115BF307100D76F6C /* LogService.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCECB15BF2DB500D76F6C /* LogService.hpp */; };
 		E35CCF5215BF307400D76F6C /* LogService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCECA15BF2DB500D76F6C /* LogService.cpp */; };
 		E35CCF5315BF307B00D76F6C /* piond.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCECD15BF2DC800D76F6C /* piond.cpp */; };
-		E35CCF5415BF30A300D76F6C /* algorithm_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCECE15BF2DE500D76F6C /* algorithm_tests.cpp */; };
-		E35CCF5515BF30A300D76F6C /* file_service_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCECF15BF2DE500D76F6C /* file_service_tests.cpp */; };
-		E35CCF5615BF30A300D76F6C /* http_message_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED015BF2DE500D76F6C /* http_message_tests.cpp */; };
-		E35CCF5715BF30A300D76F6C /* http_parser_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED115BF2DE500D76F6C /* http_parser_tests.cpp */; };
-		E35CCF5815BF30A300D76F6C /* http_plugin_server_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED215BF2DE500D76F6C /* http_plugin_server_tests.cpp */; };
-		E35CCF5915BF30A300D76F6C /* http_request_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED315BF2DE500D76F6C /* http_request_tests.cpp */; };
-		E35CCF5A15BF30A300D76F6C /* http_response_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED415BF2DE500D76F6C /* http_response_tests.cpp */; };
 		E35CCF5B15BF30A300D76F6C /* http_types_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED515BF2DE500D76F6C /* http_types_tests.cpp */; };
-		E35CCF5C15BF30A300D76F6C /* piontests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED615BF2DE500D76F6C /* piontests.cpp */; };
-		E35CCF5D15BF30A300D76F6C /* plugin_manager_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED715BF2DE500D76F6C /* plugin_manager_tests.cpp */; };
-		E35CCF5E15BF30A300D76F6C /* plugin_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED815BF2DE500D76F6C /* plugin_tests.cpp */; };
-		E35CCF5F15BF30A300D76F6C /* tcp_server_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED915BF2DE500D76F6C /* tcp_server_tests.cpp */; };
-		E35CCF6015BF30A300D76F6C /* tcp_stream_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEDA15BF2DE500D76F6C /* tcp_stream_tests.cpp */; };
 		E35CCF6715BF30AA00D76F6C /* libpion.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E36D8A5F0D29C9D800B4C134 /* libpion.dylib */; };
 		E35CCF6D15BF30BE00D76F6C /* helloserver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCECC15BF2DC800D76F6C /* helloserver.cpp */; };
 		E36D8BF40D29D72200B4C134 /* libpion.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E36D8A5F0D29C9D800B4C134 /* libpion.dylib */; };
 		E370CF3B158E700F00E46EE9 /* libpion.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E36D8A5F0D29C9D800B4C134 /* libpion.dylib */; };
+		E3A00AEA15CC740A00F79569 /* user.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E3A00AE915CC740A00F79569 /* user.hpp */; };
+		E3A1AE3215C878E100FFE9E3 /* piontests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED615BF2DE500D76F6C /* piontests.cpp */; };
+		E3A1AE3315C87FD500FFE9E3 /* algorithm_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCECE15BF2DE500D76F6C /* algorithm_tests.cpp */; };
+		E3A1AE3415C87FD500FFE9E3 /* file_service_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCECF15BF2DE500D76F6C /* file_service_tests.cpp */; };
+		E3A1AE3515C87FD500FFE9E3 /* http_message_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED015BF2DE500D76F6C /* http_message_tests.cpp */; };
+		E3A1AE3615C87FD500FFE9E3 /* http_parser_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED115BF2DE500D76F6C /* http_parser_tests.cpp */; };
+		E3A1AE3715C87FD500FFE9E3 /* http_plugin_server_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED215BF2DE500D76F6C /* http_plugin_server_tests.cpp */; };
+		E3A1AE3815C87FD500FFE9E3 /* http_request_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED315BF2DE500D76F6C /* http_request_tests.cpp */; };
+		E3A1AE3915C87FD500FFE9E3 /* http_response_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED415BF2DE500D76F6C /* http_response_tests.cpp */; };
+		E3A1AE3A15C87FD500FFE9E3 /* plugin_manager_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED715BF2DE500D76F6C /* plugin_manager_tests.cpp */; };
+		E3A1AE3B15C87FD500FFE9E3 /* plugin_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED815BF2DE500D76F6C /* plugin_tests.cpp */; };
+		E3A1AE3C15C87FD500FFE9E3 /* tcp_server_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED915BF2DE500D76F6C /* tcp_server_tests.cpp */; };
+		E3A1AE3D15C87FD500FFE9E3 /* tcp_stream_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEDA15BF2DE500D76F6C /* tcp_stream_tests.cpp */; };
+		E3B5EA9A15C896050023988F /* unit_test.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E3B5EA9915C896050023988F /* unit_test.hpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -200,82 +200,80 @@
 		E35CCE5815BF2D0E00D76F6C /* admin_rights.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = admin_rights.hpp; path = include/pion/admin_rights.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE5915BF2D0E00D76F6C /* algorithm.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = algorithm.hpp; path = include/pion/algorithm.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE5A15BF2D0E00D76F6C /* config.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = config.hpp; path = include/pion/config.hpp; sourceTree = "<group>"; };
-		E35CCE5C15BF2D0E00D76F6C /* hash_map.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = hash_map.hpp; path = include/pion/hash_map.hpp; sourceTree = "<group>"; };
+		E35CCE5C15BF2D0E00D76F6C /* hash_map.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = hash_map.hpp; path = include/pion/hash_map.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE5D15BF2D0E00D76F6C /* logger.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = logger.hpp; path = include/pion/logger.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE5E15BF2D0E00D76F6C /* plugin_manager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = plugin_manager.hpp; path = include/pion/plugin_manager.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE5F15BF2D0E00D76F6C /* plugin.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = plugin.hpp; path = include/pion/plugin.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE6015BF2D0E00D76F6C /* process.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = process.hpp; path = include/pion/process.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE6115BF2D0E00D76F6C /* scheduler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = scheduler.hpp; path = include/pion/scheduler.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E35CCE6215BF2D0E00D76F6C /* unit_test_defs.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = unit_test_defs.hpp; path = include/pion/unit_test_defs.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E35CCE7015BF2D4700D76F6C /* connection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = connection.hpp; path = include/pion/tcp/connection.hpp; sourceTree = "<group>"; };
-		E35CCE7115BF2D4700D76F6C /* server.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = server.hpp; path = include/pion/tcp/server.hpp; sourceTree = "<group>"; };
+		E35CCE7015BF2D4700D76F6C /* connection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = connection.hpp; path = include/pion/tcp/connection.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE7115BF2D4700D76F6C /* server.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = server.hpp; path = include/pion/tcp/server.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE7215BF2D4700D76F6C /* stream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = stream.hpp; path = include/pion/tcp/stream.hpp; sourceTree = "<group>"; };
 		E35CCE7315BF2D4700D76F6C /* timer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = timer.hpp; path = include/pion/tcp/timer.hpp; sourceTree = "<group>"; };
 		E35CCE7815BF2D5B00D76F6C /* auth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = auth.hpp; path = include/pion/http/auth.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E35CCE7915BF2D5B00D76F6C /* basic_auth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = basic_auth.hpp; path = include/pion/http/basic_auth.hpp; sourceTree = "<group>"; };
-		E35CCE7A15BF2D5B00D76F6C /* cookie_auth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = cookie_auth.hpp; path = include/pion/http/cookie_auth.hpp; sourceTree = "<group>"; };
-		E35CCE7B15BF2D5B00D76F6C /* message.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = message.hpp; path = include/pion/http/message.hpp; sourceTree = "<group>"; };
-		E35CCE7C15BF2D5B00D76F6C /* parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = parser.hpp; path = include/pion/http/parser.hpp; sourceTree = "<group>"; };
+		E35CCE7915BF2D5B00D76F6C /* basic_auth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = basic_auth.hpp; path = include/pion/http/basic_auth.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE7A15BF2D5B00D76F6C /* cookie_auth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = cookie_auth.hpp; path = include/pion/http/cookie_auth.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE7B15BF2D5B00D76F6C /* message.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = message.hpp; path = include/pion/http/message.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE7C15BF2D5B00D76F6C /* parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = parser.hpp; path = include/pion/http/parser.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE7D15BF2D5B00D76F6C /* plugin_server.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = plugin_server.hpp; path = include/pion/http/plugin_server.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE7E15BF2D5B00D76F6C /* plugin_service.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = plugin_service.hpp; path = include/pion/http/plugin_service.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E35CCE7F15BF2D5B00D76F6C /* reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = reader.hpp; path = include/pion/http/reader.hpp; sourceTree = "<group>"; };
-		E35CCE8015BF2D5B00D76F6C /* request_reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = request_reader.hpp; path = include/pion/http/request_reader.hpp; sourceTree = "<group>"; };
-		E35CCE8115BF2D5B00D76F6C /* request_writer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = request_writer.hpp; path = include/pion/http/request_writer.hpp; sourceTree = "<group>"; };
-		E35CCE8215BF2D5B00D76F6C /* request.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = request.hpp; path = include/pion/http/request.hpp; sourceTree = "<group>"; };
-		E35CCE8315BF2D5B00D76F6C /* response_reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = response_reader.hpp; path = include/pion/http/response_reader.hpp; sourceTree = "<group>"; };
-		E35CCE8415BF2D5B00D76F6C /* response_writer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = response_writer.hpp; path = include/pion/http/response_writer.hpp; sourceTree = "<group>"; };
-		E35CCE8515BF2D5B00D76F6C /* response.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = response.hpp; path = include/pion/http/response.hpp; sourceTree = "<group>"; };
-		E35CCE8615BF2D5B00D76F6C /* server.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = server.hpp; path = include/pion/http/server.hpp; sourceTree = "<group>"; };
-		E35CCE8715BF2D5B00D76F6C /* types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = types.hpp; path = include/pion/http/types.hpp; sourceTree = "<group>"; };
-		E35CCE8815BF2D5B00D76F6C /* user.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = user.hpp; path = include/pion/http/user.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E35CCE8915BF2D5B00D76F6C /* writer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = writer.hpp; path = include/pion/http/writer.hpp; sourceTree = "<group>"; };
+		E35CCE7F15BF2D5B00D76F6C /* reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = reader.hpp; path = include/pion/http/reader.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE8015BF2D5B00D76F6C /* request_reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = request_reader.hpp; path = include/pion/http/request_reader.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE8115BF2D5B00D76F6C /* request_writer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = request_writer.hpp; path = include/pion/http/request_writer.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE8215BF2D5B00D76F6C /* request.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = request.hpp; path = include/pion/http/request.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE8315BF2D5B00D76F6C /* response_reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = response_reader.hpp; path = include/pion/http/response_reader.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE8415BF2D5B00D76F6C /* response_writer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = response_writer.hpp; path = include/pion/http/response_writer.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE8515BF2D5B00D76F6C /* response.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = response.hpp; path = include/pion/http/response.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE8615BF2D5B00D76F6C /* server.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = server.hpp; path = include/pion/http/server.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE8715BF2D5B00D76F6C /* types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = types.hpp; path = include/pion/http/types.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE8915BF2D5B00D76F6C /* writer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = writer.hpp; path = include/pion/http/writer.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE9C15BF2D8A00D76F6C /* admin_rights.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = admin_rights.cpp; path = src/admin_rights.cpp; sourceTree = "<group>"; };
-		E35CCE9D15BF2D8A00D76F6C /* algorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = algorithm.cpp; path = src/algorithm.cpp; sourceTree = "<group>"; };
-		E35CCE9E15BF2D8A00D76F6C /* http_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_auth.cpp; path = src/http_auth.cpp; sourceTree = "<group>"; };
-		E35CCE9F15BF2D8A00D76F6C /* http_basic_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_basic_auth.cpp; path = src/http_basic_auth.cpp; sourceTree = "<group>"; };
-		E35CCEA015BF2D8A00D76F6C /* http_cookie_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_cookie_auth.cpp; path = src/http_cookie_auth.cpp; sourceTree = "<group>"; };
+		E35CCE9D15BF2D8A00D76F6C /* algorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = algorithm.cpp; path = src/algorithm.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE9E15BF2D8A00D76F6C /* http_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_auth.cpp; path = src/http_auth.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCE9F15BF2D8A00D76F6C /* http_basic_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_basic_auth.cpp; path = src/http_basic_auth.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEA015BF2D8A00D76F6C /* http_cookie_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_cookie_auth.cpp; path = src/http_cookie_auth.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCEA115BF2D8A00D76F6C /* http_message.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_message.cpp; path = src/http_message.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCEA215BF2D8A00D76F6C /* http_parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_parser.cpp; path = src/http_parser.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E35CCEA315BF2D8A00D76F6C /* http_plugin_server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_plugin_server.cpp; path = src/http_plugin_server.cpp; sourceTree = "<group>"; };
-		E35CCEA415BF2D8A00D76F6C /* http_reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_reader.cpp; path = src/http_reader.cpp; sourceTree = "<group>"; };
-		E35CCEA515BF2D8A00D76F6C /* http_server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_server.cpp; path = src/http_server.cpp; sourceTree = "<group>"; };
-		E35CCEA615BF2D8A00D76F6C /* http_types.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_types.cpp; path = src/http_types.cpp; sourceTree = "<group>"; };
-		E35CCEA715BF2D8A00D76F6C /* http_writer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_writer.cpp; path = src/http_writer.cpp; sourceTree = "<group>"; };
-		E35CCEA815BF2D8A00D76F6C /* logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = logger.cpp; path = src/logger.cpp; sourceTree = "<group>"; };
+		E35CCEA315BF2D8A00D76F6C /* http_plugin_server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_plugin_server.cpp; path = src/http_plugin_server.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEA415BF2D8A00D76F6C /* http_reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_reader.cpp; path = src/http_reader.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEA515BF2D8A00D76F6C /* http_server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_server.cpp; path = src/http_server.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEA615BF2D8A00D76F6C /* http_types.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_types.cpp; path = src/http_types.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEA715BF2D8A00D76F6C /* http_writer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_writer.cpp; path = src/http_writer.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEA815BF2D8A00D76F6C /* logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = logger.cpp; path = src/logger.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCEA915BF2D8A00D76F6C /* plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = plugin.cpp; path = src/plugin.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E35CCEAA15BF2D8A00D76F6C /* process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = process.cpp; path = src/process.cpp; sourceTree = "<group>"; };
-		E35CCEAB15BF2D8A00D76F6C /* scheduler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scheduler.cpp; path = src/scheduler.cpp; sourceTree = "<group>"; };
-		E35CCEAC15BF2D8A00D76F6C /* tcp_server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tcp_server.cpp; path = src/tcp_server.cpp; sourceTree = "<group>"; };
+		E35CCEAA15BF2D8A00D76F6C /* process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = process.cpp; path = src/process.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEAB15BF2D8A00D76F6C /* scheduler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = scheduler.cpp; path = src/scheduler.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEAC15BF2D8A00D76F6C /* tcp_server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = tcp_server.cpp; path = src/tcp_server.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCEAD15BF2D8A00D76F6C /* tcp_timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tcp_timer.cpp; path = src/tcp_timer.cpp; sourceTree = "<group>"; };
-		E35CCEC015BF2DB500D76F6C /* AllowNothingService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AllowNothingService.cpp; path = services/AllowNothingService.cpp; sourceTree = "<group>"; };
-		E35CCEC115BF2DB500D76F6C /* AllowNothingService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = AllowNothingService.hpp; path = services/AllowNothingService.hpp; sourceTree = "<group>"; };
-		E35CCEC215BF2DB500D76F6C /* CookieService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CookieService.cpp; path = services/CookieService.cpp; sourceTree = "<group>"; };
-		E35CCEC315BF2DB500D76F6C /* CookieService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = CookieService.hpp; path = services/CookieService.hpp; sourceTree = "<group>"; };
-		E35CCEC415BF2DB500D76F6C /* EchoService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EchoService.cpp; path = services/EchoService.cpp; sourceTree = "<group>"; };
-		E35CCEC515BF2DB500D76F6C /* EchoService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = EchoService.hpp; path = services/EchoService.hpp; sourceTree = "<group>"; };
-		E35CCEC615BF2DB500D76F6C /* FileService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FileService.cpp; path = services/FileService.cpp; sourceTree = "<group>"; };
+		E35CCEC015BF2DB500D76F6C /* AllowNothingService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = AllowNothingService.cpp; path = services/AllowNothingService.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEC115BF2DB500D76F6C /* AllowNothingService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = AllowNothingService.hpp; path = services/AllowNothingService.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEC215BF2DB500D76F6C /* CookieService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = CookieService.cpp; path = services/CookieService.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEC315BF2DB500D76F6C /* CookieService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = CookieService.hpp; path = services/CookieService.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEC415BF2DB500D76F6C /* EchoService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = EchoService.cpp; path = services/EchoService.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEC515BF2DB500D76F6C /* EchoService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = EchoService.hpp; path = services/EchoService.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEC615BF2DB500D76F6C /* FileService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = FileService.cpp; path = services/FileService.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCEC715BF2DB500D76F6C /* FileService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = FileService.hpp; path = services/FileService.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E35CCEC815BF2DB500D76F6C /* HelloService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HelloService.cpp; path = services/HelloService.cpp; sourceTree = "<group>"; };
-		E35CCEC915BF2DB500D76F6C /* HelloService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = HelloService.hpp; path = services/HelloService.hpp; sourceTree = "<group>"; };
-		E35CCECA15BF2DB500D76F6C /* LogService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LogService.cpp; path = services/LogService.cpp; sourceTree = "<group>"; };
-		E35CCECB15BF2DB500D76F6C /* LogService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = LogService.hpp; path = services/LogService.hpp; sourceTree = "<group>"; };
-		E35CCECC15BF2DC800D76F6C /* helloserver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = helloserver.cpp; path = utils/helloserver.cpp; sourceTree = "<group>"; };
-		E35CCECD15BF2DC800D76F6C /* piond.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = piond.cpp; path = utils/piond.cpp; sourceTree = "<group>"; };
-		E35CCECE15BF2DE500D76F6C /* algorithm_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = algorithm_tests.cpp; path = tests/algorithm_tests.cpp; sourceTree = "<group>"; };
-		E35CCECF15BF2DE500D76F6C /* file_service_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = file_service_tests.cpp; path = tests/file_service_tests.cpp; sourceTree = "<group>"; };
-		E35CCED015BF2DE500D76F6C /* http_message_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = http_message_tests.cpp; path = tests/http_message_tests.cpp; sourceTree = "<group>"; };
-		E35CCED115BF2DE500D76F6C /* http_parser_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = http_parser_tests.cpp; path = tests/http_parser_tests.cpp; sourceTree = "<group>"; };
-		E35CCED215BF2DE500D76F6C /* http_plugin_server_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = http_plugin_server_tests.cpp; path = tests/http_plugin_server_tests.cpp; sourceTree = "<group>"; };
-		E35CCED315BF2DE500D76F6C /* http_request_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = http_request_tests.cpp; path = tests/http_request_tests.cpp; sourceTree = "<group>"; };
-		E35CCED415BF2DE500D76F6C /* http_response_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = http_response_tests.cpp; path = tests/http_response_tests.cpp; sourceTree = "<group>"; };
-		E35CCED515BF2DE500D76F6C /* http_types_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = http_types_tests.cpp; path = tests/http_types_tests.cpp; sourceTree = "<group>"; };
-		E35CCED615BF2DE500D76F6C /* piontests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = piontests.cpp; path = tests/piontests.cpp; sourceTree = "<group>"; };
-		E35CCED715BF2DE500D76F6C /* plugin_manager_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = plugin_manager_tests.cpp; path = tests/plugin_manager_tests.cpp; sourceTree = "<group>"; };
-		E35CCED815BF2DE500D76F6C /* plugin_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = plugin_tests.cpp; path = tests/plugin_tests.cpp; sourceTree = "<group>"; };
-		E35CCED915BF2DE500D76F6C /* tcp_server_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tcp_server_tests.cpp; path = tests/tcp_server_tests.cpp; sourceTree = "<group>"; };
-		E35CCEDA15BF2DE500D76F6C /* tcp_stream_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tcp_stream_tests.cpp; path = tests/tcp_stream_tests.cpp; sourceTree = "<group>"; };
+		E35CCEC815BF2DB500D76F6C /* HelloService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = HelloService.cpp; path = services/HelloService.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEC915BF2DB500D76F6C /* HelloService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = HelloService.hpp; path = services/HelloService.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCECA15BF2DB500D76F6C /* LogService.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = LogService.cpp; path = services/LogService.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCECB15BF2DB500D76F6C /* LogService.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = LogService.hpp; path = services/LogService.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCECC15BF2DC800D76F6C /* helloserver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = helloserver.cpp; path = utils/helloserver.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCECD15BF2DC800D76F6C /* piond.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = piond.cpp; path = utils/piond.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCECE15BF2DE500D76F6C /* algorithm_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = algorithm_tests.cpp; path = tests/algorithm_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCECF15BF2DE500D76F6C /* file_service_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = file_service_tests.cpp; path = tests/file_service_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED015BF2DE500D76F6C /* http_message_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_message_tests.cpp; path = tests/http_message_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED115BF2DE500D76F6C /* http_parser_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_parser_tests.cpp; path = tests/http_parser_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED215BF2DE500D76F6C /* http_plugin_server_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_plugin_server_tests.cpp; path = tests/http_plugin_server_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED315BF2DE500D76F6C /* http_request_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_request_tests.cpp; path = tests/http_request_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED415BF2DE500D76F6C /* http_response_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_response_tests.cpp; path = tests/http_response_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED515BF2DE500D76F6C /* http_types_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = http_types_tests.cpp; path = tests/http_types_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED615BF2DE500D76F6C /* piontests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = piontests.cpp; path = tests/piontests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED715BF2DE500D76F6C /* plugin_manager_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = plugin_manager_tests.cpp; path = tests/plugin_manager_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED815BF2DE500D76F6C /* plugin_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = plugin_tests.cpp; path = tests/plugin_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCED915BF2DE500D76F6C /* tcp_server_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = tcp_server_tests.cpp; path = tests/tcp_server_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E35CCEDA15BF2DE500D76F6C /* tcp_stream_tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = tcp_stream_tests.cpp; path = tests/tcp_stream_tests.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCEDC15BF2E4100D76F6C /* hasCreateAndDestroy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = hasCreateAndDestroy.cpp; path = tests/plugins/hasCreateAndDestroy.cpp; sourceTree = "<group>"; };
-		E35CCEDD15BF2E4100D76F6C /* hasCreateAndDestroy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = hasCreateAndDestroy.hpp; path = tests/plugins/hasCreateAndDestroy.hpp; sourceTree = "<group>"; };
+		E35CCEDD15BF2E4100D76F6C /* hasCreateAndDestroy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = hasCreateAndDestroy.hpp; path = tests/plugins/hasCreateAndDestroy.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCEDE15BF2E4100D76F6C /* hasCreateButNoDestroy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = hasCreateButNoDestroy.cpp; path = tests/plugins/hasCreateButNoDestroy.cpp; sourceTree = "<group>"; };
 		E35CCEDF15BF2E4100D76F6C /* hasCreateButNoDestroy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = hasCreateButNoDestroy.hpp; path = tests/plugins/hasCreateButNoDestroy.hpp; sourceTree = "<group>"; };
 		E35CCEE015BF2E4100D76F6C /* hasNoCreate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = hasNoCreate.cpp; path = tests/plugins/hasNoCreate.cpp; sourceTree = "<group>"; };
@@ -295,6 +293,8 @@
 		E36D8BE70D29D6DC00B4C134 /* piond */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piond; sourceTree = BUILT_PRODUCTS_DIR; };
 		E370CEC0158D962700E46EE9 /* piontests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piontests; sourceTree = BUILT_PRODUCTS_DIR; };
 		E370CF30158E6C1A00E46EE9 /* hasCreateButNoDestroy.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = hasCreateButNoDestroy.so; sourceTree = BUILT_PRODUCTS_DIR; };
+		E3A00AE915CC740A00F79569 /* user.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = user.hpp; path = include/pion/user.hpp; sourceTree = "<group>"; };
+		E3B5EA9915C896050023988F /* unit_test.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = unit_test.hpp; path = include/pion/test/unit_test.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -440,8 +440,9 @@
 		E35CCE5315BF2CAF00D76F6C /* include */ = {
 			isa = PBXGroup;
 			children = (
-				E35CCE6F15BF2D1800D76F6C /* http */,
 				E35CCE6E15BF2D1300D76F6C /* tcp */,
+				E35CCE6F15BF2D1800D76F6C /* http */,
+				E3B5EA9715C895E00023988F /* test */,
 				E35CCE5815BF2D0E00D76F6C /* admin_rights.hpp */,
 				E35CCE5915BF2D0E00D76F6C /* algorithm.hpp */,
 				E35CCE5A15BF2D0E00D76F6C /* config.hpp */,
@@ -452,7 +453,7 @@
 				E35CCE5E15BF2D0E00D76F6C /* plugin_manager.hpp */,
 				E35CCE6015BF2D0E00D76F6C /* process.hpp */,
 				E35CCE6115BF2D0E00D76F6C /* scheduler.hpp */,
-				E35CCE6215BF2D0E00D76F6C /* unit_test_defs.hpp */,
+				E3A00AE915CC740A00F79569 /* user.hpp */,
 			);
 			name = include;
 			sourceTree = "<group>";
@@ -562,7 +563,6 @@
 				E35CCE8515BF2D5B00D76F6C /* response.hpp */,
 				E35CCE8615BF2D5B00D76F6C /* server.hpp */,
 				E35CCE8715BF2D5B00D76F6C /* types.hpp */,
-				E35CCE8815BF2D5B00D76F6C /* user.hpp */,
 				E35CCE8915BF2D5B00D76F6C /* writer.hpp */,
 			);
 			name = http;
@@ -588,6 +588,14 @@
 				E35CCFB115BF3AB600D76F6C /* testservices.conf */,
 			);
 			name = config;
+			sourceTree = "<group>";
+		};
+		E3B5EA9715C895E00023988F /* test */ = {
+			isa = PBXGroup;
+			children = (
+				E3B5EA9915C896050023988F /* unit_test.hpp */,
+			);
+			name = test;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -672,7 +680,6 @@
 				E35CCE6A15BF2D0E00D76F6C /* plugin.hpp in Headers */,
 				E35CCE6B15BF2D0E00D76F6C /* process.hpp in Headers */,
 				E35CCE6C15BF2D0E00D76F6C /* scheduler.hpp in Headers */,
-				E35CCE6D15BF2D0E00D76F6C /* unit_test_defs.hpp in Headers */,
 				E35CCE7415BF2D4700D76F6C /* connection.hpp in Headers */,
 				E35CCE7515BF2D4700D76F6C /* server.hpp in Headers */,
 				E35CCE7615BF2D4700D76F6C /* stream.hpp in Headers */,
@@ -693,9 +700,9 @@
 				E35CCE9715BF2D5B00D76F6C /* response.hpp in Headers */,
 				E35CCE9815BF2D5B00D76F6C /* server.hpp in Headers */,
 				E35CCE9915BF2D5B00D76F6C /* types.hpp in Headers */,
-				E35CCE9A15BF2D5B00D76F6C /* user.hpp in Headers */,
 				E35CCE9B15BF2D5B00D76F6C /* writer.hpp in Headers */,
 				E31BC82715C1D24600168895 /* error.hpp in Headers */,
+				E3A00AEA15CC740A00F79569 /* user.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -703,6 +710,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E3B5EA9A15C896050023988F /* unit_test.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -883,6 +891,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E36D8A9F0D29CB0F00B4C134 /* Build configuration list for PBXNativeTarget "pion: dynamic" */;
 			buildPhases = (
+				E374024E15CEF78A00208977 /* ShellScript */,
 				E36D8A5B0D29C9D800B4C134 /* Headers */,
 				E36D8A5C0D29C9D800B4C134 /* Sources */,
 				E36D8A5D0D29C9D800B4C134 /* Frameworks */,
@@ -955,7 +964,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0440;
 			};
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "pion" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -984,6 +993,22 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E374024E15CEF78A00208977 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ ! -f \"${PROJECT_DIR}/include/pion/config.hpp\" ]; then\n    cp ${PROJECT_DIR}/include/pion/config.hpp.xcode ${PROJECT_DIR}/include/pion/config.hpp\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E35CCEE515BF2EE100D76F6C /* Sources */ = {
@@ -1095,19 +1120,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E35CCF5415BF30A300D76F6C /* algorithm_tests.cpp in Sources */,
-				E35CCF5515BF30A300D76F6C /* file_service_tests.cpp in Sources */,
-				E35CCF5615BF30A300D76F6C /* http_message_tests.cpp in Sources */,
-				E35CCF5715BF30A300D76F6C /* http_parser_tests.cpp in Sources */,
-				E35CCF5815BF30A300D76F6C /* http_plugin_server_tests.cpp in Sources */,
-				E35CCF5915BF30A300D76F6C /* http_request_tests.cpp in Sources */,
-				E35CCF5A15BF30A300D76F6C /* http_response_tests.cpp in Sources */,
+				E3A1AE3315C87FD500FFE9E3 /* algorithm_tests.cpp in Sources */,
+				E3A1AE3415C87FD500FFE9E3 /* file_service_tests.cpp in Sources */,
+				E3A1AE3515C87FD500FFE9E3 /* http_message_tests.cpp in Sources */,
+				E3A1AE3615C87FD500FFE9E3 /* http_parser_tests.cpp in Sources */,
+				E3A1AE3715C87FD500FFE9E3 /* http_plugin_server_tests.cpp in Sources */,
+				E3A1AE3815C87FD500FFE9E3 /* http_request_tests.cpp in Sources */,
+				E3A1AE3915C87FD500FFE9E3 /* http_response_tests.cpp in Sources */,
+				E3A1AE3A15C87FD500FFE9E3 /* plugin_manager_tests.cpp in Sources */,
+				E3A1AE3B15C87FD500FFE9E3 /* plugin_tests.cpp in Sources */,
+				E3A1AE3C15C87FD500FFE9E3 /* tcp_server_tests.cpp in Sources */,
+				E3A1AE3D15C87FD500FFE9E3 /* tcp_stream_tests.cpp in Sources */,
+				E3A1AE3215C878E100FFE9E3 /* piontests.cpp in Sources */,
 				E35CCF5B15BF30A300D76F6C /* http_types_tests.cpp in Sources */,
-				E35CCF5C15BF30A300D76F6C /* piontests.cpp in Sources */,
-				E35CCF5D15BF30A300D76F6C /* plugin_manager_tests.cpp in Sources */,
-				E35CCF5E15BF30A300D76F6C /* plugin_tests.cpp in Sources */,
-				E35CCF5F15BF30A300D76F6C /* tcp_server_tests.cpp in Sources */,
-				E35CCF6015BF30A300D76F6C /* tcp_stream_tests.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1279,6 +1304,7 @@
 		E35CCEE815BF2EE100D76F6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1289,6 +1315,7 @@
 		E35CCEE915BF2EE100D76F6C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1299,6 +1326,7 @@
 		E35CCEF015BF2EFB00D76F6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1309,6 +1337,7 @@
 		E35CCEF115BF2EFB00D76F6C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1319,6 +1348,7 @@
 		E35CCEF815BF2F0800D76F6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1329,6 +1359,7 @@
 		E35CCEF915BF2F0800D76F6C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1339,6 +1370,7 @@
 		E35CCF0015BF2F1300D76F6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1349,6 +1381,7 @@
 		E35CCF0115BF2F1300D76F6C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1359,6 +1392,7 @@
 		E35CCF0815BF2F1E00D76F6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1369,6 +1403,7 @@
 		E35CCF0915BF2F1E00D76F6C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1379,6 +1414,7 @@
 		E35CCF1015BF2F2900D76F6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1389,6 +1425,7 @@
 		E35CCF1115BF2F2900D76F6C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1399,6 +1436,7 @@
 		E35CCF1815BF2F5700D76F6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1409,6 +1447,7 @@
 		E35CCF1915BF2F5700D76F6C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1419,6 +1458,7 @@
 		E35CCF2015BF2F6F00D76F6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1429,6 +1469,7 @@
 		E35CCF2115BF2F6F00D76F6C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1455,6 +1496,7 @@
 		E36D8A600D29C9D900B4C134 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = pion;
@@ -1464,6 +1506,7 @@
 		E36D8A610D29C9D900B4C134 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = pion;
@@ -1531,6 +1574,7 @@
 		E370CF2E158E6C1A00E46EE9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
@@ -1541,6 +1585,7 @@
 		E370CF2F158E6C1A00E46EE9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				INSTALL_PATH = /usr/local/share/pion/plugins;
