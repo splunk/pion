@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_TCPSERVER_HEADER__
-#define __PION_TCPSERVER_HEADER__
+#ifndef __PION_TCP_SERVER_HEADER__
+#define __PION_TCP_SERVER_HEADER__
 
 #include <set>
 #include <boost/asio.hpp>
@@ -23,18 +23,19 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace tcp {     // begin namespace tcp
+
 
 ///
-/// TCPServer: a multi-threaded, asynchronous TCP server
+/// tcp::server: a multi-threaded, asynchronous TCP server
 /// 
-class PION_NET_API TCPServer :
+class PION_API server :
     private boost::noncopyable
 {
 public:
 
     /// default destructor
-    virtual ~TCPServer() { if (m_is_listening) stop(false); }
+    virtual ~server() { if (m_is_listening) stop(false); }
     
     /// starts listening for new connections
     void start(void);
@@ -78,22 +79,22 @@ public:
     inline void setEndpoint(const boost::asio::ip::tcp::endpoint& ep) { m_endpoint = ep; }
 
     /// returns true if the server uses SSL to encrypt connections
-    inline bool getSSLFlag(void) const { return m_ssl_flag; }
+    inline bool get_ssl_flag(void) const { return m_ssl_flag; }
     
     /// sets value of SSL flag (true if the server uses SSL to encrypt connections)
     inline void setSSLFlag(bool b = true) { m_ssl_flag = b; }
     
     /// returns the SSL context for configuration
-    inline TCPConnection::SSLContext& getSSLContext(void) { return m_ssl_context; }
+    inline connection::ssl_context_type& get_ssl_context_type(void) { return m_ssl_context; }
     
     /// returns true if the server is listening for connections
     inline bool isListening(void) const { return m_is_listening; }
     
     /// sets the logger to be used
-    inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
+    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
     
     /// returns the logger currently in use
-    inline PionLogger getLogger(void) { return m_logger; }
+    inline logger getLogger(void) { return m_logger; }
     
 
 protected:
@@ -103,30 +104,30 @@ protected:
      * 
      * @param tcp_port port number used to listen for new connections (IPv4)
      */
-    explicit TCPServer(const unsigned int tcp_port);
+    explicit server(const unsigned int tcp_port);
     
     /**
      * protected constructor so that only derived objects may be created
      * 
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    explicit TCPServer(const boost::asio::ip::tcp::endpoint& endpoint);
+    explicit server(const boost::asio::ip::tcp::endpoint& endpoint);
 
     /**
      * protected constructor so that only derived objects may be created
      * 
-     * @param scheduler the PionScheduler that will be used to manage worker threads
+     * @param sched the scheduler that will be used to manage worker threads
      * @param tcp_port port number used to listen for new connections (IPv4)
      */
-    explicit TCPServer(PionScheduler& scheduler, const unsigned int tcp_port = 0);
+    explicit server(scheduler& sched, const unsigned int tcp_port = 0);
     
     /**
      * protected constructor so that only derived objects may be created
      * 
-     * @param scheduler the PionScheduler that will be used to manage worker threads
+     * @param sched the scheduler that will be used to manage worker threads
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    TCPServer(PionScheduler& scheduler, const boost::asio::ip::tcp::endpoint& endpoint);
+    server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint);
     
     /**
      * handles a new TCP connection; derived classes SHOULD override this
@@ -134,8 +135,8 @@ protected:
      * 
      * @param tcp_conn the new TCP connection to handle
      */
-    virtual void handleConnection(TCPConnectionPtr& tcp_conn) {
-        tcp_conn->setLifecycle(TCPConnection::LIFECYCLE_CLOSE); // make sure it will get closed
+    virtual void handleConnection(tcp::connection_ptr& tcp_conn) {
+        tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE); // make sure it will get closed
         tcp_conn->finish();
     }
     
@@ -146,11 +147,11 @@ protected:
     virtual void afterStopping(void) {}
     
     /// returns an async I/O service used to schedule work
-    inline boost::asio::io_service& getIOService(void) { return m_active_scheduler.getIOService(); }
+    inline boost::asio::io_service& get_io_service(void) { return m_active_scheduler.get_io_service(); }
     
     
     /// primary logging interface used by this class
-    PionLogger                  m_logger;
+    logger                  m_logger;
     
     
 private:
@@ -167,7 +168,7 @@ private:
      * @param tcp_conn the new TCP connection (if no error occurred)
      * @param accept_error true if an error occurred while accepting connections
      */
-    void handleAccept(TCPConnectionPtr& tcp_conn,
+    void handleAccept(tcp::connection_ptr& tcp_conn,
                       const boost::system::error_code& accept_error);
 
     /**
@@ -176,34 +177,34 @@ private:
      * @param tcp_conn the new TCP connection (if no error occurred)
      * @param handshake_error true if an error occurred during the SSL handshake
      */
-    void handleSSLHandshake(TCPConnectionPtr& tcp_conn,
+    void handleSSLHandshake(tcp::connection_ptr& tcp_conn,
                             const boost::system::error_code& handshake_error);
     
-    /// This will be called by TCPConnection::finish() after a server has
+    /// This will be called by connection::finish() after a server has
     /// finished handling a connection.  If the keep_alive flag is true,
     /// it will call handleConnection(); otherwise, it will close the
     /// connection and remove it from the server's management pool
-    void finishConnection(TCPConnectionPtr& tcp_conn);
+    void finishConnection(tcp::connection_ptr& tcp_conn);
     
     /// prunes orphaned connections that did not close cleanly
     /// and returns the remaining number of connections in the pool
     std::size_t pruneConnections(void);
     
     /// data type for a pool of TCP connections
-    typedef std::set<TCPConnectionPtr>      ConnectionPool;
+    typedef std::set<tcp::connection_ptr>      ConnectionPool;
     
     
-    /// the default PionScheduler object used to manage worker threads
-    PionSingleServiceScheduler              m_default_scheduler;
+    /// the default scheduler object used to manage worker threads
+    single_service_scheduler              m_default_scheduler;
 
-    /// reference to the active PionScheduler object used to manage worker threads
-    PionScheduler &                         m_active_scheduler;
+    /// reference to the active scheduler object used to manage worker threads
+    scheduler &                         m_active_scheduler;
     
     /// manages async TCP connections
     boost::asio::ip::tcp::acceptor          m_tcp_acceptor;
 
     /// context used for SSL configuration
-    TCPConnection::SSLContext               m_ssl_context;
+    connection::ssl_context_type               m_ssl_context;
         
     /// condition triggered when the server has stopped listening for connections
     boost::condition                        m_server_has_stopped;
@@ -228,11 +229,11 @@ private:
 };
 
 
-/// data type for a TCPServer pointer
-typedef boost::shared_ptr<TCPServer>    TCPServerPtr;
+/// data type for a server pointer
+typedef boost::shared_ptr<server>    server_ptr;
 
 
-}   // end namespace net
+}   // end namespace tcp
 }   // end namespace pion
 
 #endif

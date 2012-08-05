@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPRESPONSEWRITER_HEADER__
-#define __PION_HTTPRESPONSEWRITER_HEADER__
+#ifndef __PION_HTTP_RESPONSE_WRITER_HEADER__
+#define __PION_HTTP_RESPONSE_WRITER_HEADER__
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -22,56 +22,57 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
-/// HTTPResponseWriter: used to asynchronously send HTTP responses
+/// response_writer: used to asynchronously send HTTP responses
 /// 
-class PION_NET_API HTTPResponseWriter :
-    public HTTPWriter,
-    public boost::enable_shared_from_this<HTTPResponseWriter>
+class PION_API response_writer :
+    public http::writer,
+    public boost::enable_shared_from_this<response_writer>
 {
 public:
     
     /// default destructor
-    virtual ~HTTPResponseWriter() {}
+    virtual ~response_writer() {}
 
     /**
-     * creates new HTTPResponseWriter objects
+     * creates new response_writer objects
      * 
      * @param tcp_conn TCP connection used to send the response
      * @param http_response pointer to the response that will be sent
      * @param handler function called after the response has been sent
      * 
-     * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
+     * @return boost::shared_ptr<response_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn,
-                                                               HTTPResponsePtr& http_response,
-                                                               FinishedHandler handler = FinishedHandler())
+    static inline boost::shared_ptr<response_writer> create(tcp::connection_ptr& tcp_conn,
+                                                               http::response_ptr& http_response_ptr,
+                                                               finished_handler_t handler = finished_handler_t())
     {
-        return boost::shared_ptr<HTTPResponseWriter>(new HTTPResponseWriter(tcp_conn, http_response, handler));
+        return boost::shared_ptr<response_writer>(new response_writer(tcp_conn, http_response_ptr, handler));
     }
 
     /**
-     * creates new HTTPResponseWriter objects
+     * creates new response_writer objects
      * 
      * @param tcp_conn TCP connection used to send the response
      * @param http_request the request we are responding to
      * @param handler function called after the request has been sent
      * 
-     * @return boost::shared_ptr<HTTPResponseWriter> shared pointer to
+     * @return boost::shared_ptr<response_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<HTTPResponseWriter> create(TCPConnectionPtr& tcp_conn,
-                                                               const HTTPRequest& http_request,
-                                                               FinishedHandler handler = FinishedHandler())
+    static inline boost::shared_ptr<response_writer> create(tcp::connection_ptr& tcp_conn,
+                                                               const http::request& http_request,
+                                                               finished_handler_t handler = finished_handler_t())
     {
-        return boost::shared_ptr<HTTPResponseWriter>(new HTTPResponseWriter(tcp_conn, http_request, handler));
+        return boost::shared_ptr<response_writer>(new response_writer(tcp_conn, http_request, handler));
     }
     
     /// returns a non-const reference to the response that will be sent
-    inline HTTPResponse& getResponse(void) { return *m_http_response; }
+    inline http::response& getResponse(void) { return *m_http_response; }
     
     
 protected:
@@ -83,20 +84,20 @@ protected:
      * @param http_response pointer to the response that will be sent
      * @param handler function called after the request has been sent
      */
-    HTTPResponseWriter(TCPConnectionPtr& tcp_conn, HTTPResponsePtr& http_response,
-                       FinishedHandler handler)
-        : HTTPWriter(tcp_conn, handler), m_http_response(http_response)
+    response_writer(tcp::connection_ptr& tcp_conn, http::response_ptr& http_response_ptr,
+                       finished_handler_t handler)
+        : http::writer(tcp_conn, handler), m_http_response(http_response_ptr)
     {
-        setLogger(PION_GET_LOGGER("pion.net.HTTPResponseWriter"));
-        // tell the HTTPWriter base class whether or not the client supports chunks
+        setLogger(PION_GET_LOGGER("pion.http.response_writer"));
+        // tell the http::writer base class whether or not the client supports chunks
         supportsChunkedMessages(m_http_response->getChunksSupported());
         // check if we should initialize the payload content using
         // the response's content buffer
-        if (http_response->getContentLength() > 0
-            && http_response->getContent() != NULL
-            && http_response->getContent()[0] != '\0')
+        if (m_http_response->getContentLength() > 0
+            && m_http_response->getContent() != NULL
+            && m_http_response->getContent()[0] != '\0')
         {
-            writeNoCopy(http_response->getContent(), http_response->getContentLength());
+            writeNoCopy(m_http_response->getContent(), m_http_response->getContentLength());
         }
     }
     
@@ -107,12 +108,12 @@ protected:
      * @param http_request the request we are responding to
      * @param handler function called after the request has been sent
      */
-    HTTPResponseWriter(TCPConnectionPtr& tcp_conn, const HTTPRequest& http_request,
-                       FinishedHandler handler)
-        : HTTPWriter(tcp_conn, handler), m_http_response(new HTTPResponse(http_request))
+    response_writer(tcp::connection_ptr& tcp_conn, const http::request& http_request,
+                       finished_handler_t handler)
+        : http::writer(tcp_conn, handler), m_http_response(new http::response(http_request))
     {
-        setLogger(PION_GET_LOGGER("pion.net.HTTPResponseWriter"));
-        // tell the HTTPWriter base class whether or not the client supports chunks
+        setLogger(PION_GET_LOGGER("pion.http.response_writer"));
+        // tell the http::writer base class whether or not the client supports chunks
         supportsChunkedMessages(m_http_response->getChunksSupported());
     }
     
@@ -122,17 +123,17 @@ protected:
      *
      * @param write_buffers vector of write buffers to initialize
      */
-    virtual void prepareBuffersForSend(HTTPMessage::WriteBuffers& write_buffers) {
+    virtual void prepareBuffersForSend(http::message::write_buffers_t& write_buffers) {
         if (getContentLength() > 0)
             m_http_response->setContentLength(getContentLength());
         m_http_response->prepareBuffersForSend(write_buffers,
-                                               getTCPConnection()->getKeepAlive(),
+                                               get_connection()->get_keep_alive(),
                                                sendingChunkedMessage());
     }   
 
-    /// returns a function bound to HTTPWriter::handleWrite()
-    virtual WriteHandler bindToWriteHandler(void) {
-        return boost::bind(&HTTPResponseWriter::handleWrite, shared_from_this(),
+    /// returns a function bound to http::writer::handleWrite()
+    virtual write_handler_t bindToWriteHandler(void) {
+        return boost::bind(&response_writer::handleWrite, shared_from_this(),
                            boost::asio::placeholders::error,
                            boost::asio::placeholders::bytes_transferred);
     }
@@ -146,14 +147,14 @@ protected:
     virtual void handleWrite(const boost::system::error_code& write_error,
                              std::size_t bytes_written)
     {
-        PionLogger log_ptr(getLogger());
+        logger log_ptr(getLogger());
         if (!write_error) {
             // response sent OK
             if (sendingChunkedMessage()) {
                 PION_LOG_DEBUG(log_ptr, "Sent HTTP response chunk of " << bytes_written << " bytes");
             } else {
                 PION_LOG_DEBUG(log_ptr, "Sent HTTP response of " << bytes_written << " bytes ("
-                               << (getTCPConnection()->getKeepAlive() ? "keeping alive)" : "closing)"));
+                               << (get_connection()->get_keep_alive() ? "keeping alive)" : "closing)"));
             }
         }
         finishedWriting(write_error);
@@ -163,26 +164,26 @@ protected:
 private:
     
     /// the response that will be sent
-    HTTPResponsePtr         m_http_response;
+    http::response_ptr         m_http_response;
     
     /// the initial HTTP response header line
     std::string             m_response_line;
 };
 
 
-/// data type for a HTTPResponseWriter pointer
-typedef boost::shared_ptr<HTTPResponseWriter>   HTTPResponseWriterPtr;
+/// data type for a response_writer pointer
+typedef boost::shared_ptr<response_writer>   response_writer_ptr;
 
 
 /// override operator<< for convenience
 template <typename T>
-const HTTPResponseWriterPtr& operator<<(const HTTPResponseWriterPtr& writer, const T& data) {
+const response_writer_ptr& operator<<(const response_writer_ptr& writer, const T& data) {
     writer->write(data);
     return writer;
 }
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

@@ -15,84 +15,84 @@
 #include <ctime>
 
 
-namespace pion {        // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace pion {    // begin namespace pion
+namespace http {    // begin namespace http
 
 
 // generic strings used by HTTP
-const std::string   HTTPTypes::STRING_EMPTY;
-const std::string   HTTPTypes::STRING_CRLF("\x0D\x0A");
-const std::string   HTTPTypes::STRING_HTTP_VERSION("HTTP/");
-const std::string   HTTPTypes::HEADER_NAME_VALUE_DELIMITER(": ");
+const std::string   types::STRING_EMPTY;
+const std::string   types::STRING_CRLF("\x0D\x0A");
+const std::string   types::STRING_HTTP_VERSION("HTTP/");
+const std::string   types::HEADER_NAME_VALUE_DELIMITER(": ");
 
 // common HTTP header names
-const std::string   HTTPTypes::HEADER_HOST("Host");
-const std::string   HTTPTypes::HEADER_COOKIE("Cookie");
-const std::string   HTTPTypes::HEADER_SET_COOKIE("Set-Cookie");
-const std::string   HTTPTypes::HEADER_CONNECTION("Connection");
-const std::string   HTTPTypes::HEADER_CONTENT_TYPE("Content-Type");
-const std::string   HTTPTypes::HEADER_CONTENT_LENGTH("Content-Length");
-const std::string   HTTPTypes::HEADER_CONTENT_LOCATION("Content-Location");
-const std::string   HTTPTypes::HEADER_CONTENT_ENCODING("Content-Encoding");
-const std::string   HTTPTypes::HEADER_LAST_MODIFIED("Last-Modified");
-const std::string   HTTPTypes::HEADER_IF_MODIFIED_SINCE("If-Modified-Since");
-const std::string   HTTPTypes::HEADER_TRANSFER_ENCODING("Transfer-Encoding");
-const std::string   HTTPTypes::HEADER_LOCATION("Location");
-const std::string   HTTPTypes::HEADER_AUTHORIZATION("Authorization");
-const std::string   HTTPTypes::HEADER_REFERER("Referer");
-const std::string   HTTPTypes::HEADER_USER_AGENT("User-Agent");
-const std::string   HTTPTypes::HEADER_X_FORWARDED_FOR("X-Forwarded-For");
-const std::string   HTTPTypes::HEADER_CLIENT_IP("Client-IP");
+const std::string   types::HEADER_HOST("Host");
+const std::string   types::HEADER_COOKIE("Cookie");
+const std::string   types::HEADER_SET_COOKIE("Set-Cookie");
+const std::string   types::HEADER_CONNECTION("Connection");
+const std::string   types::HEADER_CONTENT_TYPE("Content-Type");
+const std::string   types::HEADER_CONTENT_LENGTH("Content-Length");
+const std::string   types::HEADER_CONTENT_LOCATION("Content-Location");
+const std::string   types::HEADER_CONTENT_ENCODING("Content-Encoding");
+const std::string   types::HEADER_LAST_MODIFIED("Last-Modified");
+const std::string   types::HEADER_IF_MODIFIED_SINCE("If-Modified-Since");
+const std::string   types::HEADER_TRANSFER_ENCODING("Transfer-Encoding");
+const std::string   types::HEADER_LOCATION("Location");
+const std::string   types::HEADER_AUTHORIZATION("Authorization");
+const std::string   types::HEADER_REFERER("Referer");
+const std::string   types::HEADER_USER_AGENT("User-Agent");
+const std::string   types::HEADER_X_FORWARDED_FOR("X-Forwarded-For");
+const std::string   types::HEADER_CLIENT_IP("Client-IP");
 
 // common HTTP content types
-const std::string   HTTPTypes::CONTENT_TYPE_HTML("text/html");
-const std::string   HTTPTypes::CONTENT_TYPE_TEXT("text/plain");
-const std::string   HTTPTypes::CONTENT_TYPE_XML("text/xml");
-const std::string   HTTPTypes::CONTENT_TYPE_URLENCODED("application/x-www-form-urlencoded");
+const std::string   types::CONTENT_TYPE_HTML("text/html");
+const std::string   types::CONTENT_TYPE_TEXT("text/plain");
+const std::string   types::CONTENT_TYPE_XML("text/xml");
+const std::string   types::CONTENT_TYPE_URLENCODED("application/x-www-form-urlencoded");
 
 // common HTTP request methods
-const std::string   HTTPTypes::REQUEST_METHOD_HEAD("HEAD");
-const std::string   HTTPTypes::REQUEST_METHOD_GET("GET");
-const std::string   HTTPTypes::REQUEST_METHOD_PUT("PUT");
-const std::string   HTTPTypes::REQUEST_METHOD_POST("POST");
-const std::string   HTTPTypes::REQUEST_METHOD_DELETE("DELETE");
+const std::string   types::REQUEST_METHOD_HEAD("HEAD");
+const std::string   types::REQUEST_METHOD_GET("GET");
+const std::string   types::REQUEST_METHOD_PUT("PUT");
+const std::string   types::REQUEST_METHOD_POST("POST");
+const std::string   types::REQUEST_METHOD_DELETE("DELETE");
 
 // common HTTP response messages
-const std::string   HTTPTypes::RESPONSE_MESSAGE_OK("OK");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_CREATED("Created");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_ACCEPTED("Accepted");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_NO_CONTENT("No Content");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_FOUND("Found");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_UNAUTHORIZED("Unauthorized");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_FORBIDDEN("Forbidden");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND("Not Found");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED("Method Not Allowed");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_NOT_MODIFIED("Not Modified");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_BAD_REQUEST("Bad Request");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_SERVER_ERROR("Server Error");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_NOT_IMPLEMENTED("Not Implemented");
-const std::string   HTTPTypes::RESPONSE_MESSAGE_CONTINUE("Continue");
+const std::string   types::RESPONSE_MESSAGE_OK("OK");
+const std::string   types::RESPONSE_MESSAGE_CREATED("Created");
+const std::string   types::RESPONSE_MESSAGE_ACCEPTED("Accepted");
+const std::string   types::RESPONSE_MESSAGE_NO_CONTENT("No Content");
+const std::string   types::RESPONSE_MESSAGE_FOUND("Found");
+const std::string   types::RESPONSE_MESSAGE_UNAUTHORIZED("Unauthorized");
+const std::string   types::RESPONSE_MESSAGE_FORBIDDEN("Forbidden");
+const std::string   types::RESPONSE_MESSAGE_NOT_FOUND("Not Found");
+const std::string   types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED("Method Not Allowed");
+const std::string   types::RESPONSE_MESSAGE_NOT_MODIFIED("Not Modified");
+const std::string   types::RESPONSE_MESSAGE_BAD_REQUEST("Bad Request");
+const std::string   types::RESPONSE_MESSAGE_SERVER_ERROR("Server Error");
+const std::string   types::RESPONSE_MESSAGE_NOT_IMPLEMENTED("Not Implemented");
+const std::string   types::RESPONSE_MESSAGE_CONTINUE("Continue");
 
 // common HTTP response codes
-const unsigned int  HTTPTypes::RESPONSE_CODE_OK = 200;
-const unsigned int  HTTPTypes::RESPONSE_CODE_CREATED = 201;
-const unsigned int  HTTPTypes::RESPONSE_CODE_ACCEPTED = 202;
-const unsigned int  HTTPTypes::RESPONSE_CODE_NO_CONTENT = 204;
-const unsigned int  HTTPTypes::RESPONSE_CODE_FOUND = 302;
-const unsigned int  HTTPTypes::RESPONSE_CODE_UNAUTHORIZED = 401;
-const unsigned int  HTTPTypes::RESPONSE_CODE_FORBIDDEN = 403;
-const unsigned int  HTTPTypes::RESPONSE_CODE_NOT_FOUND = 404;
-const unsigned int  HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED = 405;
-const unsigned int  HTTPTypes::RESPONSE_CODE_NOT_MODIFIED = 304;
-const unsigned int  HTTPTypes::RESPONSE_CODE_BAD_REQUEST = 400;
-const unsigned int  HTTPTypes::RESPONSE_CODE_SERVER_ERROR = 500;
-const unsigned int  HTTPTypes::RESPONSE_CODE_NOT_IMPLEMENTED = 501;
-const unsigned int  HTTPTypes::RESPONSE_CODE_CONTINUE = 100;
+const unsigned int  types::RESPONSE_CODE_OK = 200;
+const unsigned int  types::RESPONSE_CODE_CREATED = 201;
+const unsigned int  types::RESPONSE_CODE_ACCEPTED = 202;
+const unsigned int  types::RESPONSE_CODE_NO_CONTENT = 204;
+const unsigned int  types::RESPONSE_CODE_FOUND = 302;
+const unsigned int  types::RESPONSE_CODE_UNAUTHORIZED = 401;
+const unsigned int  types::RESPONSE_CODE_FORBIDDEN = 403;
+const unsigned int  types::RESPONSE_CODE_NOT_FOUND = 404;
+const unsigned int  types::RESPONSE_CODE_METHOD_NOT_ALLOWED = 405;
+const unsigned int  types::RESPONSE_CODE_NOT_MODIFIED = 304;
+const unsigned int  types::RESPONSE_CODE_BAD_REQUEST = 400;
+const unsigned int  types::RESPONSE_CODE_SERVER_ERROR = 500;
+const unsigned int  types::RESPONSE_CODE_NOT_IMPLEMENTED = 501;
+const unsigned int  types::RESPONSE_CODE_CONTINUE = 100;
 
 
 // static member functions
 
-std::string HTTPTypes::get_date_string(const time_t t)
+std::string types::get_date_string(const time_t t)
 {
     // use mutex since time functions are normally not thread-safe
     static boost::mutex time_mutex;
@@ -108,20 +108,20 @@ std::string HTTPTypes::get_date_string(const time_t t)
     return std::string(time_buf);
 }
 
-std::string HTTPTypes::make_query_string(const QueryParams& query_params)
+std::string types::make_query_string(const ihash_multimap& query_params)
 {
     std::string query_string;
-    for (QueryParams::const_iterator i = query_params.begin(); i != query_params.end(); ++i) {
+    for (ihash_multimap::const_iterator i = query_params.begin(); i != query_params.end(); ++i) {
         if (i != query_params.begin())
             query_string += '&';
-        query_string += algo::url_encode(i->first);
+        query_string += algorithm::url_encode(i->first);
         query_string += '=';
-        query_string += algo::url_encode(i->second);
+        query_string += algorithm::url_encode(i->second);
     }
     return query_string;
 }
 
-std::string HTTPTypes::make_set_cookie_header(const std::string& name,
+std::string types::make_set_cookie_header(const std::string& name,
                                               const std::string& value,
                                               const std::string& path,
                                               const bool has_max_age,
@@ -145,6 +145,5 @@ std::string HTTPTypes::make_set_cookie_header(const std::string& name,
 }
 
     
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
-

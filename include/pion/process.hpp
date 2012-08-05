@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PIONPROCESS_HEADER__
-#define __PION_PIONPROCESS_HEADER__
+#ifndef __PION_PROCESS_HEADER__
+#define __PION_PROCESS_HEADER__
 
 #include <string>
 #include <boost/noncopyable.hpp>
@@ -21,18 +21,18 @@
 namespace pion {    // begin namespace pion
 
 ///
-/// PionProcess: class for managing process/service related functions
+/// process: class for managing process/service related functions
 ///
-class PION_NET_API PionProcess :
+class PION_API process :
     private boost::noncopyable
 {
 public:
 
     // default destructor
-    ~PionProcess() {}
+    ~process() {}
     
     /// default constructor
-    PionProcess(void) {}
+    process(void) {}
     
     /// signals the shutdown condition
     static void shutdown(void);
@@ -50,9 +50,9 @@ public:
 protected:
 
     /// data type for static/global process configuration information
-    struct PionProcessConfig {
+    struct config_type {
         /// constructor just initializes native types
-        PionProcessConfig() : shutdown_now(false) {}
+        config_type() : shutdown_now(false) {}
     
         /// true if we should shutdown now
         bool                    shutdown_now;
@@ -65,24 +65,24 @@ protected:
     };
 
     
-    /// returns a singleton instance of PionProcessConfig
-    static inline PionProcessConfig& getPionProcessConfig(void) {
-        boost::call_once(PionProcess::createPionProcessConfig, m_instance_flag);
+    /// returns a singleton instance of config_type
+    static inline config_type& get_config(void) {
+        boost::call_once(process::create_config, m_instance_flag);
         return *m_config_ptr;
     }
 
 
 private:
 
-    /// creates the PionProcessConfig singleton
-    static void createPionProcessConfig(void);
+    /// creates the config_type singleton
+    static void create_config(void);
 
     
-    /// used to ensure thread safety of the PionProcessConfig singleton
+    /// used to ensure thread safety of the config_type singleton
     static boost::once_flag             m_instance_flag;
 
-    /// pointer to the PionProcessConfig singleton
-    static PionProcessConfig *          m_config_ptr;
+    /// pointer to the config_type singleton
+    static config_type *          m_config_ptr;
 };
 
 

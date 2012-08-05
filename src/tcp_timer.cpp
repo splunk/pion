@@ -12,27 +12,27 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace tcp {     // begin namespace tcp
 
 
-// TCPTimer member functions
+// timer member functions
 
-TCPTimer::TCPTimer(TCPConnectionPtr& conn_ptr)
-    : m_conn_ptr(conn_ptr), m_timer(conn_ptr->getIOService()),
+timer::timer(tcp::connection_ptr& conn_ptr)
+    : m_conn_ptr(conn_ptr), m_timer(conn_ptr->get_io_service()),
     m_timer_active(false), m_was_cancelled(false)
 {
 }
 
-void TCPTimer::start(const boost::uint32_t seconds)
+void timer::start(const boost::uint32_t seconds)
 {
     boost::mutex::scoped_lock timer_lock(m_mutex);
     m_timer_active = true;
     m_timer.expires_from_now(boost::posix_time::seconds(seconds));
-    m_timer.async_wait(boost::bind(&TCPTimer::timerCallback,
+    m_timer.async_wait(boost::bind(&timer::timer_callback,
         shared_from_this(), _1));
 }
 
-void TCPTimer::cancel(void)
+void timer::cancel(void)
 {
     boost::mutex::scoped_lock timer_lock(m_mutex);
     m_was_cancelled = true;
@@ -40,7 +40,7 @@ void TCPTimer::cancel(void)
         m_timer.cancel();
 }
 
-void TCPTimer::timerCallback(const boost::system::error_code& ec)
+void timer::timer_callback(const boost::system::error_code& ec)
 {
     boost::mutex::scoped_lock timer_lock(m_mutex);
     m_timer_active = false;
@@ -49,5 +49,5 @@ void TCPTimer::timerCallback(const boost::system::error_code& ec)
 }
 
 
-}   // end namespace net
+}   // end namespace tcp
 }   // end namespace pion

@@ -11,7 +11,6 @@
 #include <pion/http/response_writer.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
@@ -20,14 +19,14 @@ namespace plugins {     // begin namespace plugins
 // HelloService member functions
 
 /// handles requests for HelloService
-void HelloService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void HelloService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
 {
     static const std::string HELLO_HTML = "<html><body>Hello World!</body></html>";
-    HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
+    http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
     writer->writeNoCopy(HELLO_HTML);
-    writer->writeNoCopy(HTTPTypes::STRING_CRLF);
-    writer->writeNoCopy(HTTPTypes::STRING_CRLF);
+    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->writeNoCopy(http::types::STRING_CRLF);
     writer->send();
 }
 
@@ -37,13 +36,13 @@ void HelloService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_con
 
 
 /// creates new HelloService objects
-extern "C" PION_SERVICE_API pion::plugins::HelloService *pion_create_HelloService(void)
+extern "C" PION_API pion::plugins::HelloService *pion_create_HelloService(void)
 {
     return new pion::plugins::HelloService();
 }
 
 /// destroys HelloService objects
-extern "C" PION_SERVICE_API void pion_destroy_HelloService(pion::plugins::HelloService *service_ptr)
+extern "C" PION_API void pion_destroy_HelloService(pion::plugins::HelloService *service_ptr)
 {
     delete service_ptr;
 }

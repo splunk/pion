@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_TCPSTREAM_HEADER__
-#define __PION_TCPSTREAM_HEADER__
+#ifndef __PION_TCP_STREAM_HEADER__
+#define __PION_TCP_STREAM_HEADER__
 
 #include <cstring>
 #include <istream>
@@ -21,15 +21,15 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace tcp {     // begin namespace tcp
 
     
 ///
-/// TCPStreamBuffer: std::basic_streambuf wrapper for TCP network connections.
+/// stream_buffer: std::basic_streambuf wrapper for TCP network connections.
 ///                  Based in part on section 13.13.3 of "The Standard C++ Library"
 ///                  by Nicolai M. Josuttis, published in 1999 by Addison-Wesley
 /// 
-class TCPStreamBuffer
+class stream_buffer
     : public std::basic_streambuf<char, std::char_traits<char> >
 {
 public:
@@ -41,7 +41,7 @@ public:
     typedef std::char_traits<char>::pos_type    pos_type;
     typedef std::char_traits<char>              traits_type;
 
-    // some integer constants used within TCPStreamBuffer
+    // some integer constants used within stream_buffer
     enum {
         PUT_BACK_MAX = 10,  //< number of bytes that can be put back into the read buffer
         WRITE_BUFFER_SIZE = 8192    //< size of the write buffer
@@ -53,8 +53,8 @@ public:
      *
      * @param conn_ptr pointer to the TCP connection to use for reading & writing
      */
-    explicit TCPStreamBuffer(TCPConnectionPtr& conn_ptr)
-        : m_conn_ptr(conn_ptr), m_read_buf(m_conn_ptr->getReadBuffer().c_array())
+    explicit stream_buffer(tcp::connection_ptr& conn_ptr)
+        : m_conn_ptr(conn_ptr), m_read_buf(m_conn_ptr->get_read_buffer().c_array())
     {
         setupBuffers();
     }
@@ -65,10 +65,10 @@ public:
      * @param io_service asio service associated with the connection
      * @param ssl_flag if true then the connection will be encrypted using SSL 
      */
-    explicit TCPStreamBuffer(boost::asio::io_service& io_service,
+    explicit stream_buffer(boost::asio::io_service& io_service,
                              const bool ssl_flag = false)
-        : m_conn_ptr(new TCPConnection(io_service, ssl_flag)),
-        m_read_buf(m_conn_ptr->getReadBuffer().c_array())
+        : m_conn_ptr(new connection(io_service, ssl_flag)),
+        m_read_buf(m_conn_ptr->get_read_buffer().c_array())
     {
         setupBuffers();
     }
@@ -79,22 +79,22 @@ public:
      * @param io_service asio service associated with the connection
      * @param ssl_context asio ssl context associated with the connection
      */
-    TCPStreamBuffer(boost::asio::io_service& io_service,
-                    TCPConnection::SSLContext& ssl_context)
-        : m_conn_ptr(new TCPConnection(io_service, ssl_context)),
-        m_read_buf(m_conn_ptr->getReadBuffer().c_array())
+    stream_buffer(boost::asio::io_service& io_service,
+                    connection::ssl_context_type& ssl_context)
+        : m_conn_ptr(new connection(io_service, ssl_context)),
+        m_read_buf(m_conn_ptr->get_read_buffer().c_array())
     {
         setupBuffers();
     }
     
     /// virtual destructor flushes the write buffer
-    virtual ~TCPStreamBuffer() { sync(); }
+    virtual ~stream_buffer() { sync(); }
 
     /// returns a reference to the current TCP connection
-    TCPConnection& getConnection(void) { return *m_conn_ptr; }
+    connection& getConnection(void) { return *m_conn_ptr; }
 
     /// returns a const reference to the current TCP connection
-    const TCPConnection& getConnection(void) const { return *m_conn_ptr; }
+    const connection& getConnection(void) const { return *m_conn_ptr; }
     
     
 protected:
@@ -119,7 +119,7 @@ protected:
             boost::mutex::scoped_lock async_lock(m_async_mutex);
             m_bytes_transferred = 0;
             m_conn_ptr->async_write(boost::asio::buffer(pbase(), bytes_to_send),
-                                    boost::bind(&TCPStreamBuffer::operationFinished, this,
+                                    boost::bind(&stream_buffer::operationFinished, this,
                                                 boost::asio::placeholders::error,
                                                 boost::asio::placeholders::bytes_transferred));
             m_async_done.wait(async_lock);
@@ -156,8 +156,8 @@ protected:
         boost::mutex::scoped_lock async_lock(m_async_mutex);
         m_bytes_transferred = 0;
         m_conn_ptr->async_read_some(boost::asio::buffer(m_read_buf+PUT_BACK_MAX,
-                                                        TCPConnection::READ_BUFFER_SIZE-PUT_BACK_MAX),
-                                    boost::bind(&TCPStreamBuffer::operationFinished, this,
+                                                        connection::READ_BUFFER_SIZE-PUT_BACK_MAX),
+                                    boost::bind(&stream_buffer::operationFinished, this,
                                                 boost::asio::placeholders::error,
                                                 boost::asio::placeholders::bytes_transferred));
         m_async_done.wait(async_lock);
@@ -225,7 +225,7 @@ protected:
                 m_bytes_transferred = 0;
                 m_conn_ptr->async_write(boost::asio::buffer(s+bytes_available,
                                                             n-bytes_available),
-                                        boost::bind(&TCPStreamBuffer::operationFinished, this,
+                                        boost::bind(&stream_buffer::operationFinished, this,
                                                     boost::asio::placeholders::error,
                                                     boost::asio::placeholders::bytes_transferred));
                 m_async_done.wait(async_lock);
@@ -295,7 +295,7 @@ private:
     
     
     /// pointer to the underlying TCP connection used for reading & writing
-    TCPConnectionPtr            m_conn_ptr;
+    tcp::connection_ptr            m_conn_ptr;
     
     /// condition signaled whenever an asynchronous operation has completed
     boost::mutex                m_async_mutex;
@@ -318,9 +318,9 @@ private:
     
     
 ///
-/// TCPStream: std::basic_iostream wrapper for TCP network connections
+/// stream: std::basic_iostream wrapper for TCP network connections
 /// 
-class TCPStream
+class stream
     : public std::basic_iostream<char, std::char_traits<char> >
 {
 public:
@@ -338,7 +338,7 @@ public:
      *
      * @param conn_ptr pointer to the TCP connection to use for reading & writing
      */
-    explicit TCPStream(TCPConnectionPtr& conn_ptr)
+    explicit stream(tcp::connection_ptr& conn_ptr)
         : m_tcp_buf(conn_ptr)
 #ifdef _MSC_VER
         , std::basic_iostream<char, std::char_traits<char> >(NULL)
@@ -354,7 +354,7 @@ public:
      * @param io_service asio service associated with the connection
      * @param ssl_flag if true then the connection will be encrypted using SSL 
      */
-    explicit TCPStream(boost::asio::io_service& io_service,
+    explicit stream(boost::asio::io_service& io_service,
                        const bool ssl_flag = false)
         : m_tcp_buf(io_service, ssl_flag)
 #ifdef _MSC_VER
@@ -371,8 +371,8 @@ public:
      * @param io_service asio service associated with the connection
      * @param ssl_context asio ssl context associated with the connection
      */
-    TCPStream(boost::asio::io_service& io_service,
-              TCPConnection::SSLContext& ssl_context)
+    stream(boost::asio::io_service& io_service,
+              connection::ssl_context_type& ssl_context)
         : m_tcp_buf(io_service, ssl_context)
 #ifdef _MSC_VER
         , std::basic_iostream<char, std::char_traits<char> >(NULL)
@@ -393,7 +393,7 @@ public:
     inline boost::system::error_code accept(boost::asio::ip::tcp::acceptor& tcp_acceptor)
     {
         boost::system::error_code ec = m_tcp_buf.getConnection().accept(tcp_acceptor);
-        if (! ec && getSSLFlag()) ec = m_tcp_buf.getConnection().handshake_server();
+        if (! ec && get_ssl_flag()) ec = m_tcp_buf.getConnection().handshake_server();
         return ec;
     }
 
@@ -408,7 +408,7 @@ public:
     inline boost::system::error_code connect(boost::asio::ip::tcp::endpoint& tcp_endpoint)
     {
         boost::system::error_code ec = m_tcp_buf.getConnection().connect(tcp_endpoint);
-        if (! ec && getSSLFlag()) ec = m_tcp_buf.getConnection().handshake_client();
+        if (! ec && get_ssl_flag()) ec = m_tcp_buf.getConnection().handshake_client();
         return ec;
     }
     
@@ -426,7 +426,7 @@ public:
     {
         boost::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
         boost::system::error_code ec = m_tcp_buf.getConnection().connect(tcp_endpoint);
-        if (! ec && getSSLFlag()) ec = m_tcp_buf.getConnection().handshake_client();
+        if (! ec && get_ssl_flag()) ec = m_tcp_buf.getConnection().handshake_client();
         return ec;
     }
 
@@ -444,25 +444,25 @@ public:
     inline bool is_open(void) const { return m_tcp_buf.getConnection().is_open(); }
     
     /// returns true if the connection is encrypted using SSL
-    inline bool getSSLFlag(void) const { return m_tcp_buf.getConnection().getSSLFlag(); }
+    inline bool get_ssl_flag(void) const { return m_tcp_buf.getConnection().get_ssl_flag(); }
 
     /// returns the client's IP address
-    inline boost::asio::ip::address getRemoteIp(void) const {
-        return m_tcp_buf.getConnection().getRemoteIp();
+    inline boost::asio::ip::address get_remote_ip(void) const {
+        return m_tcp_buf.getConnection().get_remote_ip();
     }
     
     /// returns a pointer to the stream buffer in use
-    TCPStreamBuffer *rdbuf(void) { return &m_tcp_buf; }
+    stream_buffer *rdbuf(void) { return &m_tcp_buf; }
     
     
 private:
     
     /// the underlying TCP stream buffer used for reading & writing
-    TCPStreamBuffer     m_tcp_buf;
+    stream_buffer     m_tcp_buf;
 };
 
 
-}   // end namespace net
+}   // end namespace tcp
 }   // end namespace pion
 
 #endif

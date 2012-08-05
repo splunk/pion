@@ -10,6 +10,7 @@
 #include <vector>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 #include <pion/plugin.hpp>
 #include <pion/process.hpp>
 #include <pion/http/plugin_server.hpp>
@@ -24,7 +25,6 @@ PION_DECLARE_PLUGIN(CookieService)
 
 using namespace std;
 using namespace pion;
-using namespace pion::net;
 
 
 /// displays an error message if the arguments are invalid
@@ -68,8 +68,8 @@ int main (int argc, char *argv[])
                 service_config_file = argv[++argnum];
             } else if (argv[argnum][1] == 'd' && argv[argnum][2] == '\0' && argnum+1 < argc) {
                 // add the service plug-ins directory to the search path
-                try { PionPlugin::addPluginDirectory(argv[++argnum]); }
-                catch (PionPlugin::DirectoryNotFoundException&) {
+                try { plugin::addPluginDirectory(argv[++argnum]); }
+                catch (error::directory_not_found&) {
                     std::cerr << "piond: Web service plug-ins directory does not exist: "
                         << argv[argnum] << std::endl;
                     return 1;
@@ -112,11 +112,11 @@ int main (int argc, char *argv[])
     }
     
     // initialize signal handlers, etc.
-    PionProcess::initialize();
+    process::initialize();
     
     // initialize log system (use simple configuration)
-    PionLogger main_log(PION_GET_LOGGER("piond"));
-    PionLogger pion_log(PION_GET_LOGGER("pion"));
+    logger main_log(PION_GET_LOGGER("piond"));
+    logger pion_log(PION_GET_LOGGER("pion"));
     if (verbose_flag) {
         PION_LOG_SETLEVEL_DEBUG(main_log);
         PION_LOG_SETLEVEL_DEBUG(pion_log);
@@ -128,21 +128,21 @@ int main (int argc, char *argv[])
     
     try {
         // add the Pion plug-ins installation directory to our path
-        try { PionPlugin::addPluginDirectory(PION_PLUGINS_DIRECTORY); }
-        catch (PionPlugin::DirectoryNotFoundException&) {
+        try { plugin::addPluginDirectory(PION_PLUGINS_DIRECTORY); }
+        catch (error::directory_not_found&) {
             PION_LOG_WARN(main_log, "Default plug-ins directory does not exist: "
                 << PION_PLUGINS_DIRECTORY);
         }
 
         // add the directory of the program we're running to our path
-        try { PionPlugin::addPluginDirectory(boost::filesystem::path(argv[0]).branch_path().string()); }
-        catch (PionPlugin::DirectoryNotFoundException&) {
+        try { plugin::addPluginDirectory(boost::filesystem::path(argv[0]).branch_path().string()); }
+        catch (error::directory_not_found&) {
             PION_LOG_WARN(main_log, "Directory of current executable does not exist: "
                 << boost::filesystem::path(argv[0]).branch_path());
         }
 
         // create a server for HTTP & add the Hello Service
-        WebServer  web_server(cfg_endpoint);
+        http::plugin_server  web_server(cfg_endpoint);
 
         if (ssl_flag) {
 #ifdef PION_HAVE_SSL
@@ -171,8 +171,42 @@ int main (int argc, char *argv[])
 
         // startup the server
         web_server.start();
-        PionProcess::wait_for_shutdown();
+        process::wait_for_shutdown();
         
+    } catch (error::bad_arg& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_arg_name>(e);
+        PION_LOG_FATAL(main_log, "bad argument: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::bad_config& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_file_name>(e);
+        PION_LOG_FATAL(main_log, "config parsing error: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::open_file& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_file_name>(e);
+        PION_LOG_FATAL(main_log, "unable to open file: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::open_plugin& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_plugin_name>(e);
+        PION_LOG_FATAL(main_log, "unable to open plugin: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::read_file& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_file_name>(e);
+        PION_LOG_FATAL(main_log, "unable to read file: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::file_not_found& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_file_name>(e);
+        PION_LOG_FATAL(main_log, "file not found: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::directory_not_found& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_dir_name>(e);
+        PION_LOG_FATAL(main_log, "directory not found: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::plugin_not_found& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_plugin_name>(e);
+        PION_LOG_FATAL(main_log, "plugin not found: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::duplicate_plugin& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_plugin_name>(e);
+        PION_LOG_FATAL(main_log, "duplicate plugin: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::plugin_missing_symbol& e) {
+        const std::string *str_ptr = boost::get_error_info<error::errinfo_symbol_name>(e);
+        PION_LOG_FATAL(main_log, "missing plugin symbol: " << (str_ptr ? *str_ptr : "(null)"));
+    } catch (error::plugin_undefined& e) {
+        PION_LOG_FATAL(main_log, "plugin has undefined state");
+    } catch (error::bad_password_hash& e) {
+        PION_LOG_FATAL(main_log, "bad password hash");
     } catch (std::exception& e) {
         PION_LOG_FATAL(main_log, e.what());
     }
