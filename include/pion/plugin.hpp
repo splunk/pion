@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PIONPLUGIN_HEADER__
-#define __PION_PIONPLUGIN_HEADER__
+#ifndef __PION_PLUGIN_HEADER__
+#define __PION_PLUGIN_HEADER__
 
 #include <vector>
 #include <string>
@@ -19,59 +19,16 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/filesystem/path.hpp>
 #include <pion/config.hpp>
-#include <pion/exception.hpp>
+#include <pion/error.hpp>
 
 
 namespace pion {    // begin namespace pion
 
 ///
-/// PionPlugin: base class for plug-in management
+/// plugin: base class for plug-in management
 ///
-class PION_NET_API PionPlugin {
+class PION_API plugin {
 public:
-
-    /// exception thrown if the plug-in file cannot be opened
-    class PluginUndefinedException : public std::exception {
-    public:
-        virtual const char* what() const throw() {
-            return "Plug-in was not loaded properly";
-        }
-    };
-    
-    /// exception thrown if the plug-in directory does not exist
-    class DirectoryNotFoundException : public PionException {
-    public:
-        DirectoryNotFoundException(const std::string& dir)
-            : PionException("Plug-in directory not found: ", dir) {}
-    };
-
-    /// exception thrown if the plug-in file cannot be found
-    class PluginNotFoundException : public PionException {
-    public:
-        PluginNotFoundException(const std::string& file)
-            : PionException("Plug-in library not found: ", file) {}
-    };
-    
-    /// exception thrown if the plug-in file cannot be opened
-    class OpenPluginException : public PionException {
-    public:
-        OpenPluginException(const std::string& file)
-            : PionException("Unable to open plug-in library: ", file) {}
-    };
-    
-    /// exception thrown if a plug-in library is missing the create() function
-    class PluginMissingCreateException : public PionException {
-    public:
-        PluginMissingCreateException(const std::string& file)
-            : PionException("Plug-in library does not include create() symbol: ", file) {}
-    };
-    
-    /// exception thrown if a plug-in library is missing the destroy() function
-    class PluginMissingDestroyException : public PionException {
-    public:
-        PluginMissingDestroyException(const std::string& file)
-            : PionException("Plug-in library does not include destroy() symbol: ", file) {}
-    };
 
     /**
      * searches directories for a valid plug-in file
@@ -130,7 +87,7 @@ public:
     
 
     // default destructor
-    virtual ~PionPlugin() { releaseData(); }
+    virtual ~plugin() { releaseData(); }
     
     /// returns true if a shared library is loaded/open
     inline bool is_open(void) const { return (m_plugin_data != NULL); }
@@ -145,7 +102,7 @@ public:
 
     /**
      * opens plug-in library within a shared object file.  If the library is
-     * already being used by another PionPlugin object, then the existing
+     * already being used by another plugin object, then the existing
      * code will be re-used and the reference count will be increased.  Beware
      * that this does NOT check the plug-in's base class (InterfaceClassType),
      * so you must be careful to ensure that the namespace is unique between
@@ -159,7 +116,7 @@ public:
 
     /**
      * opens plug-in library within a shared object file.  If the library is
-     * already being used by another PionPlugin object, then the existing
+     * already being used by another plugin object, then the existing
      * code will be re-used and the reference count will be increased.  Beware
      * that this does NOT check the plug-in's base class (InterfaceClassType),
      * so you must be careful to ensure that the namespace is unique between
@@ -177,20 +134,20 @@ public:
 protected:
     
     ///
-    /// PionPluginData: object to hold shared library symbols
+    /// data_type: object to hold shared library symbols
     ///
-    struct PionPluginData
+    struct data_type
     {
         /// default constructors for convenience
-        PionPluginData(void)
+        data_type(void)
             : m_lib_handle(NULL), m_create_func(NULL), m_destroy_func(NULL),
             m_references(0)
         {}
-        PionPluginData(const std::string& plugin_name)
+        data_type(const std::string& plugin_name)
             : m_lib_handle(NULL), m_create_func(NULL), m_destroy_func(NULL),
             m_plugin_name(plugin_name), m_references(0)
         {}
-        PionPluginData(const PionPluginData& p)
+        data_type(const data_type& p)
             : m_lib_handle(p.m_lib_handle), m_create_func(p.m_create_func),
             m_destroy_func(p.m_destroy_func), m_plugin_name(p.m_plugin_name),
             m_references(p.m_references)
@@ -213,14 +170,14 @@ protected:
     };
 
     
-    /// default constructor is private (use PionPluginPtr class to create objects)
-    PionPlugin(void) : m_plugin_data(NULL) {}
+    /// default constructor is private (use plugin_ptr class to create objects)
+    plugin(void) : m_plugin_data(NULL) {}
     
     /// copy constructor
-    PionPlugin(const PionPlugin& p) : m_plugin_data(NULL) { grabData(p); }
+    plugin(const plugin& p) : m_plugin_data(NULL) { grabData(p); }
 
     /// assignment operator
-    PionPlugin& operator=(const PionPlugin& p) { grabData(p); return *this; }
+    plugin& operator=(const plugin& p) { grabData(p); return *this; }
 
     /// returns a pointer to the plug-in's "create object" function
     inline void *getCreateFunction(void) {
@@ -236,35 +193,35 @@ protected:
     void releaseData(void);
     
     /// grabs a reference to another plug-in's shared library symbols
-    void grabData(const PionPlugin& p);
+    void grabData(const plugin& p);
 
     
 private:
 
     /// data type that maps plug-in names to their shared library data
-    typedef std::map<std::string, PionPluginData*>  PluginMap;
+    typedef std::map<std::string, data_type*>  map_type;
 
     /// data type for static/global plugin configuration information
-    struct PionPluginConfig {
+    struct config_type {
         /// directories containing plugin files
-        std::vector<std::string>    plugin_dirs;
+        std::vector<std::string>    m_plugin_dirs;
         
         /// maps plug-in names to shared library data
-        PluginMap                   plugin_map;
+        map_type                   m_plugin_map;
         
         /// mutex to make class thread-safe
-        boost::mutex                plugin_mutex;
+        boost::mutex                m_plugin_mutex;
     };
 
     
-    /// returns a singleton instance of PionPluginConfig
-    static inline PionPluginConfig& getPionPluginConfig(void) {
-        boost::call_once(PionPlugin::createPionPluginConfig, m_instance_flag);
+    /// returns a singleton instance of config_type
+    static inline config_type& get_plugin_config(void) {
+        boost::call_once(plugin::create_plugin_config, m_instance_flag);
         return *m_config_ptr;
     }
     
-    /// creates the PionPluginConfig singleton
-    static void createPionPluginConfig(void);
+    /// creates the plugin_config singleton
+    static void create_plugin_config(void);
 
     /**
      * searches directories for a valid plug-in file
@@ -298,7 +255,7 @@ private:
      * @param plugin_data data object to load the library into
      */
     static void openPlugin(const std::string& plugin_file,
-                           PionPluginData& plugin_data);
+                           data_type& plugin_data);
 
     /// returns the name of the plugin object (based on the plugin_file name)
     static std::string getPluginName(const std::string& plugin_file);
@@ -325,24 +282,24 @@ private:
     /// file extension used for Pion configuration files
     static const std::string            PION_CONFIG_EXTENSION;
     
-    /// used to ensure thread safety of the PionPluginConfig singleton
+    /// used to ensure thread safety of the plugin_config singleton
     static boost::once_flag             m_instance_flag;
 
-    /// pointer to the PionPluginConfig singleton
-    static PionPluginConfig *           m_config_ptr;
+    /// pointer to the plugin_config singleton
+    static config_type *           m_config_ptr;
 
     /// points to the shared library and functions used by the plug-in
-    PionPluginData *                    m_plugin_data;
+    data_type *                    m_plugin_data;
 };
 
 
 ///
-/// PionPluginPtr: smart pointer that manages plug-in code loaded from shared
+/// plugin_ptr: smart pointer that manages plug-in code loaded from shared
 ///                object libraries
 ///
 template <typename InterfaceClassType>
-class PionPluginPtr :
-    public PionPlugin
+class plugin_ptr :
+    public plugin
 {
 protected:
     
@@ -356,21 +313,21 @@ protected:
 public:
 
     /// default constructor & destructor
-    PionPluginPtr(void) : PionPlugin() {}
-    virtual ~PionPluginPtr() {}
+    plugin_ptr(void) : plugin() {}
+    virtual ~plugin_ptr() {}
     
     /// copy constructor
-    PionPluginPtr(const PionPluginPtr& p) : PionPlugin(p) {}
+    plugin_ptr(const plugin_ptr& p) : plugin(p) {}
 
     /// assignment operator
-    PionPluginPtr& operator=(const PionPluginPtr& p) { grabData(p); return *this; }
+    plugin_ptr& operator=(const plugin_ptr& p) { grabData(p); return *this; }
 
     /// creates a new instance of the plug-in object
     inline InterfaceClassType *create(void) {
         CreateObjectFunction *create_func =
             (CreateObjectFunction*)(getCreateFunction());
         if (create_func == NULL)
-            throw PluginUndefinedException();
+            BOOST_THROW_EXCEPTION( error::plugin_undefined() );
         return create_func();
     }
     
@@ -385,26 +342,26 @@ public:
         Cast.v_ = getDestroyFunction();
         DestroyObjectFunction *destroy_func = Cast.f_;
         if (destroy_func == NULL)
-            throw PluginUndefinedException();
+            BOOST_THROW_EXCEPTION( error::plugin_undefined() );
         destroy_func(object_ptr);
     }
 };
 
 
 ///
-/// PionPluginInstancePtr: smart pointer that manages a plug-in instance
+/// plugin_instance_ptr: smart pointer that manages a plug-in instance
 ///
 template <typename InterfaceClassType>
-class PionPluginInstancePtr :
+class plugin_instance_ptr :
     private boost::noncopyable
 {
 public:
 
     /// default constructor & destructor
-    PionPluginInstancePtr(void) : m_instance_ptr(NULL) {}
+    plugin_instance_ptr(void) : m_instance_ptr(NULL) {}
     
     /// virtual destructor / may be extended
-    virtual ~PionPluginInstancePtr() { reset(); }
+    virtual ~plugin_instance_ptr() { reset(); }
     
     /// reset the instance pointer
     inline void reset(void) { 
@@ -442,7 +399,7 @@ public:
 protected:
 
     /// smart pointer that manages the plugin's dynamic object code
-    PionPluginPtr<InterfaceClassType>   m_plugin_ptr;
+    plugin_ptr<InterfaceClassType>   m_plugin_ptr;
     
     /// raw pointer to the plugin instance
     InterfaceClassType  *               m_instance_ptr;
@@ -468,14 +425,14 @@ protected:
     class plugin_name;                      \
     extern "C" plugin_name *pion_create_##plugin_name(void); \
     extern "C" void pion_destroy_##plugin_name(plugin_name *plugin_ptr); \
-    static pion::StaticEntryPointHelper helper_##plugin_name(#plugin_name, (void*) pion_create_##plugin_name, (void*) pion_destroy_##plugin_name);
+    static pion::static_entry_point_helper helper_##plugin_name(#plugin_name, (void*) pion_create_##plugin_name, (void*) pion_destroy_##plugin_name);
 
 /// used by PION_DECLARE_PLUGIN to add an entry point for static-linked plugins
-class StaticEntryPointHelper {
+class static_entry_point_helper {
 public:
-    StaticEntryPointHelper(const std::string& name, void *create, void *destroy)
+    static_entry_point_helper(const std::string& name, void *create, void *destroy)
     {
-        pion::PionPlugin::addStaticEntryPoint(name, create, destroy);
+        pion::plugin::addStaticEntryPoint(name, create, destroy);
     }
 };
 

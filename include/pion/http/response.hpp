@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPRESPONSE_HEADER__
-#define __PION_HTTPRESPONSE_HEADER__
+#ifndef __PION_HTTP_RESPONSE_HEADER__
+#define __PION_HTTP_RESPONSE_HEADER__
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
@@ -18,60 +18,60 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
     
 ///
-/// HTTPResponse: container for HTTP response information
+/// response: container for HTTP response information
 /// 
-class HTTPResponse
-    : public HTTPMessage
+class response
+    : public http::message
 {
 public:
 
     /**
-     * constructs a new HTTPResponse object for a particular request
+     * constructs a new response object for a particular request
      *
-     * @param http_request the request that this is responding to
+     * @param http_request_ptr the request that this is responding to
      */
-    HTTPResponse(const HTTPRequest& http_request)
+    response(const http::request& http_request_ptr)
         : m_status_code(RESPONSE_CODE_OK),
         m_status_message(RESPONSE_MESSAGE_OK)
     {
-        updateRequestInfo(http_request);
+        updateRequestInfo(http_request_ptr);
     }
 
     /**
-     * constructs a new HTTPResponse object for a particular request method
+     * constructs a new response object for a particular request method
      *
      * @param request_method the method used by the HTTP request we are responding to
      */
-    HTTPResponse(const std::string& request_method)
+    response(const std::string& request_method)
         : m_status_code(RESPONSE_CODE_OK), m_status_message(RESPONSE_MESSAGE_OK),
         m_request_method(request_method)
     {}
     
     /// copy constructor
-    HTTPResponse(const HTTPResponse& http_response)
-        : HTTPMessage(http_response),
+    response(const response& http_response)
+        : message(http_response),
         m_status_code(http_response.m_status_code),
         m_status_message(http_response.m_status_message),
         m_request_method(http_response.m_request_method)
     {}
     
     /// default constructor: you are strongly encouraged to use one of the other
-    /// constructors, since HTTPResponse parsing is influenced by the request method
-    HTTPResponse(void)
+    /// constructors, since response parsing is influenced by the request method
+    response(void)
         : m_status_code(RESPONSE_CODE_OK),
         m_status_message(RESPONSE_MESSAGE_OK)
     {}
     
     /// virtual destructor
-    virtual ~HTTPResponse() {}
+    virtual ~response() {}
 
     /// clears all response data
     virtual void clear(void) {
-        HTTPMessage::clear();
+        http::message::clear();
         m_status_code = RESPONSE_CODE_OK;
         m_status_message = RESPONSE_MESSAGE_OK;
         m_request_method.clear();
@@ -92,7 +92,7 @@ public:
      *
      * @param http_request the request that this is responding to
      */
-    inline void updateRequestInfo(const HTTPRequest& http_request) {
+    inline void updateRequestInfo(const http::request& http_request) {
         m_request_method = http_request.getMethod();
         if (http_request.getVersionMajor() == 1 && http_request.getVersionMinor() >= 1)
             setChunksSupported(true);
@@ -220,10 +220,10 @@ private:
 
 
 /// data type for a HTTP response pointer
-typedef boost::shared_ptr<HTTPResponse>     HTTPResponsePtr;
+typedef boost::shared_ptr<response>     response_ptr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

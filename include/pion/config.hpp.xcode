@@ -68,17 +68,7 @@
 /* Define to 1 if you have the `OpenSSL' library. */
 #define PION_HAVE_SSL 1
 
-/* Define to 1 if you have the `boost.lockfree' library. */
-/* #undef PION_HAVE_LOCKFREE */
-
-
-/* The following are only used by the Windows projects */
-#define PION_COMMON_API
-#define PION_PLUGIN_API
-#define PION_NET_API
-#define PION_SERVICE_API
-#define PION_PLATFORM_API
-#define PION_SERVER_API
-
+/* This is used by Windows projects to flag exported symbols */
+#define PION_API
 
 #endif

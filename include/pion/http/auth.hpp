@@ -7,47 +7,43 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPAUTH_HEADER__
-#define __PION_HTTPAUTH_HEADER__
+#ifndef __PION_HTTP_AUTH_HEADER__
+#define __PION_HTTP_AUTH_HEADER__
 
 #include <set>
+#include <map>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
+#include <pion/error.hpp>
 #include <pion/logger.hpp>
-#include <pion/exception.hpp>
+#include <pion/hash_map.hpp>
 #include <pion/tcp/connection.hpp>
-#include <pion/http/user.hpp>
+#include <pion/user.hpp>
 #include <pion/http/request.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>    // order important, otherwise compiling error under win32
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
-/// HTTPAuth: a base class for handling HTTP Authentication and session management
+/// auth: a base class for handling HTTP Authentication and session management
 ///
-class PION_NET_API HTTPAuth :
+class PION_API auth :
     private boost::noncopyable
 {
 public:
     
-    /// exception thrown if the service does not recognize a configuration option
-    class UnknownOptionException : public PionException {
-    public:
-        UnknownOptionException(const std::string& name)
-            : PionException("Option not recognized by authentication service: ", name) {}
-    };
-    
-    
     /// default constructor
-    HTTPAuth(PionUserManagerPtr userManager) 
-        : m_logger(PION_GET_LOGGER("pion.net.HTTPAuth")),
+    auth(user_manager_ptr userManager) 
+        : m_logger(PION_GET_LOGGER("pion.http.auth")),
         m_user_manager(userManager)
     {}
     
     /// virtual destructor
-    virtual ~HTTPAuth() {}
+    virtual ~auth() {}
     
     /**
      * attempts to validate authentication of a new HTTP request. 
@@ -56,12 +52,12 @@ public:
      * If request not authenticated, appropriate response is sent over tcp_conn
      * and return "false";
      *
-     * @param request the new HTTP request to handle
+     * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) = 0;
+    virtual bool handleRequest(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn) = 0;
     
     /**
      * sets a configuration option
@@ -70,7 +66,7 @@ public:
      * @param value the value of the option
      */
     virtual void setOption(const std::string& name, const std::string& value) {
-        throw UnknownOptionException(name);
+        BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
     }
     
     /**
@@ -117,7 +113,7 @@ public:
     /**
      * Used to locate user object by username
      */
-    virtual PionUserPtr getUser(std::string const &username) {
+    virtual user_ptr getUser(std::string const &username) {
         return m_user_manager->getUser(username);
     }
 
@@ -125,15 +121,18 @@ public:
 protected:
 
     /// data type for a set of resources to be authenticated
-    typedef std::set<std::string>   AuthResourceSet;
+    typedef std::set<std::string>   resource_set_type;
 
+    /// data type used to map authentication credentials to user objects
+    typedef std::map<std::string,std::pair<boost::posix_time::ptime,user_ptr> >  user_cache_type;
+    
     
     /**
      * check if given HTTP request requires authentication
      *
-     * @param http_request the HTTP request to check
+     * @param http_request_ptr the HTTP request to check
      */
-    bool needAuthentication(HTTPRequestPtr const& http_request) const;
+    bool needAuthentication(http::request_ptr const& http_request_ptr) const;
     
     /**
      * tries to find a resource in a given collection
@@ -143,34 +142,34 @@ protected:
      *
      * @return true if the resource was found
      */
-    bool findResource(const AuthResourceSet& resource_set,
+    bool findResource(const resource_set_type& resource_set,
                       const std::string& resource) const;
 
     /// sets the logger to be used
-    inline void setLogger(PionLogger log_ptr) { m_logger = log_ptr; }
+    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
     
 
     /// primary logging interface used by this class
-    mutable PionLogger              m_logger;
+    mutable logger              m_logger;
     
     /// container used to manager user objects
-    PionUserManagerPtr          m_user_manager;
+    user_manager_ptr          m_user_manager;
     
     /// collection of resources that require authentication 
-    AuthResourceSet             m_restrict_list;
+    resource_set_type             m_restrict_list;
 
     /// collection of resources that do NOT require authentication 
-    AuthResourceSet             m_white_list;
+    resource_set_type             m_white_list;
 
     /// mutex used to protect access to the resources
     mutable boost::mutex        m_resource_mutex;
 };
 
-/// data type for a HTTPAuth pointer
-typedef boost::shared_ptr<HTTPAuth> HTTPAuthPtr;
+/// data type for a auth pointer
+typedef boost::shared_ptr<auth> auth_ptr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

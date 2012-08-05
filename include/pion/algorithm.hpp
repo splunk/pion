@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_ALGORITHMS_HEADER__
-#define __PION_ALGORITHMS_HEADER__
+#ifndef __PION_ALGORITHM_HEADER__
+#define __PION_ALGORITHM_HEADER__
 
 #include <string>
 #include <pion/config.hpp>
@@ -16,7 +16,7 @@
 
 namespace pion {    // begin namespace pion
 
-struct PION_NET_API algo {
+struct PION_API algorithm {
 
     /** base64 decoding
      *

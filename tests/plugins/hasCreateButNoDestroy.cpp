@@ -11,7 +11,7 @@
 #include <pion/config.hpp>
 
 /// creates new hasCreateButNoDestroy objects
-extern "C" PION_SERVICE_API hasCreateButNoDestroy *pion_create_hasCreateButNoDestroy(void)
+extern "C" PION_API hasCreateButNoDestroy *pion_create_hasCreateButNoDestroy(void)
 {
     return new hasCreateButNoDestroy();
 }

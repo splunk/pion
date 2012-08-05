@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_TCPTIMER_HEADER__
-#define __PION_TCPTIMER_HEADER__
+#ifndef __PION_TCP_TIMER_HEADER__
+#define __PION_TCP_TIMER_HEADER__
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -20,14 +20,14 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace tcp {     // begin namespace tcp
 
 
 ///
-/// TCPTimer: helper class used to time-out TCP connections
+/// timer: helper class used to time-out TCP connections
 ///
-class TCPTimer
-    : public boost::enable_shared_from_this<TCPTimer>
+class timer
+    : public boost::enable_shared_from_this<timer>
 {
 public:
 
@@ -36,7 +36,7 @@ public:
      *
      * @param conn_ptr pointer to TCP connection to monitor
      */
-    TCPTimer(TCPConnectionPtr& conn_ptr);
+    timer(tcp::connection_ptr& conn_ptr);
 
     /**
      * starts a timer for closing a TCP connection
@@ -56,10 +56,10 @@ private:
      *
      * @param ec deadline timer error status code
      */
-    void timerCallback(const boost::system::error_code& ec);
+    void timer_callback(const boost::system::error_code& ec);
 
     /// pointer to the TCP connection that is being monitored
-    TCPConnectionPtr                        m_conn_ptr;
+    tcp::connection_ptr                     m_conn_ptr;
 
     /// deadline timer used to timeout TCP operations
     boost::asio::deadline_timer             m_timer;
@@ -75,11 +75,11 @@ private:
 };
 
 
-/// shared pointer to a TCPTimer object
-typedef boost::shared_ptr<TCPTimer>     TCPTimerPtr;
+/// shared pointer to a timer object
+typedef boost::shared_ptr<timer>     timer_ptr;
 
 
-}   // end namespace net
+}   // end namespace tcp
 }   // end namespace pion
 
 #endif

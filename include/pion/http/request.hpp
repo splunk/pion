@@ -7,43 +7,44 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_HTTPREQUEST_HEADER__
-#define __PION_HTTPREQUEST_HEADER__
+#ifndef __PION_HTTP_REQUEST_HEADER__
+#define __PION_HTTP_REQUEST_HEADER__
 
 #include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/http/message.hpp>
-#include <pion/http/user.hpp>
+#include <pion/user.hpp>
+
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
 
 
 ///
-/// HTTPRequest: container for HTTP request information
+/// request: container for HTTP request information
 /// 
-class HTTPRequest
-    : public HTTPMessage
+class request
+    : public http::message
 {
 public:
 
     /**
-     * constructs a new HTTPRequest object
+     * constructs a new request object
      *
      * @param resource the HTTP resource to request
      */
-    HTTPRequest(const std::string& resource)
+    request(const std::string& resource)
         : m_method(REQUEST_METHOD_GET), m_resource(resource) {}
     
-    /// constructs a new HTTPRequest object (default constructor)
-    HTTPRequest(void) : m_method(REQUEST_METHOD_GET) {}
+    /// constructs a new request object (default constructor)
+    request(void) : m_method(REQUEST_METHOD_GET) {}
     
     /// virtual destructor
-    virtual ~HTTPRequest() {}
+    virtual ~request() {}
 
     /// clears all request data
     virtual void clear(void) {
-        HTTPMessage::clear();
+        http::message::clear();
         m_method.erase();
         m_resource.erase();
         m_original_resource.erase();
@@ -73,7 +74,7 @@ public:
     }
 
     /// returns the query parameters
-    inline QueryParams& getQueryParams(void) {
+    inline ihash_multimap& get_queries(void) {
         return m_query_params;
     }
     
@@ -143,10 +144,10 @@ public:
     }
     
     /// sets the user record for HTTP request after authentication
-    inline void setUser(PionUserPtr user) { m_user_record = user; }
+    inline void setUser(user_ptr user) { m_user_record = user; }
     
     /// get the user record for HTTP request after authentication
-    inline PionUserPtr getUser() const { return m_user_record; }
+    inline user_ptr getUser() const { return m_user_record; }
 
 
 protected:
@@ -184,18 +185,18 @@ private:
     std::string                     m_query_string;
     
     /// HTTP query parameters parsed from the request line and post content
-    QueryParams                     m_query_params;
+    ihash_multimap                     m_query_params;
 
-    /// pointer to PionUser record if this request had been authenticated 
-    PionUserPtr                     m_user_record;
+    /// pointer to user record if this request had been authenticated 
+    user_ptr                     m_user_record;
 };
 
 
 /// data type for a HTTP request pointer
-typedef boost::shared_ptr<HTTPRequest>      HTTPRequestPtr;
+typedef boost::shared_ptr<request>      request_ptr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif

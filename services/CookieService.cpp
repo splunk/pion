@@ -12,7 +12,6 @@
 #include <pion/http/response_writer.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
@@ -21,24 +20,24 @@ namespace plugins {     // begin namespace plugins
 // CookieService member functions
 
 /// handles requests for CookieService
-void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void CookieService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
 {
     static const std::string HEADER_HTML = "<html>\n<head>\n<title>Cookie Service</title>\n"
         "</head>\n<body>\n\n<h1>Cookie Service</h1>\n";
     static const std::string FOOTER_HTML = "\n</body>\n</html>\n";
 
     // Set Content-type for HTML and write the header
-    HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
-    writer->getResponse().setContentType(HTTPTypes::CONTENT_TYPE_HTML);
+    http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
+    writer->getResponse().setContentType(http::types::CONTENT_TYPE_HTML);
     writer->writeNoCopy(HEADER_HTML);
 
     // Check if we have an action to perform
-    if (request->hasQuery("action")) {
-        if (algo::url_decode(request->getQuery("action")) == "Add Cookie") {
+    if (http_request_ptr->hasQuery("action")) {
+        if (algorithm::url_decode(http_request_ptr->getQuery("action")) == "Add Cookie") {
             // add a new cookie
-            const std::string cookie_name(request->getQuery("cookie_name"));
-            const std::string cookie_value(request->getQuery("cookie_value"));
+            const std::string cookie_name(http_request_ptr->getQuery("cookie_name"));
+            const std::string cookie_value(http_request_ptr->getQuery("cookie_value"));
             if (cookie_name.empty() || cookie_value.empty()) {
                 writer << "\n<p>[Error: You must specify a name and value to add a cookie]</p>\n\n";
             } else {
@@ -46,8 +45,8 @@ void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_co
                 writer << "\n<p>[Added cookie "
                     << cookie_name << '=' << cookie_value << "]</p>\n\n";
             }
-        } else if (request->getQuery("action") == "delete") {
-            const std::string cookie_name(request->getQuery("cookie_name"));
+        } else if (http_request_ptr->getQuery("action") == "delete") {
+            const std::string cookie_name(http_request_ptr->getQuery("cookie_name"));
             if (cookie_name.empty()) {
                 writer << "\n<p>[Error: You must specify a name to delete a cookie]</p>\n\n";
             } else {
@@ -60,12 +59,12 @@ void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_co
     }
     
     // display cookie headers in request
-    if (request->hasHeader(HTTPTypes::HEADER_COOKIE)) {
+    if (http_request_ptr->hasHeader(http::types::HEADER_COOKIE)) {
         writer << "\n<h2>Cookie Headers</h2>\n<ul>\n";
-        std::pair<HTTPTypes::Headers::const_iterator, HTTPTypes::Headers::const_iterator>
-            header_pair = request->getHeaders().equal_range(HTTPTypes::HEADER_COOKIE);
-        for (HTTPTypes::Headers::const_iterator header_iterator = header_pair.first;
-             header_iterator != request->getHeaders().end()
+        std::pair<ihash_multimap::const_iterator, ihash_multimap::const_iterator>
+            header_pair = http_request_ptr->get_headers().equal_range(http::types::HEADER_COOKIE);
+        for (ihash_multimap::const_iterator header_iterator = header_pair.first;
+             header_iterator != http_request_ptr->get_headers().end()
              && header_iterator != header_pair.second; ++header_iterator)
         {
             writer << "<li>Cookie: " << header_iterator->second << "\n";
@@ -76,14 +75,14 @@ void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_co
     }
     
     // display existing cookies
-    HTTPTypes::CookieParams& cookie_params = request->getCookieParams();
+    ihash_multimap& cookie_params = http_request_ptr->get_cookies();
     if (! cookie_params.empty()) {
         writer << "\n<h2>Cookie Variables</h2>\n<ul>\n";
-        for (HTTPTypes::CookieParams::const_iterator i = cookie_params.begin();
+        for (ihash_multimap::const_iterator i = cookie_params.begin();
              i != cookie_params.end(); ++i)
         {
             writer << "<li>" << i->first << ": " << i->second
-                << " <a href=\"" << request->getResource()
+                << " <a href=\"" << http_request_ptr->getResource()
                 << "?action=delete&cookie_name=" << i->first
                 << "\">[Delete]</a>\n";
         }
@@ -94,7 +93,7 @@ void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_co
 
     // display form to add a cookie
     writer << "\n<h2>Add Cookie</h2>\n"
-        "<p><form action=\"" << request->getResource() << "\" method=\"POST\">\n"
+        "<p><form action=\"" << http_request_ptr->getResource() << "\" method=\"POST\">\n"
         "Name: <input type=\"text\" name=\"cookie_name\"><br />\n"
         "Value: <input type=\"text\" name=\"cookie_value\"><br />\n"
         "<input type=\"submit\" name=\"action\" value=\"Add Cookie\"></p>\n"
@@ -113,13 +112,13 @@ void CookieService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_co
 
 
 /// creates new CookieService objects
-extern "C" PION_SERVICE_API pion::plugins::CookieService *pion_create_CookieService(void)
+extern "C" PION_API pion::plugins::CookieService *pion_create_CookieService(void)
 {
     return new pion::plugins::CookieService();
 }
 
 /// destroys CookieService objects
-extern "C" PION_SERVICE_API void pion_destroy_CookieService(pion::plugins::CookieService *service_ptr)
+extern "C" PION_API void pion_destroy_CookieService(pion::plugins::CookieService *service_ptr)
 {
     delete service_ptr;
 }

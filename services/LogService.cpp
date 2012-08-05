@@ -22,7 +22,6 @@
 #include <pion/http/response_writer.hpp>
 
 using namespace pion;
-using namespace pion::net;
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
@@ -95,7 +94,7 @@ void LogServiceAppender::addLogString(const std::string& log_string)
     }
 }
 
-void LogServiceAppender::writeLogEvents(pion::net::HTTPResponseWriterPtr& writer)
+void LogServiceAppender::writeLogEvents(pion::http::response_writer_ptr& writer)
 {
 #if defined(PION_USE_LOG4CXX) || defined(PION_USE_LOG4CPLUS) || defined(PION_USE_LOG4CPP)
     boost::mutex::scoped_lock log_lock(m_log_mutex);
@@ -105,9 +104,9 @@ void LogServiceAppender::writeLogEvents(pion::net::HTTPResponseWriterPtr& writer
         writer << *i;
     }
 #elif defined(PION_DISABLE_LOGGING)
-    writer << "Logging is disabled." << HTTPTypes::STRING_CRLF;
+    writer << "Logging is disabled." << http::types::STRING_CRLF;
 #else
-    writer << "Using ostream logging." << HTTPTypes::STRING_CRLF;
+    writer << "Using ostream logging." << http::types::STRING_CRLF;
 #endif
 }
 
@@ -145,12 +144,12 @@ LogService::~LogService()
 }
 
 /// handles requests for LogService
-void LogService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
+void LogService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
 {
     // Set Content-type to "text/plain" (plain ascii text)
-    HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request,
-                                                            boost::bind(&TCPConnection::finish, tcp_conn)));
-    writer->getResponse().setContentType(HTTPTypes::CONTENT_TYPE_TEXT);
+    http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
+                                                                   boost::bind(&tcp::connection::finish, tcp_conn)));
+    writer->getResponse().setContentType(http::types::CONTENT_TYPE_TEXT);
     getLogAppender().writeLogEvents(writer);
     writer->send();
 }
@@ -161,13 +160,13 @@ void LogService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn)
 
 
 /// creates new LogService objects
-extern "C" PION_SERVICE_API pion::plugins::LogService *pion_create_LogService(void)
+extern "C" PION_API pion::plugins::LogService *pion_create_LogService(void)
 {
     return new pion::plugins::LogService();
 }
 
 /// destroys LogService objects
-extern "C" PION_SERVICE_API void pion_destroy_LogService(pion::plugins::LogService *service_ptr)
+extern "C" PION_API void pion_destroy_LogService(pion::plugins::LogService *service_ptr)
 {
     delete service_ptr;
 }

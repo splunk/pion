@@ -26,8 +26,6 @@
 #include <pion/http/plugin_server.hpp>
 
 using namespace pion;
-using namespace pion::net;
-using boost::asio::ip::tcp;
 
 PION_DECLARE_PLUGIN(FileService)
 
@@ -39,11 +37,11 @@ PION_DECLARE_PLUGIN(FileService)
 #endif
 
 
-struct PluginPtrWithFileServiceLoaded_F : public PionPluginPtr<WebService> {
+struct PluginPtrWithFileServiceLoaded_F : public plugin_ptr<http::plugin_service> {
     PluginPtrWithFileServiceLoaded_F() { 
-        PionPlugin::resetPluginDirectories();
+        plugin::resetPluginDirectories();
 #ifndef PION_STATIC_LINKING
-        PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+        plugin::addPluginDirectory(PATH_TO_PLUGINS);
 #endif
         s = NULL;
         open("FileService");
@@ -52,7 +50,7 @@ struct PluginPtrWithFileServiceLoaded_F : public PionPluginPtr<WebService> {
         if (s) destroy(s);
     }
 
-    WebService* s;
+    http::plugin_service* s;
 };
 
 BOOST_FIXTURE_TEST_SUITE(PluginPtrWithFileServiceLoaded_S, PluginPtrWithFileServiceLoaded_F)
@@ -81,9 +79,9 @@ BOOST_AUTO_TEST_SUITE_END()
 class NewlyLoadedFileService_F {
 public:
     NewlyLoadedFileService_F() : m_scheduler(), m_server(m_scheduler) {
-        PionPlugin::resetPluginDirectories();
+        plugin::resetPluginDirectories();
 #ifndef PION_STATIC_LINKING
-        PionPlugin::addPluginDirectory(PATH_TO_PLUGINS);
+        plugin::addPluginDirectory(PATH_TO_PLUGINS);
 #endif
 
         boost::filesystem::remove_all("sandbox");
@@ -106,10 +104,10 @@ public:
         boost::filesystem::remove_all("sandbox");
     }
     
-    inline boost::asio::io_service& getIOService(void) { return m_scheduler.getIOService(); }
+    inline boost::asio::io_service& get_io_service(void) { return m_scheduler.get_io_service(); }
     
-    PionSingleServiceScheduler  m_scheduler;
-    WebServer                   m_server;
+    single_service_scheduler	m_scheduler;
+	http::plugin_server			m_server;
 };
 
 BOOST_FIXTURE_TEST_SUITE(NewlyLoadedFileService_S, NewlyLoadedFileService_F)
@@ -119,7 +117,7 @@ BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithExistingDirectoryDoesntTh
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithNonexistentDirectoryThrows) {
-    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "directory", "NotADirectory"), WebServer::WebServiceException);
+    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "directory", "NotADirectory"), error::directory_not_found);
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithExistingFileDoesntThrow) {
@@ -127,7 +125,7 @@ BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithExistingFileDoesntThrow) {
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithNonexistentFileThrows) {
-    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "file", "NotAFile"), WebServer::WebServiceException);
+    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "file", "NotAFile"), error::file_not_found);
 }
 
 // TODO: tests for options "cache" and "scan"
@@ -149,17 +147,11 @@ BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToFalseDoesntThrow) {
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToNonBooleanThrows) {
-    BOOST_REQUIRE_THROW(m_server.setServiceOption("/resource1", "writable", "3"), WebServer::WebServiceException);
-    try {
-        m_server.setServiceOption("/resource1", "writable", "3");
-    } catch (WebServer::WebServiceException& e) {
-        BOOST_CHECK_EQUAL(e.what(), "WebService (/resource1): FileService invalid value for writable option: 3");
-    }
-    //Original exception is FileService::InvalidOptionValueException
+    BOOST_REQUIRE_THROW(m_server.setServiceOption("/resource1", "writable", "3"), error::bad_arg);
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWithInvalidOptionNameThrows) {
-    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "NotAnOption", "value1"), WebServer::WebServiceException);
+    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "NotAnOption", "value1"), error::bad_arg);
 }
 
 BOOST_AUTO_TEST_SUITE_END() 
@@ -173,7 +165,7 @@ public:
         m_server.start();
 
         // open a connection
-        tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
+        boost::asio::ip::tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
         m_http_stream.connect(http_endpoint);
     }
     ~RunningFileService_F() {
@@ -191,7 +183,7 @@ public:
                                                 unsigned int expected_response_code = 200)
     {
         // send HTTP request to the server
-        m_http_stream << request_method << " " << resource << " HTTP/1.1" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+        m_http_stream << request_method << " " << resource << " HTTP/1.1" << http::types::STRING_CRLF << http::types::STRING_CRLF;
         m_http_stream.flush();
 
         checkResponseHead(expected_response_code);
@@ -254,8 +246,8 @@ public:
                                        const std::string& content)
     {
         // send HTTP request to the server
-        m_http_stream << request_method << " " << resource << " HTTP/1.1" << HTTPTypes::STRING_CRLF;
-        m_http_stream << "Content-Length: " << content.size() << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF << content;
+        m_http_stream << request_method << " " << resource << " HTTP/1.1" << http::types::STRING_CRLF;
+        m_http_stream << "Content-Length: " << content.size() << http::types::STRING_CRLF << http::types::STRING_CRLF << content;
         m_http_stream.flush();
     }
     
@@ -278,7 +270,7 @@ public:
     }
     
     unsigned long m_content_length;
-    tcp::iostream m_http_stream;
+    boost::asio::ip::tcp::iostream m_http_stream;
     std::map<std::string, std::string> m_response_headers;
 };
 
@@ -397,7 +389,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToRequestWithBogusMethod) {
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_0_Request) {
-    m_http_stream << "GET /resource1 HTTP/1.0" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+    m_http_stream << "GET /resource1 HTTP/1.0" << http::types::STRING_CRLF << http::types::STRING_CRLF;
     m_http_stream.flush();
 
     checkResponseHead(200);
@@ -525,19 +517,19 @@ BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForOpenFile) {
 #endif
 
 BOOST_AUTO_TEST_CASE(checkResponseToChunkedPutRequest) {
-    m_http_stream << "PUT /resource1 HTTP/1.1" << HTTPTypes::STRING_CRLF;
-    m_http_stream << HTTPTypes::HEADER_TRANSFER_ENCODING << ": chunked" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+    m_http_stream << "PUT /resource1 HTTP/1.1" << http::types::STRING_CRLF;
+    m_http_stream << http::types::HEADER_TRANSFER_ENCODING << ": chunked" << http::types::STRING_CRLF << http::types::STRING_CRLF;
     // write first chunk size
-    m_http_stream << "A" << HTTPTypes::STRING_CRLF;
+    m_http_stream << "A" << http::types::STRING_CRLF;
     // write first chunk 
-    m_http_stream << "abcdefghij" << HTTPTypes::STRING_CRLF;
+    m_http_stream << "abcdefghij" << http::types::STRING_CRLF;
     // write second chunk size
-    m_http_stream << "5" << HTTPTypes::STRING_CRLF;
+    m_http_stream << "5" << http::types::STRING_CRLF;
     // write second chunk 
-    m_http_stream << "klmno" << HTTPTypes::STRING_CRLF;
+    m_http_stream << "klmno" << http::types::STRING_CRLF;
     // write final chunk size
-    m_http_stream << "0" << HTTPTypes::STRING_CRLF;
-    m_http_stream << HTTPTypes::STRING_CRLF;
+    m_http_stream << "0" << http::types::STRING_CRLF;
+    m_http_stream << http::types::STRING_CRLF;
     m_http_stream.flush();
     checkResponseHead(204);
     BOOST_CHECK(m_content_length == 0);
@@ -545,19 +537,19 @@ BOOST_AUTO_TEST_CASE(checkResponseToChunkedPutRequest) {
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToChunkedPostRequest) {
-    m_http_stream << "POST /resource1 HTTP/1.1" << HTTPTypes::STRING_CRLF;
-    m_http_stream << HTTPTypes::HEADER_TRANSFER_ENCODING << ": chunked" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+    m_http_stream << "POST /resource1 HTTP/1.1" << http::types::STRING_CRLF;
+    m_http_stream << http::types::HEADER_TRANSFER_ENCODING << ": chunked" << http::types::STRING_CRLF << http::types::STRING_CRLF;
     // write first chunk size
-    m_http_stream << "A" << HTTPTypes::STRING_CRLF;
+    m_http_stream << "A" << http::types::STRING_CRLF;
     // write first chunk 
-    m_http_stream << "abcdefghij" << HTTPTypes::STRING_CRLF;
+    m_http_stream << "abcdefghij" << http::types::STRING_CRLF;
     // write second chunk size
-    m_http_stream << "5" << HTTPTypes::STRING_CRLF;
+    m_http_stream << "5" << http::types::STRING_CRLF;
     // write second chunk 
-    m_http_stream << "klmno" << HTTPTypes::STRING_CRLF;
+    m_http_stream << "klmno" << http::types::STRING_CRLF;
     // write final chunk size
-    m_http_stream << "0" << HTTPTypes::STRING_CRLF;
-    m_http_stream << HTTPTypes::STRING_CRLF;
+    m_http_stream << "0" << http::types::STRING_CRLF;
+    m_http_stream << http::types::STRING_CRLF;
     m_http_stream.flush();
     checkResponseHead(204);
     BOOST_CHECK(m_content_length == 0);
@@ -594,7 +586,7 @@ public:
 BOOST_FIXTURE_TEST_SUITE(RunningFileServiceWithMaxChunkSizeSet_S, RunningFileServiceWithMaxChunkSizeSet_F)
 
 BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
-    m_http_stream << "GET /resource1/file4 HTTP/1.1" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+    m_http_stream << "GET /resource1/file4 HTTP/1.1" << http::types::STRING_CRLF << http::types::STRING_CRLF;
     m_http_stream.flush();
 
     checkResponseHead(200);
@@ -611,14 +603,14 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
     // expect CRLF following chunk size
     char two_bytes[2];
     BOOST_CHECK(m_http_stream.read(two_bytes, 2));
-    BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
+    BOOST_CHECK(strncmp(two_bytes, http::types::STRING_CRLF.c_str(), 2) == 0);
 
     // read first chunk
     m_http_stream.read(m_data_buf, chunk_size_1);
 
     // expect CRLF following chunk
     BOOST_CHECK(m_http_stream.read(two_bytes, 2));
-    BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
+    BOOST_CHECK(strncmp(two_bytes, http::types::STRING_CRLF.c_str(), 2) == 0);
 
     // extract second chunk size
     unsigned int chunk_size_2 = 0;
@@ -627,7 +619,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
     
     // expect CRLF following chunk size
     BOOST_CHECK(m_http_stream.read(two_bytes, 2));
-    BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
+    BOOST_CHECK(strncmp(two_bytes, http::types::STRING_CRLF.c_str(), 2) == 0);
 
     // read second chunk
     m_http_stream.read(m_data_buf + chunk_size_1, chunk_size_2);
@@ -638,7 +630,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
     // expect CRLF following chunk
     memset(two_bytes, 0, 2);
     BOOST_CHECK(m_http_stream.read(two_bytes, 2));
-    BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
+    BOOST_CHECK(strncmp(two_bytes, http::types::STRING_CRLF.c_str(), 2) == 0);
 
     // extract final chunk size
     unsigned int chunk_size_3 = 99;
@@ -650,29 +642,29 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
     // expect CRLF following final chunk (and optional trailer)
     memset(two_bytes, 0, 2);
     BOOST_CHECK(m_http_stream.read(two_bytes, 2));
-    BOOST_CHECK(strncmp(two_bytes, HTTPTypes::STRING_CRLF.c_str(), 2) == 0);
+    BOOST_CHECK(strncmp(two_bytes, http::types::STRING_CRLF.c_str(), 2) == 0);
 }
 
 BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
     // open (another) connection
-    TCPConnection tcp_conn(getIOService());
+    pion::tcp::connection tcp_conn(get_io_service());
     boost::system::error_code error_code;
     error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
     BOOST_REQUIRE(!error_code);
 
     // send request to the server
-    HTTPRequest http_request("/resource1/file4");
+    http::request http_request("/resource1/file4");
     http_request.send(tcp_conn, error_code);
     BOOST_REQUIRE(!error_code);
 
     // receive the response from the server
-    HTTPResponse http_response(http_request);
+    http::response http_response(http_request);
     http_response.receive(tcp_conn, error_code);
     BOOST_REQUIRE(!error_code);
 
     // verify that the headers are as expected for a chunked response 
-    BOOST_CHECK_EQUAL(http_response.getHeader(HTTPTypes::HEADER_TRANSFER_ENCODING), "chunked");
-    BOOST_CHECK_EQUAL(http_response.getHeader(HTTPTypes::HEADER_CONTENT_LENGTH), "");
+    BOOST_CHECK_EQUAL(http_response.getHeader(http::types::HEADER_TRANSFER_ENCODING), "chunked");
+    BOOST_CHECK_EQUAL(http_response.getHeader(http::types::HEADER_CONTENT_LENGTH), "");
 
     // verify reconstructed data
     BOOST_CHECK_EQUAL(http_response.getContentLength(), static_cast<size_t>(m_file4_len));
@@ -680,7 +672,7 @@ BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_0_Request) {
-    m_http_stream << "GET /resource1/file4 HTTP/1.0" << HTTPTypes::STRING_CRLF << HTTPTypes::STRING_CRLF;
+    m_http_stream << "GET /resource1/file4 HTTP/1.0" << http::types::STRING_CRLF << http::types::STRING_CRLF;
     m_http_stream.flush();
 
     checkResponseHead(200);

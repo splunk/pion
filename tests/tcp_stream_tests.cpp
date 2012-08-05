@@ -18,38 +18,36 @@
 
 using namespace std;
 using namespace pion;
-using namespace pion::net;
-using boost::asio::ip::tcp;
 
 
 ///
-/// TCPStreamTests_F: fixture used for performing TCPStream tests
+/// tcp_stream_tests_F: fixture used for performing tcp::stream tests
 /// 
-class TCPStreamTests_F {
+class tcp_stream_tests_F {
 public:
     
-    /// data type for a function that handles TCPStream connections
-    typedef boost::function1<void,TCPStream&>   ConnectionHandler;
+    /// data type for a function that handles tcp::stream connections
+    typedef boost::function1<void,tcp::stream&>   connection_handler;
     
     
     // default constructor and destructor
-    TCPStreamTests_F() {
+    tcp_stream_tests_F() {
     }
-    virtual ~TCPStreamTests_F() {}
+    virtual ~tcp_stream_tests_F() {}
     
     /**
      * listen for a TCP connection and call the connection handler when connected
      *
      * @param conn_handler function to call after a connection is established
      */
-    void acceptConnection(ConnectionHandler conn_handler) {
+    void acceptConnection(connection_handler conn_handler) {
         // configure the acceptor service
-        tcp::acceptor   tcp_acceptor(m_scheduler.getIOService());
-        tcp::endpoint   tcp_endpoint(tcp::v4(), 0);
+        boost::asio::ip::tcp::acceptor   tcp_acceptor(m_scheduler.get_io_service());
+        boost::asio::ip::tcp::endpoint   tcp_endpoint(boost::asio::ip::tcp::v4(), 0);
         tcp_acceptor.open(tcp_endpoint.protocol());
 
         // allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
-        tcp_acceptor.set_option(tcp::acceptor::reuse_address(true));
+        tcp_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
         tcp_acceptor.bind(tcp_endpoint);
         tcp_acceptor.listen();
 
@@ -63,7 +61,7 @@ public:
         }
 
         // schedule another thread to listen for a TCP connection
-        TCPStream listener_stream(m_scheduler.getIOService());
+        tcp::stream listener_stream(m_scheduler.get_io_service());
         boost::system::error_code ec = listener_stream.accept(tcp_acceptor);
         tcp_acceptor.close();
         BOOST_REQUIRE(! ec);
@@ -72,8 +70,8 @@ public:
         conn_handler(listener_stream);
     }
     
-    /// sends a "Hello" to a TCPStream
-    static void sendHello(TCPStream& str) {
+    /// sends a "Hello" to a tcp::stream
+    static void sendHello(tcp::stream& str) {
         str << "Hello" << std::endl;
         str.flush();
     }
@@ -82,7 +80,7 @@ public:
     int     m_port;
 
     /// used to schedule work across multiple threads
-    PionSingleServiceScheduler      m_scheduler;
+    single_service_scheduler      m_scheduler;
 
     /// used to notify test thread when acceptConnection() is ready
     boost::condition                m_accept_ready;
@@ -92,22 +90,22 @@ public:
 };
 
 
-// TCPStream Test Cases
+// tcp::stream Test Cases
 
-BOOST_FIXTURE_TEST_SUITE(TCPStreamTests_S, TCPStreamTests_F)
+BOOST_FIXTURE_TEST_SUITE(tcp_stream_tests_S, tcp_stream_tests_F)
 
 BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
     boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
-    ConnectionHandler conn_handler(boost::bind(&TCPStreamTests_F::sendHello, _1));
-    boost::thread listener_thread(boost::bind(&TCPStreamTests_F::acceptConnection,
+    connection_handler conn_handler(boost::bind(&tcp_stream_tests_F::sendHello, _1));
+    boost::thread listener_thread(boost::bind(&tcp_stream_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.addActiveUser();
     m_accept_ready.wait(accept_lock);
 
     // connect to the listener
-    TCPStream client_str(m_scheduler.getIOService());
+    tcp::stream client_str(m_scheduler.get_io_service());
     boost::system::error_code ec;
     ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);
@@ -127,23 +125,23 @@ BOOST_AUTO_TEST_SUITE_END()
 #define BIG_BUF_SIZE (12 * 1024)
 
 ///
-/// TCPStreamBufferTests_F: fixture that includes a big data buffer used for tests
+/// tcp_stream_buffer_tests_F: fixture that includes a big data buffer used for tests
 /// 
-class TCPStreamBufferTests_F
-    : public TCPStreamTests_F
+class tcp_stream_buffer_tests_F
+    : public tcp_stream_tests_F
 {
 public:
     // default constructor and destructor
-    TCPStreamBufferTests_F() {
+    tcp_stream_buffer_tests_F() {
         // fill the buffer with non-random characters
         for (unsigned long n = 0; n < BIG_BUF_SIZE; ++n) {
             m_big_buf[n] = char(n);
         }
     }
-    virtual ~TCPStreamBufferTests_F() {}
+    virtual ~tcp_stream_buffer_tests_F() {}
     
-    /// sends the big buffer contents to a TCPStream
-    void sendBigBuffer(TCPStream& str) {
+    /// sends the big buffer contents to a tcp::stream
+    void sendBigBuffer(tcp::stream& str) {
         str.write(m_big_buf, BIG_BUF_SIZE);
         str.flush();
     }
@@ -153,20 +151,20 @@ public:
 };
 
     
-BOOST_FIXTURE_TEST_SUITE(TCPStreamBufferTests_S, TCPStreamBufferTests_F)
+BOOST_FIXTURE_TEST_SUITE(tcp_stream_buffer_tests_S, tcp_stream_buffer_tests_F)
 
 BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
     boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
-    ConnectionHandler conn_handler(boost::bind(&TCPStreamBufferTests_F::sendBigBuffer, this, _1));
-    boost::thread listener_thread(boost::bind(&TCPStreamBufferTests_F::acceptConnection,
+    connection_handler conn_handler(boost::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, _1));
+    boost::thread listener_thread(boost::bind(&tcp_stream_buffer_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.addActiveUser();
     m_accept_ready.wait(accept_lock);
 
     // connect to the listener
-    TCPStream client_str(m_scheduler.getIOService());
+    tcp::stream client_str(m_scheduler.get_io_service());
     boost::system::error_code ec;
     ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);

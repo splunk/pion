@@ -7,8 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_PIONADMINRIGHTS_HEADER__
-#define __PION_PIONADMINRIGHTS_HEADER__
+#ifndef __PION_ADMIN_RIGHTS_HEADER__
+#define __PION_ADMIN_RIGHTS_HEADER__
 
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
@@ -20,9 +20,9 @@ namespace pion {    // begin namespace pion
 
 
 ///
-/// PionAdminRights: obtains administrative rights for the process
+/// admin_rights: obtains administrative rights for the process
 ///
-class PION_NET_API PionAdminRights {
+class PION_API admin_rights {
 public:
 
     /**
@@ -31,19 +31,19 @@ public:
      *
      * @param use_log if false, then no logging will be performed
      */
-    PionAdminRights(bool use_log = true);
+    admin_rights(bool use_log = true);
 
     /// destructor releases administrative rights
-    virtual ~PionAdminRights() { release(); }
+    virtual ~admin_rights() { release(); }
 
     /// releases administrative rights
     void release(void);
 
     /// calculates the user id based upon the user configuration parameter
-    static long runAsUser(const std::string& user_name);
+    static long run_as_user(const std::string& user_name);
     
     /// calculates the group id based upon the group configuration parameter
-    static long runAsGroup(const std::string& group_name);
+    static long run_as_group(const std::string& group_name);
 
 
 private:
@@ -56,7 +56,7 @@ private:
      *
      * @return boost::int32_t identifier found, or -1 if none found
      */
-    static long findSystemId(const std::string& name, const std::string& file);
+    static long find_system_id(const std::string& name, const std::string& file);
 
 
     /// adminisitrator or root user identifier
@@ -66,7 +66,7 @@ private:
     static boost::mutex                 m_mutex;
 
     /// primary logging interface used by this class        
-    PionLogger                          m_logger;
+    logger                          m_logger;
 
     /// lock used to prevent multiple threads from corrupting user id
     boost::unique_lock<boost::mutex>    m_lock;

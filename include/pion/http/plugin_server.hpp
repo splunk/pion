@@ -7,15 +7,14 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#ifndef __PION_WEBSERVER_HEADER__
-#define __PION_WEBSERVER_HEADER__
+#ifndef __PION_PLUGIN_SERVER_HEADER__
+#define __PION_PLUGIN_SERVER_HEADER__
 
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
-#include <pion/exception.hpp>
 #include <pion/plugin.hpp>
 #include <pion/plugin_manager.hpp>
 #include <pion/http/server.hpp>
@@ -23,102 +22,65 @@
 
 
 namespace pion {    // begin namespace pion
-namespace net {     // begin namespace net (Pion Network Library)
+namespace http {    // begin namespace http
+
 
 ///
-/// WebServer: a server that handles HTTP connections using WebService plug-ins
+/// plugin_server: a server that handles HTTP connections using http::plugin_service plug-ins
 ///
-class PION_NET_API WebServer :
-    public HTTPServer
+class PION_API plugin_server :
+    public http::server
 {
 
 public:
 
-    /// exception thrown if a web service cannot be found
-    class ServiceNotFoundException : public PionException {
-    public:
-        ServiceNotFoundException(const std::string& resource)
-            : PionException("No web services are identified by the resource: ", resource) {}
-    };
-
-    /// exception thrown if the web service configuration file cannot be found
-    class ConfigNotFoundException : public PionException {
-    public:
-        ConfigNotFoundException(const std::string& file)
-            : PionException("Web service configuration file not found: ", file) {}
-    };
-    
-    /// exception thrown if the plug-in file cannot be opened
-    class ConfigParsingException : public PionException {
-    public:
-        ConfigParsingException(const std::string& file)
-            : PionException("Unable to parse configuration file: ", file) {}
-    };
-
-    /// exception thrown if there is an error parsing the authorization config
-    class AuthConfigException : public PionException {
-    public:
-        AuthConfigException(const std::string& error_msg)
-            : PionException("Error in web server authorization config: ", error_msg) {}
-    };
-    
-    /// exception used to propagate exceptions thrown by web services
-    class WebServiceException : public PionException {
-    public:
-        WebServiceException(const std::string& resource, const std::string& file)
-            : PionException(std::string("WebService (") + resource,
-                            std::string("): ") + file)
-        {}
-    };
-        
-    
     /// default destructor
-    virtual ~WebServer() { clear(); }
+    virtual ~plugin_server() { clear(); }
     
     /**
-     * creates a new WebServer object
+     * creates a new plugin_server object
      * 
      * @param tcp_port port number used to listen for new connections (IPv4)
      */
-    explicit WebServer(const unsigned int tcp_port = 0)
-        : HTTPServer(tcp_port)
+    explicit plugin_server(const unsigned int tcp_port = 0)
+        : http::server(tcp_port)
     { 
-        setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+        setLogger(PION_GET_LOGGER("pion.http.plugin_server"));
     }
     
     /**
-     * creates a new WebServer object
+     * creates a new plugin_server object
      * 
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    explicit WebServer(const boost::asio::ip::tcp::endpoint& endpoint)
-        : HTTPServer(endpoint)
+    explicit plugin_server(const boost::asio::ip::tcp::endpoint& endpoint)
+        : http::server(endpoint)
     { 
-        setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+        setLogger(PION_GET_LOGGER("pion.http.plugin_server"));
     }
 
     /**
-     * creates a new WebServer object
+     * creates a new plugin_server object
      * 
-     * @param scheduler the PionScheduler that will be used to manage worker threads
+     * @param sched the scheduler that will be used to manage worker threads
      * @param tcp_port port number used to listen for new connections (IPv4)
      */
-    explicit WebServer(PionScheduler& scheduler, const unsigned int tcp_port = 0)
-        : HTTPServer(scheduler, tcp_port)
+    explicit plugin_server(scheduler& sched, const unsigned int tcp_port = 0)
+        : http::server(sched, tcp_port)
     { 
-        setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+        setLogger(PION_GET_LOGGER("pion.http.plugin_server"));
     }
     
     /**
-     * creates a new WebServer object
+     * creates a new plugin_server object
      * 
-     * @param scheduler the PionScheduler that will be used to manage worker threads
+     * @param sched the scheduler that will be used to manage worker threads
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    WebServer(PionScheduler& scheduler, const boost::asio::ip::tcp::endpoint& endpoint)
-        : HTTPServer(scheduler, endpoint)
+    plugin_server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint)
+        : http::server(sched, endpoint)
     { 
-        setLogger(PION_GET_LOGGER("pion.net.WebServer"));
+        setLogger(PION_GET_LOGGER("pion.http.plugin_server"));
     }
 
     /**
@@ -127,7 +89,7 @@ public:
      * @param resource the resource name or uri-stem to bind to the web service
      * @param service_ptr a pointer to the web service
      */
-    void addService(const std::string& resource, WebService *service_ptr);
+    void addService(const std::string& resource, http::plugin_service *service_ptr);
     
     /**
      * loads a web service from a shared object file
@@ -166,7 +128,7 @@ public:
     virtual void clear(void) {
         if (isListening()) stop();
         m_services.clear();
-        HTTPServer::clear();
+        http::server::clear();
     }
 
     
@@ -175,42 +137,32 @@ protected:
     /// called before the TCP server starts listening for new connections
     virtual void beforeStarting(void) {
         // call the start() method for each web service associated with this server
-        try { m_services.run(boost::bind(&WebService::start, _1)); }
-        catch (std::exception& e) {
-            // catch exceptions thrown by services since their exceptions may be free'd
-            // from memory before they are caught
-            throw WebServiceException("[Startup]", e.what());
-        }
+        m_services.run(boost::bind(&http::plugin_service::start, _1));
     }
     
     /// called after the TCP server has stopped listening for new connections
     virtual void afterStopping(void) {
         // call the stop() method for each web service associated with this server
-        try { m_services.run(boost::bind(&WebService::stop, _1)); }
-        catch (std::exception& e) {
-            // catch exceptions thrown by services since their exceptions may be free'd
-            // from memory before they are caught
-            throw WebServiceException("[Shutdown]", e.what());
-        }
+        m_services.run(boost::bind(&http::plugin_service::stop, _1));
     }
 
     
 private:
     
     /// data type for a collection of web services
-    typedef PluginManager<WebService>   WebServiceManager;
+    typedef plugin_manager<http::plugin_service>   service_manager_t;
     
     
     /// Web services associated with this server
-    WebServiceManager       m_services;
+    service_manager_t       m_services;
 };
 
 
 /// data type for a web server pointer
-typedef boost::shared_ptr<WebServer>        WebServerPtr;
+typedef boost::shared_ptr<plugin_server>        plugin_server_ptr;
 
 
-}   // end namespace net
+}   // end namespace http
 }   // end namespace pion
 
 #endif
