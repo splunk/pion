@@ -291,6 +291,22 @@ public:
 
 
     /**
+     * parses a URI string
+     *
+     * @param uri the string to parse
+     * @param proto will be set to the protocol (i.e. "http")
+     * @param host will be set to the hostname (i.e. "www.cloudmeter.com")
+     * @param port host port number to use for connection (i.e. 80)
+     * @param path uri stem or file path
+     * @param query uri query string
+     *
+     * @return true if the URI was successfully parsed, false if there was an error
+     */
+    static bool parseURI(const std::string& uri, std::string& proto, 
+                         std::string& host, boost::uint16_t& port, std::string& path,
+                         std::string& query);
+
+    /**
      * parse key-value pairs out of a url-encoded string
      * (i.e. this=that&a=value)
      * 

@@ -17,6 +17,32 @@
 
 using namespace pion;
 
+BOOST_AUTO_TEST_CASE(testParseHttpUri)
+{
+    std::string uri("http://127.0.0.1:80/folder/file.ext?q=uery");
+    std::string proto;
+    std::string host;
+    boost::uint16_t port = 0;
+    std::string path;
+    std::string query;
+
+    BOOST_CHECK(http::parser::parseURI(uri, proto, host, port, path, query));
+    BOOST_CHECK_EQUAL(proto, "http");
+    BOOST_CHECK_EQUAL(host, "127.0.0.1");
+    BOOST_CHECK_EQUAL(port, 80);
+    BOOST_CHECK_EQUAL(path, "/folder/file.ext");
+    BOOST_CHECK_EQUAL(query, "q=uery");
+
+    uri = "http://www.cloudmeter.com/folder/file.ext";
+
+    BOOST_CHECK(http::parser::parseURI(uri, proto, host, port, path, query));
+    BOOST_CHECK_EQUAL(proto, "http");
+    BOOST_CHECK_EQUAL(host, "www.cloudmeter.com");
+    BOOST_CHECK_EQUAL(port, 80);
+    BOOST_CHECK_EQUAL(path, "/folder/file.ext");
+    BOOST_CHECK_EQUAL(query, "");
+}
+
 BOOST_AUTO_TEST_CASE(testParseSimpleQueryString)
 {
     const std::string QUERY_STRING("a=b");

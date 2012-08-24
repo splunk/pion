@@ -805,6 +805,70 @@ boost::tribool parser::finishHeaderParsing(http::message& http_msg,
     
     return rc;
 }
+    
+bool parser::parseURI(const std::string& uri, std::string& proto, 
+                      std::string& host, boost::uint16_t& port,
+                      std::string& path, std::string& query)
+{
+    size_t proto_end = uri.find("://");
+    size_t proto_len = 0;
+    
+    if(proto_end != std::string::npos) {
+        proto = uri.substr(0, proto_end);
+        proto_len = proto_end + 3; // add ://
+    } else {
+        proto.clear();
+    }
+    
+    // find a first slash charact
+    // that indicates the end of the <server>:<port> part
+    size_t server_port_end = uri.find('/', proto_len);
+    if(server_port_end == std::string::npos) {
+        return false;
+    }
+    
+    // copy <server>:<port> into temp string
+    std::string t; 
+    t = uri.substr(proto_len, server_port_end - proto_len);
+    size_t port_pos = t.find(':', 0);
+    
+    // assign output host and port parameters
+    
+    host = t.substr(0, port_pos); // if port_pos == npos, copy whole string
+    if(host.length() == 0) {
+        return false;
+    }
+    
+    // parse the port, if it's not empty
+    if(port_pos != std::string::npos) {
+        try {
+            port = boost::lexical_cast<int>(t.substr(port_pos+1));
+        } catch (boost::bad_lexical_cast &) {
+            return false;
+        }
+    } else if (proto == "http" || proto == "HTTP") {
+        port = 80;
+    } else if (proto == "https" || proto == "HTTPS") {
+        port = 443;
+    } else {
+        port = 0;
+    }
+    
+    // copy the rest of the URI into path part
+    path = uri.substr(server_port_end);
+    
+    // split the path and the query string parts
+    size_t query_pos = path.find('?', 0);
+    
+    if(query_pos != std::string::npos) {
+        query = path.substr(query_pos + 1, path.length() - query_pos - 1);
+        path = path.substr(0, query_pos);
+    } else {
+        query.clear();
+    }
+    
+    return true;
+}
 
 bool parser::parseURLEncoded(ihash_multimap& dict,
                                  const char *ptr, const size_t len)
