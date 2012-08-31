@@ -19,7 +19,7 @@ namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
 
     
-/// used by handleRequest to write dictionary terms
+/// used by handle_request to write dictionary terms
 void writeDictionaryTerm(http::response_writer_ptr& writer,
                          const ihash_multimap::value_type& val,
                          const bool decode)
@@ -48,75 +48,75 @@ void EchoService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
     // Set Content-type to "text/plain" (plain ascii text)
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
                                                             boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setContentType(http::types::CONTENT_TYPE_TEXT);
+    writer->get_response().set_content_type(http::types::CONTENT_TYPE_TEXT);
     
     // write request information
-    writer->writeNoCopy(REQUEST_ECHO_TEXT);
-    writer->writeNoCopy(http::types::STRING_CRLF);
-    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->write_no_copy(REQUEST_ECHO_TEXT);
+    writer->write_no_copy(http::types::STRING_CRLF);
+    writer->write_no_copy(http::types::STRING_CRLF);
     writer
         << "Request method: "
-        << http_request_ptr->getMethod()
+        << http_request_ptr->get_method()
         << http::types::STRING_CRLF
         << "Resource originally requested: "
-        << http_request_ptr->getOriginalResource()
+        << http_request_ptr->get_original_resource()
         << http::types::STRING_CRLF
         << "Resource delivered: "
-        << http_request_ptr->getResource()
+        << http_request_ptr->get_resource()
         << http::types::STRING_CRLF
         << "Query string: "
-        << http_request_ptr->getQueryString()
+        << http_request_ptr->get_query_string()
         << http::types::STRING_CRLF
         << "HTTP version: "
-        << http_request_ptr->getVersionMajor() << '.' << http_request_ptr->getVersionMinor()
+        << http_request_ptr->get_version_major() << '.' << http_request_ptr->get_version_minor()
         << http::types::STRING_CRLF
         << "Content length: "
-        << (unsigned long)http_request_ptr->getContentLength()
+        << (unsigned long)http_request_ptr->get_content_length()
         << http::types::STRING_CRLF
         << http::types::STRING_CRLF;
              
     // write request headers
-    writer->writeNoCopy(REQUEST_HEADERS_TEXT);
-    writer->writeNoCopy(http::types::STRING_CRLF);
-    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->write_no_copy(REQUEST_HEADERS_TEXT);
+    writer->write_no_copy(http::types::STRING_CRLF);
+    writer->write_no_copy(http::types::STRING_CRLF);
     std::for_each(http_request_ptr->get_headers().begin(), http_request_ptr->get_headers().end(),
                   boost::bind(&writeDictionaryTerm, writer, _1, false));
-    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->write_no_copy(http::types::STRING_CRLF);
 
     // write query parameters
-    writer->writeNoCopy(QUERY_PARAMS_TEXT);
-    writer->writeNoCopy(http::types::STRING_CRLF);
-    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->write_no_copy(QUERY_PARAMS_TEXT);
+    writer->write_no_copy(http::types::STRING_CRLF);
+    writer->write_no_copy(http::types::STRING_CRLF);
     std::for_each(http_request_ptr->get_queries().begin(), http_request_ptr->get_queries().end(),
                   boost::bind(&writeDictionaryTerm, writer, _1, true));
-    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->write_no_copy(http::types::STRING_CRLF);
     
     // write cookie parameters
-    writer->writeNoCopy(COOKIE_PARAMS_TEXT);
-    writer->writeNoCopy(http::types::STRING_CRLF);
-    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->write_no_copy(COOKIE_PARAMS_TEXT);
+    writer->write_no_copy(http::types::STRING_CRLF);
+    writer->write_no_copy(http::types::STRING_CRLF);
     std::for_each(http_request_ptr->get_cookies().begin(), http_request_ptr->get_cookies().end(),
                   boost::bind(&writeDictionaryTerm, writer, _1, false));
-    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->write_no_copy(http::types::STRING_CRLF);
     
     // write POST content
-    writer->writeNoCopy(POST_CONTENT_TEXT);
-    writer->writeNoCopy(http::types::STRING_CRLF);
-    writer->writeNoCopy(http::types::STRING_CRLF);
-    if (http_request_ptr->getContentLength() != 0) {
-        writer->write(http_request_ptr->getContent(), http_request_ptr->getContentLength());
-        writer->writeNoCopy(http::types::STRING_CRLF);
-        writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->write_no_copy(POST_CONTENT_TEXT);
+    writer->write_no_copy(http::types::STRING_CRLF);
+    writer->write_no_copy(http::types::STRING_CRLF);
+    if (http_request_ptr->get_content_length() != 0) {
+        writer->write(http_request_ptr->get_content(), http_request_ptr->get_content_length());
+        writer->write_no_copy(http::types::STRING_CRLF);
+        writer->write_no_copy(http::types::STRING_CRLF);
     }
     
     // if authenticated, write user info
-    user_ptr user = http_request_ptr->getUser();
+    user_ptr user = http_request_ptr->get_user();
     if (user) {
-        writer->writeNoCopy(USER_INFO_TEXT);
-        writer->writeNoCopy(http::types::STRING_CRLF);
-        writer->writeNoCopy(http::types::STRING_CRLF);
-        writer << "User authenticated, username: " << user->getUsername();
-        writer->writeNoCopy(http::types::STRING_CRLF);
+        writer->write_no_copy(USER_INFO_TEXT);
+        writer->write_no_copy(http::types::STRING_CRLF);
+        writer->write_no_copy(http::types::STRING_CRLF);
+        writer << "User authenticated, username: " << user->get_username();
+        writer->write_no_copy(http::types::STRING_CRLF);
     }
     
     // send the writer

@@ -39,9 +39,9 @@ PION_DECLARE_PLUGIN(FileService)
 
 struct PluginPtrWithFileServiceLoaded_F : public plugin_ptr<http::plugin_service> {
     PluginPtrWithFileServiceLoaded_F() { 
-        plugin::resetPluginDirectories();
+        plugin::reset_plugin_directories();
 #ifndef PION_STATIC_LINKING
-        plugin::addPluginDirectory(PATH_TO_PLUGINS);
+        plugin::add_plugin_directory(PATH_TO_PLUGINS);
 #endif
         s = NULL;
         open("FileService");
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(checkIsOpenReturnsTrue) {
 }
 
 BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsPluginName) {
-    BOOST_CHECK_EQUAL(getPluginName(), "FileService");
+    BOOST_CHECK_EQUAL(get_plugin_name(), "FileService");
 }
 
 BOOST_AUTO_TEST_CASE(checkCreateReturnsSomething) {
@@ -79,9 +79,9 @@ BOOST_AUTO_TEST_SUITE_END()
 class NewlyLoadedFileService_F {
 public:
     NewlyLoadedFileService_F() : m_scheduler(), m_server(m_scheduler) {
-        plugin::resetPluginDirectories();
+        plugin::reset_plugin_directories();
 #ifndef PION_STATIC_LINKING
-        plugin::addPluginDirectory(PATH_TO_PLUGINS);
+        plugin::add_plugin_directory(PATH_TO_PLUGINS);
 #endif
 
         boost::filesystem::remove_all("sandbox");
@@ -96,7 +96,7 @@ public:
         emptyFile.close();
         BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1"));
 
-        m_server.loadService("/resource1", "FileService");
+        m_server.load_service("/resource1", "FileService");
     }
     ~NewlyLoadedFileService_F() {
         m_server.stop();
@@ -113,45 +113,45 @@ public:
 BOOST_FIXTURE_TEST_SUITE(NewlyLoadedFileService_S, NewlyLoadedFileService_F)
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithExistingDirectoryDoesntThrow) {
-    BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "directory", "sandbox"));
+    BOOST_CHECK_NO_THROW(m_server.set_service_option("/resource1", "directory", "sandbox"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionDirectoryWithNonexistentDirectoryThrows) {
-    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "directory", "NotADirectory"), error::directory_not_found);
+    BOOST_CHECK_THROW(m_server.set_service_option("/resource1", "directory", "NotADirectory"), error::directory_not_found);
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithExistingFileDoesntThrow) {
-    BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "file", "sandbox/file1"));
+    BOOST_CHECK_NO_THROW(m_server.set_service_option("/resource1", "file", "sandbox/file1"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionFileWithNonexistentFileThrows) {
-    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "file", "NotAFile"), error::file_not_found);
+    BOOST_CHECK_THROW(m_server.set_service_option("/resource1", "file", "NotAFile"), error::file_not_found);
 }
 
 // TODO: tests for options "cache" and "scan"
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionMaxChunkSizeWithSizeZeroThrows) {
-    BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "max_chunk_size", "0"));
+    BOOST_CHECK_NO_THROW(m_server.set_service_option("/resource1", "max_chunk_size", "0"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionMaxChunkSizeWithNonZeroSizeDoesntThrow) {
-    BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "max_chunk_size", "100"));
+    BOOST_CHECK_NO_THROW(m_server.set_service_option("/resource1", "max_chunk_size", "100"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToTrueDoesntThrow) {
-    BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "writable", "true"));
+    BOOST_CHECK_NO_THROW(m_server.set_service_option("/resource1", "writable", "true"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToFalseDoesntThrow) {
-    BOOST_CHECK_NO_THROW(m_server.setServiceOption("/resource1", "writable", "false"));
+    BOOST_CHECK_NO_THROW(m_server.set_service_option("/resource1", "writable", "false"));
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWritableToNonBooleanThrows) {
-    BOOST_REQUIRE_THROW(m_server.setServiceOption("/resource1", "writable", "3"), error::bad_arg);
+    BOOST_REQUIRE_THROW(m_server.set_service_option("/resource1", "writable", "3"), error::bad_arg);
 }
 
 BOOST_AUTO_TEST_CASE(checkSetServiceOptionWithInvalidOptionNameThrows) {
-    BOOST_CHECK_THROW(m_server.setServiceOption("/resource1", "NotAnOption", "value1"), error::bad_arg);
+    BOOST_CHECK_THROW(m_server.set_service_option("/resource1", "NotAnOption", "value1"), error::bad_arg);
 }
 
 BOOST_AUTO_TEST_SUITE_END() 
@@ -160,12 +160,12 @@ class RunningFileService_F : public NewlyLoadedFileService_F {
 public:
     RunningFileService_F() {
         m_content_length = 0;
-        m_server.setServiceOption("/resource1", "directory", "sandbox");
-        m_server.setServiceOption("/resource1", "file", "sandbox/file1");
+        m_server.set_service_option("/resource1", "directory", "sandbox");
+        m_server.set_service_option("/resource1", "file", "sandbox/file1");
         m_server.start();
 
         // open a connection
-        boost::asio::ip::tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
+        boost::asio::ip::tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
         m_http_stream.connect(http_endpoint);
     }
     ~RunningFileService_F() {
@@ -401,7 +401,7 @@ BOOST_AUTO_TEST_SUITE_END()
 class RunningFileServiceWithWritingEnabled_F : public RunningFileService_F {
 public:
     RunningFileServiceWithWritingEnabled_F() {
-        m_server.setServiceOption("/resource1", "writable", "true");
+        m_server.set_service_option("/resource1", "writable", "true");
     }
     ~RunningFileServiceWithWritingEnabled_F() {
     }
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForFileOutsideDirectory) {
 #if defined(PION_WIN32) && defined(_MSC_VER)
 // this test only works on Windows with MSVC
 BOOST_AUTO_TEST_CASE(checkResponseToDeleteRequestForOpenFile) {
-    boost::filesystem::ofstream openFile("sandbox/file2");
+    boost::filesystem::ofstream open_file("sandbox/file2");
     sendRequestAndCheckResponseHead("DELETE", "/resource1/file2", 500);
     checkWebServerResponseContent(boost::regex(".*500\\sServer\\sError.*"));
 }
@@ -565,7 +565,7 @@ public:
     enum _size_constants { MAX_CHUNK_SIZE = 10 };
 
     RunningFileServiceWithMaxChunkSizeSet_F() {
-        m_server.setServiceOption("/resource1", "max_chunk_size", boost::lexical_cast<std::string>(MAX_CHUNK_SIZE));
+        m_server.set_service_option("/resource1", "max_chunk_size", boost::lexical_cast<std::string>(MAX_CHUNK_SIZE));
 
         // make sure the length of the test data is in the range expected by the tests
         m_file4_len = strlen(g_file4_contents);
@@ -649,7 +649,7 @@ BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
     // open (another) connection
     pion::tcp::connection tcp_conn(get_io_service());
     boost::system::error_code error_code;
-    error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.getPort());
+    error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
     // send request to the server
@@ -663,12 +663,12 @@ BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
     BOOST_REQUIRE(!error_code);
 
     // verify that the headers are as expected for a chunked response 
-    BOOST_CHECK_EQUAL(http_response.getHeader(http::types::HEADER_TRANSFER_ENCODING), "chunked");
-    BOOST_CHECK_EQUAL(http_response.getHeader(http::types::HEADER_CONTENT_LENGTH), "");
+    BOOST_CHECK_EQUAL(http_response.get_header(http::types::HEADER_TRANSFER_ENCODING), "chunked");
+    BOOST_CHECK_EQUAL(http_response.get_header(http::types::HEADER_CONTENT_LENGTH), "");
 
     // verify reconstructed data
-    BOOST_CHECK_EQUAL(http_response.getContentLength(), static_cast<size_t>(m_file4_len));
-    BOOST_CHECK(strncmp(http_response.getContent(), g_file4_contents, m_file4_len) == 0);
+    BOOST_CHECK_EQUAL(http_response.get_content_length(), static_cast<size_t>(m_file4_len));
+    BOOST_CHECK(strncmp(http_response.get_content(), g_file4_contents, m_file4_len) == 0);
 }
 
 BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_0_Request) {

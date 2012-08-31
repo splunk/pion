@@ -72,7 +72,7 @@ public:
     }
     
     /// returns a non-const reference to the response that will be sent
-    inline http::response& getResponse(void) { return *m_http_response; }
+    inline http::response& get_response(void) { return *m_http_response; }
     
     
 protected:
@@ -88,16 +88,16 @@ protected:
                        finished_handler_t handler)
         : http::writer(tcp_conn, handler), m_http_response(http_response_ptr)
     {
-        setLogger(PION_GET_LOGGER("pion.http.response_writer"));
+        set_logger(PION_GET_LOGGER("pion.http.response_writer"));
         // tell the http::writer base class whether or not the client supports chunks
-        supportsChunkedMessages(m_http_response->getChunksSupported());
+        supports_chunked_messages(m_http_response->get_chunks_supported());
         // check if we should initialize the payload content using
         // the response's content buffer
-        if (m_http_response->getContentLength() > 0
-            && m_http_response->getContent() != NULL
-            && m_http_response->getContent()[0] != '\0')
+        if (m_http_response->get_content_length() > 0
+            && m_http_response->get_content() != NULL
+            && m_http_response->get_content()[0] != '\0')
         {
-            writeNoCopy(m_http_response->getContent(), m_http_response->getContentLength());
+            write_no_copy(m_http_response->get_content(), m_http_response->get_content_length());
         }
     }
     
@@ -112,9 +112,9 @@ protected:
                        finished_handler_t handler)
         : http::writer(tcp_conn, handler), m_http_response(new http::response(http_request))
     {
-        setLogger(PION_GET_LOGGER("pion.http.response_writer"));
+        set_logger(PION_GET_LOGGER("pion.http.response_writer"));
         // tell the http::writer base class whether or not the client supports chunks
-        supportsChunkedMessages(m_http_response->getChunksSupported());
+        supports_chunked_messages(m_http_response->get_chunks_supported());
     }
     
     
@@ -123,17 +123,17 @@ protected:
      *
      * @param write_buffers vector of write buffers to initialize
      */
-    virtual void prepareBuffersForSend(http::message::write_buffers_t& write_buffers) {
-        if (getContentLength() > 0)
-            m_http_response->setContentLength(getContentLength());
-        m_http_response->prepareBuffersForSend(write_buffers,
+    virtual void prepare_buffers_for_send(http::message::write_buffers_t& write_buffers) {
+        if (get_content_length() > 0)
+            m_http_response->set_content_length(get_content_length());
+        m_http_response->prepare_buffers_for_send(write_buffers,
                                                get_connection()->get_keep_alive(),
-                                               sendingChunkedMessage());
+                                               sending_chunked_message());
     }   
 
-    /// returns a function bound to http::writer::handleWrite()
-    virtual write_handler_t bindToWriteHandler(void) {
-        return boost::bind(&response_writer::handleWrite, shared_from_this(),
+    /// returns a function bound to http::writer::handle_write()
+    virtual write_handler_t bind_to_write_handler(void) {
+        return boost::bind(&response_writer::handle_write, shared_from_this(),
                            boost::asio::placeholders::error,
                            boost::asio::placeholders::bytes_transferred);
     }
@@ -144,27 +144,27 @@ protected:
      * @param write_error error status from the last write operation
      * @param bytes_written number of bytes sent by the last write operation
      */
-    virtual void handleWrite(const boost::system::error_code& write_error,
+    virtual void handle_write(const boost::system::error_code& write_error,
                              std::size_t bytes_written)
     {
-        logger log_ptr(getLogger());
+        logger log_ptr(get_logger());
         if (!write_error) {
             // response sent OK
-            if (sendingChunkedMessage()) {
+            if (sending_chunked_message()) {
                 PION_LOG_DEBUG(log_ptr, "Sent HTTP response chunk of " << bytes_written << " bytes");
             } else {
                 PION_LOG_DEBUG(log_ptr, "Sent HTTP response of " << bytes_written << " bytes ("
                                << (get_connection()->get_keep_alive() ? "keeping alive)" : "closing)"));
             }
         }
-        finishedWriting(write_error);
+        finished_writing(write_error);
     }
 
     
 private:
     
     /// the response that will be sent
-    http::response_ptr         m_http_response;
+    http::response_ptr      m_http_response;
     
     /// the initial HTTP response header line
     std::string             m_response_line;

@@ -74,14 +74,14 @@ void server::start(void)
     boost::mutex::scoped_lock server_lock(m_mutex);
 
     if (! m_is_listening) {
-        PION_LOG_INFO(m_logger, "Starting server on port " << getPort());
+        PION_LOG_INFO(m_logger, "Starting server on port " << get_port());
         
-        beforeStarting();
+        before_starting();
 
         // configure the acceptor service
         try {
             // get admin permissions in case we're binding to a privileged port
-            pion::admin_rights use_admin_rights(getPort() < 1024);
+            pion::admin_rights use_admin_rights(get_port() < 1024);
             m_tcp_acceptor.open(m_endpoint.protocol());
             // allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
             // ...except when running not on Windows - see http://msdn.microsoft.com/en-us/library/ms740621%28VS.85%29.aspx
@@ -95,7 +95,7 @@ void server::start(void)
             }
             m_tcp_acceptor.listen();
         } catch (std::exception& e) {
-            PION_LOG_ERROR(m_logger, "Unable to bind to port " << getPort() << ": " << e.what());
+            PION_LOG_ERROR(m_logger, "Unable to bind to port " << get_port() << ": " << e.what());
             throw;
         }
 
@@ -106,7 +106,7 @@ void server::start(void)
         listen();
         
         // notify the thread scheduler that we need it now
-        m_active_scheduler.addActiveUser();
+        m_active_scheduler.add_active_user();
     }
 }
 
@@ -116,7 +116,7 @@ void server::stop(bool wait_until_finished)
     boost::mutex::scoped_lock server_lock(m_mutex);
 
     if (m_is_listening) {
-        PION_LOG_INFO(m_logger, "Shutting down server on port " << getPort());
+        PION_LOG_INFO(m_logger, "Shutting down server on port " << get_port());
     
         m_is_listening = false;
 
@@ -132,7 +132,7 @@ void server::stop(bool wait_until_finished)
         // wait for all pending connections to complete
         while (! m_conn_pool.empty()) {
             // try to prun connections that didn't finish cleanly
-            if (pruneConnections() == 0)
+            if (prune_connections() == 0)
                 break;  // if no more left, then we can stop waiting
             // sleep for up to a quarter second to give open connections a chance to finish
             PION_LOG_INFO(m_logger, "Waiting for open connections to finish");
@@ -140,10 +140,10 @@ void server::stop(bool wait_until_finished)
         }
         
         // notify the thread scheduler that we no longer need it
-        m_active_scheduler.removeActiveUser();
+        m_active_scheduler.remove_active_user();
         
         // all done!
-        afterStopping();
+        after_stopping();
         m_server_has_stopped.notify_all();
     }
 }
@@ -157,10 +157,10 @@ void server::join(void)
     }
 }
 
-void server::setSSLKeyFile(const std::string& pem_key_file)
+void server::set_ssl_key_file(const std::string& pem_key_file)
 {
     // configure server for SSL
-    setSSLFlag(true);
+    set_ssl_flag(true);
 #ifdef PION_HAVE_SSL
     m_ssl_context.set_options(boost::asio::ssl::context::default_workarounds
                               | boost::asio::ssl::context::no_sslv2
@@ -179,24 +179,24 @@ void server::listen(void)
         // create a new TCP connection object
         tcp::connection_ptr new_connection(connection::create(get_io_service(),
                                                               m_ssl_context, m_ssl_flag,
-                                                              boost::bind(&server::finishConnection,
+                                                              boost::bind(&server::finish_connection,
                                                                           this, _1)));
         
         // prune connections that finished uncleanly
-        pruneConnections();
+        prune_connections();
 
         // keep track of the object in the server's connection pool
         m_conn_pool.insert(new_connection);
         
         // use the object to accept a new connection
         new_connection->async_accept(m_tcp_acceptor,
-                                     boost::bind(&server::handleAccept,
+                                     boost::bind(&server::handle_accept,
                                                  this, new_connection,
                                                  boost::asio::placeholders::error));
     }
 }
 
-void server::handleAccept(tcp::connection_ptr& tcp_conn,
+void server::handle_accept(tcp::connection_ptr& tcp_conn,
                              const boost::system::error_code& accept_error)
 {
     if (accept_error) {
@@ -204,13 +204,13 @@ void server::handleAccept(tcp::connection_ptr& tcp_conn,
         // this happens when the server is being shut down
         if (m_is_listening) {
             listen();   // schedule acceptance of another connection
-            PION_LOG_WARN(m_logger, "Accept error on port " << getPort() << ": " << accept_error.message());
+            PION_LOG_WARN(m_logger, "Accept error on port " << get_port() << ": " << accept_error.message());
         }
-        finishConnection(tcp_conn);
+        finish_connection(tcp_conn);
     } else {
         // got a new TCP connection
         PION_LOG_DEBUG(m_logger, "New" << (tcp_conn->get_ssl_flag() ? " SSL " : " ")
-                       << "connection on port " << getPort());
+                       << "connection on port " << get_port());
 
         // schedule the acceptance of another new connection
         // (this returns immediately since it schedules it as an event)
@@ -219,41 +219,41 @@ void server::handleAccept(tcp::connection_ptr& tcp_conn,
         // handle the new connection
 #ifdef PION_HAVE_SSL
         if (tcp_conn->get_ssl_flag()) {
-            tcp_conn->async_handshake_server(boost::bind(&server::handleSSLHandshake,
+            tcp_conn->async_handshake_server(boost::bind(&server::handle_ssl_handshake,
                                                          this, tcp_conn,
                                                          boost::asio::placeholders::error));
         } else
 #endif
             // not SSL -> call the handler immediately
-            handleConnection(tcp_conn);
+            handle_connection(tcp_conn);
     }
 }
 
-void server::handleSSLHandshake(tcp::connection_ptr& tcp_conn,
+void server::handle_ssl_handshake(tcp::connection_ptr& tcp_conn,
                                    const boost::system::error_code& handshake_error)
 {
     if (handshake_error) {
         // an error occured while trying to establish the SSL connection
-        PION_LOG_WARN(m_logger, "SSL handshake failed on port " << getPort()
+        PION_LOG_WARN(m_logger, "SSL handshake failed on port " << get_port()
                       << " (" << handshake_error.message() << ')');
-        finishConnection(tcp_conn);
+        finish_connection(tcp_conn);
     } else {
         // handle the new connection
-        PION_LOG_DEBUG(m_logger, "SSL handshake succeeded on port " << getPort());
-        handleConnection(tcp_conn);
+        PION_LOG_DEBUG(m_logger, "SSL handshake succeeded on port " << get_port());
+        handle_connection(tcp_conn);
     }
 }
 
-void server::finishConnection(tcp::connection_ptr& tcp_conn)
+void server::finish_connection(tcp::connection_ptr& tcp_conn)
 {
     boost::mutex::scoped_lock server_lock(m_mutex);
     if (m_is_listening && tcp_conn->get_keep_alive()) {
         
         // keep the connection alive
-        handleConnection(tcp_conn);
+        handle_connection(tcp_conn);
 
     } else {
-        PION_LOG_DEBUG(m_logger, "Closing connection on port " << getPort());
+        PION_LOG_DEBUG(m_logger, "Closing connection on port " << get_port());
         
         // remove the connection from the server's management pool
         ConnectionPool::iterator conn_itr = m_conn_pool.find(tcp_conn);
@@ -266,13 +266,13 @@ void server::finishConnection(tcp::connection_ptr& tcp_conn)
     }
 }
 
-std::size_t server::pruneConnections(void)
+std::size_t server::prune_connections(void)
 {
     // assumes that a server lock has already been acquired
     ConnectionPool::iterator conn_itr = m_conn_pool.begin();
     while (conn_itr != m_conn_pool.end()) {
         if (conn_itr->unique()) {
-            PION_LOG_WARN(m_logger, "Closing orphaned connection on port " << getPort());
+            PION_LOG_WARN(m_logger, "Closing orphaned connection on port " << get_port());
             ConnectionPool::iterator erase_itr = conn_itr;
             ++conn_itr;
             (*erase_itr)->close();
@@ -286,7 +286,7 @@ std::size_t server::pruneConnections(void)
     return m_conn_pool.size();
 }
 
-std::size_t server::getConnections(void) const
+std::size_t server::get_connections(void) const
 {
     boost::mutex::scoped_lock server_lock(m_mutex);
     return (m_is_listening ? (m_conn_pool.size() - 1) : m_conn_pool.size());

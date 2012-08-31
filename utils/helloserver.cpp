@@ -23,7 +23,7 @@ class HelloServer : public tcp::server {
 public:
     HelloServer(const unsigned int tcp_port) : tcp::server(tcp_port) {}
     virtual ~HelloServer() {}
-    virtual void handleConnection(tcp::connection_ptr& tcp_conn)
+    virtual void handle_connection(tcp::connection_ptr& tcp_conn)
     {
         static const std::string HELLO_MESSAGE("Hello there!\x0D\x0A");
         tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE); // make sure it will get closed

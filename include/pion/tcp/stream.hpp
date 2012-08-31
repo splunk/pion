@@ -56,7 +56,7 @@ public:
     explicit stream_buffer(tcp::connection_ptr& conn_ptr)
         : m_conn_ptr(conn_ptr), m_read_buf(m_conn_ptr->get_read_buffer().c_array())
     {
-        setupBuffers();
+        setup_buffers();
     }
 
     /**
@@ -70,7 +70,7 @@ public:
         : m_conn_ptr(new connection(io_service, ssl_flag)),
         m_read_buf(m_conn_ptr->get_read_buffer().c_array())
     {
-        setupBuffers();
+        setup_buffers();
     }
     
     /**
@@ -84,23 +84,23 @@ public:
         : m_conn_ptr(new connection(io_service, ssl_context)),
         m_read_buf(m_conn_ptr->get_read_buffer().c_array())
     {
-        setupBuffers();
+        setup_buffers();
     }
     
     /// virtual destructor flushes the write buffer
     virtual ~stream_buffer() { sync(); }
 
     /// returns a reference to the current TCP connection
-    connection& getConnection(void) { return *m_conn_ptr; }
+    connection& get_connection(void) { return *m_conn_ptr; }
 
     /// returns a const reference to the current TCP connection
-    const connection& getConnection(void) const { return *m_conn_ptr; }
+    const connection& get_connection(void) const { return *m_conn_ptr; }
     
     
 protected:
 
     /// sets up the read and write buffers for input and output
-    inline void setupBuffers(void) {
+    inline void setup_buffers(void) {
         // use the TCP connection's read buffer and allow for bytes to be put back
         setg(m_read_buf+PUT_BACK_MAX, m_read_buf+PUT_BACK_MAX, m_read_buf+PUT_BACK_MAX);
         // set write buffer size-1 so that we have an extra char avail for overflow
@@ -112,14 +112,14 @@ protected:
      *
      * @return int_type the number of bytes sent, or eof() if there was an error
      */
-    inline int_type flushOutput(void) {
+    inline int_type flush_output(void) {
         const std::streamsize bytes_to_send = std::streamsize(pptr() - pbase());
         int_type bytes_sent = 0;
         if (bytes_to_send > 0) {
             boost::mutex::scoped_lock async_lock(m_async_mutex);
             m_bytes_transferred = 0;
             m_conn_ptr->async_write(boost::asio::buffer(pbase(), bytes_to_send),
-                                    boost::bind(&stream_buffer::operationFinished, this,
+                                    boost::bind(&stream_buffer::operation_finished, this,
                                                 boost::asio::placeholders::error,
                                                 boost::asio::placeholders::bytes_transferred));
             m_async_done.wait(async_lock);
@@ -157,7 +157,7 @@ protected:
         m_bytes_transferred = 0;
         m_conn_ptr->async_read_some(boost::asio::buffer(m_read_buf+PUT_BACK_MAX,
                                                         connection::READ_BUFFER_SIZE-PUT_BACK_MAX),
-                                    boost::bind(&stream_buffer::operationFinished, this,
+                                    boost::bind(&stream_buffer::operation_finished, this,
                                                 boost::asio::placeholders::error,
                                                 boost::asio::placeholders::bytes_transferred));
         m_async_done.wait(async_lock);
@@ -188,7 +188,7 @@ protected:
             pbump(1);
         }
         // flush data in the write buffer by sending it to the TCP connection
-        return ((flushOutput() == traits_type::eof())
+        return ((flush_output() == traits_type::eof())
                 ? traits_type::eof() : traits_type::not_eof(c));
     }
 
@@ -216,7 +216,7 @@ protected:
                 pbump(bytes_available);
             }
             // flush data in the write buffer by sending it to the TCP connection
-            if (flushOutput() == traits_type::eof()) 
+            if (flush_output() == traits_type::eof()) 
                 return 0;
             if ((n-bytes_available) >= (WRITE_BUFFER_SIZE-1)) {
                 // the remaining data to send is larger than the buffer available
@@ -225,7 +225,7 @@ protected:
                 m_bytes_transferred = 0;
                 m_conn_ptr->async_write(boost::asio::buffer(s+bytes_available,
                                                             n-bytes_available),
-                                        boost::bind(&stream_buffer::operationFinished, this,
+                                        boost::bind(&stream_buffer::operation_finished, this,
                                                     boost::asio::placeholders::error,
                                                     boost::asio::placeholders::bytes_transferred));
                 m_async_done.wait(async_lock);
@@ -277,14 +277,14 @@ protected:
      * @return 0 if successful, -1 if there was an error
      */
     virtual int_type sync(void) {
-        return ((flushOutput() == traits_type::eof()) ? -1 : 0);
+        return ((flush_output() == traits_type::eof()) ? -1 : 0);
     }
     
     
 private:
     
     /// function called after an asynchronous operation has completed
-    inline void operationFinished(const boost::system::error_code& error_code,
+    inline void operation_finished(const boost::system::error_code& error_code,
                                   std::size_t bytes_transferred)
     {
         boost::mutex::scoped_lock async_lock(m_async_mutex);
@@ -295,7 +295,7 @@ private:
     
     
     /// pointer to the underlying TCP connection used for reading & writing
-    tcp::connection_ptr            m_conn_ptr;
+    tcp::connection_ptr         m_conn_ptr;
     
     /// condition signaled whenever an asynchronous operation has completed
     boost::mutex                m_async_mutex;
@@ -392,8 +392,8 @@ public:
      */
     inline boost::system::error_code accept(boost::asio::ip::tcp::acceptor& tcp_acceptor)
     {
-        boost::system::error_code ec = m_tcp_buf.getConnection().accept(tcp_acceptor);
-        if (! ec && get_ssl_flag()) ec = m_tcp_buf.getConnection().handshake_server();
+        boost::system::error_code ec = m_tcp_buf.get_connection().accept(tcp_acceptor);
+        if (! ec && get_ssl_flag()) ec = m_tcp_buf.get_connection().handshake_server();
         return ec;
     }
 
@@ -407,8 +407,8 @@ public:
      */
     inline boost::system::error_code connect(boost::asio::ip::tcp::endpoint& tcp_endpoint)
     {
-        boost::system::error_code ec = m_tcp_buf.getConnection().connect(tcp_endpoint);
-        if (! ec && get_ssl_flag()) ec = m_tcp_buf.getConnection().handshake_client();
+        boost::system::error_code ec = m_tcp_buf.get_connection().connect(tcp_endpoint);
+        if (! ec && get_ssl_flag()) ec = m_tcp_buf.get_connection().handshake_client();
         return ec;
     }
     
@@ -425,30 +425,30 @@ public:
                                              const unsigned int remote_port)
     {
         boost::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
-        boost::system::error_code ec = m_tcp_buf.getConnection().connect(tcp_endpoint);
-        if (! ec && get_ssl_flag()) ec = m_tcp_buf.getConnection().handshake_client();
+        boost::system::error_code ec = m_tcp_buf.get_connection().connect(tcp_endpoint);
+        if (! ec && get_ssl_flag()) ec = m_tcp_buf.get_connection().handshake_client();
         return ec;
     }
 
     /// closes the tcp connection
-    inline void close(void) { m_tcp_buf.getConnection().close(); }
+    inline void close(void) { m_tcp_buf.get_connection().close(); }
 
     /*
     Use close instead; basic_socket::cancel is deprecated for Windows XP.
 
     /// cancels any asynchronous operations pending on the tcp connection
-    inline void cancel(void) { m_tcp_buf.getConnection().cancel(); }
+    inline void cancel(void) { m_tcp_buf.get_connection().cancel(); }
     */
 
     /// returns true if the connection is currently open
-    inline bool is_open(void) const { return m_tcp_buf.getConnection().is_open(); }
+    inline bool is_open(void) const { return m_tcp_buf.get_connection().is_open(); }
     
     /// returns true if the connection is encrypted using SSL
-    inline bool get_ssl_flag(void) const { return m_tcp_buf.getConnection().get_ssl_flag(); }
+    inline bool get_ssl_flag(void) const { return m_tcp_buf.get_connection().get_ssl_flag(); }
 
     /// returns the client's IP address
     inline boost::asio::ip::address get_remote_ip(void) const {
-        return m_tcp_buf.getConnection().get_remote_ip();
+        return m_tcp_buf.get_connection().get_remote_ip();
     }
     
     /// returns a pointer to the stream buffer in use

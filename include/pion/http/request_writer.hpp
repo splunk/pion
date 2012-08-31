@@ -69,7 +69,7 @@ public:
     }
 
     /// returns a non-const reference to the request that will be sent
-    inline http::request& getRequest(void) { return *m_http_request; }
+    inline http::request& get_request(void) { return *m_http_request; }
     
     
 protected:
@@ -83,7 +83,7 @@ protected:
     request_writer(tcp::connection_ptr& tcp_conn, finished_handler_t handler)
         : http::writer(tcp_conn, handler), m_http_request(new http::request)
     {
-        setLogger(PION_GET_LOGGER("pion.http.request_writer"));
+        set_logger(PION_GET_LOGGER("pion.http.request_writer"));
     }
     
     /**
@@ -97,15 +97,15 @@ protected:
                       finished_handler_t handler)
         : http::writer(tcp_conn, handler), m_http_request(http_request_ptr)
     {
-        setLogger(PION_GET_LOGGER("pion.http.request_writer"));
+        set_logger(PION_GET_LOGGER("pion.http.request_writer"));
         // check if we should initialize the payload content using
         // the request's content buffer
-        if (m_http_request->getContentLength() > 0
-            && m_http_request->getContent() != NULL
-            && m_http_request->getContent()[0] != '\0')
+        if (m_http_request->get_content_length() > 0
+            && m_http_request->get_content() != NULL
+            && m_http_request->get_content()[0] != '\0')
         {
-            writeNoCopy(m_http_request->getContent(),
-                        m_http_request->getContentLength());
+            write_no_copy(m_http_request->get_content(),
+                        m_http_request->get_content_length());
         }
     }
 
@@ -115,17 +115,17 @@ protected:
      *
      * @param write_buffers vector of write buffers to initialize
      */
-    virtual void prepareBuffersForSend(http::message::write_buffers_t& write_buffers) {
-        if (getContentLength() > 0)
-            m_http_request->setContentLength(getContentLength());
-        m_http_request->prepareBuffersForSend(write_buffers,
+    virtual void prepare_buffers_for_send(http::message::write_buffers_t& write_buffers) {
+        if (get_content_length() > 0)
+            m_http_request->set_content_length(get_content_length());
+        m_http_request->prepare_buffers_for_send(write_buffers,
                                               get_connection()->get_keep_alive(),
-                                              sendingChunkedMessage());
+                                              sending_chunked_message());
     }
 
-    /// returns a function bound to http::writer::handleWrite()
-    virtual write_handler_t bindToWriteHandler(void) {
-        return boost::bind(&request_writer::handleWrite, shared_from_this(),
+    /// returns a function bound to http::writer::handle_write()
+    virtual write_handler_t bind_to_write_handler(void) {
+        return boost::bind(&request_writer::handle_write, shared_from_this(),
                            boost::asio::placeholders::error,
                            boost::asio::placeholders::bytes_transferred);
     }
@@ -136,27 +136,27 @@ protected:
      * @param write_error error status from the last write operation
      * @param bytes_written number of bytes sent by the last write operation
      */
-    virtual void handleWrite(const boost::system::error_code& write_error,
+    virtual void handle_write(const boost::system::error_code& write_error,
                              std::size_t bytes_written)
     {
-        logger log_ptr(getLogger());
+        logger log_ptr(get_logger());
         if (! write_error) {
             // request sent OK
-            if (sendingChunkedMessage()) {
+            if (sending_chunked_message()) {
                 PION_LOG_DEBUG(log_ptr, "Sent HTTP request chunk of " << bytes_written << " bytes");
                 clear();
             } else {
                 PION_LOG_DEBUG(log_ptr, "Sent HTTP request of " << bytes_written << " bytes");
             }
         }
-        finishedWriting(write_error);
+        finished_writing(write_error);
     }
 
 
 private:
     
     /// the request that will be sent
-    http::request_ptr          m_http_request;
+    http::request_ptr       m_http_request;
     
     /// the initial HTTP request header line
     std::string             m_request_line;

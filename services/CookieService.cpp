@@ -29,28 +29,28 @@ void CookieService::operator()(http::request_ptr& http_request_ptr, tcp::connect
     // Set Content-type for HTML and write the header
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
                                                             boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setContentType(http::types::CONTENT_TYPE_HTML);
-    writer->writeNoCopy(HEADER_HTML);
+    writer->get_response().set_content_type(http::types::CONTENT_TYPE_HTML);
+    writer->write_no_copy(HEADER_HTML);
 
     // Check if we have an action to perform
-    if (http_request_ptr->hasQuery("action")) {
-        if (algorithm::url_decode(http_request_ptr->getQuery("action")) == "Add Cookie") {
+    if (http_request_ptr->has_query("action")) {
+        if (algorithm::url_decode(http_request_ptr->get_query("action")) == "Add Cookie") {
             // add a new cookie
-            const std::string cookie_name(http_request_ptr->getQuery("cookie_name"));
-            const std::string cookie_value(http_request_ptr->getQuery("cookie_value"));
+            const std::string cookie_name(http_request_ptr->get_query("cookie_name"));
+            const std::string cookie_value(http_request_ptr->get_query("cookie_value"));
             if (cookie_name.empty() || cookie_value.empty()) {
                 writer << "\n<p>[Error: You must specify a name and value to add a cookie]</p>\n\n";
             } else {
-                writer->getResponse().setCookie(cookie_name, cookie_value);
+                writer->get_response().set_cookie(cookie_name, cookie_value);
                 writer << "\n<p>[Added cookie "
                     << cookie_name << '=' << cookie_value << "]</p>\n\n";
             }
-        } else if (http_request_ptr->getQuery("action") == "delete") {
-            const std::string cookie_name(http_request_ptr->getQuery("cookie_name"));
+        } else if (http_request_ptr->get_query("action") == "delete") {
+            const std::string cookie_name(http_request_ptr->get_query("cookie_name"));
             if (cookie_name.empty()) {
                 writer << "\n<p>[Error: You must specify a name to delete a cookie]</p>\n\n";
             } else {
-                writer->getResponse().deleteCookie(cookie_name);
+                writer->get_response().delete_cookie(cookie_name);
                 writer << "\n<p>[Deleted cookie " << cookie_name << "]</p>\n\n";
             }
         } else {
@@ -59,7 +59,7 @@ void CookieService::operator()(http::request_ptr& http_request_ptr, tcp::connect
     }
     
     // display cookie headers in request
-    if (http_request_ptr->hasHeader(http::types::HEADER_COOKIE)) {
+    if (http_request_ptr->has_header(http::types::HEADER_COOKIE)) {
         writer << "\n<h2>Cookie Headers</h2>\n<ul>\n";
         std::pair<ihash_multimap::const_iterator, ihash_multimap::const_iterator>
             header_pair = http_request_ptr->get_headers().equal_range(http::types::HEADER_COOKIE);
@@ -82,7 +82,7 @@ void CookieService::operator()(http::request_ptr& http_request_ptr, tcp::connect
              i != cookie_params.end(); ++i)
         {
             writer << "<li>" << i->first << ": " << i->second
-                << " <a href=\"" << http_request_ptr->getResource()
+                << " <a href=\"" << http_request_ptr->get_resource()
                 << "?action=delete&cookie_name=" << i->first
                 << "\">[Delete]</a>\n";
         }
@@ -93,14 +93,14 @@ void CookieService::operator()(http::request_ptr& http_request_ptr, tcp::connect
 
     // display form to add a cookie
     writer << "\n<h2>Add Cookie</h2>\n"
-        "<p><form action=\"" << http_request_ptr->getResource() << "\" method=\"POST\">\n"
+        "<p><form action=\"" << http_request_ptr->get_resource() << "\" method=\"POST\">\n"
         "Name: <input type=\"text\" name=\"cookie_name\"><br />\n"
         "Value: <input type=\"text\" name=\"cookie_value\"><br />\n"
         "<input type=\"submit\" name=\"action\" value=\"Add Cookie\"></p>\n"
         "</form>\n\n";
     
     // write the footer
-    writer->writeNoCopy(FOOTER_HTML);
+    writer->write_no_copy(FOOTER_HTML);
     
     // send the writer
     writer->send();

@@ -38,7 +38,7 @@ public:
         : m_status_code(RESPONSE_CODE_OK),
         m_status_message(RESPONSE_MESSAGE_OK)
     {
-        updateRequestInfo(http_request_ptr);
+        update_request_info(http_request_ptr);
     }
 
     /**
@@ -78,7 +78,7 @@ public:
     }
 
     /// the content length may be implied for certain types of responses
-    virtual bool isContentLengthImplied(void) const {
+    virtual bool is_content_length_implied(void) const {
         return (m_request_method == REQUEST_METHOD_HEAD             // HEAD responses have no content
                 || (m_status_code >= 100 && m_status_code <= 199)       // 1xx responses have no content
                 || m_status_code == 204 || m_status_code == 205     // no content & reset content responses
@@ -92,29 +92,29 @@ public:
      *
      * @param http_request the request that this is responding to
      */
-    inline void updateRequestInfo(const http::request& http_request) {
-        m_request_method = http_request.getMethod();
-        if (http_request.getVersionMajor() == 1 && http_request.getVersionMinor() >= 1)
-            setChunksSupported(true);
+    inline void update_request_info(const http::request& http_request) {
+        m_request_method = http_request.get_method();
+        if (http_request.get_version_major() == 1 && http_request.get_version_minor() >= 1)
+            set_chunks_supported(true);
     }
     
     /// sets the HTTP response status code
-    inline void setStatusCode(unsigned int n) {
+    inline void set_status_code(unsigned int n) {
         m_status_code = n;
-        clearFirstLine();
+        clear_first_line();
     }
 
     /// sets the HTTP response status message
-    inline void setStatusMessage(const std::string& msg) {
+    inline void set_status_message(const std::string& msg) {
         m_status_message = msg;
-        clearFirstLine();
+        clear_first_line();
     }
     
     /// returns the HTTP response status code
-    inline unsigned int getStatusCode(void) const { return m_status_code; }
+    inline unsigned int get_status_code(void) const { return m_status_code; }
     
     /// returns the HTTP response status message
-    inline const std::string& getStatusMessage(void) const { return m_status_message; }
+    inline const std::string& get_status_message(void) const { return m_status_message; }
     
 
     /**
@@ -124,9 +124,9 @@ public:
      * @param name the name of the cookie
      * @param value the value of the cookie
      */
-    inline void setCookie(const std::string& name, const std::string& value) {
+    inline void set_cookie(const std::string& name, const std::string& value) {
         std::string set_cookie_header(make_set_cookie_header(name, value, "/"));
-        addHeader(HEADER_SET_COOKIE, set_cookie_header);
+        add_header(HEADER_SET_COOKIE, set_cookie_header);
     }
     
     /**
@@ -137,11 +137,11 @@ public:
      * @param value the value of the cookie
      * @param path the path of the cookie
      */
-    inline void setCookie(const std::string& name, const std::string& value,
+    inline void set_cookie(const std::string& name, const std::string& value,
                           const std::string& path)
     {
         std::string set_cookie_header(make_set_cookie_header(name, value, path));
-        addHeader(HEADER_SET_COOKIE, set_cookie_header);
+        add_header(HEADER_SET_COOKIE, set_cookie_header);
     }
     
     /**
@@ -152,11 +152,11 @@ public:
      * @param path the path of the cookie
      * @param max_age the life of the cookie, in seconds (0 = discard)
      */
-    inline void setCookie(const std::string& name, const std::string& value,
+    inline void set_cookie(const std::string& name, const std::string& value,
                           const std::string& path, const unsigned long max_age)
     {
         std::string set_cookie_header(make_set_cookie_header(name, value, path, true, max_age));
-        addHeader(HEADER_SET_COOKIE, set_cookie_header);
+        add_header(HEADER_SET_COOKIE, set_cookie_header);
     }
     
     /**
@@ -166,37 +166,37 @@ public:
      * @param value the value of the cookie
      * @param max_age the life of the cookie, in seconds (0 = discard)
      */
-    inline void setCookie(const std::string& name, const std::string& value,
+    inline void set_cookie(const std::string& name, const std::string& value,
                           const unsigned long max_age)
     {
         std::string set_cookie_header(make_set_cookie_header(name, value, "/", true, max_age));
-        addHeader(HEADER_SET_COOKIE, set_cookie_header);
+        add_header(HEADER_SET_COOKIE, set_cookie_header);
     }
     
     /// deletes cookie called name by adding a Set-Cookie header (cookie has no path)
-    inline void deleteCookie(const std::string& name) {
+    inline void delete_cookie(const std::string& name) {
         std::string set_cookie_header(make_set_cookie_header(name, "", "/", true, 0));
-        addHeader(HEADER_SET_COOKIE, set_cookie_header);
+        add_header(HEADER_SET_COOKIE, set_cookie_header);
     }
     
     /// deletes cookie called name by adding a Set-Cookie header (cookie has a path)
-    inline void deleteCookie(const std::string& name, const std::string& path) {
+    inline void delete_cookie(const std::string& name, const std::string& path) {
         std::string set_cookie_header(make_set_cookie_header(name, "", path, true, 0));
-        addHeader(HEADER_SET_COOKIE, set_cookie_header);
+        add_header(HEADER_SET_COOKIE, set_cookie_header);
     }
     
     /// sets the time that the response was last modified (Last-Modified)
-    inline void setLastModified(const unsigned long t) {
-        changeHeader(HEADER_LAST_MODIFIED, get_date_string(t));
+    inline void set_last_modified(const unsigned long t) {
+        change_header(HEADER_LAST_MODIFIED, get_date_string(t));
     }
     
     
 protected:
     
     /// updates the string containing the first line for the HTTP message
-    virtual void updateFirstLine(void) const {
+    virtual void update_first_line(void) const {
         // start out with the HTTP version
-        m_first_line = getVersionString();
+        m_first_line = get_version_string();
         m_first_line += ' ';
         // append the response status code
         m_first_line +=  boost::lexical_cast<std::string>(m_status_code);

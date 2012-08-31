@@ -68,7 +68,7 @@ int main (int argc, char *argv[])
                 service_config_file = argv[++argnum];
             } else if (argv[argnum][1] == 'd' && argv[argnum][2] == '\0' && argnum+1 < argc) {
                 // add the service plug-ins directory to the search path
-                try { plugin::addPluginDirectory(argv[++argnum]); }
+                try { plugin::add_plugin_directory(argv[++argnum]); }
                 catch (error::directory_not_found&) {
                     std::cerr << "piond: Web service plug-ins directory does not exist: "
                         << argv[argnum] << std::endl;
@@ -128,14 +128,14 @@ int main (int argc, char *argv[])
     
     try {
         // add the Pion plug-ins installation directory to our path
-        try { plugin::addPluginDirectory(PION_PLUGINS_DIRECTORY); }
+        try { plugin::add_plugin_directory(PION_PLUGINS_DIRECTORY); }
         catch (error::directory_not_found&) {
             PION_LOG_WARN(main_log, "Default plug-ins directory does not exist: "
                 << PION_PLUGINS_DIRECTORY);
         }
 
         // add the directory of the program we're running to our path
-        try { plugin::addPluginDirectory(boost::filesystem::path(argv[0]).branch_path().string()); }
+        try { plugin::add_plugin_directory(boost::filesystem::path(argv[0]).branch_path().string()); }
         catch (error::directory_not_found&) {
             PION_LOG_WARN(main_log, "Directory of current executable does not exist: "
                 << boost::filesystem::path(argv[0]).branch_path());
@@ -147,7 +147,7 @@ int main (int argc, char *argv[])
         if (ssl_flag) {
 #ifdef PION_HAVE_SSL
             // configure server for SSL
-            web_server.setSSLKeyFile(ssl_pem_file);
+            web_server.set_ssl_key_file(ssl_pem_file);
             PION_LOG_INFO(main_log, "SSL support enabled using key file: " << ssl_pem_file);
 #else
             PION_LOG_ERROR(main_log, "SSL support is not enabled");
@@ -156,17 +156,17 @@ int main (int argc, char *argv[])
         
         if (service_config_file.empty()) {
             // load a single web service using the command line arguments
-            web_server.loadService(resource_name, service_name);
+            web_server.load_service(resource_name, service_name);
 
             // set web service options if any are defined
             for (ServiceOptionsType::iterator i = service_options.begin();
                  i != service_options.end(); ++i)
             {
-                web_server.setServiceOption(resource_name, i->first, i->second);
+                web_server.set_service_option(resource_name, i->first, i->second);
             }
         } else {
             // load services using the configuration file
-            web_server.loadServiceConfig(service_config_file);
+            web_server.load_service_config(service_config_file);
         }
 
         // startup the server
