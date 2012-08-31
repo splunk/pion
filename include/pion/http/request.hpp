@@ -54,23 +54,23 @@ public:
     }
 
     /// the content length of the message can never be implied for requests
-    virtual bool isContentLengthImplied(void) const { return false; }
+    virtual bool is_content_length_implied(void) const { return false; }
 
     /// returns the request method (i.e. GET, POST, PUT)
-    inline const std::string& getMethod(void) const { return m_method; }
+    inline const std::string& get_method(void) const { return m_method; }
     
     /// returns the resource uri-stem to be delivered (possibly the result of a redirect)
-    inline const std::string& getResource(void) const { return m_resource; }
+    inline const std::string& get_resource(void) const { return m_resource; }
 
     /// returns the resource uri-stem originally requested
-    inline const std::string& getOriginalResource(void) const { return m_original_resource; }
+    inline const std::string& get_original_resource(void) const { return m_original_resource; }
 
     /// returns the uri-query or query string requested
-    inline const std::string& getQueryString(void) const { return m_query_string; }
+    inline const std::string& get_query_string(void) const { return m_query_string; }
     
     /// returns a value for the query key if any are defined; otherwise, an empty string
-    inline const std::string& getQuery(const std::string& key) const {
-        return getValue(m_query_params, key);
+    inline const std::string& get_query(const std::string& key) const {
+        return get_value(m_query_params, key);
     }
 
     /// returns the query parameters
@@ -79,81 +79,81 @@ public:
     }
     
     /// returns true if at least one value for the query key is defined
-    inline bool hasQuery(const std::string& key) const {
+    inline bool has_query(const std::string& key) const {
         return(m_query_params.find(key) != m_query_params.end());
     }
         
     /// sets the HTTP request method (i.e. GET, POST, PUT)
-    inline void setMethod(const std::string& str) { 
+    inline void set_method(const std::string& str) { 
         m_method = str;
-        clearFirstLine();
+        clear_first_line();
     }
     
     /// sets the resource or uri-stem originally requested
-    inline void setResource(const std::string& str) {
+    inline void set_resource(const std::string& str) {
         m_resource = m_original_resource = str;
-        clearFirstLine();
+        clear_first_line();
     }
 
     /// changes the resource or uri-stem to be delivered (called as the result of a redirect)
-    inline void changeResource(const std::string& str) { m_resource = str; }
+    inline void change_resource(const std::string& str) { m_resource = str; }
 
     /// sets the uri-query or query string requested
-    inline void setQueryString(const std::string& str) {
+    inline void set_query_string(const std::string& str) {
         m_query_string = str;
-        clearFirstLine();
+        clear_first_line();
     }
     
     /// adds a value for the query key
-    inline void addQuery(const std::string& key, const std::string& value) {
+    inline void add_query(const std::string& key, const std::string& value) {
         m_query_params.insert(std::make_pair(key, value));
     }
     
     /// changes the value of a query key
-    inline void changeQuery(const std::string& key, const std::string& value) {
-        changeValue(m_query_params, key, value);
+    inline void change_query(const std::string& key, const std::string& value) {
+        change_value(m_query_params, key, value);
     }
     
     /// removes all values for a query key
-    inline void deleteQuery(const std::string& key) {
-        deleteValue(m_query_params, key);
+    inline void delete_query(const std::string& key) {
+        delete_value(m_query_params, key);
     }
     
     /// use the query parameters to build a query string for the request
-    inline void useQueryParamsForQueryString(void) {
-        setQueryString(make_query_string(m_query_params));
+    inline void use_query_params_for_query_string(void) {
+        set_query_string(make_query_string(m_query_params));
     }
 
     /// use the query parameters to build POST content for the request
-    inline void useQueryParamsForPostContent(void) {
+    inline void use_query_params_for_post_content(void) {
         std::string post_content(make_query_string(m_query_params));
-        setContentLength(post_content.size());
-        char *ptr = createContentBuffer();  // null-terminates buffer
+        set_content_length(post_content.size());
+        char *ptr = create_content_buffer();  // null-terminates buffer
         if (! post_content.empty())
             memcpy(ptr, post_content.c_str(), post_content.size());
-        setMethod(REQUEST_METHOD_POST);
-        setContentType(CONTENT_TYPE_URLENCODED);
+        set_method(REQUEST_METHOD_POST);
+        set_content_type(CONTENT_TYPE_URLENCODED);
     }
 
     /// add content (for POST) from string
-    inline void setContent(const std::string &value) {
-        setContentLength(value.size());
-        char *ptr = createContentBuffer();
+    inline void set_content(const std::string &value) {
+        set_content_length(value.size());
+        char *ptr = create_content_buffer();
         if (! value.empty())
             memcpy(ptr, value.c_str(), value.size());
     }
     
     /// sets the user record for HTTP request after authentication
-    inline void setUser(user_ptr user) { m_user_record = user; }
+    inline void set_user(user_ptr user) { m_user_record = user; }
     
     /// get the user record for HTTP request after authentication
-    inline user_ptr getUser() const { return m_user_record; }
+    inline user_ptr get_user() const { return m_user_record; }
 
 
 protected:
 
     /// updates the string containing the first line for the HTTP message
-    virtual void updateFirstLine(void) const {
+    virtual void update_first_line(void) const {
         // start out with the request method
         m_first_line = m_method;
         m_first_line += ' ';
@@ -166,7 +166,7 @@ protected:
         }
         m_first_line += ' ';
         // append HTTP version
-        m_first_line += getVersionString();
+        m_first_line += get_version_string();
     }
     
     
@@ -185,10 +185,10 @@ private:
     std::string                     m_query_string;
     
     /// HTTP query parameters parsed from the request line and post content
-    ihash_multimap                     m_query_params;
+    ihash_multimap                  m_query_params;
 
     /// pointer to user record if this request had been authenticated 
-    user_ptr                     m_user_record;
+    user_ptr                        m_user_record;
 };
 
 

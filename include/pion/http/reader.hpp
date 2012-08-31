@@ -40,7 +40,7 @@ public:
     inline tcp::connection_ptr& get_connection(void) { return m_tcp_conn; }
     
     /// sets the maximum number of seconds for read operations
-    inline void setTimeout(boost::uint32_t seconds) { m_read_timeout = seconds; }
+    inline void set_timeout(boost::uint32_t seconds) { m_read_timeout = seconds; }
 
     
 protected:
@@ -63,33 +63,33 @@ protected:
      * @param read_error error status from the last read operation
      * @param bytes_read number of bytes consumed by the last read operation
      */
-    void consumeBytes(const boost::system::error_code& read_error,
+    void consume_bytes(const boost::system::error_code& read_error,
                       std::size_t bytes_read);
 
     /// Consumes bytes that have been read using an HTTP parser
-    void consumeBytes(void);
+    void consume_bytes(void);
     
     /// Reads more bytes from the TCP connection
-    virtual void readBytes(void) = 0;
+    virtual void read_bytes(void) = 0;
 
     /// Called after we have finished reading/parsing the HTTP message
-    virtual void finishedReading(const boost::system::error_code& ec) = 0;
+    virtual void finished_reading(const boost::system::error_code& ec) = 0;
 
     /// Returns a reference to the HTTP message being parsed
-    virtual http::message& getMessage(void) = 0;
+    virtual http::message& get_message(void) = 0;
 
 
 private:
 
     /// reads more bytes for parsing, with timeout support
-    void readBytesWithTimeout(void);
+    void read_bytes_with_timeout(void);
 
     /**
      * Handles errors that occur during read operations
      *
      * @param read_error error status from the last read operation
      */
-    void handleReadError(const boost::system::error_code& read_error);
+    void handle_read_error(const boost::system::error_code& read_error);
 
 
     /// default maximum number of seconds for read operations

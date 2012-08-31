@@ -41,10 +41,10 @@ void scheduler::shutdown(void)
 
         // shut everything down
         m_is_running = false;
-        stopServices();
-        stopThreads();
-        finishServices();
-        finishThreads();
+        stop_services();
+        stop_threads();
+        finish_services();
+        finish_threads();
         
         PION_LOG_INFO(m_logger, "The thread scheduler has shutdown");
 
@@ -54,10 +54,10 @@ void scheduler::shutdown(void)
     } else {
         
         // stop and finish everything to be certain that no events are pending
-        stopServices();
-        stopThreads();
-        finishServices();
-        finishThreads();
+        stop_services();
+        stop_threads();
+        finish_services();
+        finish_threads();
         
         // Make sure anyone waiting on shutdown gets notified
         // even if the scheduler did not startup successfully
@@ -74,38 +74,38 @@ void scheduler::join(void)
     }
 }
     
-void scheduler::keepRunning(boost::asio::io_service& my_service,
+void scheduler::keep_running(boost::asio::io_service& my_service,
                                 boost::asio::deadline_timer& my_timer)
 {
     if (m_is_running) {
         // schedule this again to make sure the service doesn't complete
         my_timer.expires_from_now(boost::posix_time::seconds(KEEP_RUNNING_TIMER_SECONDS));
-        my_timer.async_wait(boost::bind(&scheduler::keepRunning, this,
+        my_timer.async_wait(boost::bind(&scheduler::keep_running, this,
                                         boost::ref(my_service), boost::ref(my_timer)));
     }
 }
 
-void scheduler::addActiveUser(void)
+void scheduler::add_active_user(void)
 {
     if (!m_is_running) startup();
     boost::mutex::scoped_lock scheduler_lock(m_mutex);
     ++m_active_users;
 }
 
-void scheduler::removeActiveUser(void)
+void scheduler::remove_active_user(void)
 {
     boost::mutex::scoped_lock scheduler_lock(m_mutex);
     if (--m_active_users == 0)
         m_no_more_active_users.notify_all();
 }
 
-boost::system_time scheduler::getWakeupTime(boost::uint32_t sleep_sec,
+boost::system_time scheduler::get_wakeup_time(boost::uint32_t sleep_sec,
     boost::uint32_t sleep_nsec)
 {
     return boost::get_system_time() + boost::posix_time::seconds(sleep_sec) + boost::posix_time::microseconds(sleep_nsec / 1000);
 }
                      
-void scheduler::processServiceWork(boost::asio::io_service& service) {
+void scheduler::process_service_work(boost::asio::io_service& service) {
     while (m_is_running) {
         try {
             service.run();
@@ -131,11 +131,11 @@ void single_service_scheduler::startup(void)
         
         // schedule a work item to make sure that the service doesn't complete
         m_service.reset();
-        keepRunning(m_service, m_timer);
+        keep_running(m_service, m_timer);
         
         // start multiple threads to handle async tasks
         for (boost::uint32_t n = 0; n < m_num_threads; ++n) {
-            boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&scheduler::processServiceWork,
+            boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&scheduler::process_service_work,
                                                                                        this, boost::ref(m_service)) ));
             m_thread_pool.push_back(new_thread);
         }
@@ -162,12 +162,12 @@ void one_to_one_scheduler::startup(void)
 
         // schedule a work item for each service to make sure that it doesn't complete
         for (service_pool_type::iterator i = m_service_pool.begin(); i != m_service_pool.end(); ++i) {
-            keepRunning((*i)->first, (*i)->second);
+            keep_running((*i)->first, (*i)->second);
         }
         
         // start multiple threads to handle async tasks
         for (boost::uint32_t n = 0; n < m_num_threads; ++n) {
-            boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&scheduler::processServiceWork,
+            boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&scheduler::process_service_work,
                                                                                        this, boost::ref(m_service_pool[n]->first)) ));
             m_thread_pool.push_back(new_thread);
         }

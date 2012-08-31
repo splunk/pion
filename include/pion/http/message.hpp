@@ -130,7 +130,7 @@ public:
 
     /// clears all message data
     virtual void clear(void) {
-        clearFirstLine();
+        clear_first_line();
         m_is_valid = m_is_chunked = m_chunks_supported
             = m_do_not_send_content_length = false;
         m_remote_ip = boost::asio::ip::address_v4(0);
@@ -146,13 +146,13 @@ public:
     }
 
     /// should return true if the content length can be implied without headers
-    virtual bool isContentLengthImplied(void) const = 0;
+    virtual bool is_content_length_implied(void) const = 0;
 
     /// returns true if the message is valid
-    inline bool isValid(void) const { return m_is_valid; }
+    inline bool is_valid(void) const { return m_is_valid; }
 
     /// returns true if chunked transfer encodings are supported
-    inline bool getChunksSupported(void) const { return m_chunks_supported; }
+    inline bool get_chunks_supported(void) const { return m_chunks_supported; }
 
     /// returns IP address of the remote endpoint
     inline boost::asio::ip::address& get_remote_ip(void) {
@@ -160,44 +160,44 @@ public:
     }
 
     /// returns the major HTTP version number
-    inline boost::uint16_t getVersionMajor(void) const { return m_version_major; }
+    inline boost::uint16_t get_version_major(void) const { return m_version_major; }
 
     /// returns the minor HTTP version number
-    inline boost::uint16_t getVersionMinor(void) const { return m_version_minor; }
+    inline boost::uint16_t get_version_minor(void) const { return m_version_minor; }
 
     /// returns a string representation of the HTTP version (i.e. "HTTP/1.1")
-    inline std::string getVersionString(void) const {
+    inline std::string get_version_string(void) const {
         std::string http_version(STRING_HTTP_VERSION);
-        http_version += boost::lexical_cast<std::string>(getVersionMajor());
+        http_version += boost::lexical_cast<std::string>(get_version_major());
         http_version += '.';
-        http_version += boost::lexical_cast<std::string>(getVersionMinor());
+        http_version += boost::lexical_cast<std::string>(get_version_minor());
         return http_version;
     }
 
     /// returns the length of the payload content (in bytes)
-    inline boost::uint64_t getContentLength(void) const { return m_content_length; }
+    inline boost::uint64_t get_content_length(void) const { return m_content_length; }
 
     /// returns true if the message content is chunked
-    inline bool isChunked(void) const { return m_is_chunked; }
+    inline bool is_chunked(void) const { return m_is_chunked; }
 
     /// returns true if buffer for content is allocated
-    bool isContentBufferAllocated() const { return !m_content_buf.is_empty(); }
+    bool is_content_buffer_allocated() const { return !m_content_buf.is_empty(); }
     
     /// returns size of allocated buffer
-    inline std::size_t getContentBufferSize() const { return m_content_buf.size(); }
+    inline std::size_t get_content_buffer_size() const { return m_content_buf.size(); }
     
     /// returns a pointer to the payload content, or empty string if there is none
-    inline char *getContent(void) { return m_content_buf.get(); }
+    inline char *get_content(void) { return m_content_buf.get(); }
 
     /// returns a const pointer to the payload content, or empty string if there is none
-    inline const char *getContent(void) const { return m_content_buf.get(); }
+    inline const char *get_content(void) const { return m_content_buf.get(); }
 
     /// returns a reference to the chunk cache
     inline chunk_cache_t& get_chunk_cache(void) { return m_chunk_cache; }
 
     /// returns a value for the header if any are defined; otherwise, an empty string
-    inline const std::string& getHeader(const std::string& key) const {
-        return getValue(m_headers, key);
+    inline const std::string& get_header(const std::string& key) const {
+        return get_value(m_headers, key);
     }
 
     /// returns a reference to the HTTP headers
@@ -206,14 +206,14 @@ public:
     }
 
     /// returns true if at least one value for the header is defined
-    inline bool hasHeader(const std::string& key) const {
+    inline bool has_header(const std::string& key) const {
         return(m_headers.find(key) != m_headers.end());
     }
 
     /// returns a value for the cookie if any are defined; otherwise, an empty string
     /// since cookie names are insensitive, key should use lowercase alpha chars
-    inline const std::string& getCookie(const std::string& key) const {
-        return getValue(m_cookie_params, key);
+    inline const std::string& get_cookie(const std::string& key) const {
+        return get_value(m_cookie_params, key);
     }
     
     /// returns the cookie parameters
@@ -223,81 +223,81 @@ public:
 
     /// returns true if at least one value for the cookie is defined
     /// since cookie names are insensitive, key should use lowercase alpha chars
-    inline bool hasCookie(const std::string& key) const {
+    inline bool has_cookie(const std::string& key) const {
         return(m_cookie_params.find(key) != m_cookie_params.end());
     }
     
     /// adds a value for the cookie
     /// since cookie names are insensitive, key should use lowercase alpha chars
-    inline void addCookie(const std::string& key, const std::string& value) {
+    inline void add_cookie(const std::string& key, const std::string& value) {
         m_cookie_params.insert(std::make_pair(key, value));
     }
 
     /// changes the value of a cookie
     /// since cookie names are insensitive, key should use lowercase alpha chars
-    inline void changeCookie(const std::string& key, const std::string& value) {
-        changeValue(m_cookie_params, key, value);
+    inline void change_cookie(const std::string& key, const std::string& value) {
+        change_value(m_cookie_params, key, value);
     }
 
     /// removes all values for a cookie
     /// since cookie names are insensitive, key should use lowercase alpha chars
-    inline void deleteCookie(const std::string& key) {
-        deleteValue(m_cookie_params, key);
+    inline void delete_cookie(const std::string& key) {
+        delete_value(m_cookie_params, key);
     }
     
     /// returns a string containing the first line for the HTTP message
-    inline const std::string& getFirstLine(void) const {
+    inline const std::string& get_first_line(void) const {
         if (m_first_line.empty())
-            updateFirstLine();
+            update_first_line();
         return m_first_line;
     }
 
     /// true if there were missing packets 
-    inline bool hasMissingPackets() const { return m_has_missing_packets; }
+    inline bool has_missing_packets() const { return m_has_missing_packets; }
     
     /// set to true when missing packets detected
-    inline void setMissingPackets(bool newVal) { m_has_missing_packets = newVal; }
+    inline void set_missing_packets(bool newVal) { m_has_missing_packets = newVal; }
 
     /// true if more data seen after the missing packets
-    inline bool hasDataAfterMissingPackets() const { return m_has_data_after_missing; }
+    inline bool has_data_after_missing_packets() const { return m_has_data_after_missing; }
 
-    inline void setDataAfterMissingPacket(bool newVal) { m_has_data_after_missing = newVal; }
+    inline void set_data_after_missing_packet(bool newVal) { m_has_data_after_missing = newVal; }
 
     /// sets whether or not the message is valid
-    inline void setIsValid(bool b = true) { m_is_valid = b; }
+    inline void set_is_valid(bool b = true) { m_is_valid = b; }
 
     /// set to true if chunked transfer encodings are supported
-    inline void setChunksSupported(bool b) { m_chunks_supported = b; }
+    inline void set_chunks_supported(bool b) { m_chunks_supported = b; }
 
     /// sets IP address of the remote endpoint
-    inline void setRemoteIp(const boost::asio::ip::address& ip) { m_remote_ip = ip; }
+    inline void set_remote_ip(const boost::asio::ip::address& ip) { m_remote_ip = ip; }
 
     /// sets the major HTTP version number
-    inline void setVersionMajor(const boost::uint16_t n) {
+    inline void set_version_major(const boost::uint16_t n) {
         m_version_major = n;
-        clearFirstLine();
+        clear_first_line();
     }
 
     /// sets the minor HTTP version number
-    inline void setVersionMinor(const boost::uint16_t n) {
+    inline void set_version_minor(const boost::uint16_t n) {
         m_version_minor = n;
-        clearFirstLine();
+        clear_first_line();
     }
 
     /// sets the length of the payload content (in bytes)
-    inline void setContentLength(const boost::uint64_t n) { m_content_length = n; }
+    inline void set_content_length(const boost::uint64_t n) { m_content_length = n; }
 
     /// if called, the content-length will not be sent in the HTTP headers
-    inline void setDoNotSendContentLength(void) { m_do_not_send_content_length = true; }
+    inline void set_do_not_send_content_length(void) { m_do_not_send_content_length = true; }
 
     /// return the data receival status
-    inline data_status_t getStatus() const { return m_status; }
+    inline data_status_t get_status() const { return m_status; }
 
     /// 
-    inline void setStatus(data_status_t newVal) { m_status = newVal; }
+    inline void set_status(data_status_t newVal) { m_status = newVal; }
 
     /// sets the length of the payload content using the Content-Length header
-    inline void updateContentLengthUsingHeader(void) {
+    inline void update_content_length_using_header(void) {
         ihash_multimap::const_iterator i = m_headers.find(HEADER_CONTENT_LENGTH);
         if (i == m_headers.end()) {
             m_content_length = 0;
@@ -309,7 +309,7 @@ public:
     }
 
     /// sets the transfer coding using the Transfer-Encoding header
-    inline void updateTransferCodingUsingHeader(void) {
+    inline void update_transfer_encoding_using_header(void) {
         m_is_chunked = false;
         ihash_multimap::const_iterator i = m_headers.find(HEADER_TRANSFER_ENCODING);
         if (i != m_headers.end()) {
@@ -321,50 +321,50 @@ public:
 
     ///creates a payload content buffer of size m_content_length and returns
     /// a pointer to the new buffer (memory is managed by message class)
-    inline char *createContentBuffer(void) {
+    inline char *create_content_buffer(void) {
         m_content_buf.resize(m_content_length);
         return m_content_buf.get();
     }
     
     /// resets payload content to match the value of a string
-    inline void setContent(const std::string& content) {
-        setContentLength(content.size());
-        createContentBuffer();
+    inline void set_content(const std::string& content) {
+        set_content_length(content.size());
+        create_content_buffer();
         memcpy(m_content_buf.get(), content.c_str(), content.size());
     }
 
     /// clears payload content buffer
-    inline void clearContent(void) {
-        setContentLength(0);
-        createContentBuffer();
-        deleteValue(m_headers, HEADER_CONTENT_TYPE);
+    inline void clear_content(void) {
+        set_content_length(0);
+        create_content_buffer();
+        delete_value(m_headers, HEADER_CONTENT_TYPE);
     }
 
     /// sets the content type for the message payload
-    inline void setContentType(const std::string& type) {
-        changeValue(m_headers, HEADER_CONTENT_TYPE, type);
+    inline void set_content_type(const std::string& type) {
+        change_value(m_headers, HEADER_CONTENT_TYPE, type);
     }
 
     /// adds a value for the HTTP header named key
-    inline void addHeader(const std::string& key, const std::string& value) {
+    inline void add_header(const std::string& key, const std::string& value) {
         m_headers.insert(std::make_pair(key, value));
     }
 
     /// changes the value for the HTTP header named key
-    inline void changeHeader(const std::string& key, const std::string& value) {
-        changeValue(m_headers, key, value);
+    inline void change_header(const std::string& key, const std::string& value) {
+        change_value(m_headers, key, value);
     }
 
     /// removes all values for the HTTP header named key
-    inline void deleteHeader(const std::string& key) {
-        deleteValue(m_headers, key);
+    inline void delete_header(const std::string& key) {
+        delete_value(m_headers, key);
     }
 
     /// returns true if the HTTP connection may be kept alive
-    inline bool checkKeepAlive(void) const {
-        return (getHeader(HEADER_CONNECTION) != "close"
-                && (getVersionMajor() > 1
-                    || (getVersionMajor() >= 1 && getVersionMinor() >= 1)) );
+    inline bool check_keep_alive(void) const {
+        return (get_header(HEADER_CONNECTION) != "close"
+                && (get_version_major() > 1
+                    || (get_version_major() >= 1 && get_version_minor() >= 1)) );
     }
 
     /**
@@ -374,17 +374,17 @@ public:
      * @param keep_alive true if the connection should be kept alive
      * @param using_chunks true if the payload content will be sent in chunks
      */
-    inline void prepareBuffersForSend(write_buffers_t& write_buffers,
+    inline void prepare_buffers_for_send(write_buffers_t& write_buffers,
                                       const bool keep_alive,
                                       const bool using_chunks)
     {
         // update message headers
-        prepareHeadersForSend(keep_alive, using_chunks);
+        prepare_headers_for_send(keep_alive, using_chunks);
         // add first message line
-        write_buffers.push_back(boost::asio::buffer(getFirstLine()));
+        write_buffers.push_back(boost::asio::buffer(get_first_line()));
         write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
         // append HTTP headers
-        appendHeaders(write_buffers);
+        append_headers(write_buffers);
     }
 
 
@@ -439,7 +439,7 @@ public:
     /**
      * pieces together all the received chunks
      */
-    void concatenateChunks(void);
+    void concatenate_chunks(void);
 
 
 protected:
@@ -515,15 +515,15 @@ protected:
      * @param keep_alive true if the connection should be kept alive
      * @param using_chunks true if the payload content will be sent in chunks
      */
-    inline void prepareHeadersForSend(const bool keep_alive,
+    inline void prepare_headers_for_send(const bool keep_alive,
                                       const bool using_chunks)
     {
-        changeHeader(HEADER_CONNECTION, (keep_alive ? "Keep-Alive" : "close") );
+        change_header(HEADER_CONNECTION, (keep_alive ? "Keep-Alive" : "close") );
         if (using_chunks) {
-            if (getChunksSupported())
-                changeHeader(HEADER_TRANSFER_ENCODING, "chunked");
+            if (get_chunks_supported())
+                change_header(HEADER_TRANSFER_ENCODING, "chunked");
         } else if (! m_do_not_send_content_length) {
-            changeHeader(HEADER_CONTENT_LENGTH, boost::lexical_cast<std::string>(getContentLength()));
+            change_header(HEADER_CONTENT_LENGTH, boost::lexical_cast<std::string>(get_content_length()));
         }
     }
 
@@ -532,7 +532,7 @@ protected:
      *
      * @param write_buffers the buffers to append HTTP headers into
      */
-    inline void appendHeaders(write_buffers_t& write_buffers) {
+    inline void append_headers(write_buffers_t& write_buffers) {
         // add HTTP headers
         for (ihash_multimap::const_iterator i = m_headers.begin(); i != m_headers.end(); ++i) {
             write_buffers.push_back(boost::asio::buffer(i->first));
@@ -553,7 +553,7 @@ protected:
      * @return value if found; empty string if not
      */
     template <typename DictionaryType>
-    inline static const std::string& getValue(const DictionaryType& dict,
+    inline static const std::string& get_value(const DictionaryType& dict,
                                               const std::string& key)
     {
         typename DictionaryType::const_iterator i = dict.find(key);
@@ -570,7 +570,7 @@ protected:
      * @param value the value to assign to the key
      */
     template <typename DictionaryType>
-    inline static void changeValue(DictionaryType& dict,
+    inline static void change_value(DictionaryType& dict,
                                    const std::string& key, const std::string& value)
 
     {
@@ -601,7 +601,7 @@ protected:
      * @param key the key to delete
      */
     template <typename DictionaryType>
-    inline static void deleteValue(DictionaryType& dict,
+    inline static void delete_value(DictionaryType& dict,
                                    const std::string& key)
     {
         std::pair<typename DictionaryType::iterator, typename DictionaryType::iterator>
@@ -611,14 +611,14 @@ protected:
     }
 
     /// erases the string containing the first line for the HTTP message
-    /// (it will be updated the next time getFirstLine() is called)
-    inline void clearFirstLine(void) const {
+    /// (it will be updated the next time get_first_line() is called)
+    inline void clear_first_line(void) const {
         if (! m_first_line.empty())
             m_first_line.clear();
     }
 
     /// updates the string containing the first line for the HTTP message
-    virtual void updateFirstLine(void) const = 0;
+    virtual void update_first_line(void) const = 0;
 
 
     /// first line sent in an HTTP message
@@ -656,19 +656,19 @@ private:
     boost::uint64_t                 m_content_length;
 
     /// the payload content, if any was sent with the message
-    content_buffer_t                   m_content_buf;
+    content_buffer_t                m_content_buf;
 
     /// buffers for holding chunked data
-    chunk_cache_t                      m_chunk_cache;
+    chunk_cache_t                   m_chunk_cache;
 
     /// HTTP message headers
-    ihash_multimap                         m_headers;
+    ihash_multimap                  m_headers;
 
     /// HTTP cookie parameters parsed from the headers
-    ihash_multimap                    m_cookie_params;
+    ihash_multimap                  m_cookie_params;
 
     /// message data integrity status
-    data_status_t                      m_status;
+    data_status_t                   m_status;
 
     /// missing packet indicator
     bool                            m_has_missing_packets;

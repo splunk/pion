@@ -51,7 +51,7 @@ public:
      * @param name the name of the option to change
      * @param value the value of the option
      */
-    virtual void setOption(const std::string& name, const std::string& value) {
+    virtual void set_option(const std::string& name, const std::string& value) {
         BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
     }
     
@@ -62,20 +62,20 @@ public:
     virtual void stop(void) {}
     
     /// sets the URI stem or resource that is bound to the web service
-    inline void setResource(const std::string& str) { m_resource = str; }
+    inline void set_resource(const std::string& str) { m_resource = str; }
 
     /// returns the URI stem or resource that is bound to the web service   
-    inline const std::string& getResource(void) const { return m_resource; }
+    inline const std::string& get_resource(void) const { return m_resource; }
     
     /// returns the path to the resource requested, relative to the web service's location
-    inline std::string getRelativeResource(const std::string& resource_requested) const {
-        if (resource_requested.size() <= getResource().size()) {
+    inline std::string get_relative_resource(const std::string& resource_requested) const {
+        if (resource_requested.size() <= get_resource().size()) {
             // either the request matches the web service's resource path (a directory)
             // or the request does not match (should never happen)
             return std::string();
         }
         // strip the web service's resource path plus the slash after it
-        return algorithm::url_decode(resource_requested.substr(getResource().size() + 1));
+        return algorithm::url_decode(resource_requested.substr(get_resource().size() + 1));
     }
     
     
@@ -88,7 +88,7 @@ private:
 
 //
 // The following symbols must be defined for any web service that you would
-// like to be able to load dynamically using the http::server::loadService()
+// like to be able to load dynamically using the http::server::load_service()
 // function.  These are not required for any services that you only want to link
 // directly into your programs.
 //

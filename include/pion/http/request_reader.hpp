@@ -57,7 +57,7 @@ public:
     }
     
     /// sets a function to be called after HTTP headers have been parsed
-    inline void setHeadersParsedCallback(finished_handler_t& h) { m_parsed_headers = h; }
+    inline void set_headers_parsed_callback(finished_handler_t& h) { m_parsed_headers = h; }
     
     
 protected:
@@ -72,32 +72,32 @@ protected:
         : http::reader(true, tcp_conn), m_http_msg(new http::request),
         m_finished(handler)
     {
-        m_http_msg->setRemoteIp(tcp_conn->get_remote_ip());
-        setLogger(PION_GET_LOGGER("pion.http.request_reader"));
+        m_http_msg->set_remote_ip(tcp_conn->get_remote_ip());
+        set_logger(PION_GET_LOGGER("pion.http.request_reader"));
     }
         
     /// Reads more bytes from the TCP connection
-    virtual void readBytes(void) {
-        get_connection()->async_read_some(boost::bind(&request_reader::consumeBytes,
+    virtual void read_bytes(void) {
+        get_connection()->async_read_some(boost::bind(&request_reader::consume_bytes,
                                                         shared_from_this(),
                                                         boost::asio::placeholders::error,
                                                         boost::asio::placeholders::bytes_transferred));
     }
 
     /// Called after we have finished parsing the HTTP message headers
-    virtual void finishedParsingHeaders(const boost::system::error_code& ec) {
+    virtual void finished_parsing_headers(const boost::system::error_code& ec) {
         // call the finished headers handler with the HTTP message
         if (m_parsed_headers) m_parsed_headers(m_http_msg, get_connection(), ec);
     }
     
     /// Called after we have finished reading/parsing the HTTP message
-    virtual void finishedReading(const boost::system::error_code& ec) {
+    virtual void finished_reading(const boost::system::error_code& ec) {
         // call the finished handler with the finished HTTP message
         if (m_finished) m_finished(m_http_msg, get_connection(), ec);
     }
     
     /// Returns a reference to the HTTP message being parsed
-    virtual http::message& getMessage(void) { return *m_http_msg; }
+    virtual http::message& get_message(void) { return *m_http_msg; }
 
     /// The new HTTP message container being created
     http::request_ptr              m_http_msg;

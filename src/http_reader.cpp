@@ -30,15 +30,15 @@ void reader::receive(void)
         // there are pipelined messages available in the connection's read buffer
         m_tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE);   // default to close the connection
         m_tcp_conn->load_read_pos(m_read_ptr, m_read_end_ptr);
-        consumeBytes();
+        consume_bytes();
     } else {
         // no pipelined messages available in the read buffer -> read bytes from the socket
         m_tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE);   // default to close the connection
-        readBytesWithTimeout();
+        read_bytes_with_timeout();
     }
 }
 
-void reader::consumeBytes(const boost::system::error_code& read_error,
+void reader::consume_bytes(const boost::system::error_code& read_error,
                               std::size_t bytes_read)
 {
     // cancel read timer if operation didn't time-out
@@ -49,21 +49,21 @@ void reader::consumeBytes(const boost::system::error_code& read_error,
 
     if (read_error) {
         // a read error occured
-        handleReadError(read_error);
+        handle_read_error(read_error);
         return;
     }
     
     PION_LOG_DEBUG(m_logger, "Read " << bytes_read << " bytes from HTTP "
-                   << (isParsingRequest() ? "request" : "response"));
+                   << (is_parsing_request() ? "request" : "response"));
 
     // set pointers for new HTTP header data to be consumed
     set_read_buffer(m_tcp_conn->get_read_buffer().data(), bytes_read);
 
-    consumeBytes();
+    consume_bytes();
 }
 
 
-void reader::consumeBytes(void)
+void reader::consume_bytes(void)
 {
     // parse the bytes read from the last operation
     //
@@ -74,7 +74,7 @@ void reader::consumeBytes(void)
     // indeterminate: parsed bytes, but the message is not yet finished
     //
     boost::system::error_code ec;
-    boost::tribool result = parse(getMessage(), ec);
+    boost::tribool result = parse(get_message(), ec);
     
     if (gcount() > 0) {
         // parsed > 0 bytes in HTTP headers
@@ -85,7 +85,7 @@ void reader::consumeBytes(void)
         // finished reading HTTP message and it is valid
 
         // set the connection's lifecycle type
-        if (getMessage().checkKeepAlive()) {
+        if (get_message().check_keep_alive()) {
             if ( eof() ) {
                 // the connection should be kept alive, but does not have pipelined messages
                 m_tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_KEEPALIVE);
@@ -99,7 +99,7 @@ void reader::consumeBytes(void)
                 m_tcp_conn->save_read_pos(m_read_ptr, m_read_end_ptr);
 
                 PION_LOG_DEBUG(m_logger, "HTTP pipelined "
-                               << (isParsingRequest() ? "request (" : "response (")
+                               << (is_parsing_request() ? "request (" : "response (")
                                << bytes_available() << " bytes available)");
             }
         } else {
@@ -107,20 +107,20 @@ void reader::consumeBytes(void)
         }
 
         // we have finished parsing the HTTP message
-        finishedReading(ec);
+        finished_reading(ec);
 
     } else if (result == false) {
         // the message is invalid or an error occured
         m_tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE);   // make sure it will get closed
-        getMessage().setIsValid(false);
-        finishedReading(ec);
+        get_message().set_is_valid(false);
+        finished_reading(ec);
     } else {
         // not yet finished parsing the message -> read more data
-        readBytesWithTimeout();
+        read_bytes_with_timeout();
     }
 }
 
-void reader::readBytesWithTimeout(void)
+void reader::read_bytes_with_timeout(void)
 {
     if (m_read_timeout > 0) {
         m_timer_ptr.reset(new tcp::timer(m_tcp_conn));
@@ -128,35 +128,35 @@ void reader::readBytesWithTimeout(void)
     } else if (m_timer_ptr) {
         m_timer_ptr.reset();
     }
-    readBytes();
+    read_bytes();
 }
 
-void reader::handleReadError(const boost::system::error_code& read_error)
+void reader::handle_read_error(const boost::system::error_code& read_error)
 {
     // close the connection, forcing the client to establish a new one
     m_tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE);   // make sure it will get closed
 
     // check if this is just a message with unknown content length
-    if (! checkPrematureEOF(getMessage())) {
+    if (! check_premature_eof(get_message())) {
         boost::system::error_code ec;   // clear error code
-        finishedReading(ec);
+        finished_reading(ec);
         return;
     }
     
     // only log errors if the parsing has already begun
-    if (getTotalBytesRead() > 0) {
+    if (get_total_bytes_read() > 0) {
         if (read_error == boost::asio::error::operation_aborted) {
             // if the operation was aborted, the acceptor was stopped,
             // which means another thread is shutting-down the server
-            PION_LOG_INFO(m_logger, "HTTP " << (isParsingRequest() ? "request" : "response")
+            PION_LOG_INFO(m_logger, "HTTP " << (is_parsing_request() ? "request" : "response")
                           << " parsing aborted (shutting down)");
         } else {
-            PION_LOG_INFO(m_logger, "HTTP " << (isParsingRequest() ? "request" : "response")
+            PION_LOG_INFO(m_logger, "HTTP " << (is_parsing_request() ? "request" : "response")
                           << " parsing aborted (" << read_error.message() << ')');
         }
     }
 
-    finishedReading(read_error);
+    finished_reading(read_error);
 }
 
 }   // end namespace http

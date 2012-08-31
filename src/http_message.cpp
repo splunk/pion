@@ -35,11 +35,11 @@ std::size_t message::send(tcp::connection& tcp_conn,
 {
     // initialize write buffers for send operation using HTTP headers
     write_buffers_t write_buffers;
-    prepareBuffersForSend(write_buffers, tcp_conn.get_keep_alive(), false);
+    prepare_buffers_for_send(write_buffers, tcp_conn.get_keep_alive(), false);
 
     // append payload content to write buffers (if there is any)
-    if (!headers_only && getContentLength() > 0 && getContent() != NULL)
-        write_buffers.push_back(boost::asio::buffer(getContent(), getContentLength()));
+    if (!headers_only && get_content_length() > 0 && get_content() != NULL)
+        write_buffers.push_back(boost::asio::buffer(get_content(), get_content_length()));
 
     // send the message and return the result
     return tcp_conn.write(write_buffers, ec);
@@ -52,7 +52,7 @@ std::size_t message::receive(tcp::connection& tcp_conn,
     // assumption: this can only be either an http::request or an http::response
     const bool is_request = (dynamic_cast<http::request*>(this) != NULL);
     http::parser http_parser(is_request);
-    http_parser.parseHeadersOnly(headers_only);
+    http_parser.parse_headers_only(headers_only);
     std::size_t last_bytes_read = 0;
 
     // make sure that we start out with an empty message
@@ -84,11 +84,11 @@ std::size_t message::receive(tcp::connection& tcp_conn,
         // read more bytes from the connection
         last_bytes_read = tcp_conn.read_some(ec);
         if (ec || last_bytes_read == 0) {
-            if (http_parser.checkPrematureEOF(*this)) {
+            if (http_parser.check_premature_eof(*this)) {
                 // premature EOF encountered
                 if (! ec)
                     ec = make_error_code(boost::system::errc::io_error);
-                return http_parser.getTotalBytesRead();
+                return http_parser.get_total_bytes_read();
             } else {
                 // EOF reached when content length unknown
                 // assume it is the correct end of content
@@ -107,11 +107,11 @@ std::size_t message::receive(tcp::connection& tcp_conn,
     
     if (parse_result == false) {
         // an error occurred while parsing the message headers
-        return http_parser.getTotalBytesRead();
+        return http_parser.get_total_bytes_read();
     }
 
     // set the connection's lifecycle type
-    if (!force_connection_closed && checkKeepAlive()) {
+    if (!force_connection_closed && check_keep_alive()) {
         if ( http_parser.eof() ) {
             // the connection should be kept alive, but does not have pipelined messages
             tcp_conn.set_lifecycle(tcp::connection::LIFECYCLE_KEEPALIVE);
@@ -132,7 +132,7 @@ std::size_t message::receive(tcp::connection& tcp_conn,
         tcp_conn.set_lifecycle(tcp::connection::LIFECYCLE_CLOSE);
     }
 
-    return (http_parser.getTotalBytesRead());
+    return (http_parser.get_total_bytes_read());
 }
 
 std::size_t message::write(std::ostream& out,
@@ -143,11 +143,11 @@ std::size_t message::write(std::ostream& out,
 
     // initialize write buffers for send operation using HTTP headers
     write_buffers_t write_buffers;
-    prepareBuffersForSend(write_buffers, true, false);
+    prepare_buffers_for_send(write_buffers, true, false);
 
     // append payload content to write buffers (if there is any)
-    if (!headers_only && getContentLength() > 0 && getContent() != NULL)
-        write_buffers.push_back(boost::asio::buffer(getContent(), getContentLength()));
+    if (!headers_only && get_content_length() > 0 && get_content() != NULL)
+        write_buffers.push_back(boost::asio::buffer(get_content(), get_content_length()));
 
     // write message to the output stream
     std::size_t bytes_out = 0;
@@ -171,7 +171,7 @@ std::size_t message::read(std::istream& in,
     // assumption: this can only be either an http::request or an http::response
     const bool is_request = (dynamic_cast<http::request*>(this) != NULL);
     http::parser http_parser(is_request);
-    http_parser.parseHeadersOnly(headers_only);
+    http_parser.parse_headers_only(headers_only);
 
     // parse data from file one byte at a time
     boost::tribool parse_result;
@@ -188,7 +188,7 @@ std::size_t message::read(std::istream& in,
     }
 
     if (boost::indeterminate(parse_result)) {
-        if (http_parser.checkPrematureEOF(*this)) {
+        if (http_parser.check_premature_eof(*this)) {
             // premature EOF encountered
             if (! ec)
                 ec = make_error_code(boost::system::errc::io_error);
@@ -201,13 +201,13 @@ std::size_t message::read(std::istream& in,
         }
     }
     
-    return (http_parser.getTotalBytesRead());
+    return (http_parser.get_total_bytes_read());
 }
 
-void message::concatenateChunks(void)
+void message::concatenate_chunks(void)
 {
-    setContentLength(m_chunk_cache.size());
-    char *post_buffer = createContentBuffer();
+    set_content_length(m_chunk_cache.size());
+    char *post_buffer = create_content_buffer();
     if (m_chunk_cache.size() > 0)
         std::copy(m_chunk_cache.begin(), m_chunk_cache.end(), post_buffer);
 }

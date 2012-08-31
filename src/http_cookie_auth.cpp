@@ -37,7 +37,7 @@ cookie_auth::cookie_auth(user_manager_ptr userManager,
     m_cache_cleanup_time(boost::posix_time::second_clock::universal_time())
 {
     // set logger for this class
-    setLogger(PION_GET_LOGGER("pion.http.cookie_auth"));
+    set_logger(PION_GET_LOGGER("pion.http.cookie_auth"));
 
     // Seed random number generator with current time as time_t int value, cast to the required type.
     // (Note that boost::mt19937::result_type is boost::uint32_t, and casting to an unsigned n-bit integer is
@@ -50,27 +50,27 @@ cookie_auth::cookie_auth(user_manager_ptr userManager,
         m_random_die();
 }
     
-bool cookie_auth::handleRequest(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+bool cookie_auth::handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
 {
-    if (processLogin(http_request_ptr,tcp_conn)) {
+    if (process_login(http_request_ptr,tcp_conn)) {
         return false; // we processed login/logout request, no future processing for this request permitted
     }
 
-    if (!needAuthentication(http_request_ptr)) {
+    if (!need_authentication(http_request_ptr)) {
         return true; // this request does not require authentication
     }
 
     // check if it is redirection page.. If yes, then do not test its credentials ( as used for login)
-    if (!m_redirect.empty() && m_redirect==http_request_ptr->getResource()) {
+    if (!m_redirect.empty() && m_redirect==http_request_ptr->get_resource()) {
         return true; // this request does not require authentication
     }
     
     // check cache for expiration
     boost::posix_time::ptime time_now(boost::posix_time::second_clock::universal_time());
-    expireCache(time_now);
+    expire_cache(time_now);
 
     // if we are here, we need to check if access authorized...
-    const std::string auth_cookie(http_request_ptr->getCookie(AUTH_COOKIE_NAME));
+    const std::string auth_cookie(http_request_ptr->get_cookie(AUTH_COOKIE_NAME));
     if (! auth_cookie.empty()) {
         // check if this cookie is in user cache
         boost::mutex::scoped_lock cache_lock(m_cache_mutex);
@@ -78,7 +78,7 @@ bool cookie_auth::handleRequest(http::request_ptr& http_request_ptr, tcp::connec
         if (user_cache_itr != m_user_cache.end()) {
             // we find those credential in our cache...
             // we can approve authorization now!
-            http_request_ptr->setUser(user_cache_itr->second.second);
+            http_request_ptr->set_user(user_cache_itr->second.second);
             // and update cache timeout
             user_cache_itr->second.first = time_now;
             return true;
@@ -86,11 +86,11 @@ bool cookie_auth::handleRequest(http::request_ptr& http_request_ptr, tcp::connec
     }
 
     // user not found
-    handleUnauthorized(http_request_ptr,tcp_conn);
+    handle_unauthorized(http_request_ptr,tcp_conn);
     return false;
 }
     
-void cookie_auth::setOption(const std::string& name, const std::string& value) 
+void cookie_auth::set_option(const std::string& name, const std::string& value) 
 {
     if (name=="login")
         m_login = value;
@@ -102,29 +102,29 @@ void cookie_auth::setOption(const std::string& name, const std::string& value)
         BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
 }
 
-bool cookie_auth::processLogin(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+bool cookie_auth::process_login(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
 {
     // strip off trailing slash if the request has one
-    std::string resource(http::server::stripTrailingSlash(http_request_ptr->getResource()));
+    std::string resource(http::server::strip_trailing_slash(http_request_ptr->get_resource()));
 
     if (resource != m_login && resource != m_logout) {
         return false; // no login processing done
     }
 
-    std::string redirect_url = algorithm::url_decode(http_request_ptr->getQuery("url"));
+    std::string redirect_url = algorithm::url_decode(http_request_ptr->get_query("url"));
     std::string new_cookie;
     bool delete_cookie = false;
 
     if (resource == m_login) {
         // process login
         // check username
-        std::string username = algorithm::url_decode(http_request_ptr->getQuery("user"));
-        std::string password = algorithm::url_decode(http_request_ptr->getQuery("pass"));
+        std::string username = algorithm::url_decode(http_request_ptr->get_query("user"));
+        std::string password = algorithm::url_decode(http_request_ptr->get_query("pass"));
 
         // match username/password
-        user_ptr user=m_user_manager->getUser(username,password);
+        user_ptr user=m_user_manager->get_user(username,password);
         if (!user) { // authentication failed, process as in case of failed authentication...
-            handleUnauthorized(http_request_ptr,tcp_conn);
+            handle_unauthorized(http_request_ptr,tcp_conn);
             return true;
         }
         // ok we have a new user session, create  a new cookie, add to cache
@@ -144,7 +144,7 @@ bool cookie_auth::processLogin(http::request_ptr& http_request_ptr, tcp::connect
     } else {
         // process logout sequence
         // if auth cookie presented - clean cache out
-        const std::string auth_cookie(http_request_ptr->getCookie(AUTH_COOKIE_NAME));
+        const std::string auth_cookie(http_request_ptr->get_cookie(AUTH_COOKIE_NAME));
         if (! auth_cookie.empty()) {
             boost::mutex::scoped_lock cache_lock(m_cache_mutex);
             user_cache_type::iterator user_cache_itr=m_user_cache.find(auth_cookie);
@@ -158,22 +158,22 @@ bool cookie_auth::processLogin(http::request_ptr& http_request_ptr, tcp::connect
     
     // if redirect defined - send redirect
     if (! redirect_url.empty()) {
-        handleRedirection(http_request_ptr,tcp_conn,redirect_url,new_cookie,delete_cookie);
+        handle_redirection(http_request_ptr,tcp_conn,redirect_url,new_cookie,delete_cookie);
     } else {
         // otherwise - OK
-        handleOk(http_request_ptr,tcp_conn,new_cookie,delete_cookie);
+        handle_ok(http_request_ptr,tcp_conn,new_cookie,delete_cookie);
     }
 
     // yes, we processed login/logout somehow
     return true;
 }
 
-void cookie_auth::handleUnauthorized(http::request_ptr& http_request_ptr,
+void cookie_auth::handle_unauthorized(http::request_ptr& http_request_ptr,
     tcp::connection_ptr& tcp_conn)
 {
     // if redirection option is used, send redirect
     if (!m_redirect.empty()) {
-        handleRedirection(http_request_ptr,tcp_conn,m_redirect,"",false);
+        handle_redirection(http_request_ptr,tcp_conn,m_redirect,"",false);
         return;
     }
 
@@ -190,13 +190,13 @@ void cookie_auth::handleUnauthorized(http::request_ptr& http_request_ptr,
         "</HTML> ";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
     boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_UNAUTHORIZED);
-    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_UNAUTHORIZED);
-    writer->writeNoCopy(CONTENT);
+    writer->get_response().set_status_code(http::types::RESPONSE_CODE_UNAUTHORIZED);
+    writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_UNAUTHORIZED);
+    writer->write_no_copy(CONTENT);
     writer->send();
 }
 
-void cookie_auth::handleRedirection(http::request_ptr& http_request_ptr,
+void cookie_auth::handle_redirection(http::request_ptr& http_request_ptr,
                                         tcp::connection_ptr& tcp_conn,
                                         const std::string &redirection_url,
                                         const std::string &new_cookie,
@@ -216,25 +216,25 @@ void cookie_auth::handleRedirection(http::request_ptr& http_request_ptr,
         "</HTML> ";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
         boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_FOUND);
-    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_FOUND);
-    writer->getResponse().addHeader(http::types::HEADER_LOCATION, redirection_url);
+    writer->get_response().set_status_code(http::types::RESPONSE_CODE_FOUND);
+    writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_FOUND);
+    writer->get_response().add_header(http::types::HEADER_LOCATION, redirection_url);
     // Note: use empty pass "" while setting cookies to workaround IE/FF difference
     // It is assumed that request url points to the root
     // ToDo: find a better workaround
     if (delete_cookie) {
         // remove cookie
-        writer->getResponse().deleteCookie(AUTH_COOKIE_NAME,"");
+        writer->get_response().delete_cookie(AUTH_COOKIE_NAME,"");
     } else if (!new_cookie.empty()) {
         // set up a new cookie
-        writer->getResponse().setCookie(AUTH_COOKIE_NAME, new_cookie,"");
+        writer->get_response().set_cookie(AUTH_COOKIE_NAME, new_cookie,"");
     }
 
-    writer->writeNoCopy(CONTENT);
+    writer->write_no_copy(CONTENT);
     writer->send();
 }
 
-void cookie_auth::handleOk(http::request_ptr& http_request_ptr,
+void cookie_auth::handle_ok(http::request_ptr& http_request_ptr,
                               tcp::connection_ptr& tcp_conn,
                               const std::string &new_cookie,
                               bool delete_cookie
@@ -243,22 +243,22 @@ void cookie_auth::handleOk(http::request_ptr& http_request_ptr,
     // send 204 (No Content) response
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
         boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_NO_CONTENT);
-    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_NO_CONTENT);
+    writer->get_response().set_status_code(http::types::RESPONSE_CODE_NO_CONTENT);
+    writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NO_CONTENT);
     // Note: use empty pass "" while setting cookies to workaround IE/FF difference
     // It is assumed that request url points to the root
     // ToDo: find a better workaround
     if (delete_cookie) {
         // remove cookie
-        writer->getResponse().deleteCookie(AUTH_COOKIE_NAME,"");
+        writer->get_response().delete_cookie(AUTH_COOKIE_NAME,"");
     } else if(!new_cookie.empty()) {
         // set up a new cookie
-        writer->getResponse().setCookie(AUTH_COOKIE_NAME, new_cookie,"");
+        writer->get_response().set_cookie(AUTH_COOKIE_NAME, new_cookie,"");
     }
     writer->send();
 }
 
-void cookie_auth::expireCache(const boost::posix_time::ptime &time_now)
+void cookie_auth::expire_cache(const boost::posix_time::ptime &time_now)
 {
     if (time_now > m_cache_cleanup_time + boost::posix_time::seconds(CACHE_EXPIRATION)) {
         // expire cache

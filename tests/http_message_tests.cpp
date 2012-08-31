@@ -25,85 +25,85 @@ using namespace pion;
 
 BOOST_AUTO_TEST_CASE(checkHTTPRequestCopyConstructor) {
     http::request req1;
-    req1.addHeader("Test", "HTTPMessage");
-    req1.setMethod("GET");
+    req1.add_header("Test", "HTTPMessage");
+    req1.set_method("GET");
     http::request req2(req1);
-    BOOST_CHECK_EQUAL(req1.getMethod(), "GET");
-    BOOST_CHECK_EQUAL(req1.getMethod(), req2.getMethod());
-    BOOST_CHECK_EQUAL(req1.getHeader("Test"), "HTTPMessage");
-    BOOST_CHECK_EQUAL(req1.getHeader("Test"), req2.getHeader("Test"));
+    BOOST_CHECK_EQUAL(req1.get_method(), "GET");
+    BOOST_CHECK_EQUAL(req1.get_method(), req2.get_method());
+    BOOST_CHECK_EQUAL(req1.get_header("Test"), "HTTPMessage");
+    BOOST_CHECK_EQUAL(req1.get_header("Test"), req2.get_header("Test"));
 }
 
 BOOST_AUTO_TEST_CASE(checkHTTPRequestAssignmentOperator) {
     http::request req1, req2;
-    req1.setMethod("GET");
-    req1.addHeader("Test", "HTTPMessage");
+    req1.set_method("GET");
+    req1.add_header("Test", "HTTPMessage");
     req2 = req1;
-    BOOST_CHECK_EQUAL(req1.getMethod(), "GET");
-    BOOST_CHECK_EQUAL(req1.getMethod(), req2.getMethod());
-    BOOST_CHECK_EQUAL(req1.getHeader("Test"), "HTTPMessage");
-    BOOST_CHECK_EQUAL(req1.getHeader("Test"), req2.getHeader("Test"));
+    BOOST_CHECK_EQUAL(req1.get_method(), "GET");
+    BOOST_CHECK_EQUAL(req1.get_method(), req2.get_method());
+    BOOST_CHECK_EQUAL(req1.get_header("Test"), "HTTPMessage");
+    BOOST_CHECK_EQUAL(req1.get_header("Test"), req2.get_header("Test"));
 }
 
 BOOST_AUTO_TEST_CASE(checkHTTPResponseCopyConstructor) {
     http::response rsp1;
-    rsp1.addHeader("Test", "HTTPMessage");
-    rsp1.setStatusCode(199);
+    rsp1.add_header("Test", "HTTPMessage");
+    rsp1.set_status_code(199);
     http::response rsp2(rsp1);
-    BOOST_CHECK_EQUAL(rsp1.getStatusCode(), 199U);
-    BOOST_CHECK_EQUAL(rsp1.getStatusCode(), rsp2.getStatusCode());
-    BOOST_CHECK_EQUAL(rsp1.getHeader("Test"), "HTTPMessage");
-    BOOST_CHECK_EQUAL(rsp1.getHeader("Test"), rsp2.getHeader("Test"));
+    BOOST_CHECK_EQUAL(rsp1.get_status_code(), 199U);
+    BOOST_CHECK_EQUAL(rsp1.get_status_code(), rsp2.get_status_code());
+    BOOST_CHECK_EQUAL(rsp1.get_header("Test"), "HTTPMessage");
+    BOOST_CHECK_EQUAL(rsp1.get_header("Test"), rsp2.get_header("Test"));
 }
 
 BOOST_AUTO_TEST_CASE(checkHTTPResponseAssignmentOperator) {
     http::response rsp1, rsp2;
-    rsp1.addHeader("Test", "HTTPMessage");
-    rsp1.setStatusCode(199);
+    rsp1.add_header("Test", "HTTPMessage");
+    rsp1.set_status_code(199);
     rsp2 = rsp1;
-    BOOST_CHECK_EQUAL(rsp1.getStatusCode(), 199U);
-    BOOST_CHECK_EQUAL(rsp1.getStatusCode(), rsp2.getStatusCode());
-    BOOST_CHECK_EQUAL(rsp1.getHeader("Test"), "HTTPMessage");
-    BOOST_CHECK_EQUAL(rsp1.getHeader("Test"), rsp2.getHeader("Test"));
+    BOOST_CHECK_EQUAL(rsp1.get_status_code(), 199U);
+    BOOST_CHECK_EQUAL(rsp1.get_status_code(), rsp2.get_status_code());
+    BOOST_CHECK_EQUAL(rsp1.get_header("Test"), "HTTPMessage");
+    BOOST_CHECK_EQUAL(rsp1.get_header("Test"), rsp2.get_header("Test"));
 }
 
 BOOST_AUTO_TEST_CASE(checkGetFirstLineForRequest) {
     http::request http_request;
     
-    http_request.setMethod("GET");
-    http_request.setResource("/");
+    http_request.set_method("GET");
+    http_request.set_resource("/");
 
-    BOOST_CHECK_EQUAL(http_request.getFirstLine(), "GET / HTTP/1.1");
+    BOOST_CHECK_EQUAL(http_request.get_first_line(), "GET / HTTP/1.1");
     
-    http_request.setMethod("POST");
+    http_request.set_method("POST");
 
-    BOOST_CHECK_EQUAL(http_request.getFirstLine(), "POST / HTTP/1.1");
+    BOOST_CHECK_EQUAL(http_request.get_first_line(), "POST / HTTP/1.1");
 
-    http_request.setResource("/index.html");
+    http_request.set_resource("/index.html");
 
-    BOOST_CHECK_EQUAL(http_request.getFirstLine(), "POST /index.html HTTP/1.1");
+    BOOST_CHECK_EQUAL(http_request.get_first_line(), "POST /index.html HTTP/1.1");
 
-    http_request.setVersionMajor(1);
-    http_request.setVersionMinor(0);
+    http_request.set_version_major(1);
+    http_request.set_version_minor(0);
 
-    BOOST_CHECK_EQUAL(http_request.getFirstLine(), "POST /index.html HTTP/1.0");
+    BOOST_CHECK_EQUAL(http_request.get_first_line(), "POST /index.html HTTP/1.0");
 }
 
 BOOST_AUTO_TEST_CASE(checkGetFirstLineForResponse) {
     http::response http_response;
     
-    http_response.setStatusCode(http::types::RESPONSE_CODE_OK);
-    http_response.setStatusMessage(http::types::RESPONSE_MESSAGE_OK);
+    http_response.set_status_code(http::types::RESPONSE_CODE_OK);
+    http_response.set_status_message(http::types::RESPONSE_MESSAGE_OK);
 
-    BOOST_CHECK_EQUAL(http_response.getFirstLine(), "HTTP/1.1 200 OK");
+    BOOST_CHECK_EQUAL(http_response.get_first_line(), "HTTP/1.1 200 OK");
     
-    http_response.setStatusCode(http::types::RESPONSE_CODE_NOT_FOUND);
+    http_response.set_status_code(http::types::RESPONSE_CODE_NOT_FOUND);
 
-    BOOST_CHECK_EQUAL(http_response.getFirstLine(), "HTTP/1.1 404 OK");
+    BOOST_CHECK_EQUAL(http_response.get_first_line(), "HTTP/1.1 404 OK");
 
-    http_response.setStatusMessage(http::types::RESPONSE_MESSAGE_NOT_FOUND);
+    http_response.set_status_message(http::types::RESPONSE_MESSAGE_NOT_FOUND);
 
-    BOOST_CHECK_EQUAL(http_response.getFirstLine(), "HTTP/1.1 404 Not Found");
+    BOOST_CHECK_EQUAL(http_response.get_first_line(), "HTTP/1.1 404 Not Found");
 }
 
 
@@ -122,51 +122,51 @@ BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(NewHTTPMessage_S,
                                        FIXTURE_TYPE_LIST(NewHTTPMessage_F))
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthReturnsZero) {
-    BOOST_CHECK_EQUAL(F::getContentLength(), static_cast<size_t>(0));
+    BOOST_CHECK_EQUAL(F::get_content_length(), static_cast<size_t>(0));
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkSetContentLengthDoesntThrow) {
-    BOOST_CHECK_NO_THROW(F::setContentLength(10));
-    BOOST_CHECK_NO_THROW(F::setContentLength(0));
+    BOOST_CHECK_NO_THROW(F::set_content_length(10));
+    BOOST_CHECK_NO_THROW(F::set_content_length(0));
 }
 
 // Is this what we want?  Note that the length is zero here.
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferReturnsPointer) {
-    BOOST_CHECK(F::createContentBuffer() != NULL);
+    BOOST_CHECK(F::create_content_buffer() != NULL);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsEmptyString) {
-    BOOST_CHECK(F::getContent() != NULL);
-    BOOST_CHECK_EQUAL(strcmp(F::getContent(), ""), 0);
-    BOOST_CHECK(!F::isContentBufferAllocated());
+    BOOST_CHECK(F::get_content() != NULL);
+    BOOST_CHECK_EQUAL(strcmp(F::get_content(), ""), 0);
+    BOOST_CHECK(!F::is_content_buffer_allocated());
 }
 
 // Is this what we want?  Note that the length is zero here.
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsPointerAfterCreatingContentBuffer) {
-    F::createContentBuffer();
-    BOOST_CHECK(F::getContent() != NULL);
+    F::create_content_buffer();
+    BOOST_CHECK(F::get_content() != NULL);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkIsValidReturnsFalse) {
-    BOOST_CHECK(!F::isValid());
+    BOOST_CHECK(!F::is_valid());
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(testChunksSupportedAccessors) {
-    BOOST_CHECK(!F::getChunksSupported());
-    F::setChunksSupported(true);
-    BOOST_CHECK(F::getChunksSupported());
-    F::setChunksSupported(false);
-    BOOST_CHECK(!F::getChunksSupported());
+    BOOST_CHECK(!F::get_chunks_supported());
+    F::set_chunks_supported(true);
+    BOOST_CHECK(F::get_chunks_supported());
+    F::set_chunks_supported(false);
+    BOOST_CHECK(!F::get_chunks_supported());
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(testHeaderCaseIsIgnored) {
     const std::string xml_content_type("text/xml");
 
-    F::addHeader(http::types::HEADER_CONTENT_TYPE, xml_content_type);
-    BOOST_CHECK_EQUAL(F::getHeader("CoNTenT-TYPe"), xml_content_type);
+    F::add_header(http::types::HEADER_CONTENT_TYPE, xml_content_type);
+    BOOST_CHECK_EQUAL(F::get_header("CoNTenT-TYPe"), xml_content_type);
 
-    F::addHeader("content-length", "10");
-    BOOST_CHECK_EQUAL(F::getHeader(http::types::HEADER_CONTENT_LENGTH), "10");
+    F::add_header("content-length", "10");
+    BOOST_CHECK_EQUAL(F::get_header(http::types::HEADER_CONTENT_LENGTH), "10");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -175,7 +175,7 @@ template<typename ConcreteMessageType>
 class HTTPMessageWithContentLengthSet_F : public ConcreteMessageType {
 public:
     HTTPMessageWithContentLengthSet_F() {
-        this->setContentLength(20);
+        this->set_content_length(20);
     }
     ~HTTPMessageWithContentLengthSet_F() {
     }
@@ -185,31 +185,31 @@ BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(HTTPMessageWithContentLengthSet_S,
                                        FIXTURE_TYPE_LIST(HTTPMessageWithContentLengthSet_F))
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthReturnsCorrectLength) {
-    BOOST_CHECK_EQUAL(F::getContentLength(), static_cast<size_t>(20));
+    BOOST_CHECK_EQUAL(F::get_content_length(), static_cast<size_t>(20));
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentLengthAfterSettingLengthAgain) {
-    F::setContentLength(30);
-    BOOST_CHECK_EQUAL(F::getContentLength(), static_cast<size_t>(30));
-    F::setContentLength(0);
-    BOOST_CHECK_EQUAL(F::getContentLength(), static_cast<size_t>(0));
+    F::set_content_length(30);
+    BOOST_CHECK_EQUAL(F::get_content_length(), static_cast<size_t>(30));
+    F::set_content_length(0);
+    BOOST_CHECK_EQUAL(F::get_content_length(), static_cast<size_t>(0));
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferVarious) {
-    char *ptr = F::createContentBuffer();
+    char *ptr = F::create_content_buffer();
     BOOST_CHECK(ptr != NULL);
-    BOOST_CHECK_EQUAL(ptr, F::getContent());
-    BOOST_CHECK_EQUAL(F::getContentBufferSize(), 20);
-    BOOST_CHECK(F::isContentBufferAllocated());
+    BOOST_CHECK_EQUAL(ptr, F::get_content());
+    BOOST_CHECK_EQUAL(F::get_content_buffer_size(), 20);
+    BOOST_CHECK(F::is_content_buffer_allocated());
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsEmptyString) {
-    BOOST_CHECK(F::getContent() != NULL);
-    BOOST_CHECK_EQUAL(strcmp(F::getContent(), ""), 0);
+    BOOST_CHECK(F::get_content() != NULL);
+    BOOST_CHECK_EQUAL(strcmp(F::get_content(), ""), 0);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkIsValidReturnsFalse) {
-    BOOST_CHECK(!F::isValid());
+    BOOST_CHECK(!F::is_valid());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -219,8 +219,8 @@ class HTTPMessageWithContentBufferCreated_F : public ConcreteMessageType {
 public:
     HTTPMessageWithContentBufferCreated_F() {
         m_len = 10;
-        this->setContentLength(m_len);
-        m_content_buffer = this->createContentBuffer();
+        this->set_content_length(m_len);
+        m_content_buffer = this->create_content_buffer();
     }
     ~HTTPMessageWithContentBufferCreated_F() {
     }
@@ -234,18 +234,18 @@ BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(HTTPMessageWithContentBufferCreated_S,
 
 // ???
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferAgainReturnsPointer) {
-    BOOST_CHECK(F::createContentBuffer() != NULL);
+    BOOST_CHECK(F::create_content_buffer() != NULL);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsPointer) {
-    BOOST_CHECK(F::getContent() != NULL);
+    BOOST_CHECK(F::get_content() != NULL);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsWhatWasWrittenToBuffer) {
     char buf[] = {0, 1, 2, 3, 127, 0, -1, -2, -3, -128};
     BOOST_CHECK_EQUAL(sizeof(buf), static_cast<unsigned int>(F::m_len));
     memcpy(F::m_content_buffer, buf, F::m_len);
-    BOOST_CHECK(memcmp(buf, F::getContent(), F::m_len) == 0);
+    BOOST_CHECK(memcmp(buf, F::get_content(), F::m_len) == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -259,8 +259,8 @@ class HTTPMessageWithTextOnlyContent_F : public ConcreteMessageType {
 public:
     HTTPMessageWithTextOnlyContent_F() {
         m_len = strlen(TEXT_STRING_1);
-        this->setContentLength(m_len);
-        m_content_buffer = this->createContentBuffer();
+        this->set_content_length(m_len);
+        m_content_buffer = this->create_content_buffer();
         memcpy(m_content_buffer, TEXT_STRING_1, m_len);
     }
     ~HTTPMessageWithTextOnlyContent_F() {
@@ -274,29 +274,29 @@ BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(HTTPMessageWithTextOnlyContent_S,
                                        FIXTURE_TYPE_LIST(HTTPMessageWithTextOnlyContent_F))
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsPointer) {
-    BOOST_CHECK(F::getContent() != NULL);
+    BOOST_CHECK(F::get_content() != NULL);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsWhatWasWrittenToBuffer) {
-    BOOST_CHECK(memcmp(TEXT_STRING_1, F::getContent(), F::m_len) == 0);
+    BOOST_CHECK(memcmp(TEXT_STRING_1, F::get_content(), F::m_len) == 0);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentAfterChangingContent) {
     BOOST_CHECK_EQUAL(strlen(TEXT_STRING_2), static_cast<unsigned int>(F::m_len));
     memcpy(F::m_content_buffer, TEXT_STRING_2, F::m_len);
-    BOOST_CHECK(memcmp(TEXT_STRING_2, F::getContent(), F::m_len) == 0);
+    BOOST_CHECK(memcmp(TEXT_STRING_2, F::get_content(), F::m_len) == 0);
 }
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentAfterChangingSizeAndContent) {
     F::m_len = strlen(TEXT_STRING_3);
-    F::setContentLength(F::m_len);
-    F::m_content_buffer = F::createContentBuffer();
+    F::set_content_length(F::m_len);
+    F::m_content_buffer = F::create_content_buffer();
     memcpy(F::m_content_buffer, TEXT_STRING_3, F::m_len);
-    BOOST_CHECK(memcmp(TEXT_STRING_3, F::getContent(), F::m_len) == 0);
+    BOOST_CHECK(memcmp(TEXT_STRING_3, F::get_content(), F::m_len) == 0);
 }
 
 // This is just for convenience for text-only post content.
-// Strictly speaking, getContent() guarantees nothing beyond the buffer.
+// Strictly speaking, get_content() guarantees nothing beyond the buffer.
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsZeroTerminatedBuffer) {
     // This crashes due to bug in Boost.Test if m_content_buffer[m_len] is negative, so use workaround.
     //BOOST_CHECK_EQUAL(m_content_buffer[m_len], static_cast<char>(0));
@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkGetContentReturnsZeroTerminatedBuffer
 // See comments for checkGetContentReturnsZeroTerminatedBuffer.
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkContentPointerUsableAsString) {
     const std::string s1 = TEXT_STRING_1;
-    std::string s2 = F::getContent();
+    std::string s2 = F::get_content();
     BOOST_CHECK_EQUAL(s1, s2);
 }
 
@@ -395,8 +395,8 @@ BOOST_FIXTURE_TEST_SUITE(HTTPMessageReadWrite_S, HTTPMessageReadWrite_F)
 BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
     // build a request
     http::request req;
-    req.setResource("/test.html");
-    req.addHeader("Test", "Something");
+    req.set_resource("/test.html");
+    req.add_header("Test", "Something");
     
     // write to file
     boost::system::error_code ec;
@@ -417,9 +417,9 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
     BOOST_CHECK_EQUAL(ec, boost::system::errc::io_error);
     
     // check request read from file
-    BOOST_CHECK_EQUAL(req2.getResource(), "/test.html");
-    BOOST_CHECK_EQUAL(req2.getHeader("Test"), "Something");
-    BOOST_CHECK_EQUAL(req2.getContentLength(), 0U);
+    BOOST_CHECK_EQUAL(req2.get_resource(), "/test.html");
+    BOOST_CHECK_EQUAL(req2.get_header("Test"), "Something");
+    BOOST_CHECK_EQUAL(req2.get_content_length(), 0U);
 
     // validate file contents
     std::string req_contents = getFileContents();
@@ -439,9 +439,9 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
 BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
     // build a response
     http::response rsp;
-    rsp.setStatusCode(202);
-    rsp.setStatusMessage("Hi There");
-    rsp.addHeader("HeaderA", "a value");
+    rsp.set_status_code(202);
+    rsp.set_status_message("Hi There");
+    rsp.add_header("HeaderA", "a value");
     
     // write to file
     boost::system::error_code ec;
@@ -462,10 +462,10 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
     BOOST_CHECK_EQUAL(ec, boost::system::errc::io_error);
     
     // check response read from file
-    BOOST_CHECK_EQUAL(rsp2.getStatusCode(), 202U);
-    BOOST_CHECK_EQUAL(rsp2.getStatusMessage(), "Hi There");
-    BOOST_CHECK_EQUAL(rsp2.getHeader("HeaderA"), "a value");
-    BOOST_CHECK_EQUAL(rsp2.getContentLength(), 0U);
+    BOOST_CHECK_EQUAL(rsp2.get_status_code(), 202U);
+    BOOST_CHECK_EQUAL(rsp2.get_status_message(), "Hi There");
+    BOOST_CHECK_EQUAL(rsp2.get_header("HeaderA"), "a value");
+    BOOST_CHECK_EQUAL(rsp2.get_content_length(), 0U);
 
     // validate file contents
     std::string rsp_contents = getFileContents();
@@ -488,38 +488,38 @@ BOOST_AUTO_TEST_CASE(checkWriteReadMixedMessages) {
     http::response rsp;
 
     // build a request & write to file
-    req.setResource("/test.html");
-    req.addHeader("Test", "Something");
+    req.set_resource("/test.html");
+    req.add_header("Test", "Something");
     req.write(m_file, ec);
     BOOST_REQUIRE(! ec);
 
     // build a response & write to file
-    rsp.setStatusCode(202);
-    rsp.setStatusMessage("Hi There");
-    rsp.addHeader("HeaderA", "a value");
-    rsp.setContent("My message content");
+    rsp.set_status_code(202);
+    rsp.set_status_message("Hi There");
+    rsp.add_header("HeaderA", "a value");
+    rsp.set_content("My message content");
     rsp.write(m_file, ec);
     BOOST_REQUIRE(! ec);
 
     // another request
-    req.setResource("/blah.html");
-    req.addHeader("HeaderA", "a value");
-    req.setContent("My request content");
+    req.set_resource("/blah.html");
+    req.add_header("HeaderA", "a value");
+    req.set_content("My request content");
     req.write(m_file, ec);
     BOOST_REQUIRE(! ec);
     
     // another response
-    rsp.setStatusCode(302);
-    rsp.setStatusMessage("Hello There");
-    rsp.addHeader("HeaderB", "another value");
-    rsp.clearContent();
+    rsp.set_status_code(302);
+    rsp.set_status_message("Hello There");
+    rsp.add_header("HeaderB", "another value");
+    rsp.clear_content();
     rsp.write(m_file, ec);
     BOOST_REQUIRE(! ec);
 
     // one last request
-    req.setResource("/last.html");
-    req.addHeader("HeaderB", "Bvalue");
-    req.clearContent();
+    req.set_resource("/last.html");
+    req.add_header("HeaderB", "Bvalue");
+    req.clear_content();
     req.write(m_file, ec);
     BOOST_REQUIRE(! ec);
 
@@ -556,8 +556,8 @@ BOOST_AUTO_TEST_CASE(checkWriteReadMixedMessages) {
     http::response rsp2;
     rsp2.read(m_file, ec);
     BOOST_REQUIRE(! ec);
-    BOOST_CHECK_EQUAL(rsp2.getStatusCode(), 302U);
-    BOOST_CHECK_EQUAL(rsp2.getStatusMessage(), "Hello There");
+    BOOST_CHECK_EQUAL(rsp2.get_status_code(), 302U);
+    BOOST_CHECK_EQUAL(rsp2.get_status_message(), "Hello There");
 
     // read third request
     http::request req3;

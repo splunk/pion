@@ -66,7 +66,7 @@ public:
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handleRequest(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    virtual bool handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
     
     /**
      * sets a configuration option
@@ -81,7 +81,7 @@ public:
      * @param name the name of the option to change
      * @param value the value of the option
      */
-    virtual void setOption(const std::string& name, const std::string& value);
+    virtual void set_option(const std::string& name, const std::string& value);
 
     
 protected:
@@ -94,7 +94,7 @@ protected:
      *
      * @return true if it was a login/logout request and no future processing required.
      */
-    bool processLogin(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    bool process_login(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
 
     /**
      * used to send responses when access to resource is not authorized
@@ -102,7 +102,7 @@ protected:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handleUnauthorized(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    void handle_unauthorized(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
     
     /**
      * used to send redirection responses 
@@ -110,7 +110,7 @@ protected:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handleRedirection(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn,
+    void handle_redirection(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn,
         const std::string &redirection_url, const std::string &new_cookie="", bool delete_cookie=false);
 
     /**
@@ -119,13 +119,13 @@ protected:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handleOk(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn,
+    void handle_ok(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn,
         const std::string &new_cookie="", bool delete_cookie=false);
 
     /**
      * Cache expiration cleanup. (Call it periodically)
      */
-    void expireCache(const boost::posix_time::ptime &time_now);
+    void expire_cache(const boost::posix_time::ptime &time_now);
 
     
 private:
@@ -161,7 +161,7 @@ private:
     boost::posix_time::ptime    m_cache_cleanup_time;
         
     /// cache of users that are currently active
-    user_cache_type               m_user_cache;
+    user_cache_type             m_user_cache;
     
     /// mutex used to protect access to the user cache
     mutable boost::mutex        m_cache_mutex;

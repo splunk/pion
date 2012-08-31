@@ -57,25 +57,25 @@ public:
     /// registers an active user with the thread scheduler.  Shutdown of the
     /// scheduler is deferred until there are no more active users.  This
     /// ensures that any work queued will not reference destructed objects
-    void addActiveUser(void);
+    void add_active_user(void);
 
     /// unregisters an active user with the thread scheduler
-    void removeActiveUser(void);
+    void remove_active_user(void);
     
     /// returns true if the scheduler is running
-    inline bool isRunning(void) const { return m_is_running; }
+    inline bool is_running(void) const { return m_is_running; }
     
     /// sets the number of threads to be used (these are shared by all servers)
-    inline void setNumThreads(const boost::uint32_t n) { m_num_threads = n; }
+    inline void set_num_threads(const boost::uint32_t n) { m_num_threads = n; }
     
     /// returns the number of threads currently in use
-    inline boost::uint32_t getNumThreads(void) const { return m_num_threads; }
+    inline boost::uint32_t get_num_threads(void) const { return m_num_threads; }
 
     /// sets the logger to be used
-    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
+    inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
 
     /// returns the logger currently in use
-    inline logger getLogger(void) { return m_logger; }
+    inline logger get_logger(void) { return m_logger; }
     
     /// returns an async I/O service used to schedule work
     virtual boost::asio::io_service& get_io_service(void) = 0;
@@ -92,10 +92,10 @@ public:
     /**
      * thread function used to keep the io_service running
      *
-     * @param my_service IO service used to re-schedule keepRunning()
+     * @param my_service IO service used to re-schedule keep_running()
      * @param my_timer deadline timer used to keep the IO service active while running
      */
-    void keepRunning(boost::asio::io_service& my_service,
+    void keep_running(boost::asio::io_service& my_service,
                      boost::asio::deadline_timer& my_timer);
     
     /**
@@ -105,7 +105,7 @@ public:
      * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
      */
     inline static void sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec) {
-        boost::system_time wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
+        boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
         boost::thread::sleep(wakeup_time);
     }
 
@@ -122,13 +122,13 @@ public:
     inline static void sleep(ConditionType& wakeup_condition, LockType& wakeup_lock,
                              boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
     {
-        boost::system_time wakeup_time(getWakeupTime(sleep_sec, sleep_nsec));
+        boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
         wakeup_condition.timed_wait(wakeup_lock, wakeup_time);
     }
     
     
     /// processes work passed to the asio service & handles uncaught exceptions
-    void processServiceWork(boost::asio::io_service& service);
+    void process_service_work(boost::asio::io_service& service);
 
 
 protected:
@@ -141,20 +141,20 @@ protected:
      *
      * @return boost::system_time time to wake up from sleep
      */
-    static boost::system_time getWakeupTime(boost::uint32_t sleep_sec,
+    static boost::system_time get_wakeup_time(boost::uint32_t sleep_sec,
         boost::uint32_t sleep_nsec);
 
     /// stops all services used to schedule work
-    virtual void stopServices(void) {}
+    virtual void stop_services(void) {}
     
     /// stops all threads used to perform work
-    virtual void stopThreads(void) {}
+    virtual void stop_threads(void) {}
 
     /// finishes all services used to schedule work
-    virtual void finishServices(void) {}
+    virtual void finish_services(void) {}
 
     /// finishes all threads used to perform work
-    virtual void finishThreads(void) {}
+    virtual void finish_threads(void) {}
     
     
     /// default number of worker threads in the thread pool
@@ -174,7 +174,7 @@ protected:
     boost::mutex                    m_mutex;
     
     /// primary logging interface used by this class
-    logger                      m_logger;
+    logger                          m_logger;
 
     /// condition triggered when there are no more active users
     boost::condition                m_no_more_active_users;
@@ -211,7 +211,7 @@ public:
 protected:
     
     /// stops all threads used to perform work
-    virtual void stopThreads(void) {
+    virtual void stop_threads(void) {
         if (! m_thread_pool.empty()) {
             PION_LOG_DEBUG(m_logger, "Waiting for threads to shutdown");
             
@@ -228,7 +228,7 @@ protected:
     }
     
     /// finishes all threads used to perform work
-    virtual void finishThreads(void) { m_thread_pool.clear(); }
+    virtual void finish_threads(void) { m_thread_pool.clear(); }
 
     
     /// typedef for a pool of worker threads
@@ -266,10 +266,10 @@ public:
 protected:
     
     /// stops all services used to schedule work
-    virtual void stopServices(void) { m_service.stop(); }
+    virtual void stop_services(void) { m_service.stop(); }
     
     /// finishes all services used to schedule work
-    virtual void finishServices(void) { m_service.reset(); }
+    virtual void finish_services(void) { m_service.reset(); }
 
     
     /// service used to manage async I/O events
@@ -328,14 +328,14 @@ public:
 protected:
     
     /// stops all services used to schedule work
-    virtual void stopServices(void) {
+    virtual void stop_services(void) {
         for (service_pool_type::iterator i = m_service_pool.begin(); i != m_service_pool.end(); ++i) {
             (*i)->first.stop();
         }
     }
         
     /// finishes all services used to schedule work
-    virtual void finishServices(void) { m_service_pool.clear(); }
+    virtual void finish_services(void) { m_service_pool.clear(); }
     
 
     /// typedef for a pair object where first is an IO service and second is a deadline timer
@@ -350,10 +350,10 @@ protected:
 
     
     /// pool of IO services used to schedule work
-    service_pool_type                     m_service_pool;
+    service_pool_type   m_service_pool;
 
     /// the next service to use for scheduling work
-    boost::uint32_t                 m_next_service;
+    boost::uint32_t     m_next_service;
 };
     
     

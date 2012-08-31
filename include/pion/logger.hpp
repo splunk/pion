@@ -48,7 +48,7 @@
     #define PION_HAS_LOG_APPENDER   1
     #define PION_LOG_CONFIG_BASIC   log4cxx::BasicConfigurator::configure();
     #define PION_LOG_CONFIG(FILE)   log4cxx::PropertyConfigurator::configure(FILE);
-    #define PION_GET_LOGGER(NAME)   log4cxx::Logger::getLogger(NAME)
+    #define PION_GET_LOGGER(NAME)   log4cxx::Logger::get_logger(NAME)
 
     #define PION_LOG_SETLEVEL_DEBUG(LOG)    LOG->setLevel(log4cxx::Level::toLevel(log4cxx::Level::DEBUG_INT));
     #define PION_LOG_SETLEVEL_INFO(LOG)     LOG->setLevel(log4cxx::Level::toLevel(log4cxx::Level::INFO_INT));
