@@ -120,7 +120,7 @@ public:
      * @param plugin_id unique identifier associated with the plug-in
      * @return plugin_ptr<PluginType> pointer to the plugin shared library if found
      */
-    inline plugin_ptr<PluginType> getLibPtr(const std::string& plugin_id) const;
+    inline plugin_ptr<PluginType> get_lib_ptr(const std::string& plugin_id) const;
     
     /**
      * finds the plug-in object associated with a particular resource (fuzzy match)
@@ -150,7 +150,7 @@ public:
      *
      * @param stat_func the statistic function to execute for each plug-in object
      */
-    inline boost::uint64_t getStatistic(PluginStatFunction stat_func) const;
+    inline boost::uint64_t get_statistic(PluginStatFunction stat_func) const;
     
     /**
      * returns a statistic value for a particular plug-in
@@ -158,7 +158,7 @@ public:
      * @param plugin_id unique identifier associated with the plug-in
      * @param stat_func the statistic function to execute
      */
-    inline boost::uint64_t getStatistic(const std::string& plugin_id,
+    inline boost::uint64_t get_statistic(const std::string& plugin_id,
                                         PluginStatFunction stat_func) const;
         
     
@@ -175,10 +175,10 @@ protected:
     };
     
     /// collection of plug-in objects being managed
-    map_type                       m_plugin_map;
+    map_type                m_plugin_map;
 
     /// mutex to make class thread-safe
-    mutable boost::mutex            m_plugin_mutex;
+    mutable boost::mutex    m_plugin_mutex;
 };
 
     
@@ -281,7 +281,7 @@ inline const PluginType *plugin_manager<PluginType>::get(const std::string& plug
 }
     
 template <typename PluginType>
-inline plugin_ptr<PluginType> plugin_manager<PluginType>::getLibPtr(const std::string& plugin_id) const
+inline plugin_ptr<PluginType> plugin_manager<PluginType>::get_lib_ptr(const std::string& plugin_id) const
 {
     plugin_ptr<PluginType> plugin_ptr;
     boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
@@ -356,7 +356,7 @@ inline void plugin_manager<PluginType>::run(const std::string& plugin_id,
 }
 
 template <typename PluginType>
-inline boost::uint64_t plugin_manager<PluginType>::getStatistic(PluginStatFunction stat_func) const
+inline boost::uint64_t plugin_manager<PluginType>::get_statistic(PluginStatFunction stat_func) const
 {
     boost::uint64_t stat_value = 0;
     boost::mutex::scoped_lock plugins_lock(m_plugin_mutex);
@@ -369,7 +369,7 @@ inline boost::uint64_t plugin_manager<PluginType>::getStatistic(PluginStatFuncti
 }
 
 template <typename PluginType>
-inline boost::uint64_t plugin_manager<PluginType>::getStatistic(const std::string& plugin_id,
+inline boost::uint64_t plugin_manager<PluginType>::get_statistic(const std::string& plugin_id,
                                                                 PluginStatFunction stat_func) const
 {
     // no need to lock (handled by plugin_manager::get())

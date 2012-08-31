@@ -161,7 +161,7 @@ public:
      *                        true = finished parsing HTTP message,
      *                        indeterminate = not yet finished parsing HTTP message
      */
-    boost::tribool parseMissingData(http::message& http_msg, std::size_t len,
+    boost::tribool parse_missing_data(http::message& http_msg, std::size_t len,
         boost::system::error_code& ec);
 
     /**
@@ -201,11 +201,11 @@ public:
      * @param http_msg the HTTP message object being parsed
      * @return true if premature EOF, false if message is OK & finished parsing
      */
-    inline bool checkPrematureEOF(http::message& http_msg) {
+    inline bool check_premature_eof(http::message& http_msg) {
         if (m_message_parse_state != PARSE_CONTENT_NO_LENGTH)
             return true;
         m_message_parse_state = PARSE_END;
-        http_msg.concatenateChunks();
+        http_msg.concatenate_chunks();
         finish(http_msg);
         return false;
     }
@@ -215,16 +215,16 @@ public:
      *
      * @param b if true, then the parse() function returns true after headers
      */
-    inline void parseHeadersOnly(bool b = true) { m_parse_headers_only = b; }
+    inline void parse_headers_only(bool b = true) { m_parse_headers_only = b; }
 
     /**
      * skip parsing all headers and parse payload content only
      *
      * @param http_msg the HTTP message object being parsed
      */
-    inline void skipHeaderParsing(http::message& http_msg) {
+    inline void skip_header_parsing(http::message& http_msg) {
         boost::system::error_code ec;
-        finishHeaderParsing(http_msg, ec);
+        finish_header_parsing(http_msg, ec);
     }
     
     /// resets the parser to its initial state
@@ -251,43 +251,43 @@ public:
     inline std::size_t gcount(void) const { return m_bytes_last_read; }
 
     /// returns the total number of bytes read while parsing the HTTP message
-    inline std::size_t getTotalBytesRead(void) const { return m_bytes_total_read; }
+    inline std::size_t get_total_bytes_read(void) const { return m_bytes_total_read; }
 
     /// returns the total number of bytes read while parsing the payload content
-    inline std::size_t getContentBytesRead(void) const { return m_bytes_content_read; }
+    inline std::size_t get_content_bytes_read(void) const { return m_bytes_content_read; }
 
     /// returns the maximum length for HTTP payload content
-    inline std::size_t getMaxContentLength(void) const { return m_max_content_length; }
+    inline std::size_t get_max_content_length(void) const { return m_max_content_length; }
 
     /// returns the raw HTTP headers saved by the parser
-    inline const std::string& getRawHeaders(void) const { return m_raw_headers; }
+    inline const std::string& get_raw_headers(void) const { return m_raw_headers; }
 
     /// returns true if the parser is saving raw HTTP header contents
-    inline bool getSaveRawHeaders(void) const { return m_save_raw_headers; }
+    inline bool get_save_raw_headers(void) const { return m_save_raw_headers; }
 
     /// returns true if the parser is being used to parse an HTTP request
-    inline bool isParsingRequest(void) const { return m_is_request; }
+    inline bool is_parsing_request(void) const { return m_is_request; }
 
     /// returns true if the parser is being used to parse an HTTP response
-    inline bool isParsingResponse(void) const { return ! m_is_request; }
+    inline bool is_parsing_response(void) const { return ! m_is_request; }
 
     /// defines a callback function to be used for consuming payload content
-    inline void setpayload_handler_t(payload_handler_t& h) { m_payload_handler = h; }
+    inline void set_payload_handler(payload_handler_t& h) { m_payload_handler = h; }
 
     /// sets the maximum length for HTTP payload content
-    inline void setMaxContentLength(std::size_t n) { m_max_content_length = n; }
+    inline void set_max_content_length(std::size_t n) { m_max_content_length = n; }
 
     /// resets the maximum length for HTTP payload content to the default value
-    inline void resetMaxContentLength(void) { m_max_content_length = DEFAULT_CONTENT_MAX; }
+    inline void reset_max_content_length(void) { m_max_content_length = DEFAULT_CONTENT_MAX; }
 
     /// sets parameter for saving raw HTTP header content
-    inline void setSaveRawHeaders(bool b) { m_save_raw_headers = b; }
+    inline void set_save_raw_headers(bool b) { m_save_raw_headers = b; }
 
     /// sets the logger to be used
-    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
+    inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
 
     /// returns the logger currently in use
-    inline logger getLogger(void) { return m_logger; }
+    inline logger get_logger(void) { return m_logger; }
 
 
     /**
@@ -302,7 +302,7 @@ public:
      *
      * @return true if the URI was successfully parsed, false if there was an error
      */
-    static bool parseURI(const std::string& uri, std::string& proto, 
+    static bool parse_uri(const std::string& uri, std::string& proto, 
                          std::string& host, boost::uint16_t& port, std::string& path,
                          std::string& query);
 
@@ -316,7 +316,7 @@ public:
      * 
      * @return bool true if successful
      */
-    static bool parseURLEncoded(ihash_multimap& dict,
+    static bool parse_url_encoded(ihash_multimap& dict,
                                 const char *ptr, const std::size_t len);
 
     /**
@@ -330,7 +330,7 @@ public:
      * 
      * @return bool true if successful
      */
-    static bool parseCookieHeader(ihash_multimap& dict,
+    static bool parse_cookie_header(ihash_multimap& dict,
                                   const char *ptr, const std::size_t len,
                                   bool set_cookie_header);
 
@@ -344,10 +344,10 @@ public:
      * 
      * @return bool true if successful
      */
-    static inline bool parseCookieHeader(ihash_multimap& dict,
+    static inline bool parse_cookie_header(ihash_multimap& dict,
         const std::string& cookie_header, bool set_cookie_header)
     {
-        return parseCookieHeader(dict, cookie_header.c_str(), cookie_header.size(), set_cookie_header);
+        return parse_cookie_header(dict, cookie_header.c_str(), cookie_header.size(), set_cookie_header);
     }
 
     /**
@@ -359,10 +359,10 @@ public:
      * 
      * @return bool true if successful
      */
-    static inline bool parseURLEncoded(ihash_multimap& dict,
+    static inline bool parse_url_encoded(ihash_multimap& dict,
         const std::string& query)
     {
-        return parseURLEncoded(dict, query.c_str(), query.size());
+        return parse_url_encoded(dict, query.c_str(), query.size());
     }
 
     /**
@@ -374,7 +374,7 @@ public:
      *
      * @return bool true if a public IP address was found and extracted
      */
-    static bool parseForwardedFor(const std::string& header, std::string& public_ip);
+    static bool parse_forwarded_for(const std::string& header, std::string& public_ip);
     
     /// returns an instance of parser::error_category_t
     static inline error_category_t& get_error_category(void) {
@@ -386,7 +386,7 @@ public:
 protected:
 
     /// Called after we have finished parsing the HTTP message headers
-    virtual void finishedParsingHeaders(const boost::system::error_code& ec) {}
+    virtual void finished_parsing_headers(const boost::system::error_code& ec) {}
     
     /**
      * parses an HTTP message up to the end of the headers using bytes 
@@ -400,14 +400,14 @@ protected:
      *                        true = finished parsing HTTP headers,
      *                        indeterminate = not yet finished parsing HTTP headers
      */
-    boost::tribool parseHeaders(http::message& http_msg, boost::system::error_code& ec);
+    boost::tribool parse_headers(http::message& http_msg, boost::system::error_code& ec);
 
     /**
      * updates an http::message object with data obtained from parsing headers
      *
      * @param http_msg the HTTP message object to populate from parsing
      */
-    void updateMessageWithHeaderData(http::message& http_msg) const;
+    void update_message_with_header_data(http::message& http_msg) const;
 
     /**
      * should be called after parsing HTTP headers, to prepare for payload content parsing
@@ -421,7 +421,7 @@ protected:
      *                        true = finished parsing HTTP message (no content),
      *                        indeterminate = payload content is available to be parsed
      */
-    boost::tribool finishHeaderParsing(http::message& http_msg,
+    boost::tribool finish_header_parsing(http::message& http_msg,
         boost::system::error_code& ec);
 
     /**
@@ -435,7 +435,7 @@ protected:
      *                        true = finished parsing message,
      *                        indeterminate = message is not yet finished
      */
-    boost::tribool parseChunks(http::message::chunk_cache_t& chunk_buffers,
+    boost::tribool parse_chunks(http::message::chunk_cache_t& chunk_buffers,
         boost::system::error_code& ec);
 
     /**
@@ -449,7 +449,7 @@ protected:
      *                        true = finished parsing message,
      *                        indeterminate = message is not yet finished
      */
-    boost::tribool consumeContent(http::message& http_msg,
+    boost::tribool consume_content(http::message& http_msg,
         boost::system::error_code& ec);
 
     /**
@@ -459,14 +459,14 @@ protected:
      * @param chunk_buffers buffers to be populated from parsing chunked content
      * @return std::size_t number of content bytes consumed, if any
      */
-    std::size_t consumeContentAsNextChunk(http::message::chunk_cache_t& chunk_buffers);
+    std::size_t consume_content_as_next_chunk(http::message::chunk_cache_t& chunk_buffers);
 
     /**
      * compute and sets a HTTP Message data integrity status
      * @param http_msg target HTTP message 
      * @param msg_parsed_ok message parsing result
      */
-    static void computeMsgStatus(http::message& http_msg, bool msg_parsed_ok);
+    static void compute_msg_status(http::message& http_msg, bool msg_parsed_ok);
 
     /**
      * sets an error code
@@ -474,7 +474,7 @@ protected:
      * @param ec error code variable to define
      * @param ev error value to raise
      */
-    static inline void setError(boost::system::error_code& ec, error_value_t ev) {
+    static inline void set_error(boost::system::error_code& ec, error_value_t ev) {
         ec = boost::system::error_code(static_cast<int>(ev), get_error_category());
     }
 
@@ -483,12 +483,12 @@ protected:
 
 
     // misc functions used by the parsing functions
-    inline static bool isChar(int c);
-    inline static bool isControl(int c);
-    inline static bool isSpecial(int c);
-    inline static bool isDigit(int c);
-    inline static bool isHexDigit(int c);
-    inline static bool isCookieAttribute(const std::string& name, bool set_cookie_header);
+    inline static bool is_char(int c);
+    inline static bool is_control(int c);
+    inline static bool is_special(int c);
+    inline static bool is_digit(int c);
+    inline static bool is_hex_digit(int c);
+    inline static bool is_cookie_attribute(const std::string& name, bool set_cookie_header);
 
 
     /// maximum length for response status message
@@ -523,7 +523,7 @@ protected:
 
 
     /// primary logging interface used by this class
-    mutable logger                  m_logger;
+    mutable logger                      m_logger;
 
     /// true if the message is an HTTP request; false if it is an HTTP response
     const bool                          m_is_request;
@@ -571,16 +571,16 @@ private:
 
 
     /// the current state of parsing HTTP headers
-    message_parse_state_t                   m_message_parse_state;
+    message_parse_state_t               m_message_parse_state;
 
     /// the current state of parsing HTTP headers
-    header_parse_state_t                   m_headers_parse_state;
+    header_parse_state_t                m_headers_parse_state;
 
     /// the current state of parsing chunked content
-    chunk_parse_state_t            m_chunked_content_parse_state;
+    chunk_parse_state_t                 m_chunked_content_parse_state;
     
     /// if defined, this function is used to consume payload content
-    payload_handler_t                      m_payload_handler;
+    payload_handler_t                   m_payload_handler;
 
     /// Used for parsing the HTTP response status code
     boost::uint16_t                     m_status_code;
@@ -637,7 +637,7 @@ private:
     bool                                m_save_raw_headers;
 
     /// points to a single and unique instance of the parser error_category_t
-    static error_category_t *              m_error_category_ptr;
+    static error_category_t *           m_error_category_ptr;
         
     /// used to ensure thread safety of the parser error_category_t
     static boost::once_flag             m_instance_flag;
@@ -646,17 +646,17 @@ private:
 
 // inline functions for parser
 
-inline bool parser::isChar(int c)
+inline bool parser::is_char(int c)
 {
     return(c >= 0 && c <= 127);
 }
 
-inline bool parser::isControl(int c)
+inline bool parser::is_control(int c)
 {
     return( (c >= 0 && c <= 31) || c == 127);
 }
 
-inline bool parser::isSpecial(int c)
+inline bool parser::is_special(int c)
 {
     switch (c) {
     case '(': case ')': case '<': case '>': case '@':
@@ -669,17 +669,17 @@ inline bool parser::isSpecial(int c)
     }
 }
 
-inline bool parser::isDigit(int c)
+inline bool parser::is_digit(int c)
 {
     return(c >= '0' && c <= '9');
 }
 
-inline bool parser::isHexDigit(int c)
+inline bool parser::is_hex_digit(int c)
 {
     return((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
 }
 
-inline bool parser::isCookieAttribute(const std::string& name, bool set_cookie_header)
+inline bool parser::is_cookie_attribute(const std::string& name, bool set_cookie_header)
 {
     return (name.empty() || name[0] == '$' || (set_cookie_header &&
         (name=="Comment" || name=="Domain" || name=="Max-Age" || name=="Path" || name=="Secure" || name=="Version" || name=="Expires")

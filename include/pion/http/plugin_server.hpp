@@ -45,7 +45,7 @@ public:
     explicit plugin_server(const unsigned int tcp_port = 0)
         : http::server(tcp_port)
     { 
-        setLogger(PION_GET_LOGGER("pion.http.plugin_server"));
+        set_logger(PION_GET_LOGGER("pion.http.plugin_server"));
     }
     
     /**
@@ -56,7 +56,7 @@ public:
     explicit plugin_server(const boost::asio::ip::tcp::endpoint& endpoint)
         : http::server(endpoint)
     { 
-        setLogger(PION_GET_LOGGER("pion.http.plugin_server"));
+        set_logger(PION_GET_LOGGER("pion.http.plugin_server"));
     }
 
     /**
@@ -68,7 +68,7 @@ public:
     explicit plugin_server(scheduler& sched, const unsigned int tcp_port = 0)
         : http::server(sched, tcp_port)
     { 
-        setLogger(PION_GET_LOGGER("pion.http.plugin_server"));
+        set_logger(PION_GET_LOGGER("pion.http.plugin_server"));
     }
     
     /**
@@ -80,7 +80,7 @@ public:
     plugin_server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint)
         : http::server(sched, endpoint)
     { 
-        setLogger(PION_GET_LOGGER("pion.http.plugin_server"));
+        set_logger(PION_GET_LOGGER("pion.http.plugin_server"));
     }
 
     /**
@@ -89,7 +89,7 @@ public:
      * @param resource the resource name or uri-stem to bind to the web service
      * @param service_ptr a pointer to the web service
      */
-    void addService(const std::string& resource, http::plugin_service *service_ptr);
+    void add_service(const std::string& resource, http::plugin_service *service_ptr);
     
     /**
      * loads a web service from a shared object file
@@ -98,7 +98,7 @@ public:
      * @param service_name the name of the web service to load (searches plug-in
      *        directories and appends extensions)
      */
-    void loadService(const std::string& resource, const std::string& service_name);
+    void load_service(const std::string& resource, const std::string& service_name);
     
     /**
      * sets a configuration option for the web service associated with resource
@@ -107,7 +107,7 @@ public:
      * @param name the name of the configuration option
      * @param value the value to set the option to
      */
-    void setServiceOption(const std::string& resource,
+    void set_service_option(const std::string& resource,
                           const std::string& name, const std::string& value);
     
     /**
@@ -122,11 +122,11 @@ public:
      *
      * @param config_name the name of the config file to parse
      */
-    void loadServiceConfig(const std::string& config_name);
+    void load_service_config(const std::string& config_name);
 
     /// clears all the web services that are currently configured
     virtual void clear(void) {
-        if (isListening()) stop();
+        if (is_listening()) stop();
         m_services.clear();
         http::server::clear();
     }
@@ -135,13 +135,13 @@ public:
 protected:
     
     /// called before the TCP server starts listening for new connections
-    virtual void beforeStarting(void) {
+    virtual void before_starting(void) {
         // call the start() method for each web service associated with this server
         m_services.run(boost::bind(&http::plugin_service::start, _1));
     }
     
     /// called after the TCP server has stopped listening for new connections
-    virtual void afterStopping(void) {
+    virtual void after_stopping(void) {
         // call the stop() method for each web service associated with this server
         m_services.run(boost::bind(&http::plugin_service::stop, _1));
     }

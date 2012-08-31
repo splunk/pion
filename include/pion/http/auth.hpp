@@ -57,7 +57,7 @@ public:
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handleRequest(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn) = 0;
+    virtual bool handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn) = 0;
     
     /**
      * sets a configuration option
@@ -65,7 +65,7 @@ public:
      * @param name the name of the option to change
      * @param value the value of the option
      */
-    virtual void setOption(const std::string& name, const std::string& value) {
+    virtual void set_option(const std::string& name, const std::string& value) {
         BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
     }
     
@@ -74,22 +74,22 @@ public:
      *
      * @param resource the resource name or uri-stem that requires authentication
      */
-    void addRestrict(const std::string& resource);
+    void add_restrict(const std::string& resource);
     
     /**
      * adds a resource that does NOT require authentication
      *
      * @param resource the resource name or uri-stem that does not require authentication
      */
-    void addPermit(const std::string& resource);
+    void add_permit(const std::string& resource);
 
     /**
      * used to add a new user
      *
      * @ return false if user with such name already exists
      */
-    virtual bool addUser(std::string const &username, std::string const &password) {
-        return m_user_manager->addUser(username, password);
+    virtual bool add_user(std::string const &username, std::string const &password) {
+        return m_user_manager->add_user(username, password);
     }
     
     /**
@@ -97,8 +97,8 @@ public:
      *
      * @return false if user with such a name doesn't exist
      */
-    virtual bool updateUser(std::string const &username, std::string const &password) {
-        return m_user_manager->updateUser(username, password);
+    virtual bool update_user(std::string const &username, std::string const &password) {
+        return m_user_manager->update_user(username, password);
     }
     
     /**
@@ -106,15 +106,15 @@ public:
      *
      * @return false if no user with such username
      */
-    virtual bool removeUser(std::string const &username) {
-        return m_user_manager->removeUser(username);
+    virtual bool remove_user(std::string const &username) {
+        return m_user_manager->remove_user(username);
     };
     
     /**
      * Used to locate user object by username
      */
-    virtual user_ptr getUser(std::string const &username) {
-        return m_user_manager->getUser(username);
+    virtual user_ptr get_user(std::string const &username) {
+        return m_user_manager->get_user(username);
     }
 
     
@@ -132,7 +132,7 @@ protected:
      *
      * @param http_request_ptr the HTTP request to check
      */
-    bool needAuthentication(http::request_ptr const& http_request_ptr) const;
+    bool need_authentication(http::request_ptr const& http_request_ptr) const;
     
     /**
      * tries to find a resource in a given collection
@@ -142,27 +142,27 @@ protected:
      *
      * @return true if the resource was found
      */
-    bool findResource(const resource_set_type& resource_set,
+    bool find_resource(const resource_set_type& resource_set,
                       const std::string& resource) const;
 
     /// sets the logger to be used
-    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
+    inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
     
 
     /// primary logging interface used by this class
-    mutable logger              m_logger;
+    mutable logger          m_logger;
     
     /// container used to manager user objects
-    user_manager_ptr          m_user_manager;
+    user_manager_ptr        m_user_manager;
     
     /// collection of resources that require authentication 
-    resource_set_type             m_restrict_list;
+    resource_set_type       m_restrict_list;
 
     /// collection of resources that do NOT require authentication 
-    resource_set_type             m_white_list;
+    resource_set_type       m_white_list;
 
     /// mutex used to protect access to the resources
-    mutable boost::mutex        m_resource_mutex;
+    mutable boost::mutex    m_resource_mutex;
 };
 
 /// data type for a auth pointer

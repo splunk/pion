@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
     connection_handler conn_handler(boost::bind(&tcp_stream_tests_F::sendHello, _1));
     boost::thread listener_thread(boost::bind(&tcp_stream_tests_F::acceptConnection,
                                               this, conn_handler) );
-    m_scheduler.addActiveUser();
+    m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);
 
     // connect to the listener
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
 
     client_str.close();
     listener_thread.join();
-    m_scheduler.removeActiveUser();
+    m_scheduler.remove_active_user();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
     connection_handler conn_handler(boost::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, _1));
     boost::thread listener_thread(boost::bind(&tcp_stream_buffer_tests_F::acceptConnection,
                                               this, conn_handler) );
-    m_scheduler.addActiveUser();
+    m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);
 
     // connect to the listener
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
 
     client_str.close();
     listener_thread.join();
-    m_scheduler.removeActiveUser();
+    m_scheduler.remove_active_user();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

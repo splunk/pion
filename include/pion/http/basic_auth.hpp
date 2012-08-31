@@ -46,7 +46,7 @@ public:
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handleRequest(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    virtual bool handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
     
     /**
      * sets a configuration option
@@ -56,7 +56,7 @@ public:
      * @param name the name of the option to change
      * @param value the value of the option
      */
-    virtual void setOption(const std::string& name, const std::string& value);
+    virtual void set_option(const std::string& name, const std::string& value);
 
     
 protected:
@@ -67,19 +67,19 @@ protected:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handleUnauthorized(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    void handle_unauthorized(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
     
     /**
      * extracts base64 user credentials from authorization string
      *
      * @param authorization value of the HEADER_AUTHORIZATION
      */
-    static bool parseAuthorization(std::string const &authorization, std::string &credentials);
+    static bool parse_authorization(std::string const &authorization, std::string &credentials);
     
     /**
      * parse base64 credentials and extract username/password
      */
-    static bool parseCredentials(std::string const &credentials, std::string &username, std::string &password);
+    static bool parse_credentials(std::string const &credentials, std::string &username, std::string &password);
 
     
 private:

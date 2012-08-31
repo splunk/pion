@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonExistentPlugin) {
 }
 
 BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
-    BOOST_CHECK_EQUAL(getPluginName(), "");
+    BOOST_CHECK_EQUAL(get_plugin_name(), "");
 }
 
 BOOST_AUTO_TEST_CASE(checkPluginInstancePtrCreate) {
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
 
 BOOST_AUTO_TEST_CASE(checkOpenFileDoesntThrowExceptionForValidPlugin) {
     BOOST_REQUIRE(boost::filesystem::exists("hasCreateAndDestroy" + sharedLibExt));
-    BOOST_CHECK_NO_THROW(openFile("hasCreateAndDestroy" + sharedLibExt));
+    BOOST_CHECK_NO_THROW(open_file("hasCreateAndDestroy" + sharedLibExt));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -133,18 +133,18 @@ public:
 BOOST_FIXTURE_TEST_SUITE(EmptyPluginPtrWithPluginInSubdirectory_S, EmptyPluginPtrWithPluginInSubdirectory_F)
 
 BOOST_AUTO_TEST_CASE(checkOpenFileWithPathWithForwardSlashes) {
-    BOOST_CHECK_NO_THROW(openFile("dir1/dir2/hasCreateAndDestroy" + sharedLibExt));
+    BOOST_CHECK_NO_THROW(open_file("dir1/dir2/hasCreateAndDestroy" + sharedLibExt));
 }
 
 #ifdef PION_WIN32
 BOOST_AUTO_TEST_CASE(checkOpenFileWithPathWithBackslashes) {
-    BOOST_CHECK_NO_THROW(openFile("dir1\\dir2\\hasCreateAndDestroy" + sharedLibExt));
+    BOOST_CHECK_NO_THROW(open_file("dir1\\dir2\\hasCreateAndDestroy" + sharedLibExt));
 }
 #endif
 
 #ifdef PION_WIN32
 BOOST_AUTO_TEST_CASE(checkOpenFileWithPathWithMixedSlashes) {
-    BOOST_CHECK_NO_THROW(openFile("dir1\\dir2/hasCreateAndDestroy" + sharedLibExt));
+    BOOST_CHECK_NO_THROW(open_file("dir1\\dir2/hasCreateAndDestroy" + sharedLibExt));
 }
 #endif
 
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(checkOpenThrowsExceptionForNonExistentPlugin) {
 }
 
 BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsEmptyString) {
-    BOOST_CHECK_EQUAL(m_pluginPtr.getPluginName(), "");
+    BOOST_CHECK_EQUAL(m_pluginPtr.get_plugin_name(), "");
 }
 
 BOOST_AUTO_TEST_CASE(checkOpenDoesntThrowExceptionForValidPlugin) {
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(checkIsOpenReturnsTrue) {
 }
 
 BOOST_AUTO_TEST_CASE(checkGetPluginNameReturnsPluginName) {
-    BOOST_CHECK_EQUAL(getPluginName(), "hasCreateAndDestroy");
+    BOOST_CHECK_EQUAL(get_plugin_name(), "hasCreateAndDestroy");
 }
 
 BOOST_AUTO_TEST_CASE(checkCreateReturnsSomething) {
@@ -274,83 +274,83 @@ private:
 BOOST_FIXTURE_TEST_SUITE(Sandbox_S, Sandbox_F)
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsFalseForNonexistentPlugin) {
-    BOOST_CHECK(!plugin::findPluginFile(m_path_to_file, "nonexistentPlugin"));
+    BOOST_CHECK(!plugin::find_plugin_file(m_path_to_file, "nonexistentPlugin"));
 }
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsFalseForExistingDirectory) {
-    BOOST_CHECK(!plugin::findPluginFile(m_path_to_file, "sandbox"));
+    BOOST_CHECK(!plugin::find_plugin_file(m_path_to_file, "sandbox"));
 }
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileLeavesPathUnchangedForNonexistentPlugin) {
-    BOOST_CHECK(!plugin::findPluginFile(m_path_to_file, "nonexistentPlugin"));
+    BOOST_CHECK(!plugin::find_plugin_file(m_path_to_file, "nonexistentPlugin"));
     BOOST_CHECK_EQUAL(m_path_to_file, "arbitraryString");
 }
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsTrueForExistingPlugin) {
-    BOOST_CHECK(plugin::findPluginFile(m_path_to_file, "sandbox/fakePlugin"));
+    BOOST_CHECK(plugin::find_plugin_file(m_path_to_file, "sandbox/fakePlugin"));
 }
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsCorrectPathForExistingPlugin) {
-    BOOST_CHECK(plugin::findPluginFile(m_path_to_file, "sandbox/fakePlugin"));
+    BOOST_CHECK(plugin::find_plugin_file(m_path_to_file, "sandbox/fakePlugin"));
     BOOST_CHECK_EQUAL(m_path_to_file, fakePluginInSandboxWithExt);
 }
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsFalseForPluginNotOnSearchPath) {
-    BOOST_CHECK(!plugin::findPluginFile(m_path_to_file, "fakePlugin"));
+    BOOST_CHECK(!plugin::find_plugin_file(m_path_to_file, "fakePlugin"));
 }
 
 BOOST_AUTO_TEST_CASE(checkFindConfigFileReturnsFalseForNonexistentConfigFile) {
-    BOOST_CHECK(!plugin::findConfigFile(m_path_to_file, "nonexistentConfigFile"));
+    BOOST_CHECK(!plugin::find_config_file(m_path_to_file, "nonexistentConfigFile"));
 }
 
 BOOST_AUTO_TEST_CASE(checkFindConfigFileReturnsFalseForExistingDirectory) {
-    BOOST_CHECK(!plugin::findConfigFile(m_path_to_file, "sandbox"));
+    BOOST_CHECK(!plugin::find_config_file(m_path_to_file, "sandbox"));
 }
 
 BOOST_AUTO_TEST_CASE(checkFindConfigFileReturnsTrueForExistingConfigFile) {
-    BOOST_CHECK(plugin::findConfigFile(m_path_to_file, "sandbox/fakeConfigFile"));
+    BOOST_CHECK(plugin::find_config_file(m_path_to_file, "sandbox/fakeConfigFile"));
 }
 
 BOOST_AUTO_TEST_CASE(checkFindConfigFileReturnsCorrectPathForExistingConfigFile) {
-    BOOST_CHECK(plugin::findConfigFile(m_path_to_file, "sandbox/fakeConfigFile"));
+    BOOST_CHECK(plugin::find_config_file(m_path_to_file, "sandbox/fakeConfigFile"));
     BOOST_CHECK(boost::filesystem::equivalent(m_path_to_file, fakeConfigFileInSandboxWithExt));
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryThrowsExceptionForNonexistentDirectory) {
-    BOOST_CHECK_THROW(plugin::addPluginDirectory("nonexistentDir"), error::directory_not_found);
+    BOOST_CHECK_THROW(plugin::add_plugin_directory("nonexistentDir"), error::directory_not_found);
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithCurrentDirectory) {
-    BOOST_CHECK_NO_THROW(plugin::addPluginDirectory("."));
+    BOOST_CHECK_NO_THROW(plugin::add_plugin_directory("."));
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithExistingDirectory) {
-    BOOST_CHECK_NO_THROW(plugin::addPluginDirectory("sandbox"));
+    BOOST_CHECK_NO_THROW(plugin::add_plugin_directory("sandbox"));
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryOneLevelUp) {
     BOOST_REQUIRE(CHANGE_DIRECTORY("sandbox/dir1") == 0);
-    BOOST_CHECK_NO_THROW(plugin::addPluginDirectory(".."));
+    BOOST_CHECK_NO_THROW(plugin::add_plugin_directory(".."));
 }
 
 // this test only works in Windows
 #ifdef PION_WIN32
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithBackslashes) {
-    BOOST_CHECK_NO_THROW(plugin::addPluginDirectory("sandbox\\dir1\\dir1A"));
+    BOOST_CHECK_NO_THROW(plugin::add_plugin_directory("sandbox\\dir1\\dir1A"));
 }
 #endif
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryWithUpAndDownPath) {
     BOOST_REQUIRE(CHANGE_DIRECTORY("sandbox/dir1/dir1A") == 0);
-    BOOST_CHECK_NO_THROW(plugin::addPluginDirectory("../../dir2"));
+    BOOST_CHECK_NO_THROW(plugin::add_plugin_directory("../../dir2"));
 }
 
 BOOST_AUTO_TEST_CASE(checkAddPluginDirectoryThrowsExceptionForInvalidDirectory) {
-    BOOST_CHECK_THROW(plugin::addPluginDirectory("x:y"), error::directory_not_found);
+    BOOST_CHECK_THROW(plugin::add_plugin_directory("x:y"), error::directory_not_found);
 }
 
 BOOST_AUTO_TEST_CASE(checkResetPluginDirectoriesDoesntThrowException) {
-    BOOST_CHECK_NO_THROW(plugin::resetPluginDirectories());
+    BOOST_CHECK_NO_THROW(plugin::reset_plugin_directories());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -358,31 +358,31 @@ BOOST_AUTO_TEST_SUITE_END()
 class SandboxAddedAsPluginDirectory_F : public Sandbox_F {
 public:
     SandboxAddedAsPluginDirectory_F() {
-        plugin::addPluginDirectory("sandbox");
+        plugin::add_plugin_directory("sandbox");
     }
     ~SandboxAddedAsPluginDirectory_F() {
-        plugin::resetPluginDirectories();
+        plugin::reset_plugin_directories();
     }
 };
 
 BOOST_FIXTURE_TEST_SUITE(SandboxAddedAsPluginDirectory_S, SandboxAddedAsPluginDirectory_F)
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsTrueForPluginOnSearchPath) {
-    BOOST_CHECK(plugin::findPluginFile(m_path_to_file, "fakePlugin"));
+    BOOST_CHECK(plugin::find_plugin_file(m_path_to_file, "fakePlugin"));
 }
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsTrueAfterChangingDirectory) {
     BOOST_REQUIRE(CHANGE_DIRECTORY("sandbox/dir1") == 0);
-    BOOST_CHECK(plugin::findPluginFile(m_path_to_file, "fakePlugin"));
+    BOOST_CHECK(plugin::find_plugin_file(m_path_to_file, "fakePlugin"));
 }
 
 BOOST_AUTO_TEST_CASE(checkResetPluginDirectoriesDoesntThrowException) {
-    BOOST_CHECK_NO_THROW(plugin::resetPluginDirectories());
+    BOOST_CHECK_NO_THROW(plugin::reset_plugin_directories());
 }
 
 BOOST_AUTO_TEST_CASE(checkFindPluginFileReturnsFalseForPluginOnSearchPathAfterReset) {
-    plugin::resetPluginDirectories();
-    BOOST_CHECK(!plugin::findPluginFile(m_path_to_file, "fakePlugin"));
+    plugin::reset_plugin_directories();
+    BOOST_CHECK(!plugin::find_plugin_file(m_path_to_file, "fakePlugin"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

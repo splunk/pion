@@ -693,25 +693,25 @@ private:
 
     
     /// context object for the SSL connection socket
-    ssl_context_type                  m_ssl_context;
+    ssl_context_type        m_ssl_context;
 
     /// SSL connection socket
-    ssl_socket_type                   m_ssl_socket;
+    ssl_socket_type         m_ssl_socket;
 
     /// true if the connection is encrypted using SSL
-    bool                        m_ssl_flag;
+    bool                    m_ssl_flag;
 
     /// buffer used for reading data from the TCP connection
-    read_buffer_type                  m_read_buffer;
+    read_buffer_type        m_read_buffer;
     
     /// saved read position bookmark
-    read_pos_type                m_read_position;
+    read_pos_type           m_read_position;
     
     /// lifecycle state for the connection
-    lifecycle_type               m_lifecycle;
+    lifecycle_type          m_lifecycle;
 
     /// function called when a server has finished handling the connection
-    connection_handler           m_finished_handler;
+    connection_handler      m_finished_handler;
 };
 
 

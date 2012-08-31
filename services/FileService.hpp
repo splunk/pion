@@ -162,10 +162,10 @@ public:
     void send(void);
 
     /// sets the logger to be used
-    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
+    inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
 
     /// returns the logger currently in use
-    inline logger getLogger(void) { return m_logger; }
+    inline logger get_logger(void) { return m_logger; }
 
 
 protected:
@@ -189,7 +189,7 @@ protected:
      * @param write_error error status from the last write operation
      * @param bytes_written number of bytes sent by the last write operation
      */
-    void handleWrite(const boost::system::error_code& write_error,
+    void handle_write(const boost::system::error_code& write_error,
                      std::size_t bytes_written);
 
 
@@ -251,7 +251,7 @@ public:
      * max_chunk_size:
      * writable:
      */
-    virtual void setOption(const std::string& name, const std::string& value);
+    virtual void set_option(const std::string& name, const std::string& value);
 
     /// handles requests for FileService
     virtual void operator()(pion::http::request_ptr& http_request_ptr,
@@ -264,10 +264,10 @@ public:
     virtual void stop(void);
 
     /// sets the logger to be used
-    inline void setLogger(logger log_ptr) { m_logger = log_ptr; }
+    inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
 
     /// returns the logger currently in use
-    inline logger getLogger(void) { return m_logger; }
+    inline logger get_logger(void) { return m_logger; }
 
 
 protected:

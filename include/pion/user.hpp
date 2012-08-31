@@ -49,24 +49,24 @@ public:
     user(std::string const &username, std::string const &password) :
         m_username(username)
     {
-        setPassword(password);
+        set_password(password);
     }
 
     /// virtual destructor
     virtual ~user() {}
 
     /// returns user name as a string
-    std::string const & getUsername() const { return m_username; }
+    std::string const & get_username() const { return m_username; }
 
     /// returns password for the user (encrypted if SSL is enabled)
-    std::string const & getPassword() const { return m_password; }
+    std::string const & get_password() const { return m_password; }
 
     /**
      * matches password credential for given user
      *
      * @param password password credentials
      */
-    virtual bool matchPassword(const std::string& password) const {
+    virtual bool match_password(const std::string& password) const {
 #ifdef PION_HAVE_SSL
         unsigned char sha1_hash[SHA_DIGEST_LENGTH];
         SHA1(reinterpret_cast<const unsigned char *>(password.data()), password.size(), sha1_hash);
@@ -77,7 +77,7 @@ public:
     }
 
     /// sets password credentials for given user
-    virtual void setPassword(const std::string& password) { 
+    virtual void set_password(const std::string& password) { 
 #ifdef PION_HAVE_SSL
         // store encrypted hash value
         SHA1((const unsigned char *)password.data(), password.size(), m_password_hash);
@@ -96,7 +96,7 @@ public:
 
 #ifdef PION_HAVE_SSL
     /// sets encrypted password credentials for given user
-    virtual void setPasswordHash(const std::string& password_hash) {
+    virtual void set_password_hash(const std::string& password_hash) {
         // update password string representation
         if (password_hash.size() != SHA_DIGEST_LENGTH*2)
             BOOST_THROW_EXCEPTION( error::bad_password_hash() );
@@ -164,7 +164,7 @@ public:
      *
      * @return false if user with such a name already exists
      */
-    virtual bool addUser(const std::string &username,
+    virtual bool add_user(const std::string &username,
         const std::string &password)
     {
         boost::mutex::scoped_lock lock(m_mutex);
@@ -184,14 +184,14 @@ public:
      *
      * @return false if user with such a name doesn't exist
      */
-    virtual bool updateUser(const std::string &username,
+    virtual bool update_user(const std::string &username,
         const std::string &password)
     {
         boost::mutex::scoped_lock lock(m_mutex);
         user_map_t::iterator i = m_users.find(username);
         if (i==m_users.end())
             return false;
-        i->second->setPassword(password);
+        i->second->set_password(password);
         return true;
     }
 
@@ -204,7 +204,7 @@ public:
      *
      * @return false if user with such a name already exists
      */
-    virtual bool addUserHash(const std::string &username,
+    virtual bool add_user_hash(const std::string &username,
         const std::string &password_hash)
     {
         boost::mutex::scoped_lock lock(m_mutex);
@@ -212,7 +212,7 @@ public:
         if (i!=m_users.end())
             return false;
         user_ptr user_ptr(new user(username));
-        user_ptr->setPasswordHash(password_hash);
+        user_ptr->set_password_hash(password_hash);
         m_users.insert(std::make_pair(username, user_ptr));
         return true;
     }
@@ -225,14 +225,14 @@ public:
      *
      * @return false if user with such a name doesn't exist
      */
-    virtual bool updateUserHash(const std::string &username,
+    virtual bool update_user_hash(const std::string &username,
         const std::string &password_hash)
     {
         boost::mutex::scoped_lock lock(m_mutex);
         user_map_t::iterator i = m_users.find(username);
         if (i==m_users.end())
             return false;
-        i->second->setPasswordHash(password_hash);
+        i->second->set_password_hash(password_hash);
         return true;
     }
 #endif
@@ -242,7 +242,7 @@ public:
      *
      * @return false if no user with such username
      */
-    virtual bool removeUser(const std::string &username) {
+    virtual bool remove_user(const std::string &username) {
         boost::mutex::scoped_lock lock(m_mutex);
         user_map_t::iterator i = m_users.find(username);
         if (i==m_users.end())
@@ -254,7 +254,7 @@ public:
     /**
      * Used to locate user object by username
      */
-    virtual user_ptr getUser(const std::string &username) {
+    virtual user_ptr get_user(const std::string &username) {
         boost::mutex::scoped_lock lock(m_mutex);
         user_map_t::const_iterator i = m_users.find(username);
         if (i==m_users.end())
@@ -266,10 +266,10 @@ public:
     /**
      * Used to locate user object by username and password
      */
-    virtual user_ptr getUser(const std::string& username, const std::string& password) {
+    virtual user_ptr get_user(const std::string& username, const std::string& password) {
         boost::mutex::scoped_lock lock(m_mutex);
         user_map_t::const_iterator i = m_users.find(username);
-        if (i==m_users.end() || !i->second->matchPassword(password))
+        if (i==m_users.end() || !i->second->match_password(password))
             return user_ptr();
         else
             return i->second;
