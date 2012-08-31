@@ -29,12 +29,12 @@ basic_auth::basic_auth(user_manager_ptr userManager, const std::string& realm)
     : http::auth(userManager), m_realm(realm),
     m_cache_cleanup_time(boost::posix_time::second_clock::universal_time())
 {
-    setLogger(PION_GET_LOGGER("pion.http.basic_auth"));
+    set_logger(PION_GET_LOGGER("pion.http.basic_auth"));
 }
     
-bool basic_auth::handleRequest(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+bool basic_auth::handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
 {
-    if (!needAuthentication(http_request_ptr)) {
+    if (!need_authentication(http_request_ptr)) {
         return true; // this request does not require authentication
     }
     
@@ -56,17 +56,17 @@ bool basic_auth::handleRequest(http::request_ptr& http_request_ptr, tcp::connect
     }
     
     // if we are here, we need to check if access authorized...
-    std::string authorization = http_request_ptr->getHeader(http::types::HEADER_AUTHORIZATION);
+    std::string authorization = http_request_ptr->get_header(http::types::HEADER_AUTHORIZATION);
     if (!authorization.empty()) {
         std::string credentials;
-        if (parseAuthorization(authorization, credentials)) {
+        if (parse_authorization(authorization, credentials)) {
             // to do - use fast cache to match with active credentials
             boost::mutex::scoped_lock cache_lock(m_cache_mutex);
             user_cache_type::iterator user_cache_ptr=m_user_cache.find(credentials);
             if (user_cache_ptr!=m_user_cache.end()) {
                 // we found the credentials in our cache...
                 // we can approve authorization now!
-                http_request_ptr->setUser(user_cache_ptr->second.second);
+                http_request_ptr->set_user(user_cache_ptr->second.second);
                 user_cache_ptr->second.first = time_now;
                 return true;
             }
@@ -74,14 +74,14 @@ bool basic_auth::handleRequest(http::request_ptr& http_request_ptr, tcp::connect
             std::string username;
             std::string password;
     
-            if (parseCredentials(credentials, username, password)) {
+            if (parse_credentials(credentials, username, password)) {
                 // match username/password
-                user_ptr user=m_user_manager->getUser(username, password);
+                user_ptr user=m_user_manager->get_user(username, password);
                 if (user) {
                     // add user to the cache
                     m_user_cache.insert(std::make_pair(credentials, std::make_pair(time_now, user)));
                     // add user credentials to the request object
-                    http_request_ptr->setUser(user);
+                    http_request_ptr->set_user(user);
                     return true;
                 }
             }
@@ -89,11 +89,11 @@ bool basic_auth::handleRequest(http::request_ptr& http_request_ptr, tcp::connect
     }
 
     // user not found
-    handleUnauthorized(http_request_ptr, tcp_conn);
+    handle_unauthorized(http_request_ptr, tcp_conn);
     return false;
 }
     
-void basic_auth::setOption(const std::string& name, const std::string& value) 
+void basic_auth::set_option(const std::string& name, const std::string& value) 
 {
     if (name=="realm")
         m_realm = value;
@@ -101,7 +101,7 @@ void basic_auth::setOption(const std::string& name, const std::string& value)
         BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
 }
     
-bool basic_auth::parseAuthorization(const std::string& authorization, std::string &credentials)
+bool basic_auth::parse_authorization(const std::string& authorization, std::string &credentials)
 {
     if (!boost::algorithm::starts_with(authorization, "Basic "))
         return false;
@@ -111,7 +111,7 @@ bool basic_auth::parseAuthorization(const std::string& authorization, std::strin
     return true;
 }
     
-bool basic_auth::parseCredentials(const std::string &credentials,
+bool basic_auth::parse_credentials(const std::string &credentials,
     std::string &username, std::string &password)
 {
     std::string user_password;
@@ -130,7 +130,7 @@ bool basic_auth::parseCredentials(const std::string &credentials,
     return true;
 }
     
-void basic_auth::handleUnauthorized(http::request_ptr& http_request_ptr,
+void basic_auth::handle_unauthorized(http::request_ptr& http_request_ptr,
     tcp::connection_ptr& tcp_conn)
 {
     // authentication failed, send 401.....
@@ -146,10 +146,10 @@ void basic_auth::handleUnauthorized(http::request_ptr& http_request_ptr,
         "</HTML> ";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
                                                                    boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_UNAUTHORIZED);
-    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_UNAUTHORIZED);
-    writer->getResponse().addHeader("WWW-Authenticate", "Basic realm=\"" + m_realm + "\"");
-    writer->writeNoCopy(CONTENT);
+    writer->get_response().set_status_code(http::types::RESPONSE_CODE_UNAUTHORIZED);
+    writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_UNAUTHORIZED);
+    writer->get_response().add_header("WWW-Authenticate", "Basic realm=\"" + m_realm + "\"");
+    writer->write_no_copy(CONTENT);
     writer->send();
 }
     

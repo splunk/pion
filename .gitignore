@@ -19,6 +19,7 @@ include/pion/config.hpp
 utils/piond
 utils/helloserver
 tests/piontests
+tests/sandbox/
 pion.pc
 *.o
 *.lo

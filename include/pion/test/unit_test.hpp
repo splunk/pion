@@ -68,7 +68,7 @@ namespace test {    // begin namespace test
 
     // This is passed to xmlSetGenericErrorFunc() to make libxml do nothing when an error
     // occurs, rather than its default behavior of writing a message to stderr.
-    static inline void doNothing(void* ctx, const char* msg, ...) {
+    static inline void do_nothing(void* ctx, const char* msg, ...) {
     }
 
     // removes line endings from a c-style string
@@ -207,7 +207,7 @@ public:
         m_value = 2;
     }
     int m_value;
-    int getValue() { return m_value; }
+    int get_value() { return m_value; }
 };
 
 // This illustrates the most common case, where just one fixture will be used,
@@ -219,13 +219,13 @@ BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(ObjectToTest_S,
 // One method for testing the fixture...
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwo) {
     BOOST_CHECK_EQUAL(F::m_value, 2);
-    BOOST_CHECK_EQUAL(F::getValue(), 2);
+    BOOST_CHECK_EQUAL(F::get_value(), 2);
 }
 
 // Another method for testing the fixture...
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwoAgain) {
     BOOST_CHECK_EQUAL(this->m_value, 2);
-    BOOST_CHECK_EQUAL(this->getValue(), 2);
+    BOOST_CHECK_EQUAL(this->get_value(), 2);
 }
 
 // The simplest, but, alas, non conformant to the C++ standard, method for testing the fixture.
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwoAgain) {
 // See http://gcc.gnu.org/onlinedocs/gcc/Name-lookup.html.
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkValueEqualsTwoNonConformant) {
     BOOST_CHECK_EQUAL(m_value, 2);
-    BOOST_CHECK_EQUAL(getValue(), 2);
+    BOOST_CHECK_EQUAL(get_value(), 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -17,11 +17,37 @@
 
 using namespace pion;
 
+BOOST_AUTO_TEST_CASE(testParseHttpUri)
+{
+    std::string uri("http://127.0.0.1:80/folder/file.ext?q=uery");
+    std::string proto;
+    std::string host;
+    boost::uint16_t port = 0;
+    std::string path;
+    std::string query;
+
+    BOOST_CHECK(http::parser::parse_uri(uri, proto, host, port, path, query));
+    BOOST_CHECK_EQUAL(proto, "http");
+    BOOST_CHECK_EQUAL(host, "127.0.0.1");
+    BOOST_CHECK_EQUAL(port, 80);
+    BOOST_CHECK_EQUAL(path, "/folder/file.ext");
+    BOOST_CHECK_EQUAL(query, "q=uery");
+
+    uri = "http://www.cloudmeter.com/folder/file.ext";
+
+    BOOST_CHECK(http::parser::parse_uri(uri, proto, host, port, path, query));
+    BOOST_CHECK_EQUAL(proto, "http");
+    BOOST_CHECK_EQUAL(host, "www.cloudmeter.com");
+    BOOST_CHECK_EQUAL(port, 80);
+    BOOST_CHECK_EQUAL(path, "/folder/file.ext");
+    BOOST_CHECK_EQUAL(query, "");
+}
+
 BOOST_AUTO_TEST_CASE(testParseSimpleQueryString)
 {
     const std::string QUERY_STRING("a=b");
     ihash_multimap params;
-    BOOST_REQUIRE(http::parser::parseURLEncoded(params, QUERY_STRING.c_str(), QUERY_STRING.size()));
+    BOOST_REQUIRE(http::parser::parse_url_encoded(params, QUERY_STRING.c_str(), QUERY_STRING.size()));
     BOOST_CHECK_EQUAL(params.size(), 1UL);
 
     ihash_multimap::const_iterator i = params.find("a");
@@ -33,7 +59,7 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleValues)
 {
     const std::string QUERY_STRING("test=2&three=%20four%20with%20spaces&five=sixty+two");
     ihash_multimap params;
-    BOOST_REQUIRE(http::parser::parseURLEncoded(params, QUERY_STRING));
+    BOOST_REQUIRE(http::parser::parse_url_encoded(params, QUERY_STRING));
     BOOST_CHECK_EQUAL(params.size(), 3UL);
 
     ihash_multimap::const_iterator i = params.find("test");
@@ -51,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithDoubleAmpersand)
 {
     const std::string QUERY_STRING("a=b&&c=d&e");
     ihash_multimap params;
-    BOOST_REQUIRE(http::parser::parseURLEncoded(params, QUERY_STRING));
+    BOOST_REQUIRE(http::parser::parse_url_encoded(params, QUERY_STRING));
     BOOST_CHECK_EQUAL(params.size(), 3UL);
 
     ihash_multimap::const_iterator i = params.find("a");
@@ -69,7 +95,7 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithEmptyName)
 {
     const std::string QUERY_STRING("a=b&=bob&=&c=d&e");
     ihash_multimap params;
-    BOOST_REQUIRE(http::parser::parseURLEncoded(params, QUERY_STRING));
+    BOOST_REQUIRE(http::parser::parse_url_encoded(params, QUERY_STRING));
     BOOST_CHECK_EQUAL(params.size(), 3UL);
 
     ihash_multimap::const_iterator i = params.find("a");
@@ -87,7 +113,7 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithEmptyValues)
 {
     const std::string QUERY_STRING("a=&b&c=");
     ihash_multimap params;
-    BOOST_REQUIRE(http::parser::parseURLEncoded(params, QUERY_STRING));
+    BOOST_REQUIRE(http::parser::parse_url_encoded(params, QUERY_STRING));
     BOOST_CHECK_EQUAL(params.size(), 3UL);
 
     ihash_multimap::const_iterator i = params.find("a");
@@ -105,7 +131,7 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithTabs)
 {
     const std::string QUERY_STRING("promoCode=BOB	");
     ihash_multimap params;
-    BOOST_REQUIRE(http::parser::parseURLEncoded(params, QUERY_STRING));
+    BOOST_REQUIRE(http::parser::parse_url_encoded(params, QUERY_STRING));
     BOOST_CHECK_EQUAL(params.size(), 1UL);
 
     ihash_multimap::const_iterator i = params.find("promoCode");
@@ -120,7 +146,7 @@ BOOST_AUTO_TEST_CASE(testParseSingleCookieHeader)
     ihash_multimap::const_iterator cookie_it;
 
     cookie_header = "a=b";
-    BOOST_REQUIRE(http::parser::parseCookieHeader(cookies, cookie_header, false));
+    BOOST_REQUIRE(http::parser::parse_cookie_header(cookies, cookie_header, false));
     BOOST_CHECK_EQUAL(cookies.size(), 1UL);
 
     cookie_it = cookies.find("a");
@@ -135,7 +161,7 @@ BOOST_AUTO_TEST_CASE(testParseTwoCookieHeader)
     ihash_multimap::const_iterator cookie_it;
 
     cookie_header = "a=b; Part_Number=\"Rocket_Launcher_0001\";";
-    BOOST_REQUIRE(http::parser::parseCookieHeader(cookies, cookie_header, false));
+    BOOST_REQUIRE(http::parser::parse_cookie_header(cookies, cookie_header, false));
     BOOST_CHECK_EQUAL(cookies.size(), 2UL);
 
     cookie_it = cookies.find("a");
@@ -154,7 +180,7 @@ BOOST_AUTO_TEST_CASE(testParseCookieHeaderWithEmptyName)
     ihash_multimap::const_iterator cookie_it;
 
     cookie_header = "a=b; =; =\"001\"; c=d";
-    BOOST_REQUIRE(http::parser::parseCookieHeader(cookies, cookie_header, false));
+    BOOST_REQUIRE(http::parser::parse_cookie_header(cookies, cookie_header, false));
     BOOST_CHECK_EQUAL(cookies.size(), 2UL);
 
     cookie_it = cookies.find("a");
@@ -173,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testParseCookieHeaderWithUnquotedSpaces)
     ihash_multimap::const_iterator cookie_it;
 
     cookie_header = "a=a black cat; c = Dec 2, 2010 11:54:30 AM; d = \"dark \"";
-    BOOST_REQUIRE(http::parser::parseCookieHeader(cookies, cookie_header, false));
+    BOOST_REQUIRE(http::parser::parse_cookie_header(cookies, cookie_header, false));
     BOOST_CHECK_EQUAL(cookies.size(), 4UL);
 
     cookie_it = cookies.find("a");
@@ -203,7 +229,7 @@ BOOST_AUTO_TEST_CASE(testParseNormalCookieHeader)
     ihash_multimap::const_iterator cookie_it;
 
     cookie_header = "$Version=\"1\"; Part_Number=\"Rocket_Launcher_0001\"; $Path=\"/acme\"";
-    BOOST_REQUIRE(http::parser::parseCookieHeader(cookies, cookie_header, false));
+    BOOST_REQUIRE(http::parser::parse_cookie_header(cookies, cookie_header, false));
     BOOST_CHECK_EQUAL(cookies.size(), 1UL);
     cookie_it = cookies.find("Part_Number");
     BOOST_REQUIRE(cookie_it != cookies.end());
@@ -217,7 +243,7 @@ BOOST_AUTO_TEST_CASE(testParseSetCookieHeader)
     ihash_multimap::const_iterator cookie_it;
 
     cookie_header = "Shipping=\"FedEx\"; Version=\"1\"; Path=\"/acme\"";
-    BOOST_REQUIRE(http::parser::parseCookieHeader(cookies, cookie_header, true));
+    BOOST_REQUIRE(http::parser::parse_cookie_header(cookies, cookie_header, true));
     BOOST_CHECK_EQUAL(cookies.size(), 1UL);
     cookie_it = cookies.find("Shipping");
     BOOST_REQUIRE(cookie_it != cookies.end());
@@ -234,9 +260,9 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleRequest)
     BOOST_CHECK(request_parser.parse(http_request, ec));
     BOOST_CHECK(!ec);
 
-    BOOST_CHECK_EQUAL(http_request.getContentLength(), 0UL);
-    BOOST_CHECK_EQUAL(request_parser.getTotalBytesRead(), sizeof(request_data_1));
-    BOOST_CHECK_EQUAL(request_parser.getContentBytesRead(), 0UL);
+    BOOST_CHECK_EQUAL(http_request.get_content_length(), 0UL);
+    BOOST_CHECK_EQUAL(request_parser.get_total_bytes_read(), sizeof(request_data_1));
+    BOOST_CHECK_EQUAL(request_parser.get_content_bytes_read(), 0UL);
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
@@ -249,12 +275,12 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
     BOOST_CHECK(response_parser.parse(http_response, ec));
     BOOST_CHECK(!ec);
 
-    BOOST_CHECK_EQUAL(http_response.getContentLength(), 117UL);
-    BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), sizeof(response_data_1));
-    BOOST_CHECK_EQUAL(response_parser.getContentBytesRead(), 117UL);
+    BOOST_CHECK_EQUAL(http_response.get_content_length(), 117UL);
+    BOOST_CHECK_EQUAL(response_parser.get_total_bytes_read(), sizeof(response_data_1));
+    BOOST_CHECK_EQUAL(response_parser.get_content_bytes_read(), 117UL);
 
     boost::regex content_regex("^GIF89a.*");
-    BOOST_CHECK(boost::regex_match(http_response.getContent(), content_regex));
+    BOOST_CHECK(boost::regex_match(http_response.get_content(), content_regex));
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParserBadRequest)
@@ -273,37 +299,37 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithSmallerMaxSize)
 {
     http::parser response_parser(false);
     response_parser.set_read_buffer((const char*)response_data_1, sizeof(response_data_1));
-    response_parser.setMaxContentLength(4);
+    response_parser.set_max_content_length(4);
 
     http::response http_response;
     boost::system::error_code ec;
     BOOST_CHECK(response_parser.parse(http_response, ec));
     BOOST_CHECK(!ec);
 
-    BOOST_CHECK_EQUAL(http_response.getContentLength(), 4UL);
-    BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), sizeof(response_data_1));
-    BOOST_CHECK_EQUAL(response_parser.getContentBytesRead(), 117UL);
+    BOOST_CHECK_EQUAL(http_response.get_content_length(), 4UL);
+    BOOST_CHECK_EQUAL(response_parser.get_total_bytes_read(), sizeof(response_data_1));
+    BOOST_CHECK_EQUAL(response_parser.get_content_bytes_read(), 117UL);
 
     std::string content_str("GIF8");
-    BOOST_CHECK_EQUAL(content_str, http_response.getContent());
+    BOOST_CHECK_EQUAL(content_str, http_response.get_content());
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithZeroMaxSize)
 {
     http::parser response_parser(false);
     response_parser.set_read_buffer((const char*)response_data_1, sizeof(response_data_1));
-    response_parser.setMaxContentLength(0);
+    response_parser.set_max_content_length(0);
 
     http::response http_response;
     boost::system::error_code ec;
     BOOST_CHECK(response_parser.parse(http_response, ec));
     BOOST_CHECK(!ec);
 
-    BOOST_CHECK_EQUAL(http_response.getContentLength(), 0UL);
-    BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), sizeof(response_data_1));
-    BOOST_CHECK_EQUAL(response_parser.getContentBytesRead(), 117UL);
+    BOOST_CHECK_EQUAL(http_response.get_content_length(), 0UL);
+    BOOST_CHECK_EQUAL(response_parser.get_total_bytes_read(), sizeof(response_data_1));
+    BOOST_CHECK_EQUAL(response_parser.get_content_bytes_read(), 117UL);
 
-    BOOST_CHECK_EQUAL(http_response.getContent()[0], '\0');
+    BOOST_CHECK_EQUAL(http_response.get_content()[0], '\0');
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
@@ -333,12 +359,12 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
         BOOST_CHECK(!ec);
     total_bytes += sizes[frame_cnt - 1];
 
-    BOOST_CHECK_EQUAL(http_response.getContentLength(), 4712UL);
-    BOOST_CHECK_EQUAL(response_parser.getTotalBytesRead(), total_bytes);
-    BOOST_CHECK_EQUAL(response_parser.getContentBytesRead(), 4712UL);
+    BOOST_CHECK_EQUAL(http_response.get_content_length(), 4712UL);
+    BOOST_CHECK_EQUAL(response_parser.get_total_bytes_read(), total_bytes);
+    BOOST_CHECK_EQUAL(response_parser.get_content_bytes_read(), 4712UL);
 
     boost::regex content_regex(".*<title>Atomic\\sLabs:.*");
-    BOOST_CHECK(boost::regex_match(http_response.getContent(), content_regex));
+    BOOST_CHECK(boost::regex_match(http_response.get_content(), content_regex));
 }
 
 
@@ -351,13 +377,13 @@ public:
 
     inline void checkParsingTrue(const std::string& header, const std::string& result) {
         std::string public_ip;
-        BOOST_CHECK(http::parser::parseForwardedFor(header, public_ip));
+        BOOST_CHECK(http::parser::parse_forwarded_for(header, public_ip));
         BOOST_CHECK_EQUAL(public_ip, result);
     }
 
     inline void checkParsingFalse(const std::string& header) {
         std::string public_ip;
-        BOOST_CHECK(! http::parser::parseForwardedFor(header, public_ip));
+        BOOST_CHECK(! http::parser::parse_forwarded_for(header, public_ip));
     }
 };
 

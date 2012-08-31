@@ -25,19 +25,19 @@ const unsigned int          server::MAX_REDIRECTS = 10;
 
 // server member functions
 
-void server::handleConnection(tcp::connection_ptr& tcp_conn)
+void server::handle_connection(tcp::connection_ptr& tcp_conn)
 {
     request_reader_ptr my_reader_ptr;
-    my_reader_ptr = request_reader::create(tcp_conn, boost::bind(&server::handleRequest,
+    my_reader_ptr = request_reader::create(tcp_conn, boost::bind(&server::handle_request,
                                            this, _1, _2, _3));
-    my_reader_ptr->setMaxContentLength(m_max_content_length);
+    my_reader_ptr->set_max_content_length(m_max_content_length);
     my_reader_ptr->receive();
 }
 
-void server::handleRequest(http::request_ptr& http_request_ptr,
+void server::handle_request(http::request_ptr& http_request_ptr,
     tcp::connection_ptr& tcp_conn, const boost::system::error_code& ec)
 {
-    if (ec || ! http_request_ptr->isValid()) {
+    if (ec || ! http_request_ptr->is_valid()) {
         tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE); // make sure it will get closed
         if (tcp_conn->is_open() && (&ec.category() == &http::parser::get_error_category())) {
             // HTTP parser error
@@ -45,7 +45,7 @@ void server::handleRequest(http::request_ptr& http_request_ptr,
             m_bad_request_handler(http_request_ptr, tcp_conn);
         } else {
             // other (IO) error
-            PION_LOG_INFO(m_logger, "Lost connection on port " << getPort());
+            PION_LOG_INFO(m_logger, "Lost connection on port " << get_port());
             tcp_conn->finish();
         }
         return;
@@ -54,31 +54,31 @@ void server::handleRequest(http::request_ptr& http_request_ptr,
     PION_LOG_DEBUG(m_logger, "Received a valid HTTP request");
 
     // strip off trailing slash if the request has one
-    std::string resource_requested(stripTrailingSlash(http_request_ptr->getResource()));
+    std::string resource_requested(strip_trailing_slash(http_request_ptr->get_resource()));
 
     // apply any redirection
     redirect_map_t::const_iterator it = m_redirects.find(resource_requested);
     unsigned int num_redirects = 0;
     while (it != m_redirects.end()) {
         if (++num_redirects > MAX_REDIRECTS) {
-            PION_LOG_ERROR(m_logger, "Maximum number of redirects (server::MAX_REDIRECTS) exceeded for requested resource: " << http_request_ptr->getOriginalResource());
+            PION_LOG_ERROR(m_logger, "Maximum number of redirects (server::MAX_REDIRECTS) exceeded for requested resource: " << http_request_ptr->get_original_resource());
             m_server_error_handler(http_request_ptr, tcp_conn, "Maximum number of redirects (server::MAX_REDIRECTS) exceeded for requested resource");
             return;
         }
         resource_requested = it->second;
-        http_request_ptr->changeResource(resource_requested);
+        http_request_ptr->change_resource(resource_requested);
         it = m_redirects.find(resource_requested);
     }
 
     // if authentication activated, check current request
     if (m_auth_ptr) {
         // try to verify authentication
-        if (! m_auth_ptr->handleRequest(http_request_ptr, tcp_conn)) {
+        if (! m_auth_ptr->handle_request(http_request_ptr, tcp_conn)) {
             // the HTTP 401 message has already been sent by the authentication object
             PION_LOG_DEBUG(m_logger, "Authentication required for HTTP resource: "
                 << resource_requested);
-            if (http_request_ptr->getResource() != http_request_ptr->getOriginalResource()) {
-                PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request_ptr->getOriginalResource());
+            if (http_request_ptr->get_resource() != http_request_ptr->get_original_resource()) {
+                PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request_ptr->get_original_resource());
             }
             return;
         }
@@ -86,15 +86,15 @@ void server::handleRequest(http::request_ptr& http_request_ptr,
     
     // search for a handler matching the resource requested
     request_handler_t request_handler;
-    if (findrequest_handler_t(resource_requested, request_handler)) {
+    if (find_request_handler(resource_requested, request_handler)) {
         
         // try to handle the request
         try {
             request_handler(http_request_ptr, tcp_conn);
             PION_LOG_DEBUG(m_logger, "Found request handler for HTTP resource: "
                            << resource_requested);
-            if (http_request_ptr->getResource() != http_request_ptr->getOriginalResource()) {
-                PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request_ptr->getOriginalResource());
+            if (http_request_ptr->get_resource() != http_request_ptr->get_original_resource()) {
+                PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request_ptr->get_original_resource());
             }
         } catch (std::bad_alloc&) {
             // propagate memory errors (FATAL)
@@ -110,14 +110,14 @@ void server::handleRequest(http::request_ptr& http_request_ptr,
         // no web services found that could handle the request
         PION_LOG_INFO(m_logger, "No HTTP request handlers found for resource: "
                       << resource_requested);
-        if (http_request_ptr->getResource() != http_request_ptr->getOriginalResource()) {
-            PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request_ptr->getOriginalResource());
+        if (http_request_ptr->get_resource() != http_request_ptr->get_original_resource()) {
+            PION_LOG_DEBUG(m_logger, "Original resource requested was: " << http_request_ptr->get_original_resource());
         }
         m_not_found_handler(http_request_ptr, tcp_conn);
     }
 }
     
-bool server::findrequest_handler_t(const std::string& resource,
+bool server::find_request_handler(const std::string& resource,
                                     request_handler_t& request_handler) const
 {
     // first make sure that HTTP resources are registered
@@ -143,34 +143,34 @@ bool server::findrequest_handler_t(const std::string& resource,
     return false;
 }
 
-void server::addResource(const std::string& resource,
+void server::add_resource(const std::string& resource,
                              request_handler_t request_handler)
 {
     boost::mutex::scoped_lock resource_lock(m_resource_mutex);
-    const std::string clean_resource(stripTrailingSlash(resource));
+    const std::string clean_resource(strip_trailing_slash(resource));
     m_resources.insert(std::make_pair(clean_resource, request_handler));
     PION_LOG_INFO(m_logger, "Added request handler for HTTP resource: " << clean_resource);
 }
 
-void server::removeResource(const std::string& resource)
+void server::remove_resource(const std::string& resource)
 {
     boost::mutex::scoped_lock resource_lock(m_resource_mutex);
-    const std::string clean_resource(stripTrailingSlash(resource));
+    const std::string clean_resource(strip_trailing_slash(resource));
     m_resources.erase(clean_resource);
     PION_LOG_INFO(m_logger, "Removed request handler for HTTP resource: " << clean_resource);
 }
 
-void server::addRedirect(const std::string& requested_resource,
+void server::add_redirect(const std::string& requested_resource,
                              const std::string& new_resource)
 {
     boost::mutex::scoped_lock resource_lock(m_resource_mutex);
-    const std::string clean_requested_resource(stripTrailingSlash(requested_resource));
-    const std::string clean_new_resource(stripTrailingSlash(new_resource));
+    const std::string clean_requested_resource(strip_trailing_slash(requested_resource));
+    const std::string clean_new_resource(strip_trailing_slash(new_resource));
     m_redirects.insert(std::make_pair(clean_requested_resource, clean_new_resource));
     PION_LOG_INFO(m_logger, "Added redirection for HTTP resource " << clean_requested_resource << " to resource " << clean_new_resource);
 }
 
-void server::handleBadRequest(http::request_ptr& http_request_ptr,
+void server::handle_bad_request(http::request_ptr& http_request_ptr,
                                   tcp::connection_ptr& tcp_conn)
 {
     static const std::string BAD_REQUEST_HTML =
@@ -182,13 +182,13 @@ void server::handleBadRequest(http::request_ptr& http_request_ptr,
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
                                                             boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_BAD_REQUEST);
-    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_BAD_REQUEST);
-    writer->writeNoCopy(BAD_REQUEST_HTML);
+    writer->get_response().set_status_code(http::types::RESPONSE_CODE_BAD_REQUEST);
+    writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_BAD_REQUEST);
+    writer->write_no_copy(BAD_REQUEST_HTML);
     writer->send();
 }
 
-void server::handleNotFoundRequest(http::request_ptr& http_request_ptr,
+void server::handle_not_found_request(http::request_ptr& http_request_ptr,
                                        tcp::connection_ptr& tcp_conn)
 {
     static const std::string NOT_FOUND_HTML_START =
@@ -202,15 +202,15 @@ void server::handleNotFoundRequest(http::request_ptr& http_request_ptr,
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
                                                             boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_NOT_FOUND);
-    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_NOT_FOUND);
-    writer->writeNoCopy(NOT_FOUND_HTML_START);
-    writer << http_request_ptr->getResource();
-    writer->writeNoCopy(NOT_FOUND_HTML_FINISH);
+    writer->get_response().set_status_code(http::types::RESPONSE_CODE_NOT_FOUND);
+    writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NOT_FOUND);
+    writer->write_no_copy(NOT_FOUND_HTML_START);
+    writer << http_request_ptr->get_resource();
+    writer->write_no_copy(NOT_FOUND_HTML_FINISH);
     writer->send();
 }
 
-void server::handleServerError(http::request_ptr& http_request_ptr,
+void server::handle_server_error(http::request_ptr& http_request_ptr,
                                    tcp::connection_ptr& tcp_conn,
                                    const std::string& error_msg)
 {
@@ -225,15 +225,15 @@ void server::handleServerError(http::request_ptr& http_request_ptr,
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
                                                             boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_SERVER_ERROR);
-    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_SERVER_ERROR);
-    writer->writeNoCopy(SERVER_ERROR_HTML_START);
+    writer->get_response().set_status_code(http::types::RESPONSE_CODE_SERVER_ERROR);
+    writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_SERVER_ERROR);
+    writer->write_no_copy(SERVER_ERROR_HTML_START);
     writer << error_msg;
-    writer->writeNoCopy(SERVER_ERROR_HTML_FINISH);
+    writer->write_no_copy(SERVER_ERROR_HTML_FINISH);
     writer->send();
 }
 
-void server::handleForbiddenRequest(http::request_ptr& http_request_ptr,
+void server::handle_forbidden_request(http::request_ptr& http_request_ptr,
                                         tcp::connection_ptr& tcp_conn,
                                         const std::string& error_msg)
 {
@@ -250,17 +250,17 @@ void server::handleForbiddenRequest(http::request_ptr& http_request_ptr,
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
                                                             boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_FORBIDDEN);
-    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_FORBIDDEN);
-    writer->writeNoCopy(FORBIDDEN_HTML_START);
-    writer << http_request_ptr->getResource();
-    writer->writeNoCopy(FORBIDDEN_HTML_MIDDLE);
+    writer->get_response().set_status_code(http::types::RESPONSE_CODE_FORBIDDEN);
+    writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_FORBIDDEN);
+    writer->write_no_copy(FORBIDDEN_HTML_START);
+    writer << http_request_ptr->get_resource();
+    writer->write_no_copy(FORBIDDEN_HTML_MIDDLE);
     writer << error_msg;
-    writer->writeNoCopy(FORBIDDEN_HTML_FINISH);
+    writer->write_no_copy(FORBIDDEN_HTML_FINISH);
     writer->send();
 }
 
-void server::handleMethodNotAllowed(http::request_ptr& http_request_ptr,
+void server::handle_method_not_allowed(http::request_ptr& http_request_ptr,
                                         tcp::connection_ptr& tcp_conn,
                                         const std::string& allowed_methods)
 {
@@ -275,13 +275,13 @@ void server::handleMethodNotAllowed(http::request_ptr& http_request_ptr,
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
                                                             boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->getResponse().setStatusCode(http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
-    writer->getResponse().setStatusMessage(http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
+    writer->get_response().set_status_code(http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
+    writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
     if (! allowed_methods.empty())
-        writer->getResponse().addHeader("Allow", allowed_methods);
-    writer->writeNoCopy(NOT_ALLOWED_HTML_START);
-    writer << http_request_ptr->getMethod();
-    writer->writeNoCopy(NOT_ALLOWED_HTML_FINISH);
+        writer->get_response().add_header("Allow", allowed_methods);
+    writer->write_no_copy(NOT_ALLOWED_HTML_START);
+    writer << http_request_ptr->get_method();
+    writer->write_no_copy(NOT_ALLOWED_HTML_FINISH);
     writer->send();
 }
 

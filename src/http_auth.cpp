@@ -18,30 +18,30 @@ namespace http {    // begin namespace http
 
 // auth member functions
 
-void auth::addRestrict(const std::string& resource)
+void auth::add_restrict(const std::string& resource)
 {
     boost::mutex::scoped_lock resource_lock(m_resource_mutex);
-    const std::string clean_resource(http::server::stripTrailingSlash(resource));
+    const std::string clean_resource(http::server::strip_trailing_slash(resource));
     m_restrict_list.insert(clean_resource);
     PION_LOG_INFO(m_logger, "Set authentication restrictions for HTTP resource: " << clean_resource);
 }
 
-void auth::addPermit(const std::string& resource)
+void auth::add_permit(const std::string& resource)
 {
     boost::mutex::scoped_lock resource_lock(m_resource_mutex);
-    const std::string clean_resource(http::server::stripTrailingSlash(resource));
+    const std::string clean_resource(http::server::strip_trailing_slash(resource));
     m_white_list.insert(clean_resource);
     PION_LOG_INFO(m_logger, "Set authentication permission for HTTP resource: " << clean_resource);
 }
 
-bool auth::needAuthentication(const http::request_ptr& http_request_ptr) const
+bool auth::need_authentication(const http::request_ptr& http_request_ptr) const
 {
     // if no users are defined, authentication is never required
     if (m_user_manager->empty())
         return false;
     
     // strip off trailing slash if the request has one
-    std::string resource(http::server::stripTrailingSlash(http_request_ptr->getResource()));
+    std::string resource(http::server::strip_trailing_slash(http_request_ptr->get_resource()));
     
     boost::mutex::scoped_lock resource_lock(m_resource_mutex);
     
@@ -50,19 +50,19 @@ bool auth::needAuthentication(const http::request_ptr& http_request_ptr) const
         return false;
 
     // try to find resource in restricted list
-    if (findResource(m_restrict_list, resource)) {
+    if (find_resource(m_restrict_list, resource)) {
         // return true if white list is empty
         if (m_white_list.empty())
             return true;
         // return false if found in white list, or true if not found
-        return ( ! findResource(m_white_list, resource) );
+        return ( ! find_resource(m_white_list, resource) );
     }
     
     // resource not found in restricted list
     return false;
 }
 
-bool auth::findResource(const resource_set_type& resource_set,
+bool auth::find_resource(const resource_set_type& resource_set,
                             const std::string& resource) const
 {
     resource_set_type::const_iterator i = resource_set.upper_bound(resource);

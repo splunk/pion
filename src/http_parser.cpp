@@ -48,8 +48,8 @@ boost::tribool parser::parse(http::message& http_msg,
     boost::tribool rc = boost::indeterminate;
     std::size_t total_bytes_parsed = 0;
 
-    if(http_msg.hasMissingPackets()) {
-        http_msg.setDataAfterMissingPacket(true);
+    if(http_msg.has_missing_packets()) {
+        http_msg.set_data_after_missing_packet(true);
     }
 
     do {
@@ -61,34 +61,34 @@ boost::tribool parser::parse(http::message& http_msg,
 
             // parsing the HTTP headers
             case PARSE_HEADERS:
-                rc = parseHeaders(http_msg, ec);
+                rc = parse_headers(http_msg, ec);
                 total_bytes_parsed += m_bytes_last_read;
                 // check if we have finished parsing HTTP headers
                 if (rc == true) {
-                    // finishHeaderParsing() updates m_message_parse_state
-                    rc = finishHeaderParsing(http_msg, ec);
+                    // finish_header_parsing() updates m_message_parse_state
+                    rc = finish_header_parsing(http_msg, ec);
                 }
                 break;
 
             // parsing chunked payload content
             case PARSE_CHUNKS:
-                rc = parseChunks(http_msg.get_chunk_cache(), ec);
+                rc = parse_chunks(http_msg.get_chunk_cache(), ec);
                 total_bytes_parsed += m_bytes_last_read;
                 // check if we have finished parsing all chunks
                 if (rc == true && !m_payload_handler) {
-                    http_msg.concatenateChunks();
+                    http_msg.concatenate_chunks();
                 }
                 break;
 
             // parsing regular payload content with a known length
             case PARSE_CONTENT:
-                rc = consumeContent(http_msg, ec);
+                rc = consume_content(http_msg, ec);
                 total_bytes_parsed += m_bytes_last_read;
                 break;
 
             // parsing payload content with no length (until EOF)
             case PARSE_CONTENT_NO_LENGTH:
-                consumeContentAsNextChunk(http_msg.get_chunk_cache());
+                consume_content_as_next_chunk(http_msg.get_chunk_cache());
                 total_bytes_parsed += m_bytes_last_read;
                 break;
 
@@ -104,7 +104,7 @@ boost::tribool parser::parse(http::message& http_msg,
         m_message_parse_state = PARSE_END;
         finish(http_msg);
     } else if(rc == false) {
-        computeMsgStatus(http_msg, false);
+        compute_msg_status(http_msg, false);
     }
 
     // update bytes last read (aggregate individual operations for caller)
@@ -113,20 +113,20 @@ boost::tribool parser::parse(http::message& http_msg,
     return rc;
 }
 
-boost::tribool parser::parseMissingData(http::message& http_msg,
+boost::tribool parser::parse_missing_data(http::message& http_msg,
     std::size_t len, boost::system::error_code& ec)
 {
     static const char MISSING_DATA_CHAR = 'X';
     boost::tribool rc = boost::indeterminate;
 
-    http_msg.setMissingPackets(true);
+    http_msg.set_missing_packets(true);
 
     switch (m_message_parse_state) {
 
         // cannot recover from missing data while parsing HTTP headers
         case PARSE_START:
         case PARSE_HEADERS:
-            setError(ec, ERROR_MISSING_HEADER_DATA);
+            set_error(ec, ERROR_MISSING_HEADER_DATA);
             rc = false;
             break;
 
@@ -156,7 +156,7 @@ boost::tribool parser::parseMissingData(http::message& http_msg,
                 }
             } else {
                 // cannot recover from missing data
-                setError(ec, ERROR_MISSING_CHUNK_DATA);
+                set_error(ec, ERROR_MISSING_CHUNK_DATA);
                 rc = false;
             }
             break;
@@ -169,7 +169,7 @@ boost::tribool parser::parseMissingData(http::message& http_msg,
                 rc = true;
             } else if (m_bytes_content_remaining < len) {
                 // cannot recover from missing data
-                setError(ec, ERROR_MISSING_TOO_MUCH_CONTENT);
+                set_error(ec, ERROR_MISSING_TOO_MUCH_CONTENT);
                 rc = false;
             } else {
 
@@ -180,7 +180,7 @@ boost::tribool parser::parseMissingData(http::message& http_msg,
                 } else if ( (m_bytes_content_read+len) <= m_max_content_length) {
                     // use dummy content for missing data
                     for (std::size_t n = 0; n < len; ++n)
-                        http_msg.getContent()[m_bytes_content_read++] = MISSING_DATA_CHAR;
+                        http_msg.get_content()[m_bytes_content_read++] = MISSING_DATA_CHAR;
                 } else {
                     m_bytes_content_read += len;
                 }
@@ -220,13 +220,13 @@ boost::tribool parser::parseMissingData(http::message& http_msg,
         m_message_parse_state = PARSE_END;
         finish(http_msg);
     } else if(rc == false) {
-        computeMsgStatus(http_msg, false);
+        compute_msg_status(http_msg, false);
     }
 
     return rc;
 }
 
-boost::tribool parser::parseHeaders(http::message& http_msg,
+boost::tribool parser::parse_headers(http::message& http_msg,
     boost::system::error_code& ec)
 {
     //
@@ -247,8 +247,8 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
         case PARSE_METHOD_START:
             // we have not yet started parsing the HTTP method string
             if (*m_read_ptr != ' ' && *m_read_ptr!='\r' && *m_read_ptr!='\n') { // ignore leading whitespace
-                if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr)) {
-                    setError(ec, ERROR_METHOD_CHAR);
+                if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr)) {
+                    set_error(ec, ERROR_METHOD_CHAR);
                     return false;
                 }
                 m_headers_parse_state = PARSE_METHOD;
@@ -262,11 +262,11 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
             if (*m_read_ptr == ' ') {
                 m_resource.erase();
                 m_headers_parse_state = PARSE_URI_STEM;
-            } else if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr)) {
-                setError(ec, ERROR_METHOD_CHAR);
+            } else if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr)) {
+                set_error(ec, ERROR_METHOD_CHAR);
                 return false;
             } else if (m_method.size() >= METHOD_MAX) {
-                setError(ec, ERROR_METHOD_SIZE);
+                set_error(ec, ERROR_METHOD_SIZE);
                 return false;
             } else {
                 m_method.push_back(*m_read_ptr);
@@ -281,18 +281,18 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
                 m_query_string.erase();
                 m_headers_parse_state = PARSE_URI_QUERY;
             } else if (*m_read_ptr == '\r') {
-                http_msg.setVersionMajor(0);
-                http_msg.setVersionMinor(0);
+                http_msg.set_version_major(0);
+                http_msg.set_version_minor(0);
                 m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
             } else if (*m_read_ptr == '\n') {
-                http_msg.setVersionMajor(0);
-                http_msg.setVersionMinor(0);
+                http_msg.set_version_major(0);
+                http_msg.set_version_minor(0);
                 m_headers_parse_state = PARSE_EXPECTING_CR;
-            } else if (isControl(*m_read_ptr)) {
-                setError(ec, ERROR_URI_CHAR);
+            } else if (is_control(*m_read_ptr)) {
+                set_error(ec, ERROR_URI_CHAR);
                 return false;
             } else if (m_resource.size() >= RESOURCE_MAX) {
-                setError(ec, ERROR_URI_SIZE);
+                set_error(ec, ERROR_URI_SIZE);
                 return false;
             } else {
                 m_resource.push_back(*m_read_ptr);
@@ -304,18 +304,18 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
             if (*m_read_ptr == ' ') {
                 m_headers_parse_state = PARSE_HTTP_VERSION_H;
             } else if (*m_read_ptr == '\r') {
-                http_msg.setVersionMajor(0);
-                http_msg.setVersionMinor(0);
+                http_msg.set_version_major(0);
+                http_msg.set_version_minor(0);
                 m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
             } else if (*m_read_ptr == '\n') {
-                http_msg.setVersionMajor(0);
-                http_msg.setVersionMinor(0);
+                http_msg.set_version_major(0);
+                http_msg.set_version_minor(0);
                 m_headers_parse_state = PARSE_EXPECTING_CR;
-            } else if (isControl(*m_read_ptr)) {
-                setError(ec, ERROR_QUERY_CHAR);
+            } else if (is_control(*m_read_ptr)) {
+                set_error(ec, ERROR_QUERY_CHAR);
                 return false;
             } else if (m_query_string.size() >= QUERY_STRING_MAX) {
-                setError(ec, ERROR_QUERY_SIZE);
+                set_error(ec, ERROR_QUERY_SIZE);
                 return false;
             } else {
                 m_query_string.push_back(*m_read_ptr);
@@ -327,23 +327,23 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
             if (*m_read_ptr == '\r') {
                 // should only happen for requests (no HTTP/VERSION specified)
                 if (! m_is_request) {
-                    setError(ec, ERROR_VERSION_EMPTY);
+                    set_error(ec, ERROR_VERSION_EMPTY);
                     return false;
                 }
-                http_msg.setVersionMajor(0);
-                http_msg.setVersionMinor(0);
+                http_msg.set_version_major(0);
+                http_msg.set_version_minor(0);
                 m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
             } else if (*m_read_ptr == '\n') {
                 // should only happen for requests (no HTTP/VERSION specified)
                 if (! m_is_request) {
-                    setError(ec, ERROR_VERSION_EMPTY);
+                    set_error(ec, ERROR_VERSION_EMPTY);
                     return false;
                 }
-                http_msg.setVersionMajor(0);
-                http_msg.setVersionMinor(0);
+                http_msg.set_version_major(0);
+                http_msg.set_version_minor(0);
                 m_headers_parse_state = PARSE_EXPECTING_CR;
             } else if (*m_read_ptr != 'H') {
-                setError(ec, ERROR_VERSION_CHAR);
+                set_error(ec, ERROR_VERSION_CHAR);
                 return false;
             }
             m_headers_parse_state = PARSE_HTTP_VERSION_T_1;
@@ -352,7 +352,7 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
         case PARSE_HTTP_VERSION_T_1:
             // parsing "HTTP"
             if (*m_read_ptr != 'T') {
-                setError(ec, ERROR_VERSION_CHAR);
+                set_error(ec, ERROR_VERSION_CHAR);
                 return false;
             }
             m_headers_parse_state = PARSE_HTTP_VERSION_T_2;
@@ -361,7 +361,7 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
         case PARSE_HTTP_VERSION_T_2:
             // parsing "HTTP"
             if (*m_read_ptr != 'T') {
-                setError(ec, ERROR_VERSION_CHAR);
+                set_error(ec, ERROR_VERSION_CHAR);
                 return false;
             }
             m_headers_parse_state = PARSE_HTTP_VERSION_P;
@@ -370,7 +370,7 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
         case PARSE_HTTP_VERSION_P:
             // parsing "HTTP"
             if (*m_read_ptr != 'P') {
-                setError(ec, ERROR_VERSION_CHAR);
+                set_error(ec, ERROR_VERSION_CHAR);
                 return false;
             }
             m_headers_parse_state = PARSE_HTTP_VERSION_SLASH;
@@ -379,7 +379,7 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
         case PARSE_HTTP_VERSION_SLASH:
             // parsing slash after "HTTP"
             if (*m_read_ptr != '/') {
-                setError(ec, ERROR_VERSION_CHAR);
+                set_error(ec, ERROR_VERSION_CHAR);
                 return false;
             }
             m_headers_parse_state = PARSE_HTTP_VERSION_MAJOR_START;
@@ -387,11 +387,11 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
 
         case PARSE_HTTP_VERSION_MAJOR_START:
             // parsing the first digit of the major version number
-            if (!isDigit(*m_read_ptr)) {
-                setError(ec, ERROR_VERSION_CHAR);
+            if (!is_digit(*m_read_ptr)) {
+                set_error(ec, ERROR_VERSION_CHAR);
                 return false;
             }
-            http_msg.setVersionMajor(*m_read_ptr - '0');
+            http_msg.set_version_major(*m_read_ptr - '0');
             m_headers_parse_state = PARSE_HTTP_VERSION_MAJOR;
             break;
 
@@ -399,22 +399,22 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
             // parsing the major version number (not first digit)
             if (*m_read_ptr == '.') {
                 m_headers_parse_state = PARSE_HTTP_VERSION_MINOR_START;
-            } else if (isDigit(*m_read_ptr)) {
-                http_msg.setVersionMajor( (http_msg.getVersionMajor() * 10)
+            } else if (is_digit(*m_read_ptr)) {
+                http_msg.set_version_major( (http_msg.get_version_major() * 10)
                                           + (*m_read_ptr - '0') );
             } else {
-                setError(ec, ERROR_VERSION_CHAR);
+                set_error(ec, ERROR_VERSION_CHAR);
                 return false;
             }
             break;
 
         case PARSE_HTTP_VERSION_MINOR_START:
             // parsing the first digit of the minor version number
-            if (!isDigit(*m_read_ptr)) {
-                setError(ec, ERROR_VERSION_CHAR);
+            if (!is_digit(*m_read_ptr)) {
+                set_error(ec, ERROR_VERSION_CHAR);
                 return false;
             }
-            http_msg.setVersionMinor(*m_read_ptr - '0');
+            http_msg.set_version_minor(*m_read_ptr - '0');
             m_headers_parse_state = PARSE_HTTP_VERSION_MINOR;
             break;
 
@@ -428,30 +428,30 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
             } else if (*m_read_ptr == '\r') {
                 // should only happen for requests
                 if (! m_is_request) {
-                    setError(ec, ERROR_STATUS_EMPTY);
+                    set_error(ec, ERROR_STATUS_EMPTY);
                     return false;
                 }
                 m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
             } else if (*m_read_ptr == '\n') {
                 // should only happen for requests
                 if (! m_is_request) {
-                    setError(ec, ERROR_STATUS_EMPTY);
+                    set_error(ec, ERROR_STATUS_EMPTY);
                     return false;
                 }
                 m_headers_parse_state = PARSE_EXPECTING_CR;
-            } else if (isDigit(*m_read_ptr)) {
-                http_msg.setVersionMinor( (http_msg.getVersionMinor() * 10)
+            } else if (is_digit(*m_read_ptr)) {
+                http_msg.set_version_minor( (http_msg.get_version_minor() * 10)
                                           + (*m_read_ptr - '0') );
             } else {
-                setError(ec, ERROR_VERSION_CHAR);
+                set_error(ec, ERROR_VERSION_CHAR);
                 return false;
             }
             break;
 
         case PARSE_STATUS_CODE_START:
             // parsing the first digit of the response status code
-            if (!isDigit(*m_read_ptr)) {
-                setError(ec, ERROR_STATUS_CHAR);
+            if (!is_digit(*m_read_ptr)) {
+                set_error(ec, ERROR_STATUS_CHAR);
                 return false;
             }
             m_status_code = (*m_read_ptr - '0');
@@ -463,7 +463,7 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
             if (*m_read_ptr == ' ') {
                 m_status_message.erase();
                 m_headers_parse_state = PARSE_STATUS_MESSAGE;
-            } else if (isDigit(*m_read_ptr)) {
+            } else if (is_digit(*m_read_ptr)) {
                 m_status_code = ( (m_status_code * 10) + (*m_read_ptr - '0') );
             } else if (*m_read_ptr == '\r') {
                 // recover from status message not sent
@@ -474,7 +474,7 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
                 m_status_message.erase();
                 m_headers_parse_state = PARSE_EXPECTING_CR;
             } else {
-                setError(ec, ERROR_STATUS_CHAR);
+                set_error(ec, ERROR_STATUS_CHAR);
                 return false;
             }
             break;
@@ -485,11 +485,11 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
                 m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
             } else if (*m_read_ptr == '\n') {
                 m_headers_parse_state = PARSE_EXPECTING_CR;
-            } else if (isControl(*m_read_ptr)) {
-                setError(ec, ERROR_STATUS_CHAR);
+            } else if (is_control(*m_read_ptr)) {
+                set_error(ec, ERROR_STATUS_CHAR);
                 return false;
             } else if (m_status_message.size() >= STATUS_MESSAGE_MAX) {
-                setError(ec, ERROR_STATUS_CHAR);
+                set_error(ec, ERROR_STATUS_CHAR);
                 return false;
             } else {
                 m_status_message.push_back(*m_read_ptr);
@@ -510,8 +510,8 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
                 return true;
             } else if (*m_read_ptr == '\t' || *m_read_ptr == ' ') {
                 m_headers_parse_state = PARSE_HEADER_WHITESPACE;
-            } else if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr)) {
-                setError(ec, ERROR_HEADER_CHAR);
+            } else if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr)) {
+                set_error(ec, ERROR_HEADER_CHAR);
                 return false;
             } else {
                 // assume it is the first character for the name of a header
@@ -535,8 +535,8 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
                 return true;
             } else if (*m_read_ptr == '\t' || *m_read_ptr == ' ') {
                 m_headers_parse_state = PARSE_HEADER_WHITESPACE;
-            } else if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr)) {
-                setError(ec, ERROR_HEADER_CHAR);
+            } else if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr)) {
+                set_error(ec, ERROR_HEADER_CHAR);
                 return false;
             } else {
                 // assume it is the first character for the name of a header
@@ -553,8 +553,8 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
             } else if (*m_read_ptr == '\n') {
                 m_headers_parse_state = PARSE_EXPECTING_CR;
             } else if (*m_read_ptr != '\t' && *m_read_ptr != ' ') {
-                if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr))
-                    setError(ec, ERROR_HEADER_CHAR);
+                if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr))
+                    set_error(ec, ERROR_HEADER_CHAR);
                     return false;
                 // assume it is the first character for the name of a header
                 m_header_name.erase();
@@ -571,8 +571,8 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
                 m_headers_parse_state = PARSE_EXPECTING_FINAL_CR;
             } else if (*m_read_ptr == '\t' || *m_read_ptr == ' ') {
                 m_headers_parse_state = PARSE_HEADER_WHITESPACE;
-            } else if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr)) {
-                setError(ec, ERROR_HEADER_CHAR);
+            } else if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr)) {
+                set_error(ec, ERROR_HEADER_CHAR);
                 return false;
             } else {
                 // first character for the name of a header
@@ -587,11 +587,11 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
             if (*m_read_ptr == ':') {
                 m_header_value.erase();
                 m_headers_parse_state = PARSE_SPACE_BEFORE_HEADER_VALUE;
-            } else if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr)) {
-                setError(ec, ERROR_HEADER_CHAR);
+            } else if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr)) {
+                set_error(ec, ERROR_HEADER_CHAR);
                 return false;
             } else if (m_header_name.size() >= HEADER_NAME_MAX) {
-                setError(ec, ERROR_HEADER_NAME_SIZE);
+                set_error(ec, ERROR_HEADER_NAME_SIZE);
                 return false;
             } else {
                 // character (not first) for the name of a header
@@ -604,13 +604,13 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
             if (*m_read_ptr == ' ') {
                 m_headers_parse_state = PARSE_HEADER_VALUE;
             } else if (*m_read_ptr == '\r') {
-                http_msg.addHeader(m_header_name, m_header_value);
+                http_msg.add_header(m_header_name, m_header_value);
                 m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
             } else if (*m_read_ptr == '\n') {
-                http_msg.addHeader(m_header_name, m_header_value);
+                http_msg.add_header(m_header_name, m_header_value);
                 m_headers_parse_state = PARSE_EXPECTING_CR;
-            } else if (!isChar(*m_read_ptr) || isControl(*m_read_ptr) || isSpecial(*m_read_ptr)) {
-                setError(ec, ERROR_HEADER_CHAR);
+            } else if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr)) {
+                set_error(ec, ERROR_HEADER_CHAR);
                 return false;
             } else {
                 // assume it is the first character for the value of a header
@@ -622,22 +622,22 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
         case PARSE_HEADER_VALUE:
             // parsing the value of a header
             if (*m_read_ptr == '\r') {
-                http_msg.addHeader(m_header_name, m_header_value);
+                http_msg.add_header(m_header_name, m_header_value);
                 m_headers_parse_state = PARSE_EXPECTING_NEWLINE;
             } else if (*m_read_ptr == '\n') {
-                http_msg.addHeader(m_header_name, m_header_value);
+                http_msg.add_header(m_header_name, m_header_value);
                 m_headers_parse_state = PARSE_EXPECTING_CR;
-            } else if (*m_read_ptr != '\t' && isControl(*m_read_ptr)) {
+            } else if (*m_read_ptr != '\t' && is_control(*m_read_ptr)) {
                 // RFC 2616, 2.2 basic Rules.
                 // TEXT = <any OCTET except CTLs, but including LWS>
                 // LWS  = [CRLF] 1*( SP | HT )
                 //
                 // TODO: parsing of folding LWS in multiple lines headers
                 //       doesn't work properly still
-                setError(ec, ERROR_HEADER_CHAR);
+                set_error(ec, ERROR_HEADER_CHAR);
                 return false;
             } else if (m_header_value.size() >= HEADER_VALUE_MAX) {
-                setError(ec, ERROR_HEADER_VALUE_SIZE);
+                set_error(ec, ERROR_HEADER_VALUE_SIZE);
                 return false;
             } else {
                 // character (not first) for the value of a header
@@ -666,20 +666,20 @@ boost::tribool parser::parseHeaders(http::message& http_msg,
     return boost::indeterminate;
 }
 
-void parser::updateMessageWithHeaderData(http::message& http_msg) const
+void parser::update_message_with_header_data(http::message& http_msg) const
 {
-    if (isParsingRequest()) {
+    if (is_parsing_request()) {
 
         // finish an HTTP request message
 
         http::request& http_request(dynamic_cast<http::request&>(http_msg));
-        http_request.setMethod(m_method);
-        http_request.setResource(m_resource);
-        http_request.setQueryString(m_query_string);
+        http_request.set_method(m_method);
+        http_request.set_resource(m_resource);
+        http_request.set_query_string(m_query_string);
 
         // parse query pairs from the URI query string
         if (! m_query_string.empty()) {
-            if (! parseURLEncoded(http_request.get_queries(),
+            if (! parse_url_encoded(http_request.get_queries(),
                                   m_query_string.c_str(),
                                   m_query_string.size())) 
                 PION_LOG_WARN(m_logger, "Request query string parsing failed (URI)");
@@ -692,7 +692,7 @@ void parser::updateMessageWithHeaderData(http::message& http_msg) const
              cookie_iterator != http_request.get_headers().end()
              && cookie_iterator != cookie_pair.second; ++cookie_iterator)
         {
-            if (! parseCookieHeader(http_request.get_cookies(),
+            if (! parse_cookie_header(http_request.get_cookies(),
                                     cookie_iterator->second, false) )
                 PION_LOG_WARN(m_logger, "Cookie header parsing failed");
         }
@@ -702,8 +702,8 @@ void parser::updateMessageWithHeaderData(http::message& http_msg) const
         // finish an HTTP response message
 
         http::response& http_response(dynamic_cast<http::response&>(http_msg));
-        http_response.setStatusCode(m_status_code);
-        http_response.setStatusMessage(m_status_message);
+        http_response.set_status_code(m_status_code);
+        http_response.set_status_message(m_status_message);
 
         // parse "Set-Cookie" headers in response
         std::pair<ihash_multimap::const_iterator, ihash_multimap::const_iterator>
@@ -712,7 +712,7 @@ void parser::updateMessageWithHeaderData(http::message& http_msg) const
              cookie_iterator != http_response.get_headers().end()
              && cookie_iterator != cookie_pair.second; ++cookie_iterator)
         {
-            if (! parseCookieHeader(http_response.get_cookies(),
+            if (! parse_cookie_header(http_response.get_cookies(),
                                     cookie_iterator->second, true) )
                 PION_LOG_WARN(m_logger, "Set-Cookie header parsing failed");
         }
@@ -720,17 +720,17 @@ void parser::updateMessageWithHeaderData(http::message& http_msg) const
     }
 }
 
-boost::tribool parser::finishHeaderParsing(http::message& http_msg,
+boost::tribool parser::finish_header_parsing(http::message& http_msg,
     boost::system::error_code& ec)
 {
     boost::tribool rc = boost::indeterminate;
 
     m_bytes_content_remaining = m_bytes_content_read = 0;
-    http_msg.setContentLength(0);
-    http_msg.updateTransferCodingUsingHeader();
-    updateMessageWithHeaderData(http_msg);
+    http_msg.set_content_length(0);
+    http_msg.update_transfer_encoding_using_header();
+    update_message_with_header_data(http_msg);
 
-    if (http_msg.isChunked()) {
+    if (http_msg.is_chunked()) {
 
         // content is encoded using chunks
         m_message_parse_state = PARSE_CHUNKS;
@@ -739,7 +739,7 @@ boost::tribool parser::finishHeaderParsing(http::message& http_msg,
         if (m_parse_headers_only)
             rc = true;
 
-    } else if (http_msg.isContentLengthImplied()) {
+    } else if (http_msg.is_content_length_implied()) {
 
         // content length is implied to be zero
         m_message_parse_state = PARSE_END;
@@ -748,31 +748,31 @@ boost::tribool parser::finishHeaderParsing(http::message& http_msg,
     } else {
         // content length should be specified in the headers
 
-        if (http_msg.hasHeader(http::types::HEADER_CONTENT_LENGTH)) {
+        if (http_msg.has_header(http::types::HEADER_CONTENT_LENGTH)) {
 
             // message has a content-length header
             try {
-                http_msg.updateContentLengthUsingHeader();
+                http_msg.update_content_length_using_header();
             } catch (...) {
                 PION_LOG_ERROR(m_logger, "Unable to update content length");
-                setError(ec, ERROR_INVALID_CONTENT_LENGTH);
+                set_error(ec, ERROR_INVALID_CONTENT_LENGTH);
                 return false;
             }
 
             // check if content-length header == 0
-            if (http_msg.getContentLength() == 0) {
+            if (http_msg.get_content_length() == 0) {
                 m_message_parse_state = PARSE_END;
                 rc = true;
             } else {
                 m_message_parse_state = PARSE_CONTENT;
-                m_bytes_content_remaining = http_msg.getContentLength();
+                m_bytes_content_remaining = http_msg.get_content_length();
 
                 // check if content-length exceeds maximum allowed
                 if (m_bytes_content_remaining > m_max_content_length)
-                    http_msg.setContentLength(m_max_content_length);
+                    http_msg.set_content_length(m_max_content_length);
 
                 // allocate a buffer for payload content (may be zero-size)
-                http_msg.createContentBuffer();
+                http_msg.create_content_buffer();
                 
                 // return true if parsing headers only
                 if (m_parse_headers_only)
@@ -801,12 +801,76 @@ boost::tribool parser::finishHeaderParsing(http::message& http_msg,
         }
     }
 
-    finishedParsingHeaders(ec);
+    finished_parsing_headers(ec);
     
     return rc;
 }
+    
+bool parser::parse_uri(const std::string& uri, std::string& proto, 
+                      std::string& host, boost::uint16_t& port,
+                      std::string& path, std::string& query)
+{
+    size_t proto_end = uri.find("://");
+    size_t proto_len = 0;
+    
+    if(proto_end != std::string::npos) {
+        proto = uri.substr(0, proto_end);
+        proto_len = proto_end + 3; // add ://
+    } else {
+        proto.clear();
+    }
+    
+    // find a first slash charact
+    // that indicates the end of the <server>:<port> part
+    size_t server_port_end = uri.find('/', proto_len);
+    if(server_port_end == std::string::npos) {
+        return false;
+    }
+    
+    // copy <server>:<port> into temp string
+    std::string t; 
+    t = uri.substr(proto_len, server_port_end - proto_len);
+    size_t port_pos = t.find(':', 0);
+    
+    // assign output host and port parameters
+    
+    host = t.substr(0, port_pos); // if port_pos == npos, copy whole string
+    if(host.length() == 0) {
+        return false;
+    }
+    
+    // parse the port, if it's not empty
+    if(port_pos != std::string::npos) {
+        try {
+            port = boost::lexical_cast<int>(t.substr(port_pos+1));
+        } catch (boost::bad_lexical_cast &) {
+            return false;
+        }
+    } else if (proto == "http" || proto == "HTTP") {
+        port = 80;
+    } else if (proto == "https" || proto == "HTTPS") {
+        port = 443;
+    } else {
+        port = 0;
+    }
+    
+    // copy the rest of the URI into path part
+    path = uri.substr(server_port_end);
+    
+    // split the path and the query string parts
+    size_t query_pos = path.find('?', 0);
+    
+    if(query_pos != std::string::npos) {
+        query = path.substr(query_pos + 1, path.length() - query_pos - 1);
+        path = path.substr(0, query_pos);
+    } else {
+        query.clear();
+    }
+    
+    return true;
+}
 
-bool parser::parseURLEncoded(ihash_multimap& dict,
+bool parser::parse_url_encoded(ihash_multimap& dict,
                                  const char *ptr, const size_t len)
 {
     // used to track whether we are parsing the name or value
@@ -837,7 +901,7 @@ bool parser::parseURLEncoded(ihash_multimap& dict,
                 }
             } else if (*ptr == '\r' || *ptr == '\n' || *ptr == '\t') {
                 // ignore linefeeds, carriage return and tabs (normally within POST content)
-            } else if (isControl(*ptr) || query_name.size() >= QUERY_NAME_MAX) {
+            } else if (is_control(*ptr) || query_name.size() >= QUERY_NAME_MAX) {
                 // control character detected, or max sized exceeded
                 return false;
             } else {
@@ -858,7 +922,7 @@ bool parser::parseURLEncoded(ihash_multimap& dict,
                 parse_state = QUERY_PARSE_NAME;
             } else if (*ptr == '\r' || *ptr == '\n' || *ptr == '\t') {
                 // ignore linefeeds, carriage return and tabs (normally within POST content)
-            } else if (isControl(*ptr) || query_value.size() >= QUERY_VALUE_MAX) {
+            } else if (is_control(*ptr) || query_value.size() >= QUERY_VALUE_MAX) {
                 // control character detected, or max sized exceeded
                 return false;
             } else {
@@ -878,7 +942,7 @@ bool parser::parseURLEncoded(ihash_multimap& dict,
     return true;
 }
 
-bool parser::parseCookieHeader(ihash_multimap& dict,
+bool parser::parse_cookie_header(ihash_multimap& dict,
                                    const char *ptr, const size_t len,
                                    bool set_cookie_header)
 {
@@ -914,13 +978,13 @@ bool parser::parseCookieHeader(ihash_multimap& dict,
                 // when quoted values are encountered
                 if (! cookie_name.empty()) {
                     // value is empty (OK)
-                    if (! isCookieAttribute(cookie_name, set_cookie_header))
+                    if (! is_cookie_attribute(cookie_name, set_cookie_header))
                         dict.insert( std::make_pair(cookie_name, cookie_value) );
                     cookie_name.erase();
                 }
             } else if (*ptr != ' ') {   // ignore whitespace
                 // check if control character detected, or max sized exceeded
-                if (isControl(*ptr) || cookie_name.size() >= COOKIE_NAME_MAX)
+                if (is_control(*ptr) || cookie_name.size() >= COOKIE_NAME_MAX)
                     return false;
                 // character is part of the name
                 cookie_name.push_back(*ptr);
@@ -933,7 +997,7 @@ bool parser::parseCookieHeader(ihash_multimap& dict,
                 // value is not (yet) quoted
                 if (*ptr == ';' || *ptr == ',') {
                     // end of value found (OK if empty)
-                    if (! isCookieAttribute(cookie_name, set_cookie_header))
+                    if (! is_cookie_attribute(cookie_name, set_cookie_header))
                         dict.insert( std::make_pair(cookie_name, cookie_value) );
                     cookie_name.erase();
                     cookie_value.erase();
@@ -951,7 +1015,7 @@ bool parser::parseCookieHeader(ihash_multimap& dict,
                     }
                 } else if (*ptr != ' ' || !cookie_value.empty()) {  // ignore leading unquoted whitespace
                     // check if control character detected, or max sized exceeded
-                    if (isControl(*ptr) || cookie_value.size() >= COOKIE_VALUE_MAX)
+                    if (is_control(*ptr) || cookie_value.size() >= COOKIE_VALUE_MAX)
                         return false;
                     // character is part of the (unquoted) value
                     cookie_value.push_back(*ptr);
@@ -960,7 +1024,7 @@ bool parser::parseCookieHeader(ihash_multimap& dict,
                 // value is quoted
                 if (*ptr == value_quote_character) {
                     // end of value found (OK if empty)
-                    if (! isCookieAttribute(cookie_name, set_cookie_header))
+                    if (! is_cookie_attribute(cookie_name, set_cookie_header))
                         dict.insert( std::make_pair(cookie_name, cookie_value) );
                     cookie_name.erase();
                     cookie_value.erase();
@@ -986,13 +1050,13 @@ bool parser::parseCookieHeader(ihash_multimap& dict,
     }
 
     // handle last cookie in string
-    if (! isCookieAttribute(cookie_name, set_cookie_header))
+    if (! is_cookie_attribute(cookie_name, set_cookie_header))
         dict.insert( std::make_pair(cookie_name, cookie_value) );
 
     return true;
 }
 
-boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
+boost::tribool parser::parse_chunks(http::message::chunk_cache_t& chunks,
     boost::system::error_code& ec)
 {
     //
@@ -1009,7 +1073,7 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
         switch (m_chunked_content_parse_state) {
         case PARSE_CHUNK_SIZE_START:
             // we have not yet started parsing the next chunk size
-            if (isHexDigit(*m_read_ptr)) {
+            if (is_hex_digit(*m_read_ptr)) {
                 m_chunk_size_str.erase();
                 m_chunk_size_str.push_back(*m_read_ptr);
                 m_chunked_content_parse_state = PARSE_CHUNK_SIZE;
@@ -1018,13 +1082,13 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
                 // but we'll be flexible, since there's no ambiguity.
                 break;
             } else {
-                setError(ec, ERROR_CHUNK_CHAR);
+                set_error(ec, ERROR_CHUNK_CHAR);
                 return false;
             }
             break;
 
         case PARSE_CHUNK_SIZE:
-            if (isHexDigit(*m_read_ptr)) {
+            if (is_hex_digit(*m_read_ptr)) {
                 m_chunk_size_str.push_back(*m_read_ptr);
             } else if (*m_read_ptr == '\x0D') {
                 m_chunked_content_parse_state = PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE;
@@ -1033,7 +1097,7 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
                 // but we'll be flexible, since there's no ambiguity.
                 m_chunked_content_parse_state = PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE;
             } else {
-                setError(ec, ERROR_CHUNK_CHAR);
+                set_error(ec, ERROR_CHUNK_CHAR);
                 return false;
             }
             break;
@@ -1046,7 +1110,7 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
                 // but we'll be flexible, since there's no ambiguity.
                 break;
             } else {
-                setError(ec, ERROR_CHUNK_CHAR);
+                set_error(ec, ERROR_CHUNK_CHAR);
                 return false;
             }
             break;
@@ -1063,7 +1127,7 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
                     m_chunked_content_parse_state = PARSE_CHUNK;
                 }
             } else {
-                setError(ec, ERROR_CHUNK_CHAR);
+                set_error(ec, ERROR_CHUNK_CHAR);
                 return false;
             }
             break;
@@ -1092,7 +1156,7 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
             if (*m_read_ptr == '\x0D') {
                 m_chunked_content_parse_state = PARSE_EXPECTING_LF_AFTER_CHUNK;
             } else {
-                setError(ec, ERROR_CHUNK_CHAR);
+                set_error(ec, ERROR_CHUNK_CHAR);
                 return false;
             }
             break;
@@ -1102,7 +1166,7 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
             if (*m_read_ptr == '\x0A') {
                 m_chunked_content_parse_state = PARSE_CHUNK_SIZE_START;
             } else {
-                setError(ec, ERROR_CHUNK_CHAR);
+                set_error(ec, ERROR_CHUNK_CHAR);
                 return false;
             }
             break;
@@ -1112,7 +1176,7 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
             if (*m_read_ptr == '\x0D') {
                 m_chunked_content_parse_state = PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK;
             } else {
-                setError(ec, ERROR_CHUNK_CHAR);
+                set_error(ec, ERROR_CHUNK_CHAR);
                 return false;
             }
             break;
@@ -1127,7 +1191,7 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
                 PION_LOG_DEBUG(m_logger, "Parsed " << m_bytes_last_read << " chunked payload content bytes; chunked content complete.");
                 return true;
             } else {
-                setError(ec, ERROR_CHUNK_CHAR);
+                set_error(ec, ERROR_CHUNK_CHAR);
                 return false;
             }
         }
@@ -1141,7 +1205,7 @@ boost::tribool parser::parseChunks(http::message::chunk_cache_t& chunks,
     return boost::indeterminate;
 }
 
-boost::tribool parser::consumeContent(http::message& http_msg,
+boost::tribool parser::consume_content(http::message& http_msg,
     boost::system::error_code& ec)
 {
     size_t content_bytes_to_read;
@@ -1170,11 +1234,11 @@ boost::tribool parser::consumeContent(http::message& http_msg,
         if (m_bytes_content_read + content_bytes_to_read > m_max_content_length) {
             // read would exceed maximum size for content buffer
             // copy only enough bytes to fill up the content buffer
-            memcpy(http_msg.getContent() + m_bytes_content_read, m_read_ptr, 
+            memcpy(http_msg.get_content() + m_bytes_content_read, m_read_ptr, 
                 m_max_content_length - m_bytes_content_read);
         } else {
             // copy all bytes available
-            memcpy(http_msg.getContent() + m_bytes_content_read, m_read_ptr, content_bytes_to_read);
+            memcpy(http_msg.get_content() + m_bytes_content_read, m_read_ptr, content_bytes_to_read);
         }
     }
 
@@ -1186,7 +1250,7 @@ boost::tribool parser::consumeContent(http::message& http_msg,
     return rc;
 }
 
-std::size_t parser::consumeContentAsNextChunk(http::message::chunk_cache_t& chunks)
+std::size_t parser::consume_content_as_next_chunk(http::message::chunk_cache_t& chunks)
 {
     if (bytes_available() == 0) {
         m_bytes_last_read = 0;
@@ -1212,67 +1276,67 @@ void parser::finish(http::message& http_msg) const
 {
     switch (m_message_parse_state) {
     case PARSE_START:
-        http_msg.setIsValid(false);
-        http_msg.setContentLength(0);
-        http_msg.createContentBuffer();
+        http_msg.set_is_valid(false);
+        http_msg.set_content_length(0);
+        http_msg.create_content_buffer();
         return;
     case PARSE_END:
-        http_msg.setIsValid(true);
+        http_msg.set_is_valid(true);
         break;
     case PARSE_HEADERS:
-        http_msg.setIsValid(false);
-        updateMessageWithHeaderData(http_msg);
-        http_msg.setContentLength(0);
-        http_msg.createContentBuffer();
+        http_msg.set_is_valid(false);
+        update_message_with_header_data(http_msg);
+        http_msg.set_content_length(0);
+        http_msg.create_content_buffer();
         break;
     case PARSE_CONTENT:
-        http_msg.setIsValid(false);
-        if (getContentBytesRead() < m_max_content_length)   // NOTE: we can read more than we have allocated/stored
-            http_msg.setContentLength(getContentBytesRead());
+        http_msg.set_is_valid(false);
+        if (get_content_bytes_read() < m_max_content_length)   // NOTE: we can read more than we have allocated/stored
+            http_msg.set_content_length(get_content_bytes_read());
         break;
     case PARSE_CHUNKS:
-        http_msg.setIsValid(m_chunked_content_parse_state==PARSE_CHUNK_SIZE_START);
+        http_msg.set_is_valid(m_chunked_content_parse_state==PARSE_CHUNK_SIZE_START);
         if (!m_payload_handler)
-            http_msg.concatenateChunks();
+            http_msg.concatenate_chunks();
         break;
     case PARSE_CONTENT_NO_LENGTH:
-        http_msg.setIsValid(true);
+        http_msg.set_is_valid(true);
         if (!m_payload_handler)
-            http_msg.concatenateChunks();
+            http_msg.concatenate_chunks();
         break;
     }
 
-    computeMsgStatus(http_msg, http_msg.isValid());
+    compute_msg_status(http_msg, http_msg.is_valid());
 
-    if (isParsingRequest() && !m_payload_handler) {
+    if (is_parsing_request() && !m_payload_handler) {
         // Parse query pairs from post content if content type is x-www-form-urlencoded.
         // Type could be followed by parameters (as defined in section 3.6 of RFC 2616)
         // e.g. Content-Type: application/x-www-form-urlencoded; charset=UTF-8
         http::request& http_request(dynamic_cast<http::request&>(http_msg));
-        const std::string& content_type_header = http_request.getHeader(http::types::HEADER_CONTENT_TYPE);
+        const std::string& content_type_header = http_request.get_header(http::types::HEADER_CONTENT_TYPE);
         if (content_type_header.compare(0, http::types::CONTENT_TYPE_URLENCODED.length(),
                                         http::types::CONTENT_TYPE_URLENCODED) == 0)
         {
-            if (! parseURLEncoded(http_request.get_queries(),
-                                  http_request.getContent(),
-                                  http_request.getContentLength())) 
+            if (! parse_url_encoded(http_request.get_queries(),
+                                  http_request.get_content(),
+                                  http_request.get_content_length())) 
                 PION_LOG_WARN(m_logger, "Request query string parsing failed (POST content)");
         }
     }
 }
 
-void parser::computeMsgStatus(http::message& http_msg, bool msg_parsed_ok )
+void parser::compute_msg_status(http::message& http_msg, bool msg_parsed_ok )
 {
     http::message::data_status_t st = http::message::STATUS_NONE;
 
-    if(http_msg.hasMissingPackets()) {
-        st = http_msg.hasDataAfterMissingPackets() ?
+    if(http_msg.has_missing_packets()) {
+        st = http_msg.has_data_after_missing_packets() ?
                         http::message::STATUS_PARTIAL : http::message::STATUS_TRUNCATED;
     } else {
         st = msg_parsed_ok ? http::message::STATUS_OK : http::message::STATUS_TRUNCATED;
     }
 
-    http_msg.setStatus(st);
+    http_msg.set_status(st);
 }
 
 void parser::create_error_category(void)
@@ -1281,7 +1345,7 @@ void parser::create_error_category(void)
     m_error_category_ptr = &UNIQUE_ERROR_CATEGORY;
 }
 
-bool parser::parseForwardedFor(const std::string& header, std::string& public_ip)
+bool parser::parse_forwarded_for(const std::string& header, std::string& public_ip)
 {
     // static regex's used to check for ipv4 address
     static const boost::regex IPV4_ADDR_RX("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");

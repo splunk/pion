@@ -45,7 +45,7 @@ void plugin::create_plugin_config(void)
     m_config_ptr = &UNIQUE_PION_PLUGIN_CONFIG;
 }
 
-void plugin::checkCygwinPath(boost::filesystem::path& final_path,
+void plugin::check_cygwin_path(boost::filesystem::path& final_path,
                                  const std::string& start_path)
 {
 #if defined(PION_WIN32) && defined(PION_CYGWIN_DIRECTORY)
@@ -56,10 +56,10 @@ void plugin::checkCygwinPath(boost::filesystem::path& final_path,
 #endif
 }
 
-void plugin::addPluginDirectory(const std::string& dir)
+void plugin::add_plugin_directory(const std::string& dir)
 {
     boost::filesystem::path plugin_path = boost::filesystem::system_complete(dir);
-    checkCygwinPath(plugin_path, dir);
+    check_cygwin_path(plugin_path, dir);
     if (! boost::filesystem::exists(plugin_path) )
         BOOST_THROW_EXCEPTION( error::directory_not_found() << error::errinfo_dir_name(dir) );
     config_type& cfg = get_plugin_config();
@@ -72,7 +72,7 @@ void plugin::addPluginDirectory(const std::string& dir)
     
 }
 
-void plugin::resetPluginDirectories(void)
+void plugin::reset_plugin_directories(void)
 {
     config_type& cfg = get_plugin_config();
     boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
@@ -87,7 +87,7 @@ void plugin::open(const std::string& plugin_name)
         boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
         map_type::iterator itr = cfg.m_plugin_map.find(plugin_name);
         if (itr != cfg.m_plugin_map.end()) {
-            releaseData();  // make sure we're not already pointing to something
+            release_data();  // make sure we're not already pointing to something
             m_plugin_data = itr->second;
             ++ m_plugin_data->m_references;
             return;
@@ -97,18 +97,18 @@ void plugin::open(const std::string& plugin_name)
     // nope, look for shared library file
     std::string plugin_file;
 
-    if (!findPluginFile(plugin_file, plugin_name))
+    if (!find_plugin_file(plugin_file, plugin_name))
         BOOST_THROW_EXCEPTION( error::plugin_not_found() << error::errinfo_plugin_name(plugin_name) );
         
-    openFile(plugin_file);
+    open_file(plugin_file);
 }
 
-void plugin::openFile(const std::string& plugin_file)
+void plugin::open_file(const std::string& plugin_file)
 {
-    releaseData();  // make sure we're not already pointing to something
+    release_data();  // make sure we're not already pointing to something
     
-    // use a temporary object first since openPlugin() may throw
-    data_type plugin_data(getPluginName(plugin_file));
+    // use a temporary object first since open_plugin() may throw
+    data_type plugin_data(get_plugin_name(plugin_file));
     
     // check to see if we already have a matching shared library
     config_type& cfg = get_plugin_config();
@@ -118,7 +118,7 @@ void plugin::openFile(const std::string& plugin_file)
         // no plug-ins found with the same name
         
         // open up the shared library using our temporary data object
-        openPlugin(plugin_file, plugin_data);   // may throw
+        open_plugin(plugin_file, plugin_data);   // may throw
         
         // all is good -> insert it into the plug-in map
         m_plugin_data = new data_type(plugin_data);
@@ -133,7 +133,7 @@ void plugin::openFile(const std::string& plugin_file)
     ++ m_plugin_data->m_references;
 }
 
-void plugin::releaseData(void)
+void plugin::release_data(void)
 {
     if (m_plugin_data != NULL) {
         config_type& cfg = get_plugin_config();
@@ -146,7 +146,7 @@ void plugin::releaseData(void)
             if (m_plugin_data->m_lib_handle != NULL) {
             
                 // release the shared object
-                closeDynamicLibrary(m_plugin_data->m_lib_handle);
+                close_dynamic_library(m_plugin_data->m_lib_handle);
             
                 // remove it from the plug-in map
                 map_type::iterator itr = cfg.m_plugin_map.find(m_plugin_data->m_plugin_name);
@@ -162,9 +162,9 @@ void plugin::releaseData(void)
     }
 }
 
-void plugin::grabData(const plugin& p)
+void plugin::grab_data(const plugin& p)
 {
-    releaseData();  // make sure we're not already pointing to something
+    release_data();  // make sure we're not already pointing to something
     config_type& cfg = get_plugin_config();
     boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
     m_plugin_data = const_cast<data_type*>(p.m_plugin_data);
@@ -173,11 +173,11 @@ void plugin::grabData(const plugin& p)
     }
 }
 
-bool plugin::findFile(std::string& path_to_file, const std::string& name,
+bool plugin::find_file(std::string& path_to_file, const std::string& name,
                           const std::string& extension)
 {
     // first, try the name as-is
-    if (checkForFile(path_to_file, name, "", extension))
+    if (check_for_file(path_to_file, name, "", extension))
         return true;
 
     // nope, check search paths
@@ -186,7 +186,7 @@ bool plugin::findFile(std::string& path_to_file, const std::string& name,
     for (std::vector<std::string>::iterator i = cfg.m_plugin_dirs.begin();
          i != cfg.m_plugin_dirs.end(); ++i)
     {
-        if (checkForFile(path_to_file, *i, name, extension))
+        if (check_for_file(path_to_file, *i, name, extension))
             return true;
     }
     
@@ -194,12 +194,12 @@ bool plugin::findFile(std::string& path_to_file, const std::string& name,
     return false;
 }
 
-bool plugin::checkForFile(std::string& final_path, const std::string& start_path,
+bool plugin::check_for_file(std::string& final_path, const std::string& start_path,
                               const std::string& name, const std::string& extension)
 {
     // check for cygwin path oddities
     boost::filesystem::path cygwin_safe_path(start_path);
-    checkCygwinPath(cygwin_safe_path, start_path);
+    check_cygwin_path(cygwin_safe_path, start_path);
     boost::filesystem::path test_path(cygwin_safe_path);
 
     // if a name is specified, append it to the test path
@@ -224,7 +224,7 @@ bool plugin::checkForFile(std::string& final_path, const std::string& start_path
         // no "name" specified -> append it directly to start_path
         test_path = boost::filesystem::path(start_path + extension);
         // in this case, we need to re-check for the cygwin oddities
-        checkCygwinPath(test_path, start_path + extension);
+        check_cygwin_path(test_path, start_path + extension);
     } else {
         // name is specified, so we can just re-use cygwin_safe_path
         test_path = cygwin_safe_path /
@@ -248,15 +248,15 @@ bool plugin::checkForFile(std::string& final_path, const std::string& start_path
     return false;
 }
 
-void plugin::openPlugin(const std::string& plugin_file,
+void plugin::open_plugin(const std::string& plugin_file,
                             data_type& plugin_data)
 {
     // get the name of the plugin (for create/destroy symbol names)
-    plugin_data.m_plugin_name = getPluginName(plugin_file);
+    plugin_data.m_plugin_name = get_plugin_name(plugin_file);
     
     // attempt to open the plugin; note that this tries all search paths
     // and also tries a variety of platform-specific extensions
-    plugin_data.m_lib_handle = loadDynamicLibrary(plugin_file.c_str());
+    plugin_data.m_lib_handle = load_dynamic_library(plugin_file.c_str());
     if (plugin_data.m_lib_handle == NULL) {
 #ifndef PION_WIN32
         const char *error_msg = dlerror();
@@ -276,10 +276,10 @@ void plugin::openPlugin(const std::string& plugin_file,
     
     // find the function used to create new plugin objects
     plugin_data.m_create_func =
-        getLibrarySymbol(plugin_data.m_lib_handle,
+        get_library_symbol(plugin_data.m_lib_handle,
                          PION_PLUGIN_CREATE + plugin_data.m_plugin_name);
     if (plugin_data.m_create_func == NULL) {
-        closeDynamicLibrary(plugin_data.m_lib_handle);
+        close_dynamic_library(plugin_data.m_lib_handle);
         BOOST_THROW_EXCEPTION( error::plugin_missing_symbol()
                               << error::errinfo_plugin_name(plugin_data.m_plugin_name)
                               << error::errinfo_symbol_name(PION_PLUGIN_CREATE + plugin_data.m_plugin_name) );
@@ -287,22 +287,22 @@ void plugin::openPlugin(const std::string& plugin_file,
 
     // find the function used to destroy existing plugin objects
     plugin_data.m_destroy_func =
-        getLibrarySymbol(plugin_data.m_lib_handle,
+        get_library_symbol(plugin_data.m_lib_handle,
                          PION_PLUGIN_DESTROY + plugin_data.m_plugin_name);
     if (plugin_data.m_destroy_func == NULL) {
-        closeDynamicLibrary(plugin_data.m_lib_handle);
+        close_dynamic_library(plugin_data.m_lib_handle);
         BOOST_THROW_EXCEPTION( error::plugin_missing_symbol()
                               << error::errinfo_plugin_name(plugin_data.m_plugin_name)
                               << error::errinfo_symbol_name(PION_PLUGIN_DESTROY + plugin_data.m_plugin_name) );
     }
 }
 
-std::string plugin::getPluginName(const std::string& plugin_file)
+std::string plugin::get_plugin_name(const std::string& plugin_file)
 {
     return boost::filesystem::basename(boost::filesystem::path(plugin_file));
 }
 
-void plugin::getAllPluginNames(std::vector<std::string>& plugin_names)
+void plugin::get_all_plugin_names(std::vector<std::string>& plugin_names)
 {
     // Iterate through all the Plugin directories.
     std::vector<std::string>::iterator it;
@@ -315,9 +315,9 @@ void plugin::getAllPluginNames(std::vector<std::string>& plugin_names)
             if (boost::filesystem::is_regular(*it2)) {
                 if (boost::filesystem::extension(it2->path()) == plugin::PION_PLUGIN_EXTENSION) {
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
-                    plugin_names.push_back(plugin::getPluginName(it2->path().filename().string()));
+                    plugin_names.push_back(plugin::get_plugin_name(it2->path().filename().string()));
 #else
-                    plugin_names.push_back(plugin::getPluginName(it2->path().leaf()));
+                    plugin_names.push_back(plugin::get_plugin_name(it2->path().leaf()));
 #endif 
                 }
             }
@@ -333,7 +333,7 @@ void plugin::getAllPluginNames(std::vector<std::string>& plugin_names)
     }
 }
 
-void *plugin::loadDynamicLibrary(const std::string& plugin_file)
+void *plugin::load_dynamic_library(const std::string& plugin_file)
 {
 #ifdef PION_WIN32
     #ifdef _MSC_VER
@@ -360,7 +360,7 @@ void *plugin::loadDynamicLibrary(const std::string& plugin_file)
 #endif
 }
 
-void plugin::closeDynamicLibrary(void *lib_handle)
+void plugin::close_dynamic_library(void *lib_handle)
 {
 #ifdef PION_WIN32
     // Apparently, FreeLibrary sometimes causes crashes when running 
@@ -378,7 +378,7 @@ void plugin::closeDynamicLibrary(void *lib_handle)
 #endif
 }
 
-void *plugin::getLibrarySymbol(void *lib_handle, const std::string& symbol)
+void *plugin::get_library_symbol(void *lib_handle, const std::string& symbol)
 {
 #ifdef PION_WIN32
     return (void*)GetProcAddress((HINSTANCE) lib_handle, symbol.c_str());
@@ -387,7 +387,7 @@ void *plugin::getLibrarySymbol(void *lib_handle, const std::string& symbol)
 #endif
 }
 
-void plugin::addStaticEntryPoint(const std::string& plugin_name,
+void plugin::add_static_entry_point(const std::string& plugin_name,
                                      void *create_func,
                                      void *destroy_func)
 {

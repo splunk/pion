@@ -37,10 +37,10 @@ public:
      * @param the name name of the plug-in to search for
      * @return true if the plug-in file was found
      */
-    static inline bool findPluginFile(std::string& path_to_file,
+    static inline bool find_plugin_file(std::string& path_to_file,
                                       const std::string& name)
     {
-        return findFile(path_to_file, name, PION_PLUGIN_EXTENSION);
+        return find_file(path_to_file, name, PION_PLUGIN_EXTENSION);
     }
 
     /**
@@ -50,10 +50,10 @@ public:
      * @param name the name of the configuration file to search for
      * @return true if the configuration file was found
      */
-    static inline bool findConfigFile(std::string& path_to_file,
+    static inline bool find_config_file(std::string& path_to_file,
                                       const std::string& name)
     {
-        return findFile(path_to_file, name, PION_CONFIG_EXTENSION);
+        return find_file(path_to_file, name, PION_CONFIG_EXTENSION);
     }
     
     /**
@@ -64,7 +64,7 @@ public:
      * @param create_func - pointer to the function to be used in to create plugin object
      * @param destroy_func - pointer to the function to be used to release plugin object
      */
-    static void addStaticEntryPoint(const std::string& plugin_name,
+    static void add_static_entry_point(const std::string& plugin_name,
                                     void *create_func,
                                     void *destroy_func);
     
@@ -76,29 +76,29 @@ public:
      *                   this will be appended to PION_CYGWIN_DIRECTORY to attempt
      *                   attempt correction of final_path for cygwin
      */
-    static void checkCygwinPath(boost::filesystem::path& final_path,
+    static void check_cygwin_path(boost::filesystem::path& final_path,
                                 const std::string& path_string);
 
     /// appends a directory to the plug-in search path
-    static void addPluginDirectory(const std::string& dir);
+    static void add_plugin_directory(const std::string& dir);
     
     /// clears all directories from the plug-in search path
-    static void resetPluginDirectories(void);
+    static void reset_plugin_directories(void);
     
 
     // default destructor
-    virtual ~plugin() { releaseData(); }
+    virtual ~plugin() { release_data(); }
     
     /// returns true if a shared library is loaded/open
     inline bool is_open(void) const { return (m_plugin_data != NULL); }
     
     /// returns the name of the plugin that is currently open
-    inline std::string getPluginName(void) const {
+    inline std::string get_plugin_name(void) const {
         return (is_open() ? m_plugin_data->m_plugin_name : std::string());
     }
 
     /// returns a list of all Plugins found in all Plugin directories
-    static void getAllPluginNames(std::vector<std::string>& plugin_names);
+    static void get_all_plugin_names(std::vector<std::string>& plugin_names);
 
     /**
      * opens plug-in library within a shared object file.  If the library is
@@ -126,10 +126,10 @@ public:
      * 
      * @param plugin_file shared object file containing the plugin code
      */
-    void openFile(const std::string& plugin_file);
+    void open_file(const std::string& plugin_file);
 
     /// closes plug-in library
-    inline void close(void) { releaseData(); }
+    inline void close(void) { release_data(); }
 
 protected:
     
@@ -174,26 +174,26 @@ protected:
     plugin(void) : m_plugin_data(NULL) {}
     
     /// copy constructor
-    plugin(const plugin& p) : m_plugin_data(NULL) { grabData(p); }
+    plugin(const plugin& p) : m_plugin_data(NULL) { grab_data(p); }
 
     /// assignment operator
-    plugin& operator=(const plugin& p) { grabData(p); return *this; }
+    plugin& operator=(const plugin& p) { grab_data(p); return *this; }
 
     /// returns a pointer to the plug-in's "create object" function
-    inline void *getCreateFunction(void) {
+    inline void *get_create_function(void) {
         return (is_open() ? m_plugin_data->m_create_func : NULL);
     }
 
     /// returns a pointer to the plug-in's "destroy object" function
-    inline void *getDestroyFunction(void) {
+    inline void *get_destroy_function(void) {
         return (is_open() ? m_plugin_data->m_destroy_func : NULL);
     }
 
     /// releases the plug-in's shared library symbols
-    void releaseData(void);
+    void release_data(void);
     
     /// grabs a reference to another plug-in's shared library symbols
-    void grabData(const plugin& p);
+    void grab_data(const plugin& p);
 
     
 private:
@@ -207,7 +207,7 @@ private:
         std::vector<std::string>    m_plugin_dirs;
         
         /// maps plug-in names to shared library data
-        map_type                   m_plugin_map;
+        map_type                    m_plugin_map;
         
         /// mutex to make class thread-safe
         boost::mutex                m_plugin_mutex;
@@ -232,7 +232,7 @@ private:
      *
      * @return true if the file was found
      */
-    static bool findFile(std::string& path_to_file, const std::string& name,                             
+    static bool find_file(std::string& path_to_file, const std::string& name,                             
                          const std::string& extension);
     
     /**
@@ -245,7 +245,7 @@ private:
      *
      * @return true if the file was found
      */
-    static bool checkForFile(std::string& final_path, const std::string& start_path,
+    static bool check_for_file(std::string& final_path, const std::string& start_path,
                              const std::string& name, const std::string& extension);
     
     /**
@@ -254,20 +254,20 @@ private:
      * @param plugin_file shared object file containing the plugin code
      * @param plugin_data data object to load the library into
      */
-    static void openPlugin(const std::string& plugin_file,
+    static void open_plugin(const std::string& plugin_file,
                            data_type& plugin_data);
 
     /// returns the name of the plugin object (based on the plugin_file name)
-    static std::string getPluginName(const std::string& plugin_file);
+    static std::string get_plugin_name(const std::string& plugin_file);
     
     /// load a dynamic library from plugin_file and return its handle
-    static void *loadDynamicLibrary(const std::string& plugin_file);
+    static void *load_dynamic_library(const std::string& plugin_file);
     
     /// close the dynamic library corresponding with lib_handle
-    static void closeDynamicLibrary(void *lib_handle);
+    static void close_dynamic_library(void *lib_handle);
     
     /// returns the address of a library symbal
-    static void *getLibrarySymbol(void *lib_handle, const std::string& symbol);
+    static void *get_library_symbol(void *lib_handle, const std::string& symbol);
     
     
     /// name of function defined in object code to create a new plug-in instance
@@ -320,12 +320,12 @@ public:
     plugin_ptr(const plugin_ptr& p) : plugin(p) {}
 
     /// assignment operator
-    plugin_ptr& operator=(const plugin_ptr& p) { grabData(p); return *this; }
+    plugin_ptr& operator=(const plugin_ptr& p) { grab_data(p); return *this; }
 
     /// creates a new instance of the plug-in object
     inline InterfaceClassType *create(void) {
         CreateObjectFunction *create_func =
-            (CreateObjectFunction*)(getCreateFunction());
+            (CreateObjectFunction*)(get_create_function());
         if (create_func == NULL)
             BOOST_THROW_EXCEPTION( error::plugin_undefined() );
         return create_func();
@@ -339,7 +339,7 @@ public:
             void* v_;
             DestroyObjectFunction* f_;
         } Cast;
-        Cast.v_ = getDestroyFunction();
+        Cast.v_ = get_destroy_function();
         DestroyObjectFunction *destroy_func = Cast.f_;
         if (destroy_func == NULL)
             BOOST_THROW_EXCEPTION( error::plugin_undefined() );
@@ -432,7 +432,7 @@ class static_entry_point_helper {
 public:
     static_entry_point_helper(const std::string& name, void *create, void *destroy)
     {
-        pion::plugin::addStaticEntryPoint(name, create, destroy);
+        pion::plugin::add_static_entry_point(name, create, destroy);
     }
 };
 

@@ -24,9 +24,9 @@ void HelloService::operator()(http::request_ptr& http_request_ptr, tcp::connecti
     static const std::string HELLO_HTML = "<html><body>Hello World!</body></html>";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
                                                             boost::bind(&tcp::connection::finish, tcp_conn)));
-    writer->writeNoCopy(HELLO_HTML);
-    writer->writeNoCopy(http::types::STRING_CRLF);
-    writer->writeNoCopy(http::types::STRING_CRLF);
+    writer->write_no_copy(HELLO_HTML);
+    writer->write_no_copy(http::types::STRING_CRLF);
+    writer->write_no_copy(http::types::STRING_CRLF);
     writer->send();
 }
 

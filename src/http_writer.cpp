@@ -18,13 +18,13 @@ namespace http {    // begin namespace http
 
 // writer member functions
 
-void writer::preparewrite_buffers_t(http::message::write_buffers_t& write_buffers,
+void writer::prepare_write_buffers(http::message::write_buffers_t& write_buffers,
                                      const bool send_final_chunk)
 {
     // check if the HTTP headers have been sent yet
     if (! m_sent_headers) {
         // initialize write buffers for send operation
-        prepareBuffersForSend(write_buffers);
+        prepare_buffers_for_send(write_buffers);
 
         // only send the headers once
         m_sent_headers = true;
@@ -36,7 +36,7 @@ void writer::preparewrite_buffers_t(http::message::write_buffers_t& write_buffer
     
     // don't send anything if there is no data in content buffers
     if (m_content_length > 0) {
-        if (supportsChunkedMessages() && sendingChunkedMessage()) {
+        if (supports_chunked_messages() && sending_chunked_message()) {
             // prepare the next chunk of data to send
             // write chunk length in hex
             char cast_buf[35];
@@ -62,7 +62,7 @@ void writer::preparewrite_buffers_t(http::message::write_buffers_t& write_buffer
     }
     
     // prepare a zero-byte (final) chunk
-    if (send_final_chunk && supportsChunkedMessages() && sendingChunkedMessage()) {
+    if (send_final_chunk && supports_chunked_messages() && sending_chunked_message()) {
         // add chunk length as a string at the back of the text cache
         m_text_cache.push_back("0");
         // append length of chunk to write_buffers
