@@ -12,7 +12,7 @@
 
 #include <string>
 #include <locale>
-#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/functional/hash.hpp>
 #include <pion/config.hpp>
 
@@ -92,10 +92,26 @@ namespace pion {    // begin namespace pion
     };
     
 #ifdef _MSC_VER
+    /// Case-insensitive "less than" predicate
+    template<class _Ty> struct is_iless : public std::binary_function<_Ty, _Ty, bool>
+    {
+        /// Constructor
+        is_iless( const std::locale& Loc=std::locale() ) : m_Loc( Loc ) {}
+
+        /// returns true if Arg1 is less than Arg2
+        bool operator()( const _Ty& Arg1, const _Ty& Arg2 ) const
+        {
+            return _Ty(boost::algorithm::to_upper_copy(Arg1, m_Loc)) < _Ty(boost::algorithm::to_upper_copy(Arg2, m_Loc));
+        }
+
+        private:
+            std::locale m_Loc;
+    };
+
     /// case insensitive extension of stdext::hash_compare for std::string
-    struct ihash_windows : public stdext::hash_compare<std::string, boost::algorithm::is_iless > {
+    struct ihash_windows : public stdext::hash_compare<std::string, is_iless<std::string> > {
         // makes operator() with two arguments visible, otherwise it would be hidden by the operator() defined here
-        using stdext::hash_compare<std::string, boost::algorithm::is_iless>::operator();
+        using stdext::hash_compare<std::string, is_iless<std::string> >::operator();
         
         inline size_t operator()(const std::string& str) const {
             return ihash()(str);
@@ -103,7 +119,7 @@ namespace pion {    // begin namespace pion
     };
 
     /// data type for case-insensitive dictionary of strings
-    typedef PION_HASH_MULTIMAP<std::string, std::string, algorithm::ihash_windows >    ihash_multimap;
+    typedef PION_HASH_MULTIMAP<std::string, std::string, ihash_windows >    ihash_multimap;
 #else
     /// data type for case-insensitive dictionary of strings
     typedef PION_HASH_MULTIMAP<std::string, std::string, ihash, iequal_to >    ihash_multimap;

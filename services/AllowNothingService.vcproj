@@ -44,6 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="ALLOWNOTHINGSERVICE_EXPORTS"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -107,6 +108,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="ALLOWNOTHINGSERVICE_EXPORTS"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -170,6 +172,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -224,6 +227,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -279,6 +283,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="ALLOWNOTHINGSERVICE_EXPORTS"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -343,6 +348,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="ALLOWNOTHINGSERVICE_EXPORTS"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -406,6 +412,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -460,6 +467,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -514,6 +522,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="ALLOWNOTHINGSERVICE_EXPORTS;PION_FULL"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -577,6 +586,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="ALLOWNOTHINGSERVICE_EXPORTS;PION_FULL"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -641,6 +651,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="ALLOWNOTHINGSERVICE_EXPORTS;PION_FULL"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -704,6 +715,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="ALLOWNOTHINGSERVICE_EXPORTS;PION_FULL"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

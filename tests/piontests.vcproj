@@ -42,6 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -106,6 +107,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -171,6 +173,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -237,6 +240,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -305,6 +309,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -370,6 +375,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -434,6 +440,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -500,6 +507,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -566,6 +574,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE;PION_FULL"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -630,6 +639,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE;PION_FULL"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -696,6 +706,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE;PION_FULL"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -761,6 +772,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE;PION_FULL"
+				Detect64BitPortabilityProblems="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
