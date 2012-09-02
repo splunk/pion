@@ -11,7 +11,7 @@
 #include <pion/config.hpp>
 
 /// arbitrary function for the library to export
-extern "C" PION_API int f(void)
+extern "C" PION_SERVICE_API int f(void)
 {
     return 4;
 }

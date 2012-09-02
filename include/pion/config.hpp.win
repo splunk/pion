@@ -120,6 +120,12 @@
 		#define PION_API __declspec(dllimport)
 	#endif
 
+	#ifdef PION_STATIC_LINKING
+		#define PION_SERVICE_API 
+	#else
+		#define PION_SERVICE_API __declspec(dllexport)
+	#endif
+
 	/*
 	Verify correctness of the PION_STATIC_LINKING setup
 	*/

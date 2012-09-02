@@ -43,13 +43,13 @@ void AllowNothingService::operator()(http::request_ptr& http_request_ptr, tcp::c
 
 
 /// creates new AllowNothingService objects
-extern "C" PION_API pion::plugins::AllowNothingService *pion_create_AllowNothingService(void)
+extern "C" PION_SERVICE_API pion::plugins::AllowNothingService *pion_create_AllowNothingService(void)
 {
     return new pion::plugins::AllowNothingService();
 }
 
 /// destroys AllowNothingService objects
-extern "C" PION_API void pion_destroy_AllowNothingService(pion::plugins::AllowNothingService *service_ptr)
+extern "C" PION_SERVICE_API void pion_destroy_AllowNothingService(pion::plugins::AllowNothingService *service_ptr)
 {
     delete service_ptr;
 }
