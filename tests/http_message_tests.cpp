@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkCreateContentBufferVarious) {
     char *ptr = F::create_content_buffer();
     BOOST_CHECK(ptr != NULL);
     BOOST_CHECK_EQUAL(ptr, F::get_content());
-    BOOST_CHECK_EQUAL(F::get_content_buffer_size(), 20);
+    BOOST_CHECK_EQUAL(F::get_content_buffer_size(), 20U);
     BOOST_CHECK(F::is_content_buffer_allocated());
 }
 
