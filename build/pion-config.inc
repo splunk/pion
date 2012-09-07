@@ -186,6 +186,41 @@ fi
 AC_SUBST(PION_SSL_LIB)
 
 
+# Check for ICU
+AC_MSG_CHECKING([for i18n support (icu4c)])
+AC_ARG_WITH([icu], AC_HELP_STRING([--with-icu@<:@=DIR@:>@],[location of icu4c library; use --without-icu to disable]),
+    [ icu_location=$withval ], [ icu_location=yes ])
+# Check if icu location is specified
+if test "x_$icu_location" != "x_no"; then
+	AC_MSG_RESULT(yes)
+	if test "x_$icu_location" != "x_yes"; then
+		# alternative location provided
+		CPPFLAGS="$CPPFLAGS -I$icu_location/include"
+		LDFLAGS="$LDFLAGS -L$icu_location/lib"
+	fi
+	# Check for ICU headers
+	AC_CHECK_HEADER([unicode/utypes.h],,[AC_MSG_ERROR([Unable to find ICU headers])])
+	# Check for ICU library
+	LIBS_SAVED="$LIBS"
+	LIBS="$LIBS_SAVED -licui18n -licuuc -licudata"
+	AC_MSG_CHECKING(linking with icu)
+	AC_TRY_LINK([#include <unicode/utypes.h>],[ const char *cptr = u_errorName(U_ILLEGAL_ARGUMENT_ERROR); return(0); ],
+		[ AC_MSG_RESULT(ok) ],
+		[ AC_MSG_RESULT(failed)
+		  AC_MSG_ERROR(Unable to link with the icu library; use --without-icu to disable)
+		])
+	LIBS="$LIBS_SAVED"
+	PION_ICU_LIB="-licui18n -licuuc -licudata"
+	# Found the ICU library
+	AC_MSG_NOTICE([Building Pion with support for i18n (using icu4c)])
+	AC_DEFINE([PION_HAVE_ICU],[1],[Define to 1 if you have the `ICU' library.])
+else
+	# ICU is disabled
+	AC_MSG_RESULT(no)
+fi
+AC_SUBST(PION_ICU_LIB)
+
+
 # Check for logging support
 AC_ARG_ENABLE([logging],
     AC_HELP_STRING([--disable-logging],[disable all logging support (including std::ostream)]),
@@ -307,7 +342,7 @@ AC_SUBST(PION_LOG_LIB)
 
 
 # Set external library dependencies
-PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $BOOST_DATE_TIME_LIB $PION_LOG_LIB $PION_SSL_LIB $PION_ZLIB $PION_BZLIB $PION_EXTERNAL_LIBS"
+PION_EXTERNAL_LIBS="$BOOST_THREAD_LIB $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $BOOST_DATE_TIME_LIB $PION_LOG_LIB $PION_SSL_LIB $PION_ICU_LIB $PION_ZLIB $PION_BZLIB $PION_EXTERNAL_LIBS"
 PION_STATIC_LIBS=`pion_make_static "$PION_EXTERNAL_LIBS"`
 
 AC_SUBST(PION_EXTERNAL_LIBS)

@@ -67,6 +67,9 @@
 /* Define to 1 if you have the `OpenSSL' library. */
 #undef PION_HAVE_SSL
 
+/* Define to 1 if you have the `ICU' library. */
+#undef PION_HAVE_ICU
+
 /* This is used by Windows projects to flag exported symbols */
 #define PION_API
 #define PION_SERVICE_API
