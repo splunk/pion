@@ -10,7 +10,7 @@
 #include <vector>
 #include <iostream>
 #include <boost/asio.hpp>
-#include <boost/exception/diagnostic_information.hpp>
+#include <pion/error.hpp>
 #include <pion/plugin.hpp>
 #include <pion/process.hpp>
 #include <pion/http/plugin_server.hpp>
@@ -173,42 +173,8 @@ int main (int argc, char *argv[])
         web_server.start();
         process::wait_for_shutdown();
         
-    } catch (error::bad_arg& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_arg_name>(e);
-        PION_LOG_FATAL(main_log, "bad argument: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::bad_config& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_file_name>(e);
-        PION_LOG_FATAL(main_log, "config parsing error: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::open_file& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_file_name>(e);
-        PION_LOG_FATAL(main_log, "unable to open file: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::open_plugin& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_plugin_name>(e);
-        PION_LOG_FATAL(main_log, "unable to open plugin: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::read_file& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_file_name>(e);
-        PION_LOG_FATAL(main_log, "unable to read file: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::file_not_found& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_file_name>(e);
-        PION_LOG_FATAL(main_log, "file not found: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::directory_not_found& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_dir_name>(e);
-        PION_LOG_FATAL(main_log, "directory not found: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::plugin_not_found& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_plugin_name>(e);
-        PION_LOG_FATAL(main_log, "plugin not found: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::duplicate_plugin& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_plugin_name>(e);
-        PION_LOG_FATAL(main_log, "duplicate plugin: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::plugin_missing_symbol& e) {
-        const std::string *str_ptr = boost::get_error_info<error::errinfo_symbol_name>(e);
-        PION_LOG_FATAL(main_log, "missing plugin symbol: " << (str_ptr ? *str_ptr : "(null)"));
-    } catch (error::plugin_undefined& e) {
-        PION_LOG_FATAL(main_log, "plugin has undefined state");
-    } catch (error::bad_password_hash& e) {
-        PION_LOG_FATAL(main_log, "bad password hash");
     } catch (std::exception& e) {
-        PION_LOG_FATAL(main_log, e.what());
+        PION_LOG_FATAL(main_log, pion::diagnostic_information(e));
     }
 
     return 0;

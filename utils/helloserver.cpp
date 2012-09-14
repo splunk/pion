@@ -10,7 +10,7 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include <boost/exception/diagnostic_information.hpp>
+#include <pion/error.hpp>
 #include <pion/process.hpp>
 #include <pion/tcp/server.hpp>
 
@@ -67,7 +67,7 @@ int main (int argc, char *argv[])
         process::wait_for_shutdown();
 
     } catch (std::exception& e) {
-        PION_LOG_FATAL(main_log, boost::diagnostic_information(e));
+        PION_LOG_FATAL(main_log, pion::diagnostic_information(e));
     }
 
     return 0;
