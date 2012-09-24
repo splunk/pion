@@ -14,11 +14,11 @@
 	/>
 	<UserMacro
 		Name="BOOST_INC"
-		Value="C:\boost-1.42.0"
+		Value="C:\boost-1_51_0"
 	/>
 	<UserMacro
 		Name="BOOST_LIB"
-		Value="C:\boost-1.42.0\lib"
+		Value="C:\boost-1_51_0\lib"
 	/>
 	<UserMacro
 		Name="BZIP2_INC"
