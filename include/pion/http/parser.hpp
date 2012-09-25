@@ -364,6 +364,21 @@ public:
     {
         return parse_url_encoded(dict, query.c_str(), query.size());
     }
+    
+    /**
+     * should be called after parsing HTTP headers, to prepare for payload content parsing
+     * available in the read buffer
+     *
+     * @param http_msg the HTTP message object to populate from parsing
+     * @param ec error_code contains additional information for parsing errors
+     *
+     * @return boost::tribool result of parsing:
+     *                        false = message has an error,
+     *                        true = finished parsing HTTP message (no content),
+     *                        indeterminate = payload content is available to be parsed
+     */
+    boost::tribool finish_header_parsing(http::message& http_msg,
+                                         boost::system::error_code& ec);
 
     /**
      * parses an X-Forwarded-For HTTP header, and extracts from it an IP
@@ -408,21 +423,6 @@ protected:
      * @param http_msg the HTTP message object to populate from parsing
      */
     void update_message_with_header_data(http::message& http_msg) const;
-
-    /**
-     * should be called after parsing HTTP headers, to prepare for payload content parsing
-     * available in the read buffer
-     *
-     * @param http_msg the HTTP message object to populate from parsing
-     * @param ec error_code contains additional information for parsing errors
-     *
-     * @return boost::tribool result of parsing:
-     *                        false = message has an error,
-     *                        true = finished parsing HTTP message (no content),
-     *                        indeterminate = payload content is available to be parsed
-     */
-    boost::tribool finish_header_parsing(http::message& http_msg,
-        boost::system::error_code& ec);
 
     /**
      * parses a chunked HTTP message-body using bytes available in the read buffer
