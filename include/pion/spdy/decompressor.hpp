@@ -132,7 +132,7 @@ private:
     static const boost::uint16_t        MAX_UNCOMPRESSED_DATA_BUF_SIZE;
     
     // SPDY Dictionary used for zlib decompression
-    static const char * const           SPDY_ZLIB_DICTIONARY;
+    static const char                   SPDY_ZLIB_DICTIONARY[];
 };
         
 }   // end namespace spdy

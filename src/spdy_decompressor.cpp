@@ -26,7 +26,8 @@ namespace spdy {    // begin namespace spdy
 decompressor::error_category_t *    decompressor::m_error_category_ptr = NULL;
 boost::once_flag                    decompressor::m_instance_flag = BOOST_ONCE_INIT;
 const boost::uint16_t               decompressor::MAX_UNCOMPRESSED_DATA_BUF_SIZE = 16384;
-const char * const decompressor::SPDY_ZLIB_DICTIONARY =
+    
+ const char decompressor::SPDY_ZLIB_DICTIONARY[] =
     "optionsgetheadpostputdeletetraceacceptaccept-charsetaccept-encodingaccept-"
     "languageauthorizationexpectfromhostif-modified-sinceif-matchif-none-matchi"
     "f-rangeif-unmodifiedsincemax-forwardsproxy-authorizationrangerefererteuser"
