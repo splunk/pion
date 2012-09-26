@@ -1,7 +1,7 @@
-// ------------------------------------------------------------------
-// pion: a C++ framework for building lightweight HTTP interfaces
-// ------------------------------------------------------------------
-// Copyright (C) 2007-2012 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// ---------------------------------------------------------------------
+// pion:  a Boost C++ framework for building lightweight HTTP interfaces
+// ---------------------------------------------------------------------
+// Copyright (C) 2007-2012 Cloudmeter, Inc.  (http://www.cloudmeter.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
@@ -16,40 +16,23 @@
 #include <boost/noncopyable.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/thread/once.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionLogger.hpp>
-#include <pion/net/PionUser.hpp>
+#include <pion/config.hpp>
+#include <pion/logger.hpp>
+#include <pion/user.hpp>
 #include <pion/spdy/types.hpp>
 #include <pion/spdy/parser.hpp>
-
 #include <zlib.h>
 
-namespace pion {	// begin namespace pion
-namespace spdy {	// begin namespace spdy
-    
-// SPDY Dictionary used for zlib decompression
 
-static const char spdy_dictionary[] =
-"optionsgetheadpostputdeletetraceacceptaccept-charsetaccept-encodingaccept-"
-"languageauthorizationexpectfromhostif-modified-sinceif-matchif-none-matchi"
-"f-rangeif-unmodifiedsincemax-forwardsproxy-authorizationrangerefererteuser"
-"-agent10010120020120220320420520630030130230330430530630740040140240340440"
-"5406407408409410411412413414415416417500501502503504505accept-rangesageeta"
-"glocationproxy-authenticatepublicretry-afterservervarywarningwww-authentic"
-"ateallowcontent-basecontent-encodingcache-controlconnectiondatetrailertran"
-"sfer-encodingupgradeviawarningcontent-languagecontent-lengthcontent-locati"
-"oncontent-md5content-rangecontent-typeetagexpireslast-modifiedset-cookieMo"
-"ndayTuesdayWednesdayThursdayFridaySaturdaySundayJanFebMarAprMayJunJulAugSe"
-"pOctNovDecchunkedtext/htmlimage/pngimage/jpgimage/gifapplication/xmlapplic"
-"ation/xhtmltext/plainpublicmax-agecharset=iso-8859-1utf-8gzipdeflateHTTP/1"
-".1statusversionurl";
+namespace pion {    // begin namespace pion
+namespace spdy {    // begin namespace spdy
 
 
 ///
 /// SPDYDecompressor : Decompresses SPDY frames
 ///
 
-class PION_NET_API decompressor
+class PION_API decompressor
 {
 public:
     
@@ -134,20 +117,25 @@ private:
     }
     
     /// points to the next character to be consumed in the read_buffer
-    const char *						m_compressed_data_ptr;
+    const char *                        m_compressed_data_ptr;
     
     /// primary logging interface used by this class
-    mutable PionLogger					m_logger;
+    mutable logger                      m_logger;
     
     /// points to a single and unique instance of the HTTPParser ErrorCategory
-    static error_category_t *				m_error_category_ptr;
+    static error_category_t *           m_error_category_ptr;
     
     /// used to ensure thread safety of the HTTPParser ErrorCategory
-    static boost::once_flag				m_instance_flag;
+    static boost::once_flag             m_instance_flag;
+
+    /// maximum uncompressed data buffer size
+    static const boost::uint16_t        MAX_UNCOMPRESSED_DATA_BUF_SIZE;
     
+    // SPDY Dictionary used for zlib decompression
+    static const char * const           SPDY_ZLIB_DICTIONARY;
 };
         
-}	// end namespace spdy
-}	// end namespace pion
+}   // end namespace spdy
+}   // end namespace pion
 
 #endif

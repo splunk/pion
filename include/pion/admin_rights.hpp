@@ -66,7 +66,7 @@ private:
     static boost::mutex                 m_mutex;
 
     /// primary logging interface used by this class        
-    logger                          m_logger;
+    logger                              m_logger;
 
     /// lock used to prevent multiple threads from corrupting user id
     boost::unique_lock<boost::mutex>    m_lock;

@@ -1,7 +1,7 @@
-// ------------------------------------------------------------------
-// pion: a C++ framework for building lightweight HTTP interfaces
-// ------------------------------------------------------------------
-// Copyright (C) 2007-2012 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// ---------------------------------------------------------------------
+// pion:  a Boost C++ framework for building lightweight HTTP interfaces
+// ---------------------------------------------------------------------
+// Copyright (C) 2007-2012 Cloudmeter, Inc.  (http://www.cloudmeter.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
@@ -16,19 +16,21 @@
 #include <boost/noncopyable.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/thread/once.hpp>
-#include <pion/PionConfig.hpp>
-#include <pion/PionLogger.hpp>
-#include <pion/net/PionUser.hpp>
+#include <pion/config.hpp>
+#include <pion/logger.hpp>
+#include <pion/user.hpp>
 #include <pion/spdy/types.hpp>
 
-namespace pion {	// begin namespace pion
-namespace spdy {	// begin namespace spdy
-        
+
+namespace pion {    // begin namespace pion
+namespace spdy {    // begin namespace spdy
+
+    
 ///
 /// parser : parsers and reads the SPDY frames
 ///
 
-class PION_NET_API parser
+class PION_API parser
 {
 public:
     
@@ -58,7 +60,7 @@ public:
     
     /// class-specific error category
     class error_category_t
-    : public boost::system::error_category
+        : public boost::system::error_category
     {
     public:
         const char *name() const { return "SPDYParser"; }
@@ -111,7 +113,7 @@ public:
      */
     static uint16_t int16_from_char(const char* ptr){
         
-        int i;
+        uint16_t i;
         uint16_t result;
         
         result = 0;
@@ -220,33 +222,33 @@ public:
 private:
     
     /// generic read pointer which parses the spdy data
-    const char *						m_read_ptr;
+    const char *                        m_read_ptr;
     
     /// points to the first character of the uncompressed http headers
-    const char *						m_uncompressed_ptr;
+    const char *                        m_uncompressed_ptr;
     
     /// SPDY has interleaved frames and this will point to start of the current chunk data
-    const char *						m_current_data_chunk_ptr;
+    const char *                        m_current_data_chunk_ptr;
     
     /// SPDY has interleaved frames and this will point to start of the the last chunk data
-    const char *						m_last_data_chunk_ptr;
+    const char *                        m_last_data_chunk_ptr;
     
     /// primary logging interface used by this class
-    mutable PionLogger					m_logger;
+    mutable logger                      m_logger;
     
     /// points to a single and unique instance of the HTTPParser ErrorCategory
-    static error_category_t *			m_error_category_ptr;
+    static error_category_t *           m_error_category_ptr;
     
     /// used to ensure thread safety of the HTTPParser ErrorCategory
-    static boost::once_flag				m_instance_flag;
+    static boost::once_flag             m_instance_flag;
     
 };
 
 /// data type for a spdy reader pointer
-typedef boost::shared_ptr<parser>		parser_ptr;
+typedef boost::shared_ptr<parser>       parser_ptr;
         
         
-}	// end namespace spdy
-}	// end namespace pion
+}   // end namespace spdy
+}   // end namespace pion
 
 #endif
