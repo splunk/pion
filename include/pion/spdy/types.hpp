@@ -1,7 +1,7 @@
-// ------------------------------------------------------------------
-// pion: a C++ framework for building lightweight HTTP interfaces
-// ------------------------------------------------------------------
-// Copyright (C) 2007-2012 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// ---------------------------------------------------------------------
+// pion:  a Boost C++ framework for building lightweight HTTP interfaces
+// ---------------------------------------------------------------------
+// Copyright (C) 2007-2012 Cloudmeter, Inc.  (http://www.cloudmeter.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
@@ -10,9 +10,16 @@
 #ifndef __PION_SPDYTYPES_HEADER__
 #define __PION_SPDYTYPES_HEADER__
 
+#include <zlib.h>
+#include <pion/config.hpp>
 
+
+namespace pion {    // begin namespace pion
+namespace spdy {    // begin namespace spdy 
+
+    
 #define MIN_SPDY_VERSION            3
-
+    
 // The types of SPDY frames
 #define SPDY_DATA                   0
 #define SPDY_SYN_STREAM             1
@@ -25,33 +32,27 @@
 #define SPDY_WINDOW_UPDATE          9
 #define SPDY_CREDENTIAL             10
 #define SPDY_INVALID                11
-
+    
 #define SPDY_FLAG_FIN               0x01
 #define SPDY_FLAG_UNIDIRECTIONAL    0x02
-
+    
 #define SIZE_OF_BYTE                8
-
+    
 #define NON_SPDY                    0
 #define HTTP_REQUEST                1
 #define HTTP_RESPONSE               2
 #define HTTP_DATA                   3
 #define SPDY_CONTROL                4
 
-#include <zlib.h>
-
-namespace pion {	// begin namespace pion
-namespace spdy {	// begin namespace spdy 
-        
+    
+/// SPDY value string data type
 typedef struct _value_string {
     uint32_t  value;
     std::string   str;
 } value_string;
 
-/*
- *  Int-String value pairs of the status code for the RST Stream
- *
- */
-
+    
+/// Int-String value pairs of the status code for the RST Stream
 static const value_string rst_stream_status_names[] = {
     { 1,  "PROTOCOL_ERROR" },
     { 2,  "INVALID_STREAM" },
@@ -66,12 +67,9 @@ static const value_string rst_stream_status_names[] = {
     { 11, "FRAME_TOO_LARGE" },
     { 12, "INVALID" },
 };
+    
 
-/*
- *
- * This structure will be tied to each SPDY frame
- *
- */
+/// This structure will be tied to each SPDY frame
 typedef struct spdy_control_frame_info{
     bool control_bit;
     uint16_t  version;
@@ -80,12 +78,10 @@ typedef struct spdy_control_frame_info{
     uint32_t  length;  // Actually only 24 bits.
 } spdy_control_frame_info;
 
-
-/*
- * This structure will be tied to each SPDY header frame.
- * Only applies to frames containing headers: SYN_STREAM, SYN_REPLY, HEADERS
- * Note that there may be multiple SPDY frames in one packet.
- */
+    
+/// This structure will be tied to each SPDY header frame.
+/// Only applies to frames containing headers: SYN_STREAM, SYN_REPLY, HEADERS
+/// Note that there may be multiple SPDY frames in one packet.
 typedef struct _spdy_header_info{
     uint32_t stream_id;
     uint8_t *header_block;
@@ -93,13 +89,12 @@ typedef struct _spdy_header_info{
     uint16_t frame_type;
 } spdy_header_info;
 
-
-// This structure contains the HTTP Headers
-
+    
+/// This structure contains the HTTP Headers
 typedef std::map<std::string, std::string>          HTTPHeaders;
 
-// This structure contains the HTTP Protocol information
-
+    
+/// This structure contains the HTTP Protocol information
 typedef struct _http_protocol_info_t{
     HTTPHeaders http_headers;
     uint        http_type;
@@ -118,8 +113,8 @@ typedef struct _http_protocol_info_t{
 } http_protocol_info;
 
 
-// This structure is used to hold the stream compression info.
-// These data sets need to be maintained across streams
+/// This structure is used to hold the stream compression info.
+/// These data sets need to be maintained across streams
 typedef struct spdy_compression_t {
     z_streamp  rqst_decompressor;
     z_streamp  rply_decompressor;
@@ -127,7 +122,7 @@ typedef struct spdy_compression_t {
 } spdy_compression;
         
         
-}	// end namespace spdy
-}	// end namespace pion
+}   // end namespace spdy
+}   // end namespace pion
 
 #endif

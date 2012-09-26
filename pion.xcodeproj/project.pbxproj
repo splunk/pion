@@ -485,8 +485,6 @@
 		E35CCE5415BF2CB400D76F6C /* src */ = {
 			isa = PBXGroup;
 			children = (
-				61AECC9E161268B300BF2B16 /* spdy_decompressor.cpp */,
-				61AECC9F161268B300BF2B16 /* spdy_parser.cpp */,
 				E35CCE9C15BF2D8A00D76F6C /* admin_rights.cpp */,
 				E35CCE9D15BF2D8A00D76F6C /* algorithm.cpp */,
 				E35CCE9E15BF2D8A00D76F6C /* http_auth.cpp */,
@@ -503,6 +501,8 @@
 				E35CCEA915BF2D8A00D76F6C /* plugin.cpp */,
 				E35CCEAA15BF2D8A00D76F6C /* process.cpp */,
 				E35CCEAB15BF2D8A00D76F6C /* scheduler.cpp */,
+				61AECC9E161268B300BF2B16 /* spdy_decompressor.cpp */,
+				61AECC9F161268B300BF2B16 /* spdy_parser.cpp */,
 				E35CCEAC15BF2D8A00D76F6C /* tcp_server.cpp */,
 				E35CCEAD15BF2D8A00D76F6C /* tcp_timer.cpp */,
 			);
@@ -545,7 +545,6 @@
 				E35CCECE15BF2DE500D76F6C /* algorithm_tests.cpp */,
 				E35CCECF15BF2DE500D76F6C /* file_service_tests.cpp */,
 				E35CCED015BF2DE500D76F6C /* http_message_tests.cpp */,
-				61AECCA21612699D00BF2B16 /* spdy_parser_tests.cpp */,
 				E35CCED115BF2DE500D76F6C /* http_parser_tests.cpp */,
 				E35CCED215BF2DE500D76F6C /* http_plugin_server_tests.cpp */,
 				E35CCED315BF2DE500D76F6C /* http_request_tests.cpp */,
@@ -554,6 +553,7 @@
 				E35CCED615BF2DE500D76F6C /* piontests.cpp */,
 				E35CCED715BF2DE500D76F6C /* plugin_manager_tests.cpp */,
 				E35CCED815BF2DE500D76F6C /* plugin_tests.cpp */,
+				61AECCA21612699D00BF2B16 /* spdy_parser_tests.cpp */,
 				E35CCED915BF2DE500D76F6C /* tcp_server_tests.cpp */,
 				E35CCEDA15BF2DE500D76F6C /* tcp_stream_tests.cpp */,
 			);
@@ -1247,11 +1247,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				BOOST_VERSION = 1.51.0;
+				DEP_PATH = "/Users/$(USER)/.cloudmeter";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					PION_HAVE_JSON,
 					BOOST_TEST_DYN_LINK,
 					_REENTRANT,
 					PION_XCODE,
@@ -1260,14 +1261,22 @@
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					"$(CONFIGURATION_BUILD_DIR)",
+					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib",
 				);
+				LOG4CPLUS_VERSION = 1.0.4.1;
 				OBJROOT = "$(PROJECT_DIR)/bin/tmp";
-				OTHER_CPLUSPLUSFLAGS = (
+				OTHER_CFLAGS = (
 					"-fkeep-inline-functions",
 					"-isystem",
-					/usr/local/include/boost,
-					"-isystem",
 					/usr/local/include,
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-isystem",
+					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/include",
+					"-isystem",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/include",
 				);
 				OTHER_LDFLAGS = (
 					"-lboost_thread",
@@ -1292,11 +1301,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				BOOST_VERSION = 1.51.0;
+				DEP_PATH = "/Users/$(USER)/.cloudmeter";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					PION_HAVE_JSON,
 					BOOST_TEST_DYN_LINK,
 					_REENTRANT,
 					PION_XCODE,
@@ -1306,14 +1316,21 @@
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					"$(CONFIGURATION_BUILD_DIR)",
+					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib",
 				);
+				LOG4CPLUS_VERSION = 1.0.4.1;
 				OBJROOT = "$(PROJECT_DIR)/bin/tmp";
+				OTHER_CFLAGS = (
+					"-isystem",
+					/usr/local/include,
+				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-isystem",
-					/usr/local/include/boost,
+					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/include",
 					"-isystem",
-					/usr/local/include,
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/include",
 				);
 				OTHER_LDFLAGS = (
 					"-lboost_thread",

@@ -1,7 +1,7 @@
-// ------------------------------------------------------------------
-// pion: a C++ framework for building lightweight HTTP interfaces
-// ------------------------------------------------------------------
-// Copyright (C) 2007-2012 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// ---------------------------------------------------------------------
+// pion:  a Boost C++ framework for building lightweight HTTP interfaces
+// ---------------------------------------------------------------------
+// Copyright (C) 2007-2012 Cloudmeter, Inc.  (http://www.cloudmeter.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
@@ -15,22 +15,24 @@
 #include <pion/spdy/decompressor.hpp>
 #include <pion/spdy/types.hpp>
 
-namespace pion {	// begin namespace pion
-namespace spdy {	// begin namespace spdy
 
-parser::error_category_t *	parser::m_error_category_ptr = NULL;
+namespace pion {    // begin namespace pion
+namespace spdy {    // begin namespace spdy
+
+
+parser::error_category_t *  parser::m_error_category_ptr = NULL;
 boost::once_flag            parser::m_instance_flag = BOOST_ONCE_INIT;
 
 // parser member functions
 
 parser::parser(const char *ptr, boost::system::error_code& ec)
-: m_read_ptr(ptr),
-  m_current_data_chunk_ptr(ptr),
-  m_uncompressed_ptr(NULL),
-  m_last_data_chunk_ptr(NULL),
-  m_logger(PION_GET_LOGGER("pion.spdy.parser"))
+    : m_read_ptr(ptr),
+    m_uncompressed_ptr(NULL),
+    m_current_data_chunk_ptr(ptr),
+    m_last_data_chunk_ptr(NULL),
+    m_logger(PION_GET_LOGGER("pion.spdy.parser"))
 {
-    PION_ASSERT(ptr);
+    BOOST_ASSERT(ptr);
 }
 
 bool parser::parse(spdy_compression*& compression_data,
@@ -55,7 +57,7 @@ bool parser::is_spdy_frame(const char *ptr)
      * byte, but this is a pretty reliable heuristic for
      * now.)
      */
-    PION_ASSERT(ptr);
+    BOOST_ASSERT(ptr);
     
     const char *read_ptr = ptr;
     
@@ -74,23 +76,19 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
                               uint32_t current_stream_count)
 {
     
-    PION_ASSERT(m_read_ptr);
+    BOOST_ASSERT(m_read_ptr);
     
     bool more_to_parse = false;
-    
     boost::tribool rc = boost::indeterminate;
-    std::size_t total_bytes_parsed = 0;
     
     // Verify that this is a spdy frame
     
     uint8_t first_byte = (uint8_t)*m_read_ptr;
     if (first_byte != 0x80 && first_byte != 0x0) {
-        
         // This is not a SPDY frame, throw an error
         PION_LOG_ERROR(m_logger, "Invalid SPDY Frame");
         set_error(ec, ERROR_INVALID_SPDY_FRAME);
-        
-        return;
+        return false;
     }
     
     uint8_t                 control_bit;
@@ -100,7 +98,7 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
     // Populate the frame
     populate_frame(ec, &frame, length_packet, stream_id, http_info);
     
-    PION_ASSERT(stream_id != 0);
+    BOOST_ASSERT(stream_id != 0);
     
     control_bit = (uint8_t)frame.control_bit;
     
@@ -119,11 +117,10 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
     /* Abort here if the version is too low. */
     
     if (frame.version > MIN_SPDY_VERSION) {
-        
         // Version less that min SPDY version, throw an error
         PION_LOG_ERROR(m_logger, "Invalid SPDY Version Number");
         set_error(ec, ERROR_INVALID_SPDY_VERSION);
-        return;
+        return false;
     }
     
     if(frame.type ==  SPDY_SYN_STREAM){
@@ -277,10 +274,7 @@ void parser::parse_header_payload(boost::system::error_code &ec,
 {
     uint32_t stream_id = 0;
     uint32_t associated_stream_id;
-    
     int header_block_length = frame->length;
-    
-    uint32_t num_headers = 0;
     
     // Get the 31 bit stream id
     
@@ -494,5 +488,5 @@ void parser::parse_spdy_window_update_frame(boost::system::error_code &ec,
     // TBD : Do we really need this for our purpose
 }
     
-}	// end namespace net
-}	// end namespace pion
+}   // end namespace spdy
+}   // end namespace pion

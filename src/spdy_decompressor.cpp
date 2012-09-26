@@ -1,7 +1,7 @@
-// ------------------------------------------------------------------
-// pion: a C++ framework for building lightweight HTTP interfaces
-// ------------------------------------------------------------------
-// Copyright (C) 2007-2012 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// ---------------------------------------------------------------------
+// pion:  a Boost C++ framework for building lightweight HTTP interfaces
+// ---------------------------------------------------------------------
+// Copyright (C) 2007-2012 Cloudmeter, Inc.  (http://www.cloudmeter.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
@@ -15,21 +15,41 @@
 #include <pion/spdy/decompressor.hpp>
 #include <pion/spdy/types.hpp>
 
-#define MAX_UNCOMPRESSED_DATA_BUF_SIZE  16384
 
-namespace pion {	// begin namespace pion
-namespace spdy {	// begin namespace spdy 
-        
-decompressor::error_category_t *	decompressor::m_error_category_ptr = NULL;
+
+namespace pion {    // begin namespace pion
+namespace spdy {    // begin namespace spdy 
+
+    
+// decompressor static members
+    
+decompressor::error_category_t *    decompressor::m_error_category_ptr = NULL;
 boost::once_flag                    decompressor::m_instance_flag = BOOST_ONCE_INIT;
+const boost::uint16_t               decompressor::MAX_UNCOMPRESSED_DATA_BUF_SIZE = 16384;
+const char * const decompressor::SPDY_ZLIB_DICTIONARY =
+    "optionsgetheadpostputdeletetraceacceptaccept-charsetaccept-encodingaccept-"
+    "languageauthorizationexpectfromhostif-modified-sinceif-matchif-none-matchi"
+    "f-rangeif-unmodifiedsincemax-forwardsproxy-authorizationrangerefererteuser"
+    "-agent10010120020120220320420520630030130230330430530630740040140240340440"
+    "5406407408409410411412413414415416417500501502503504505accept-rangesageeta"
+    "glocationproxy-authenticatepublicretry-afterservervarywarningwww-authentic"
+    "ateallowcontent-basecontent-encodingcache-controlconnectiondatetrailertran"
+    "sfer-encodingupgradeviawarningcontent-languagecontent-lengthcontent-locati"
+    "oncontent-md5content-rangecontent-typeetagexpireslast-modifiedset-cookieMo"
+    "ndayTuesdayWednesdayThursdayFridaySaturdaySundayJanFebMarAprMayJunJulAugSe"
+    "pOctNovDecchunkedtext/htmlimage/pngimage/jpgimage/gifapplication/xmlapplic"
+    "ation/xhtmltext/plainpublicmax-agecharset=iso-8859-1utf-8gzipdeflateHTTP/1"
+    ".1statusversionurl";
+    
+
+// decompressor member functions
 
 decompressor::decompressor(const char *compressed_data_ptr,
                            boost::system::error_code& ec)
     : m_compressed_data_ptr(compressed_data_ptr),
       m_logger(PION_GET_LOGGER("pion.spdy.decompressor"))
 {
-    PION_ASSERT(m_compressed_data_ptr);
-    
+    BOOST_ASSERT(m_compressed_data_ptr);
 }
 
 void decompressor::init_decompressor(boost::system::error_code &ec,
@@ -71,8 +91,8 @@ void decompressor::init_decompressor(boost::system::error_code &ec,
     compression_data->dictionary_id = adler32(0L, Z_NULL, 0);
     
     compression_data->dictionary_id = adler32(compression_data->dictionary_id,
-                                              (const Bytef *)pion::spdy::spdy_dictionary,
-                                              sizeof(pion::spdy::spdy_dictionary));
+                                              (const Bytef *)SPDY_ZLIB_DICTIONARY,
+                                              sizeof(SPDY_ZLIB_DICTIONARY));
 }
 
 char* decompressor::decompress(boost::system::error_code& ec,
@@ -107,7 +127,7 @@ char* decompressor::decompress(boost::system::error_code& ec,
     } else {
         
         // Unhandled case. This should never happen.
-        PION_ASSERT(false);
+        BOOST_ASSERT(false);
     }
     // Decompress the data
     uncomp_ptr = spdy_decompress_header(ec,
@@ -159,8 +179,8 @@ char* decompressor::spdy_decompress_header(boost::system::error_code& ec,
             // Decompressor wants a different dictionary id
         } else {
             retcode = inflateSetDictionary(decomp,
-                                           (const Bytef *)spdy_dictionary,
-                                           sizeof(spdy_dictionary));
+                                           (const Bytef *)SPDY_ZLIB_DICTIONARY,
+                                           sizeof(SPDY_ZLIB_DICTIONARY));
             if (retcode == Z_OK) {
                 retcode = inflate(decomp, Z_SYNC_FLUSH);
             }
@@ -191,5 +211,5 @@ char* decompressor::spdy_decompress_header(boost::system::error_code& ec,
     return  (char *)uncomp_block;
 }
         
-}	// end namespace spdy
-}	// end namespace pion
+}   // end namespace spdy
+}   // end namespace pion

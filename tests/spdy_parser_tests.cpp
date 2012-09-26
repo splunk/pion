@@ -1,28 +1,30 @@
-// ------------------------------------------------------------------
-// pion-net: a C++ framework for building lightweight HTTP interfaces
-// ------------------------------------------------------------------
-// Copyright (C) 2007-2008 Atomic Labs, Inc.  (http://www.atomiclabs.com)
+// ---------------------------------------------------------------------
+// pion:  a Boost C++ framework for building lightweight HTTP interfaces
+// ---------------------------------------------------------------------
+// Copyright (C) 2007-2012 Cloudmeter, Inc.  (http://www.cloudmeter.com)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <pion/PionConfig.hpp>
-#include <pion/PionUnitTestDefs.hpp>
+#include <pion/config.hpp>
+#include <pion/test/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/spdy/parser.hpp>
 
 #include "spdy_parser_tests_data.inc"
 
+
 using namespace pion;
 using namespace pion::spdy;
 
+
 class parser_F {
 public:
-	parser_F() {
-	}
-	~parser_F() {
-	}
+    parser_F() {
+    }
+    ~parser_F() {
+    }
 };
 
 BOOST_FIXTURE_TEST_SUITE(parser_S, parser_F)
@@ -48,7 +50,6 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_frame)
 {
     // Parse a spdy response frame
     
-    spdy_compression*    spdy_compressor_ptr;
     boost::system::error_code ec;
     http_protocol_info http_info;
     
@@ -117,9 +118,6 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_interleaved_frame)
     // The length is known for this packet
     uint32_t length_packet = 1460;
     
-    spdy_control_frame_info frame;
-    uint32_t                stream_id = 0;
-    
     parser spdy_parser((const char*)spdy_window_frame, ec);
     
     bool more_to_parse = false;
@@ -144,9 +142,6 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
     // Check for interleaved spdy frames
     // The length is known for this packet
     uint32_t length_packet = 1460;
-    
-    spdy_control_frame_info frame;
-    uint32_t                stream_id = 0;
     
     parser spdy_parser((const char*)spdy_syn_stream_frame, ec);
     
@@ -189,9 +184,6 @@ BOOST_AUTO_TEST_CASE(testSPDYParseData)
     // Check for interleaved spdy frames
     // The length is known for this packet
     uint32_t length_packet = 294;
-    
-    spdy_control_frame_info frame;
-    uint32_t                stream_id = 0;
     
     bool more_to_parse = false;
     
