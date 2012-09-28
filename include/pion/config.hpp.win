@@ -124,9 +124,9 @@
 	#endif
 
 	#ifdef PION_STATIC_LINKING
-		#define PION_SERVICE_API 
+		#define PION_PLUGIN 
 	#else
-		#define PION_SERVICE_API __declspec(dllexport)
+		#define PION_PLUGIN __declspec(dllexport)
 	#endif
 
 	/*

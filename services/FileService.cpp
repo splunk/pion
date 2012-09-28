@@ -970,13 +970,13 @@ void DiskFileSender::handle_write(const boost::system::error_code& write_error,
 
 
 /// creates new FileService objects
-extern "C" PION_SERVICE_API pion::plugins::FileService *pion_create_FileService(void)
+extern "C" PION_PLUGIN pion::plugins::FileService *pion_create_FileService(void)
 {
     return new pion::plugins::FileService();
 }
 
 /// destroys FileService objects
-extern "C" PION_SERVICE_API void pion_destroy_FileService(pion::plugins::FileService *service_ptr)
+extern "C" PION_PLUGIN void pion_destroy_FileService(pion::plugins::FileService *service_ptr)
 {
     delete service_ptr;
 }
