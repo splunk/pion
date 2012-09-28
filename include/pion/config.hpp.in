@@ -72,6 +72,6 @@
 
 /* This is used by Windows projects to flag exported symbols */
 #define PION_API
-#define PION_SERVICE_API
+#define PION_PLUGIN
 
 #endif
