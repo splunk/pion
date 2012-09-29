@@ -1,73 +1,33 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pion", "src\pion.vcproj", "{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pion", "src\pion.vcxproj", "{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "piond", "utils\piond.vcproj", "{2CF6432F-56EA-43AD-BCCB-C31A4DB75853}"
-	ProjectSection(ProjectDependencies) = postProject
-		{99D0C0C7-793B-49B1-A42E-CB563E5BB81F} = {99D0C0C7-793B-49B1-A42E-CB563E5BB81F}
-		{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62} = {61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "piond", "utils\piond.vcxproj", "{2CF6432F-56EA-43AD-BCCB-C31A4DB75853}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "piontests", "tests\piontests.vcproj", "{5AD25B42-E2C0-4D08-985B-E8F115D19D56}"
-	ProjectSection(ProjectDependencies) = postProject
-		{99D0C0C7-793B-49B1-A42E-CB563E5BB81F} = {99D0C0C7-793B-49B1-A42E-CB563E5BB81F}
-		{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62} = {61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}
-		{7080E9F1-318F-4152-9E36-9F427F5CE9B7} = {7080E9F1-318F-4152-9E36-9F427F5CE9B7}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "piontests", "tests\piontests.vcxproj", "{5AD25B42-E2C0-4D08-985B-E8F115D19D56}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PionNetServices", "PionNetServices.vcproj", "{99D0C0C7-793B-49B1-A42E-CB563E5BB81F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9EE2433A-B460-45E0-8968-EC5CE8EF9875} = {9EE2433A-B460-45E0-8968-EC5CE8EF9875}
-		{8C8A8E46-4588-4CE1-B624-89C36EA5209E} = {8C8A8E46-4588-4CE1-B624-89C36EA5209E}
-		{70CA1FA9-BA9A-4EA4-9B7B-C747238991C1} = {70CA1FA9-BA9A-4EA4-9B7B-C747238991C1}
-		{09C3D3D7-7CE0-48D1-994F-EB534C07CF8B} = {09C3D3D7-7CE0-48D1-994F-EB534C07CF8B}
-		{1CF012D8-A47C-4D2B-952D-D90D19795A07} = {1CF012D8-A47C-4D2B-952D-D90D19795A07}
-		{12F95FE7-ACE1-4281-86BF-4117AE2D633E} = {12F95FE7-ACE1-4281-86BF-4117AE2D633E}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PionNetServices", "PionNetServices.vcxproj", "{99D0C0C7-793B-49B1-A42E-CB563E5BB81F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AllowNothingService", "services\AllowNothingService.vcproj", "{8C8A8E46-4588-4CE1-B624-89C36EA5209E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62} = {61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AllowNothingService", "services\AllowNothingService.vcxproj", "{8C8A8E46-4588-4CE1-B624-89C36EA5209E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CookieService", "services\CookieService.vcproj", "{1CF012D8-A47C-4D2B-952D-D90D19795A07}"
-	ProjectSection(ProjectDependencies) = postProject
-		{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62} = {61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CookieService", "services\CookieService.vcxproj", "{1CF012D8-A47C-4D2B-952D-D90D19795A07}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EchoService", "services\EchoService.vcproj", "{09C3D3D7-7CE0-48D1-994F-EB534C07CF8B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62} = {61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EchoService", "services\EchoService.vcxproj", "{09C3D3D7-7CE0-48D1-994F-EB534C07CF8B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileService", "services\FileService.vcproj", "{70CA1FA9-BA9A-4EA4-9B7B-C747238991C1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62} = {61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileService", "services\FileService.vcxproj", "{70CA1FA9-BA9A-4EA4-9B7B-C747238991C1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloService", "services\HelloService.vcproj", "{9EE2433A-B460-45E0-8968-EC5CE8EF9875}"
-	ProjectSection(ProjectDependencies) = postProject
-		{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62} = {61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloService", "services\HelloService.vcxproj", "{9EE2433A-B460-45E0-8968-EC5CE8EF9875}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LogService", "services\LogService.vcproj", "{12F95FE7-ACE1-4281-86BF-4117AE2D633E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62} = {61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LogService", "services\LogService.vcxproj", "{12F95FE7-ACE1-4281-86BF-4117AE2D633E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hasCreateAndDestroy", "tests\plugins\hasCreateAndDestroy.vcproj", "{CD11B3D6-1296-45F4-B924-034CC103D626}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hasCreateAndDestroy", "tests\plugins\hasCreateAndDestroy.vcxproj", "{CD11B3D6-1296-45F4-B924-034CC103D626}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hasCreateButNoDestroy", "tests\plugins\hasCreateButNoDestroy.vcproj", "{2DEAB99F-2617-4235-8EF7-653F36EFAC83}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hasCreateButNoDestroy", "tests\plugins\hasCreateButNoDestroy.vcxproj", "{2DEAB99F-2617-4235-8EF7-653F36EFAC83}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hasNoCreate", "tests\plugins\hasNoCreate.vcproj", "{33DEAB53-40E1-42FF-9C17-7A9956102052}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hasNoCreate", "tests\plugins\hasNoCreate.vcxproj", "{33DEAB53-40E1-42FF-9C17-7A9956102052}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPluigins", "tests\TestPlugins.vcproj", "{7080E9F1-318F-4152-9E36-9F427F5CE9B7}"
-	ProjectSection(ProjectDependencies) = postProject
-		{33DEAB53-40E1-42FF-9C17-7A9956102052} = {33DEAB53-40E1-42FF-9C17-7A9956102052}
-		{2DEAB99F-2617-4235-8EF7-653F36EFAC83} = {2DEAB99F-2617-4235-8EF7-653F36EFAC83}
-		{CD11B3D6-1296-45F4-B924-034CC103D626} = {CD11B3D6-1296-45F4-B924-034CC103D626}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPluigins", "tests\TestPlugins.vcxproj", "{7080E9F1-318F-4152-9E36-9F427F5CE9B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -404,8 +364,8 @@ Global
 		{CD11B3D6-1296-45F4-B924-034CC103D626}.Debug|Win32.ActiveCfg = Debug_DLL|x64
 		{CD11B3D6-1296-45F4-B924-034CC103D626}.Debug|x64.ActiveCfg = Debug_DLL|x64
 		{CD11B3D6-1296-45F4-B924-034CC103D626}.Debug|x64.Build.0 = Debug_DLL|x64
-		{CD11B3D6-1296-45F4-B924-034CC103D626}.Release_DLL_full|Win32.ActiveCfg = Release_DLL|Win32
-		{CD11B3D6-1296-45F4-B924-034CC103D626}.Release_DLL_full|Win32.Build.0 = Release_DLL|Win32
+		{CD11B3D6-1296-45F4-B924-034CC103D626}.Release_DLL_full|Win32.ActiveCfg = Release_DLL_Full|Win32
+		{CD11B3D6-1296-45F4-B924-034CC103D626}.Release_DLL_full|Win32.Build.0 = Release_DLL_Full|Win32
 		{CD11B3D6-1296-45F4-B924-034CC103D626}.Release_DLL_full|x64.ActiveCfg = Release_DLL_Full|x64
 		{CD11B3D6-1296-45F4-B924-034CC103D626}.Release_DLL_full|x64.Build.0 = Release_DLL_Full|x64
 		{CD11B3D6-1296-45F4-B924-034CC103D626}.Release_DLL|Win32.ActiveCfg = Release_DLL|Win32
@@ -434,8 +394,8 @@ Global
 		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Debug|Win32.ActiveCfg = Debug_DLL|x64
 		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Debug|x64.ActiveCfg = Debug_DLL|x64
 		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Debug|x64.Build.0 = Debug_DLL|x64
-		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Release_DLL_full|Win32.ActiveCfg = Release_DLL|Win32
-		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Release_DLL_full|Win32.Build.0 = Release_DLL|Win32
+		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Release_DLL_full|Win32.ActiveCfg = Release_DLL_full|Win32
+		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Release_DLL_full|Win32.Build.0 = Release_DLL_full|Win32
 		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Release_DLL_full|x64.ActiveCfg = Release_DLL_full|x64
 		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Release_DLL_full|x64.Build.0 = Release_DLL_full|x64
 		{2DEAB99F-2617-4235-8EF7-653F36EFAC83}.Release_DLL|Win32.ActiveCfg = Release_DLL|Win32
@@ -464,8 +424,8 @@ Global
 		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Debug|Win32.ActiveCfg = Debug_DLL|x64
 		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Debug|x64.ActiveCfg = Debug_DLL|x64
 		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Debug|x64.Build.0 = Debug_DLL|x64
-		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Release_DLL_full|Win32.ActiveCfg = Release_DLL|Win32
-		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Release_DLL_full|Win32.Build.0 = Release_DLL|Win32
+		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Release_DLL_full|Win32.ActiveCfg = Release_DLL_full|Win32
+		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Release_DLL_full|Win32.Build.0 = Release_DLL_full|Win32
 		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Release_DLL_full|x64.ActiveCfg = Release_DLL_full|x64
 		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Release_DLL_full|x64.Build.0 = Release_DLL_full|x64
 		{33DEAB53-40E1-42FF-9C17-7A9956102052}.Release_DLL|Win32.ActiveCfg = Release_DLL|Win32
