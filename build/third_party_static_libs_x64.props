@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="UserMacros">
+    <BOOST_INC>C:\boost\include\boost-1_51</BOOST_INC>
+    <BOOST_LIB>C:\boost\lib\x64</BOOST_LIB>
+    <BZIP2_INC>C:\bzip2-1.0.5\include</BZIP2_INC>
+    <BZIP2_LIB>C:\bzip2-1.0.5\lib</BZIP2_LIB>
+    <ICONV_INC>C:\iconv-1.9.2\include</ICONV_INC>
+    <ICONV_LIB>C:\iconv-1.9.2\lib\x64</ICONV_LIB>
+    <ICU_INC>C:\icu-3.6\include</ICU_INC>
+    <ICU_LIB>C:\icu-3.6\x64\lib</ICU_LIB>
+    <LIBXML_INC>C:\libxml2-2.6.30\include</LIBXML_INC>
+    <LIBXML_LIB>C:\libxml2-2.6.30\lib\x64</LIBXML_LIB>
+    <LOG4CPLUS_INC>C:\log4cplus-1.0.3\include</LOG4CPLUS_INC>
+    <LOG4CPLUS_LIB>C:\log4cplus-1.0.3\bin\x64</LOG4CPLUS_LIB>
+    <LOG4CXX_INC>C:\apache\apache-log4cxx-0.10.0\src\main\include</LOG4CXX_INC>
+    <LOG4CXX_LIB>C:\apache\apache-log4cxx-0.10.0\bin</LOG4CXX_LIB>
+    <OPENSSL_INC>C:\openssl-0.9.8l\inc64</OPENSSL_INC>
+    <OPENSSL_LIB>C:\openssl-0.9.8l\lib\x64</OPENSSL_LIB>
+    <PYTHON_INC>C:\Python26\include</PYTHON_INC>
+    <PYTHON_LIB>C:\Python26\libs</PYTHON_LIB>
+    <YAJL_INC>C:\yajl-1.0.9\include</YAJL_INC>
+    <YAJL_LIB>C:\yajl-1.0.9\bin</YAJL_LIB>
+    <ZLIB_INC>C:\zlib-1.2.3\include</ZLIB_INC>
+    <ZLIB_LIB>C:\zlib-1.2.3\lib\x64</ZLIB_LIB>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(BOOST_INC);$(BZIP2_INC);$(ICONV_INC);$(ICU_INC);$(LIBXML_INC);$(LOG4CPLUS_INC);$(LOG4CXX_INC);$(OPENSSL_INC);$(PYTHON_INC);$(YAJL_INC);$(ZLIB_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LOG4CPLUS_STATIC;LOG4CXX_STATIC;U_STATIC_IMPLEMENTATION;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(BOOST_LIB);$(BZIP2_LIB);$(ICONV_LIB);$(ICU_LIB);$(LIBXML_LIB);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="BOOST_INC">
+      <Value>$(BOOST_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BOOST_LIB">
+      <Value>$(BOOST_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BZIP2_INC">
+      <Value>$(BZIP2_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BZIP2_LIB">
+      <Value>$(BZIP2_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ICONV_INC">
+      <Value>$(ICONV_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ICONV_LIB">
+      <Value>$(ICONV_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ICU_INC">
+      <Value>$(ICU_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ICU_LIB">
+      <Value>$(ICU_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBXML_INC">
+      <Value>$(LIBXML_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBXML_LIB">
+      <Value>$(LIBXML_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LOG4CPLUS_INC">
+      <Value>$(LOG4CPLUS_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LOG4CPLUS_LIB">
+      <Value>$(LOG4CPLUS_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LOG4CXX_INC">
+      <Value>$(LOG4CXX_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LOG4CXX_LIB">
+      <Value>$(LOG4CXX_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSL_INC">
+      <Value>$(OPENSSL_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSL_LIB">
+      <Value>$(OPENSSL_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PYTHON_INC">
+      <Value>$(PYTHON_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PYTHON_LIB">
+      <Value>$(PYTHON_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="YAJL_INC">
+      <Value>$(YAJL_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="YAJL_LIB">
+      <Value>$(YAJL_LIB)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ZLIB_INC">
+      <Value>$(ZLIB_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ZLIB_LIB">
+      <Value>$(ZLIB_LIB)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
