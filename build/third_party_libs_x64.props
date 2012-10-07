@@ -16,8 +16,8 @@
     <OPENSSL_LIB>C:\openssl-0.9.8l\bin\x64</OPENSSL_LIB>
     <PYTHON_INC>C:\Python26\x64\include</PYTHON_INC>
     <PYTHON_LIB>C:\Python26\x64\libs</PYTHON_LIB>
-    <YAJL_INC>C:\yajl-1.0.9\include</YAJL_INC>
-    <YAJL_LIB>C:\yajl-1.0.9\bin\x64</YAJL_LIB>
+    <YAJL_INC>C:\yajl-2.0.5\include</YAJL_INC>
+    <YAJL_LIB>C:\yajl-2.0.5\lib\Release\x64</YAJL_LIB>
     <ZLIB_INC>C:\zlib-1.2.3\include</ZLIB_INC>
     <ZLIB_LIB>C:\zlib-1.2.3\bin\x64</ZLIB_LIB>
     <PION_PATH>$(BOOST_LIB);$(BZIP2_LIB);$(ICONV_LIB);$(ICU_LIB);$(LIBXML_LIB);$(LOG4CPLUS_LIB);$(OPENSSL_LIB);$(YAJL_LIB);$(ZLIB_LIB);$(PATH)</PION_PATH>
