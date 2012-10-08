@@ -66,11 +66,6 @@ namespace test {    // begin namespace test
     };
     
 
-    // This is passed to xmlSetGenericErrorFunc() to make libxml do nothing when an error
-    // occurs, rather than its default behavior of writing a message to stderr.
-    static inline void do_nothing(void* ctx, const char* msg, ...) {
-    }
-
     // removes line endings from a c-style string
     static inline char* trim(char* str) {
         for (long len = strlen(str) - 1; len >= 0; len--) {

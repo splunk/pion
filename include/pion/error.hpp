@@ -37,11 +37,11 @@ namespace pion {    // begin namespace pion
         exception(const char * const msg) : m_what_msg(msg) {}
         virtual ~exception() throw () {}
         virtual const char* what() const throw() {
-        	if (m_what_msg.empty()) update_what_msg();
-        	return m_what_msg.c_str();
+            if (m_what_msg.empty()) update_what_msg();
+            return m_what_msg.c_str();
         }
     protected:
-    	inline void set_what_msg(const char * const msg = NULL, const std::string * const arg1 = NULL, const std::string * const arg2 = NULL, const std::string * const arg3 = NULL) const {
+        inline void set_what_msg(const char * const msg = NULL, const std::string * const arg1 = NULL, const std::string * const arg2 = NULL, const std::string * const arg3 = NULL) const {
             std::ostringstream tmp;
 #if BOOST_VERSION >= 104700
             tmp << ( msg ? msg : boost::units::detail::demangle(BOOST_EXCEPTION_DYNAMIC_TYPEID(*this).type_->name()) );
@@ -53,9 +53,9 @@ namespace pion {    // begin namespace pion
             if (arg2) tmp << ' ' << *arg2;
             if (arg3) tmp << ' ' << *arg3;
             m_what_msg = tmp.str();
-    	}
-    	virtual void update_what_msg() const { set_what_msg(); }
-    	mutable std::string m_what_msg;
+        }
+        virtual void update_what_msg() const { set_what_msg(); }
+        mutable std::string m_what_msg;
     };
     
     
@@ -69,11 +69,11 @@ namespace pion {    // begin namespace pion
     static inline std::string
     diagnostic_information( T const & e )
     {
-		boost::exception const * const be = dynamic_cast<const boost::exception*>(&e);
-		std::exception const * const se = dynamic_cast<const std::exception*>(&e);
+        boost::exception const * const be = dynamic_cast<const boost::exception*>(&e);
+        std::exception const * const se = dynamic_cast<const std::exception*>(&e);
         std::ostringstream tmp;
         tmp << (se ? se->what() : "unknown exception");
-		if (be) {
+        if (be) {
             char const * const * fn=boost::get_error_info<boost::throw_function>(*be);
             char const * const * f=boost::get_error_info<boost::throw_file>(*be);
             if (fn) tmp << " at " << *fn;
@@ -82,9 +82,9 @@ namespace pion {    // begin namespace pion
                 if( int const * l=boost::get_error_info<boost::throw_line>(*be) )
                     tmp << ':' << *l;
             }
-		}
-		return tmp.str();
-	}
+        }
+        return tmp.str();
+    }
 
     
     namespace error {    // begin namespace error

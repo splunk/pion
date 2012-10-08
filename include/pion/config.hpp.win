@@ -87,13 +87,13 @@
 #undef PION_HAVE_ICU
 
 #ifdef PION_HAVE_SSL
-	#if defined _DEBUG
-		#pragma comment(lib, "ssleay32d")
-		#pragma comment(lib, "libeay32d")
-	#else
-		#pragma comment(lib, "ssleay32")
-		#pragma comment(lib, "libeay32")
-	#endif
+    #if defined _DEBUG
+        #pragma comment(lib, "ssleay32d")
+        #pragma comment(lib, "libeay32d")
+    #else
+        #pragma comment(lib, "ssleay32")
+        #pragma comment(lib, "libeay32")
+    #endif
 #endif
 
 /* If you have the `yajl' library installed, include PION_HAVE_JSON or PION_FULL
@@ -106,37 +106,37 @@
 
 
 #ifdef _WIN32
-	#define PION_WIN32	1
+    #define PION_WIN32  1
 #else
-	#error PionConfig.hpp.win is for Win32 only.
+    #error PionConfig.hpp.win is for Win32 only.
 #endif // _WIN32
 
 #include <boost/config.hpp>
 
 #ifdef _MSC_VER
 
-	#ifdef PION_EXPORTS
-		#define PION_API __declspec(dllexport)
-	#elif defined PION_STATIC_LINKING
-		#define PION_API
-	#else
-		#define PION_API __declspec(dllimport)
-	#endif
+    #ifdef PION_EXPORTS
+        #define PION_API __declspec(dllexport)
+    #elif defined PION_STATIC_LINKING
+        #define PION_API
+    #else
+        #define PION_API __declspec(dllimport)
+    #endif
 
-	#ifdef PION_STATIC_LINKING
-		#define PION_PLUGIN 
-	#else
-		#define PION_PLUGIN __declspec(dllexport)
-	#endif
+    #ifdef PION_STATIC_LINKING
+        #define PION_PLUGIN 
+    #else
+        #define PION_PLUGIN __declspec(dllexport)
+    #endif
 
-	/*
-	Verify correctness of the PION_STATIC_LINKING setup
-	*/
-	#ifdef PION_STATIC_LINKING
-		#ifdef _USRDLL
-			#error Need to be compiled as a static library for PION_STATIC_LINKING
-		#endif
-	#endif
+    /*
+    Verify correctness of the PION_STATIC_LINKING setup
+    */
+    #ifdef PION_STATIC_LINKING
+        #ifdef _USRDLL
+            #error Need to be compiled as a static library for PION_STATIC_LINKING
+        #endif
+    #endif
 
 #endif // _MSC_VER
 
