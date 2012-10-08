@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+    <Import Project="pion-net.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <PION_COMMON_HOME>..\..\common</PION_COMMON_HOME>
+    <PION_NET_HOME>..</PION_NET_HOME>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <BuildMacro Include="PION_COMMON_HOME">
+      <Value>$(PION_COMMON_HOME)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PION_NET_HOME">
+      <Value>$(PION_NET_HOME)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
