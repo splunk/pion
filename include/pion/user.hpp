@@ -283,10 +283,10 @@ protected:
 
 
     /// mutex used to protect access to the user list
-    mutable boost::mutex	m_mutex;
+    mutable boost::mutex    m_mutex;
 
     /// user records container
-    user_map_t				m_users;
+    user_map_t              m_users;
 };
 
 /// data type for a user_manager pointer
