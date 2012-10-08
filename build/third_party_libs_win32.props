@@ -3,9 +3,8 @@
   <PropertyGroup Label="UserMacros">
     <BOOST_INC>C:\boost\include\boost-1_51</BOOST_INC>
     <BOOST_LIB>C:\boost\lib</BOOST_LIB>
-    <BZIP2_INC>C:\bzip2-1.0.5\include</BZIP2_INC>
-    <BZIP2_LIB>C:\bzip2-1.0.5\lib</BZIP2_LIB>
-    <BZIP2_BIN>C:\bzip2-1.0.5\bin</BZIP2_BIN>
+    <BZIP2_INC>C:\bzip2-1.0.6\include</BZIP2_INC>
+    <BZIP2_LIB>C:\bzip2-1.0.6\lib</BZIP2_LIB>
     <ICONV_INC>C:\iconv-1.9.2\include</ICONV_INC>
     <ICONV_LIB>C:\iconv-1.9.2\lib</ICONV_LIB>
     <ICONV_BIN>C:\iconv-1.9.2\bin</ICONV_BIN>
@@ -53,9 +52,6 @@
     </BuildMacro>
     <BuildMacro Include="BZIP2_LIB">
       <Value>$(BZIP2_LIB)</Value>
-    </BuildMacro>
-    <BuildMacro Include="BZIP2_BIN">
-      <Value>$(BZIP2_BIN)</Value>
     </BuildMacro>
     <BuildMacro Include="ICONV_INC">
       <Value>$(ICONV_INC)</Value>

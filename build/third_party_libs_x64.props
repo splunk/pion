@@ -3,7 +3,7 @@
   <PropertyGroup Label="UserMacros">
     <BOOST_INC>C:\boost\include\boost-1_51</BOOST_INC>
     <BOOST_LIB>C:\boost\lib\x64</BOOST_LIB>
-    <BZIP2_LIB>C:\bzip2-1.0.5\bin\x64</BZIP2_LIB>
+    <BZIP2_LIB>C:\bzip2-1.0.6\lib64</BZIP2_LIB>
     <ICONV_INC>C:\iconv-1.9.2\include</ICONV_INC>
     <ICONV_LIB>C:\iconv-1.9.2\bin\x64</ICONV_LIB>
     <ICU_INC>C:\icu4c-49_1_2\icu\include</ICU_INC>
