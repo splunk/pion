@@ -36,10 +36,10 @@ parser::parser(const char *ptr, boost::system::error_code& ec)
 }
 
 bool parser::parse(spdy_compression*& compression_data,
-                       http_protocol_info& http_info,
-                       boost::system::error_code& ec,
-                       uint32_t& length_packet,
-                       uint32_t current_stream_count)
+                   http_protocol_info& http_info,
+                   boost::system::error_code& ec,
+                   uint32_t& length_packet,
+                   uint32_t current_stream_count)
 {
     // Parse the frame
     return parse_spdy_frame(ec, compression_data, http_info, length_packet, current_stream_count);
@@ -65,6 +65,39 @@ bool parser::is_spdy_frame(const char *ptr)
     if (first_byte != 0x80 && first_byte != 0x0) {
         return false;
     }
+    
+    // Parse further for higher accuracy
+    
+    // Get the control bit
+    uint8_t control_bit;
+    uint version, type;
+    uint16_t byte_value = int16_from_char(ptr);
+    control_bit = byte_value >> (sizeof(short) * CHAR_BIT - 1);
+
+    if(control_bit){
+        
+        // Control bit is set; This is a control frame
+        
+        // Get the version number
+        uint16_t two_bytes = int16_from_char(ptr);
+        version = two_bytes & 0x7FFF;
+        
+        if(version > 3){
+            // SPDY does not have a version higher than 3 at the moment
+            return false;
+        }
+        
+        // Increment the read pointer
+        ptr += 2;
+        
+        type = int16_from_char(ptr);
+        
+        if (type >= SPDY_INVALID) {
+            // Not among the recognized SPDY types
+            return false;
+        }
+    }
+    
     return true;
 }
 
