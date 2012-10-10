@@ -96,6 +96,16 @@ bool parser::is_spdy_frame(const char *ptr)
             // Not among the recognized SPDY types
             return false;
         }
+    }else{
+        // This is supposedly a data frame
+        ptr +=4;
+        
+        // Get the flags
+        uint16_t flags = (uint8_t)*ptr;
+        // The valid falg values are till 1 or less
+        if(flags > 1){
+            return false;
+        }
     }
     
     return true;
