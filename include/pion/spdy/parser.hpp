@@ -86,7 +86,7 @@ public:
      *
      * @return true if it is else returns false
      */
-    static bool is_spdy_frame(const char *ptr);
+    static bool is_spdy_frame(const char *ptr, SPDYStreamCompressor& compression_data);
     
     /// populates the frame for every spdy packet
     void populate_frame(boost::system::error_code& ec,
