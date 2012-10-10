@@ -35,7 +35,7 @@ parser::parser(const char *ptr, boost::system::error_code& ec)
     BOOST_ASSERT(ptr);
 }
 
-bool parser::parse(spdy_compression*& compression_data,
+bool parser::parse(SPDYStreamCompressor& compression_data,
                    http_protocol_info& http_info,
                    boost::system::error_code& ec,
                    uint32_t& length_packet,
@@ -103,7 +103,7 @@ bool parser::is_spdy_frame(const char *ptr)
 
 
 bool parser::parse_spdy_frame(boost::system::error_code& ec,
-                              spdy_compression*& compression_data,
+                              SPDYStreamCompressor& compression_data,
                               http_protocol_info& http_info,
                               uint32_t& length_packet,
                               uint32_t current_stream_count)
@@ -127,6 +127,7 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
     uint8_t                 control_bit;
     spdy_control_frame_info frame;
     uint32_t                stream_id = 0;
+    spdy_compression_ptr    compression_data_ptr;
     
     // Populate the frame
     populate_frame(ec, &frame, length_packet, stream_id, http_info);
@@ -164,11 +165,25 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
         http_info.http_type = HTTP_DATA;
     }
     
+    // Get the compression data corresponding to the stream id
+    for(SPDYStreamCompressor::iterator iter = compression_data.begin();
+        iter != compression_data.end();
+        ++iter){
+        
+        if(iter->first ==  stream_id){
+            // Found the stream
+            compression_data_ptr = iter->second;
+            BOOST_ASSERT(compression_data_ptr);
+        }
+            
+    }
+    
+    
     switch (frame.type) {
         case SPDY_SYN_STREAM:
         case SPDY_SYN_REPLY:
         case SPDY_HEADERS:
-            parse_header_payload(ec, &frame, compression_data, http_info, current_stream_count);
+            parse_header_payload(ec, &frame, compression_data_ptr, http_info, current_stream_count);
             break;
             
         case SPDY_RST_STREAM:
@@ -301,7 +316,7 @@ void parser::populate_frame(boost::system::error_code& ec,
 
 void parser::parse_header_payload(boost::system::error_code &ec,
                                   const spdy_control_frame_info* frame,
-                                  spdy_compression*& compression_data,
+                                  spdy_compression_ptr& compression_data,
                                   http_protocol_info& http_info,
                                   uint32_t current_stream_count)
 {
@@ -364,7 +379,7 @@ void parser::parse_header_payload(boost::system::error_code &ec,
     decompressor spdy_decom(m_read_ptr,
                             ec);
     
-    if(frame->type == SPDY_SYN_STREAM){
+    if(frame->type == SPDY_SYN_STREAM && compression_data != NULL){
         
         if(current_stream_count == 0)
             spdy_decom.init_decompressor(ec, compression_data);

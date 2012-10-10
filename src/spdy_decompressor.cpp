@@ -54,9 +54,9 @@ decompressor::decompressor(const char *compressed_data_ptr,
 }
 
 void decompressor::init_decompressor(boost::system::error_code &ec,
-                                     spdy_compression*& compression_data)
+                                     spdy_compression_ptr& compression_data)
 {
-    compression_data = (pion::spdy::spdy_compression*)malloc(sizeof(pion::spdy::spdy_compression_t));
+    compression_data = (spdy_compression_ptr)new spdy_compression_t;
     
     int retcode = 0;
     
@@ -100,7 +100,7 @@ char* decompressor::decompress(boost::system::error_code& ec,
                                uint32_t stream_id,
                                spdy_control_frame_info frame,
                                int header_block_length,
-                               spdy_compression*& compression_data)
+                               spdy_compression_ptr& compression_data)
 {
   
     uint32_t uncomp_length = 0;

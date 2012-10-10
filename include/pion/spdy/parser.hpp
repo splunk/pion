@@ -42,7 +42,7 @@ public:
     ~parser() {}
     
     /// parse the SPDY Frame
-    bool parse(spdy_compression*& compression_data,
+    bool parse(SPDYStreamCompressor& compression_data,
                http_protocol_info& http_headers,
                boost::system::error_code& ec,
                uint32_t& length_packet,
@@ -158,7 +158,7 @@ public:
      */
     void parse_header_payload(boost::system::error_code& ec,
                               const spdy_control_frame_info* frame,
-                              spdy_compression*& compression_data,
+                              spdy_compression_ptr& compression_data,
                               http_protocol_info& http_headers,
                               uint32_t current_stream_count);
     
@@ -211,7 +211,7 @@ public:
      *
      */
     bool parse_spdy_frame(boost::system::error_code& ec,
-                          spdy_compression*& compression_data,
+                          SPDYStreamCompressor& compression_data,
                           http_protocol_info& http_headers,
                           uint32_t& length_packet,
                           uint32_t current_stream_count);

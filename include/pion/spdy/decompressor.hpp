@@ -67,7 +67,7 @@ public:
     
     /// initializes the decompressor object
     void init_decompressor(boost::system::error_code &ec,
-                           spdy_compression*& compression_data);
+                           spdy_compression_ptr& compression_data);
     
     /// destructor
     ~decompressor(){}
@@ -81,7 +81,7 @@ public:
                      uint32_t stream_id,
                      spdy_control_frame_info frame,
                      int header_block_length,
-                     spdy_compression*& compression_data);
+                     spdy_compression_ptr& compression_data);
     
     /**
      * decompresses the spdy header
