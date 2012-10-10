@@ -45,7 +45,7 @@ bool parser::parse(SPDYStreamCompressor& compression_data,
     return parse_spdy_frame(ec, compression_data, http_info, length_packet, current_stream_count);
 }
 
-bool parser::is_spdy_frame(const char *ptr)
+bool parser::is_spdy_frame(const char *ptr, SPDYStreamCompressor& compression_data)
 {
     // Determine if this a SPDY frame
     
@@ -97,15 +97,19 @@ bool parser::is_spdy_frame(const char *ptr)
             return false;
         }
     }else{
-        // This is supposedly a data frame
-        ptr +=4;
         
-        // Get the flags
-        uint16_t flags = (uint8_t)*ptr;
-        // The valid falg values are till 1 or less
-        if(flags > 1){
+        // Get the stream id
+        uint16_t four_bytes = int32_from_char(ptr);
+        uint stream_id = four_bytes & 0x7FFFFFFF;
+        
+        // Now check if this stream id is in map
+        
+        SPDYStreamCompressor::iterator it = compression_data.find(stream_id);
+        if(it == compression_data.end()){
+            // Not found
             return false;
         }
+        
     }
     
     return true;

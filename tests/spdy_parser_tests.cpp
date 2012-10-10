@@ -35,13 +35,15 @@ BOOST_AUTO_TEST_CASE(test_is_spdy_frame)
     uint16_t sample_frame = 0xFF;
     boost::system::error_code ec;
     
-    bool result = pion::spdy::parser::is_spdy_frame((const char *)&(sample_frame));
+    SPDYStreamCompressor    spdy_compressor;
+    
+    bool result = pion::spdy::parser::is_spdy_frame((const char *)&(sample_frame), spdy_compressor);
     
     BOOST_CHECK_EQUAL(result, false);
     
     // Try with valid SPDY Frames
     
-    result = pion::spdy::parser::is_spdy_frame((const char*)spdy_syn_reply_frame);
+    result = pion::spdy::parser::is_spdy_frame((const char*)spdy_syn_reply_frame, spdy_compressor);
     
     BOOST_CHECK_EQUAL(result, true);
 }
@@ -111,7 +113,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_interleaved_frame)
     // Parse a spdy response frame
     
     http_protocol_info http_info;
-    spdy_compression*    spdy_compressor_ptr;
+    SPDYStreamCompressor    spdy_compressor;
     boost::system::error_code ec;
     
     // Check for interleaved spdy frames
@@ -122,7 +124,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_interleaved_frame)
     
     bool more_to_parse = false;
     
-    more_to_parse = spdy_parser.parse(spdy_compressor_ptr,
+    more_to_parse = spdy_parser.parse(spdy_compressor,
                                       http_info,
                                       ec,
                                       length_packet,
@@ -136,7 +138,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
     // Parse a spdy response frame
     
     http_protocol_info          http_info;
-    spdy_compression*           spdy_compressor_ptr;
+    SPDYStreamCompressor        spdy_compressor;
     boost::system::error_code   ec;
     
     // Check for interleaved spdy frames
@@ -147,7 +149,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
     
     bool more_to_parse = false;
     
-    more_to_parse = spdy_parser.parse(spdy_compressor_ptr,
+    more_to_parse = spdy_parser.parse(spdy_compressor,
                                       http_info,
                                       ec,
                                       length_packet,
@@ -178,7 +180,7 @@ BOOST_AUTO_TEST_CASE(testSPDYParseData)
     // Parse a spdy response frame
     
     http_protocol_info   http_info;
-    spdy_compression*    spdy_compressor_ptr;
+    SPDYStreamCompressor    spdy_compressor;
     boost::system::error_code ec;
     
     // Check for interleaved spdy frames
@@ -191,7 +193,7 @@ BOOST_AUTO_TEST_CASE(testSPDYParseData)
         parser spdy_parser((const char*)spdy_syn_stream_frame, ec);
         
         
-        more_to_parse = spdy_parser.parse(spdy_compressor_ptr,
+        more_to_parse = spdy_parser.parse(spdy_compressor,
                                           http_info,
                                           ec,
                                           length_packet,
@@ -210,7 +212,7 @@ BOOST_AUTO_TEST_CASE(testSPDYParseData)
         
         parser spdy_parser((const char*)spdy_datastream_frame, ec);
         
-        more_to_parse = spdy_parser.parse(spdy_compressor_ptr,
+        more_to_parse = spdy_parser.parse(spdy_compressor,
                                           http_info,
                                           ec,
                                           length_packet,
