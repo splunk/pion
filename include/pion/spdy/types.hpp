@@ -121,7 +121,8 @@ typedef struct spdy_compression_t {
     uint32_t   dictionary_id;
 } spdy_compression;
         
-typedef boost::scoped_ptr<spdy_compression> spdy_compression_ptr;
+typedef boost::shared_ptr<spdy_compression> spdy_compression_ptr;
+typedef std::map<uint32_t, pion::spdy::spdy_compression_ptr > SPDYStreamCompressor;
     
 }   // end namespace spdy
 }   // end namespace pion
