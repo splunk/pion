@@ -25,46 +25,29 @@ boost::once_flag            parser::m_instance_flag = BOOST_ONCE_INIT;
 
 // parser member functions
 
-parser::parser(const char *ptr, boost::system::error_code& ec)
-    : m_read_ptr(ptr),
+parser::parser()
+    : m_read_ptr(NULL),
     m_uncompressed_ptr(NULL),
-    m_current_data_chunk_ptr(ptr),
+    m_current_data_chunk_ptr(NULL),
     m_last_data_chunk_ptr(NULL),
     m_logger(PION_GET_LOGGER("pion.spdy.parser"))
-{
-    BOOST_ASSERT(ptr);
-}
+{}
 
 bool parser::parse(http_protocol_info& http_info,
                    boost::system::error_code& ec,
+                   const char *packet_ptr,
                    uint32_t& length_packet,
                    uint32_t current_stream_count)
 {
+    // initialize read position
+    set_read_ptr(packet_ptr);
+    
     // Parse the frame
     return parse_spdy_frame(ec, http_info, length_packet, current_stream_count);
 }
 
 bool parser::is_spdy_control_frame(const char *ptr)
 {
-    // Determine if this a SPDY frame
-    
-    /*
-     * The first byte of a SPDY frame must be either 0 or
-     * 0x80. If it's not, assume that this is not SPDY.
-     * (In theory, a data frame could have a stream ID
-     * >= 2^24, in which case it won't have 0 for a first
-     * byte, but this is a pretty reliable heuristic for
-     * now.)
-     */
-    BOOST_ASSERT(ptr);
-    
-    const char *read_ptr = ptr;
-    
-    u_int8_t first_byte = (u_int8_t)*read_ptr;
-    if (first_byte != 0x80 && first_byte != 0x0) {
-        return false;
-    }
-    
     // Parse further for higher accuracy
     
     // Get the control bit
@@ -99,6 +82,22 @@ bool parser::is_spdy_control_frame(const char *ptr)
     return true;
 }
 
+bool parser::is_spdy_frame(const char *ptr)
+{
+    // Determine if this a SPDY frame
+    BOOST_ASSERT(ptr);
+
+    /*
+     * The first byte of a SPDY frame must be either 0 or
+     * 0x80. If it's not, assume that this is not SPDY.
+     * (In theory, a data frame could have a stream ID
+     * >= 2^24, in which case it won't have 0 for a first
+     * byte, but this is a pretty reliable heuristic for
+     * now.)
+     */
+    boost::uint8_t first_byte = *((unsigned char *)ptr);
+    return (first_byte == 0x80 || first_byte == 0x0);
+}
 
 bool parser::parse_spdy_frame(boost::system::error_code& ec,
                               http_protocol_info& http_info,
