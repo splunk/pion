@@ -88,7 +88,7 @@ public:
      *
      * @return true if it is a frame else returns false
      */
-    static bool is_spdy_frame(const char *ptr);
+    static spdy_frame_type get_spdy_frame_type(const char *ptr);
     
     /**
      * checks if the frame is spdy control frame or not
@@ -96,6 +96,13 @@ public:
      * @return true if it is a control frame else returns false
      */
     static bool is_spdy_control_frame(const char *ptr);
+    
+    /**
+     * get the stream id for the spdy control frame
+     *
+     * @return true if it is a control frame else returns false
+     */
+    static boost::uint32_t get_control_frame_stream_id(const char *ptr);
     
     
 protected:

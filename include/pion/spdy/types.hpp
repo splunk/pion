@@ -111,6 +111,12 @@ typedef struct _http_protocol_info_t{
     last_chunk(false){}
     
 } http_protocol_info;
+    
+enum spdy_frame_type{
+    spdy_data_frame = 1,
+    spdy_control_frame = 2,
+    spdy_invalid_frame = 3
+};
 
 
 }   // end namespace spdy
