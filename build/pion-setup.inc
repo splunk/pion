@@ -42,7 +42,6 @@ case "$build_os" in
 	#LDFLAGS="$LDFLAGS"
 	PION_OPT_FLAGS="-O3 -ggdb -fomit-frame-pointer -fstrict-aliasing -fno-tree-pre -falign-loops -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
-	PION_EXTERNAL_LIBS="-licui18n -licuuc -licudata"
 
 	# Check for OSX binary architecture
 	AC_MSG_CHECKING([for OSX binary architectures])
@@ -88,7 +87,6 @@ case "$build_os" in
 	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
 	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
-	PION_EXTERNAL_LIBS="-licui18n -licuuc -licudata"
 	;;
 esac
 

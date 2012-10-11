@@ -113,17 +113,6 @@ typedef struct _http_protocol_info_t{
 } http_protocol_info;
 
 
-/// This structure is used to hold the stream compression info.
-/// These data sets need to be maintained across streams
-typedef struct spdy_compression_t {
-    z_streamp  rqst_decompressor;
-    z_streamp  rply_decompressor;
-    uint32_t   dictionary_id;
-} spdy_compression;
-        
-typedef boost::shared_ptr<spdy_compression> spdy_compression_ptr;
-typedef std::map<uint32_t, pion::spdy::spdy_compression_ptr > SPDYStreamCompressor;
-    
 }   // end namespace spdy
 }   // end namespace pion
 

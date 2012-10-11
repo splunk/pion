@@ -35,17 +35,11 @@ BOOST_AUTO_TEST_CASE(test_is_spdy_frame)
     uint16_t sample_frame = 0xFF;
     boost::system::error_code ec;
     
-    SPDYStreamCompressor    spdy_compressor;
-    
-    bool result = pion::spdy::parser::is_spdy_frame((const char *)&(sample_frame), spdy_compressor);
-    
-    BOOST_CHECK_EQUAL(result, false);
+    BOOST_CHECK_EQUAL(spdy::parser::is_spdy_control_frame((const char *)&(sample_frame)), false);
     
     // Try with valid SPDY Frames
     
-    result = pion::spdy::parser::is_spdy_frame((const char*)spdy_syn_reply_frame, spdy_compressor);
-    
-    BOOST_CHECK_EQUAL(result, true);
+    BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char*)spdy_syn_reply_frame), true);
 }
 
 BOOST_AUTO_TEST_CASE(test_spdy_parse_frame)
@@ -68,13 +62,13 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_frame)
         
         // Check the frame properties
         
-        BOOST_CHECK_EQUAL(frame.control_bit, 1);
-        BOOST_CHECK_EQUAL(frame.flags, 0);
-        BOOST_CHECK_EQUAL(frame.length, 280);
-        BOOST_CHECK_EQUAL(frame.type, 2);
-        BOOST_CHECK_EQUAL(frame.version, 2);
+        BOOST_CHECK_EQUAL(frame.control_bit, 1U);
+        BOOST_CHECK_EQUAL(frame.flags, 0U);
+        BOOST_CHECK_EQUAL(frame.length, 280U);
+        BOOST_CHECK_EQUAL(frame.type, 2U);
+        BOOST_CHECK_EQUAL(frame.version, 2U);
         
-        BOOST_CHECK_EQUAL(stream_id, 1);
+        BOOST_CHECK_EQUAL(stream_id, 1U);
     }
     
     // Parse a spdy stream frame
@@ -95,16 +89,16 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_frame)
         
         // Check the frame properties
         
-        BOOST_CHECK_EQUAL(frame.control_bit, 1);
-        BOOST_CHECK_EQUAL(frame.flags, 1);
-        BOOST_CHECK_EQUAL(frame.length, 286);
-        BOOST_CHECK_EQUAL(frame.type, 1);
-        BOOST_CHECK_EQUAL(frame.version, 2);
+        BOOST_CHECK_EQUAL(frame.control_bit, 1U);
+        BOOST_CHECK_EQUAL(frame.flags, 1U);
+        BOOST_CHECK_EQUAL(frame.length, 286U);
+        BOOST_CHECK_EQUAL(frame.type, 1U);
+        BOOST_CHECK_EQUAL(frame.version, 2U);
         
-        BOOST_CHECK_EQUAL(stream_id, 1);
+        BOOST_CHECK_EQUAL(stream_id, 1U);
         
-        BOOST_CHECK_EQUAL(http_info.data_offset, 16);
-        BOOST_CHECK_EQUAL(http_info.data_size, 286);
+        BOOST_CHECK_EQUAL(http_info.data_offset, 16U);
+        BOOST_CHECK_EQUAL(http_info.data_size, 286U);
     }
 }
 
@@ -113,7 +107,6 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_interleaved_frame)
     // Parse a spdy response frame
     
     http_protocol_info http_info;
-    SPDYStreamCompressor    spdy_compressor;
     boost::system::error_code ec;
     
     // Check for interleaved spdy frames
@@ -124,8 +117,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_interleaved_frame)
     
     bool more_to_parse = false;
     
-    more_to_parse = spdy_parser.parse(spdy_compressor,
-                                      http_info,
+    more_to_parse = spdy_parser.parse(http_info,
                                       ec,
                                       length_packet,
                                       1);
@@ -138,7 +130,6 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
     // Parse a spdy response frame
     
     http_protocol_info          http_info;
-    SPDYStreamCompressor        spdy_compressor;
     boost::system::error_code   ec;
     
     // Check for interleaved spdy frames
@@ -149,8 +140,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
     
     bool more_to_parse = false;
     
-    more_to_parse = spdy_parser.parse(spdy_compressor,
-                                      http_info,
+    more_to_parse = spdy_parser.parse(http_info,
                                       ec,
                                       length_packet,
                                       0);
@@ -158,13 +148,13 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
     BOOST_CHECK_EQUAL(more_to_parse, true);
     
     // Verify the HTTP Info
-    BOOST_CHECK_EQUAL(http_info.data_offset, 8);
-    BOOST_CHECK_EQUAL(http_info.data_size, 286);
-    BOOST_CHECK_EQUAL(http_info.http_type, 1);
+    BOOST_CHECK_EQUAL(http_info.data_offset, 8U);
+    BOOST_CHECK_EQUAL(http_info.data_size, 286U);
+    BOOST_CHECK_EQUAL(http_info.http_type, 1U);
     BOOST_CHECK_EQUAL(http_info.last_chunk, false);
-    BOOST_CHECK_EQUAL(http_info.stream_id, 1);
+    BOOST_CHECK_EQUAL(http_info.stream_id, 1U);
     
-    BOOST_CHECK_EQUAL(http_info.http_headers.size(), 10);
+    BOOST_CHECK_EQUAL(http_info.http_headers.size(), 10U);
     
     BOOST_CHECK_EQUAL(http_info.http_headers["host"], "www.cnn.com");
     BOOST_CHECK_EQUAL(http_info.http_headers["accept-encoding"], "gzip,deflate,sdch");
@@ -179,8 +169,6 @@ BOOST_AUTO_TEST_CASE(testSPDYParseData)
 {
     // Parse a spdy response frame
     
-    http_protocol_info   http_info;
-    SPDYStreamCompressor    spdy_compressor;
     boost::system::error_code ec;
     
     // Check for interleaved spdy frames
@@ -190,44 +178,39 @@ BOOST_AUTO_TEST_CASE(testSPDYParseData)
     bool more_to_parse = false;
     
     {
+        http_protocol_info   http_info;
         parser spdy_parser((const char*)spdy_syn_stream_frame, ec);
         
-        
-        more_to_parse = spdy_parser.parse(spdy_compressor,
-                                          http_info,
+        more_to_parse = spdy_parser.parse(http_info,
                                           ec,
                                           length_packet,
                                           1);
+        
+        BOOST_CHECK_EQUAL(http_info.http_headers.size(), 10U);
+        BOOST_CHECK_EQUAL(http_info.data_offset, 8U);
+        BOOST_CHECK_EQUAL(http_info.data_size, 286U);
+        BOOST_CHECK_EQUAL(http_info.http_type, 1U);
+        BOOST_CHECK_EQUAL(http_info.last_chunk, false);
     }
     
-    BOOST_CHECK_EQUAL(http_info.http_headers.size(), 0);
-    BOOST_CHECK_EQUAL(http_info.data_offset, 8);
-    BOOST_CHECK_EQUAL(http_info.data_size, 286);
-    BOOST_CHECK_EQUAL(http_info.http_type, 1);
-    BOOST_CHECK_EQUAL(http_info.last_chunk, false);
-    
-    
     {
+        http_protocol_info   http_info;
         uint32_t length_packet = 1460;
         
         parser spdy_parser((const char*)spdy_datastream_frame, ec);
         
-        more_to_parse = spdy_parser.parse(spdy_compressor,
-                                          http_info,
+        more_to_parse = spdy_parser.parse(http_info,
                                           ec,
                                           length_packet,
                                           1);
         
+        BOOST_CHECK_EQUAL(http_info.http_headers.size(), 0U);
+        BOOST_CHECK_EQUAL(http_info.data_offset, 8U);
+        BOOST_CHECK_EQUAL(http_info.data_size, 1427U);
+        BOOST_CHECK_EQUAL(http_info.http_type, 3U);
+        BOOST_CHECK_EQUAL(http_info.last_chunk, false);
+        
     }
-    
-    
-    BOOST_CHECK_EQUAL(http_info.http_headers.size(), 0);
-    
-    BOOST_CHECK_EQUAL(http_info.data_offset, 16);
-    BOOST_CHECK_EQUAL(http_info.data_size, 1427);
-    BOOST_CHECK_EQUAL(http_info.http_type, 3);
-    BOOST_CHECK_EQUAL(http_info.last_chunk, false);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -20,6 +20,7 @@
 #include <pion/logger.hpp>
 #include <pion/user.hpp>
 #include <pion/spdy/types.hpp>
+#include <pion/spdy/decompressor.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -42,8 +43,7 @@ public:
     ~parser() {}
     
     /// parse the SPDY Frame
-    bool parse(SPDYStreamCompressor& compression_data,
-               http_protocol_info& http_headers,
+    bool parse(http_protocol_info& http_headers,
                boost::system::error_code& ec,
                uint32_t& length_packet,
                uint32_t current_stream_count);
@@ -82,11 +82,11 @@ public:
     
     
     /**
-     * checks if the frame is spdy or not
+     * checks if the frame is spdy control frame or not
      *
-     * @return true if it is else returns false
+     * @return true if it is a control frame else returns false
      */
-    static bool is_spdy_frame(const char *ptr, SPDYStreamCompressor& compression_data);
+    static bool is_spdy_control_frame(const char *ptr);
     
     /// populates the frame for every spdy packet
     void populate_frame(boost::system::error_code& ec,
@@ -158,7 +158,6 @@ public:
      */
     void parse_header_payload(boost::system::error_code& ec,
                               const spdy_control_frame_info* frame,
-                              spdy_compression_ptr& compression_data,
                               http_protocol_info& http_headers,
                               uint32_t current_stream_count);
     
@@ -211,7 +210,6 @@ public:
      *
      */
     bool parse_spdy_frame(boost::system::error_code& ec,
-                          SPDYStreamCompressor& compression_data,
                           http_protocol_info& http_headers,
                           uint32_t& length_packet,
                           uint32_t current_stream_count);
@@ -233,6 +231,9 @@ private:
     /// SPDY has interleaved frames and this will point to start of the the last chunk data
     const char *                        m_last_data_chunk_ptr;
     
+    /// used to decompress the SPDY headers
+    pion::spdy::decompressor            m_decompressor;
+    
     /// primary logging interface used by this class
     mutable logger                      m_logger;
     
@@ -241,7 +242,6 @@ private:
     
     /// used to ensure thread safety of the HTTPParser ErrorCategory
     static boost::once_flag             m_instance_flag;
-    
 };
 
 /// data type for a spdy reader pointer
