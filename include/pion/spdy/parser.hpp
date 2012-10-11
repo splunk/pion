@@ -80,6 +80,9 @@ public:
                uint32_t& length_packet,
                uint32_t current_stream_count);
     
+    /// Get the pointer to the first character to the spdy data contect 
+    const char * get_spdy_data_content( ) { return m_last_data_chunk_ptr; }
+    
     /**
      * checks if the frame is spdy frame or not
      *
@@ -225,9 +228,6 @@ protected:
                           http_protocol_info& http_headers,
                           uint32_t& length_packet,
                           uint32_t current_stream_count);
-    
-    /// Get the pointer to the first character to the spdy data contect 
-    const char * get_spdy_data_content( ) { return m_last_data_chunk_ptr; }
     
 private:
     
