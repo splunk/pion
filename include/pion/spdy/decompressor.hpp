@@ -11,7 +11,6 @@
 #define __PION_SPDYDECOMPRESSOR_HEADER__
 
 
-#include <boost/shared_ptr.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/logic/tribool.hpp>
@@ -20,7 +19,6 @@
 #include <pion/logger.hpp>
 #include <pion/user.hpp>
 #include <pion/spdy/types.hpp>
-#include <pion/spdy/parser.hpp>
 #include <zlib.h>
 
 
@@ -44,7 +42,7 @@ public:
     
     /// class-specific error category
     class error_category_t
-    : public boost::system::error_category
+        : public boost::system::error_category
     {
     public:
         const char *name() const { return "SPDYDecompressor"; }
@@ -60,17 +58,11 @@ public:
         }
     };
     
-    
     /// constructs a new decompressor object (default constructor)
-    decompressor(const char *compressed_data_ptr,
-                 boost::system::error_code& ec);
-    
-    /// initializes the decompressor object
-    void init_decompressor(boost::system::error_code &ec,
-                           spdy_compression_ptr& compression_data);
+    decompressor();
     
     /// destructor
-    ~decompressor(){}
+    ~decompressor();
     
     /**
      * decompresses the http content
@@ -78,10 +70,10 @@ public:
      * @return the uncompressed string
      */
     char* decompress(boost::system::error_code& ec,
+                     const char *compressed_data_ptr,
                      uint32_t stream_id,
                      spdy_control_frame_info frame,
-                     int header_block_length,
-                     spdy_compression_ptr& compression_data);
+                     int header_block_length);
     
     /**
      * decompresses the spdy header
@@ -89,8 +81,8 @@ public:
      * @return the uncompressed header
      */
     char* spdy_decompress_header(boost::system::error_code& ec,
+                                 const char *compressed_data_ptr,
                                  z_streamp decomp,
-                                 uint32_t dictionary_id,
                                  uint32_t length,
                                  uint32_t *uncomp_length);
     
@@ -99,7 +91,7 @@ public:
     
     /// returns an instance of parser::error_category_t
     static inline error_category_t& get_error_category(void) {
-        boost::call_once(parser::create_error_category, m_instance_flag);
+        boost::call_once(decompressor::create_error_category, m_instance_flag);
         return *m_error_category_ptr;
     }
 
@@ -116,12 +108,18 @@ private:
         ec = boost::system::error_code(static_cast<int>(ev), get_error_category());
     }
     
-    /// points to the next character to be consumed in the read_buffer
-    const char *                        m_compressed_data_ptr;
-    
     /// primary logging interface used by this class
     mutable logger                      m_logger;
     
+    /// zlib stream for decompression request packets
+    z_streamp                           m_request_zstream;
+
+    /// zlib stream for decompression response packets
+    z_streamp                           m_response_zstream;
+    
+    /// dictionary identifier
+    uint32_t                            m_dictionary_id;
+
     /// points to a single and unique instance of the HTTPParser ErrorCategory
     static error_category_t *           m_error_category_ptr;
     
@@ -134,7 +132,8 @@ private:
     // SPDY Dictionary used for zlib decompression
     static const char                   SPDY_ZLIB_DICTIONARY[];
 };
-        
+    
+
 }   // end namespace spdy
 }   // end namespace pion
 
