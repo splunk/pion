@@ -82,7 +82,7 @@ bool parser::is_spdy_control_frame(const char *ptr)
     return true;
 }
 
-bool parser::is_spdy_frame(const char *ptr)
+spdy_frame_type parser::get_spdy_frame_type(const char *ptr)
 {
     // Determine if this a SPDY frame
     BOOST_ASSERT(ptr);
@@ -95,10 +95,28 @@ bool parser::is_spdy_frame(const char *ptr)
      * byte, but this is a pretty reliable heuristic for
      * now.)
      */
+    
+    spdy_frame_type spdy_frame;
     boost::uint8_t first_byte = *((unsigned char *)ptr);
-    return (first_byte == 0x80 || first_byte == 0x0);
+    if(first_byte == 0x80){
+        spdy_frame = spdy_control_frame;
+    }else if(first_byte == 0x0){
+        spdy_frame = spdy_data_frame;
+    }else{
+        spdy_frame = spdy_invalid_frame;
+    }
+    return spdy_frame;
 }
+    
+boost::uint32_t parser::get_control_frame_stream_id(const char *ptr)
+{
+    // The stream ID for control frames is at a 8 bit offser from start
+    ptr += 8;
 
+    boost::uint32_t four_bytes = int32_from_char(ptr);
+    return four_bytes & 0x7FFFFFFF;
+}
+    
 bool parser::parse_spdy_frame(boost::system::error_code& ec,
                               http_protocol_info& http_info,
                               uint32_t& length_packet,

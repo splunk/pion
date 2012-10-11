@@ -37,12 +37,13 @@ BOOST_AUTO_TEST_CASE(test_is_spdy_frame_methods)
     uint16_t sample_frame = 0xFF;
     boost::system::error_code ec;
     
-    BOOST_CHECK_EQUAL(parser::is_spdy_frame((const char *)&(sample_frame)), false);
+    BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char *)&(sample_frame)), spdy_control_frame);
     BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char *)&(sample_frame)), false);
     
     // Try with valid SPDY Frames
     
-    BOOST_CHECK_EQUAL(parser::is_spdy_frame((const char*)spdy_syn_reply_frame), true);
+    BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char*)spdy_syn_reply_frame),
+                                                  spdy_control_frame);
     BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char*)spdy_syn_reply_frame), true);
 }
 
