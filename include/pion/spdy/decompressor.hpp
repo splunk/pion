@@ -133,7 +133,9 @@ private:
     static const char                   SPDY_ZLIB_DICTIONARY[];
 };
     
-
+/// data type for a spdy reader pointer
+typedef boost::shared_ptr<decompressor>       decompressor_ptr;
+    
 }   // end namespace spdy
 }   // end namespace pion
 

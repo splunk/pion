@@ -35,6 +35,7 @@ parser::parser()
 
 bool parser::parse(http_protocol_info& http_info,
                    boost::system::error_code& ec,
+                   decompressor_ptr decompressor,
                    const char *packet_ptr,
                    uint32_t& length_packet,
                    uint32_t current_stream_count)
@@ -43,7 +44,7 @@ bool parser::parse(http_protocol_info& http_info,
     set_read_ptr(packet_ptr);
     
     // Parse the frame
-    return parse_spdy_frame(ec, http_info, length_packet, current_stream_count);
+    return parse_spdy_frame(ec, decompressor, http_info, length_packet, current_stream_count);
 }
 
 bool parser::is_spdy_control_frame(const char *ptr)
@@ -118,6 +119,7 @@ boost::uint32_t parser::get_control_frame_stream_id(const char *ptr)
 }
     
 bool parser::parse_spdy_frame(boost::system::error_code& ec,
+                              decompressor_ptr decompressor,
                               http_protocol_info& http_info,
                               uint32_t& length_packet,
                               uint32_t current_stream_count)
@@ -182,7 +184,7 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
         case SPDY_SYN_STREAM:
         case SPDY_SYN_REPLY:
         case SPDY_HEADERS:
-            parse_header_payload(ec, &frame, http_info, current_stream_count);
+            parse_header_payload(ec, decompressor, &frame, http_info, current_stream_count);
             break;
             
         case SPDY_RST_STREAM:
@@ -314,6 +316,7 @@ void parser::populate_frame(boost::system::error_code& ec,
 }
 
 void parser::parse_header_payload(boost::system::error_code &ec,
+                                  decompressor_ptr decompressor,
                                   const spdy_control_frame_info* frame,
                                   http_protocol_info& http_info,
                                   uint32_t current_stream_count)
@@ -373,11 +376,11 @@ void parser::parse_header_payload(boost::system::error_code &ec,
     }
     
     // Decompress header block as necessary.
-    m_uncompressed_ptr = m_decompressor.decompress(ec,
-                                               m_read_ptr,
-                                               stream_id,
-                                               *frame,
-                                               header_block_length);
+    m_uncompressed_ptr = decompressor->decompress(ec,
+                                                  m_read_ptr,
+                                                  stream_id,
+                                                  *frame,
+                                                  header_block_length);
     
     if(m_uncompressed_ptr){
         

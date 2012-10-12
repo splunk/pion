@@ -76,6 +76,7 @@ public:
     /// parse the SPDY Frame
     bool parse(http_protocol_info& http_headers,
                boost::system::error_code& ec,
+               decompressor_ptr decompressor,
                const char *packet_ptr,
                uint32_t& length_packet,
                uint32_t current_stream_count);
@@ -179,6 +180,7 @@ protected:
      *
      */
     void parse_header_payload(boost::system::error_code& ec,
+                              decompressor_ptr decompressor,
                               const spdy_control_frame_info* frame,
                               http_protocol_info& http_headers,
                               uint32_t current_stream_count);
@@ -232,6 +234,7 @@ protected:
      *
      */
     bool parse_spdy_frame(boost::system::error_code& ec,
+                          decompressor_ptr decompressor,
                           http_protocol_info& http_headers,
                           uint32_t& length_packet,
                           uint32_t current_stream_count);
@@ -249,9 +252,6 @@ private:
     
     /// SPDY has interleaved frames and this will point to start of the the last chunk data
     const char *                        m_last_data_chunk_ptr;
-    
-    /// used to decompress the SPDY headers
-    pion::spdy::decompressor            m_decompressor;
     
     /// primary logging interface used by this class
     mutable logger                      m_logger;

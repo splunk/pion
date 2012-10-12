@@ -11,6 +11,7 @@
 #include <pion/test/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/spdy/parser.hpp>
+#include <pion/spdy/decompressor.hpp>
 
 #include "spdy_parser_tests_data.inc"
 
@@ -37,7 +38,7 @@ BOOST_AUTO_TEST_CASE(test_is_spdy_frame_methods)
     uint16_t sample_frame = 0xFF;
     boost::system::error_code ec;
     
-    BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char *)&(sample_frame)), spdy_control_frame);
+    BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char *)&(sample_frame)), spdy_invalid_frame);
     BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char *)&(sample_frame)), false);
     
     // Try with valid SPDY Frames
@@ -118,13 +119,17 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_interleaved_frame)
     http_protocol_info http_info;
     boost::system::error_code ec;
     
+    decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
+    
     // Check for interleaved spdy frames
     // The length is known for this packet
     uint32_t length_packet = 1460;
     
+    
     bool more_to_parse = false;
     
     more_to_parse = this->parse(http_info, ec,
+                                decompressor,
                                 (const char*)spdy_window_frame,
                                 length_packet, 1);
     
@@ -142,10 +147,13 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
     // The length is known for this packet
     uint32_t length_packet = 1460;
     
+    decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
+    
     bool more_to_parse = false;
     
     more_to_parse = this->parse(http_info,
                                 ec,
+                                decompressor,
                                 (const char*)spdy_syn_stream_frame,
                                 length_packet,
                                 0);
@@ -180,11 +188,14 @@ BOOST_AUTO_TEST_CASE(test_populate_http_info_syn_stream_frame)
     // The length is known for this packet
     uint32_t length_packet = 294;
     
+    decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
+    
     bool more_to_parse = false;
     
     http_protocol_info   http_info;
     
     more_to_parse = this->parse(http_info, ec,
+                                decompressor,
                                 (const char*)spdy_syn_stream_frame,
                                 length_packet, 1);
     
@@ -205,11 +216,13 @@ BOOST_AUTO_TEST_CASE(test_populate_http_info_datastream_frame)
     // The length is known for this packet
     
     bool more_to_parse = false;
+    decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
 
     http_protocol_info   http_info;
     uint32_t length_packet = 1460;
 
     more_to_parse = this->parse(http_info, ec,
+                                decompressor,
                                 (const char*)spdy_datastream_frame,
                                 length_packet, 1);
 
