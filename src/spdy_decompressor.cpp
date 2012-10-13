@@ -101,11 +101,8 @@ char* decompressor::decompress(boost::system::error_code& ec,
                                spdy_control_frame_info frame,
                                int header_block_length)
 {
-    uint32_t uncomp_length = 0;
-    z_streamp decomp;
-    char *uncomp_ptr;
-    
     /// Get our decompressor.
+    z_streamp decomp = NULL;
     if (stream_id % 2 == 0) {
         // Even streams are server-initiated and should never get a
         // client-initiated header block. Use reply decompressor.
@@ -126,11 +123,12 @@ char* decompressor::decompress(boost::system::error_code& ec,
     BOOST_ASSERT(decomp);
     
     // Decompress the data
-    uncomp_ptr = spdy_decompress_header(ec,
-                                        compressed_data_ptr,
-                                        decomp,
-                                        (uint32_t)header_block_length,
-                                        &uncomp_length);
+    uint32_t uncomp_length = 0;
+    char * uncomp_ptr = spdy_decompress_header(ec,
+                                               compressed_data_ptr,
+                                               decomp,
+                                               (uint32_t)header_block_length,
+                                               &uncomp_length);
     
     // Catch decompression failures.
     
