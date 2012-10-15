@@ -107,6 +107,9 @@
 
 #ifdef _WIN32
     #define PION_WIN32  1
+    #ifndef _WIN32_WINNT
+        #define _WIN32_WINNT    0x0501
+    #endif
 #else
     #error PionConfig.hpp.win is for Win32 only.
 #endif // _WIN32

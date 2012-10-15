@@ -310,7 +310,7 @@
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>EchoService.lib;FileService.lib;HelloService.lib;LogService.lib;CookieService.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\services\.libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -396,10 +396,6 @@
     <None Include="testservices.html" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PionNetServices.vcxproj">
-      <Project>{99d0c0c7-793b-49b1-a42e-cb563e5bb81f}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\src\pion.vcxproj">
       <Project>{61f4b4d5-3608-4264-9f4b-b0da3e3fdf62}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pion", "src\pion.vcxproj", "{61F4B4D5-3608-4264-9F4B-B0DA3E3FDF62}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "piond", "utils\piond.vcxproj", "{2CF6432F-56EA-43AD-BCCB-C31A4DB75853}"
+	ProjectSection(ProjectDependencies) = postProject
+		{99D0C0C7-793B-49B1-A42E-CB563E5BB81F} = {99D0C0C7-793B-49B1-A42E-CB563E5BB81F}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "piontests", "tests\piontests.vcxproj", "{5AD25B42-E2C0-4D08-985B-E8F115D19D56}"
 EndProject

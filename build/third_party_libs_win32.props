@@ -28,16 +28,18 @@
     <ZLIB_LIB>C:\zlib-1.2.3\lib</ZLIB_LIB>
     <ZLIB_BIN>C:\zlib-1.2.3\bin</ZLIB_BIN>
     <PION_PATH>$(BOOST_LIB);$(BZIP2_BIN);$(ICONV_BIN);$(ICU_BIN);$(LIBXML_BIN);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_BIN);$(PATH)</PION_PATH>
+    <SQLITE_INC>C:\sqlite-3.7.14.1\</SQLITE_INC>
+    <SQLITE_LIB>C:\sqlite-3.7.14.1\lib\</SQLITE_LIB>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(BOOST_INC);$(BZIP2_INC);$(ICONV_INC);$(ICU_INC);$(LIBXML_INC);$(LOG4CPLUS_INC);$(LOG4CXX_INC);$(OPENSSL_INC);$(PYTHON_INC);$(YAJL_INC);$(ZLIB_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_INC);$(BZIP2_INC);$(ICONV_INC);$(ICU_INC);$(LIBXML_INC);$(LOG4CPLUS_INC);$(LOG4CXX_INC);$(OPENSSL_INC);$(PYTHON_INC);$(YAJL_INC);$(ZLIB_INC);$(SQLITE_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(BOOST_LIB);$(BZIP2_LIB);$(ICONV_LIB);$(ICU_LIB);$(LIBXML_LIB);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST_LIB);$(BZIP2_LIB);$(ICONV_LIB);$(ICU_LIB);$(LIBXML_LIB);$(LOG4CPLUS_LIB);$(LOG4CXX_LIB);$(OPENSSL_LIB);$(PYTHON_LIB);$(YAJL_LIB);$(ZLIB_LIB);$(SQLITE_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -121,6 +123,12 @@
     </BuildMacro>
     <BuildMacro Include="PION_PATH">
       <Value>$(PION_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SQLITE_INC">
+      <Value>$(SQLITE_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SQLITE_LIB">
+      <Value>$(SQLITE_LIB)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
