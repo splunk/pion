@@ -25,30 +25,68 @@ boost::once_flag            parser::m_instance_flag = BOOST_ONCE_INIT;
 
 // parser member functions
 
-parser::parser(const char *ptr, boost::system::error_code& ec)
-    : m_read_ptr(ptr),
+parser::parser()
+    : m_read_ptr(NULL),
     m_uncompressed_ptr(NULL),
-    m_current_data_chunk_ptr(ptr),
+    m_current_data_chunk_ptr(NULL),
     m_last_data_chunk_ptr(NULL),
     m_logger(PION_GET_LOGGER("pion.spdy.parser"))
+{}
+
+bool parser::parse(http_protocol_info& http_info,
+                   boost::system::error_code& ec,
+                   const char *packet_ptr,
+                   uint32_t& length_packet,
+                   uint32_t current_stream_count)
 {
-    BOOST_ASSERT(ptr);
+    // initialize read position
+    set_read_ptr(packet_ptr);
+    
+    // Parse the frame
+    return parse_spdy_frame(ec, http_info, length_packet, current_stream_count);
 }
 
-bool parser::parse(spdy_compression*& compression_data,
-                       http_protocol_info& http_info,
-                       boost::system::error_code& ec,
-                       uint32_t& length_packet,
-                       uint32_t current_stream_count)
+bool parser::is_spdy_control_frame(const char *ptr)
 {
-    // Parse the frame
-    return parse_spdy_frame(ec, compression_data, http_info, length_packet, current_stream_count);
+    // Parse further for higher accuracy
+    
+    // Get the control bit
+    uint8_t control_bit;
+    uint version, type;
+    uint16_t byte_value = int16_from_char(ptr);
+    control_bit = byte_value >> (sizeof(short) * CHAR_BIT - 1);
+
+    if (!control_bit) return false;
+    
+    // Control bit is set; This is a control frame
+    
+    // Get the version number
+    uint16_t two_bytes = int16_from_char(ptr);
+    version = two_bytes & 0x7FFF;
+    
+    if(version > 3){
+        // SPDY does not have a version higher than 3 at the moment
+        return false;
+    }
+    
+    // Increment the read pointer
+    ptr += 2;
+    
+    type = int16_from_char(ptr);
+    
+    if (type >= SPDY_INVALID) {
+        // Not among the recognized SPDY types
+        return false;
+    }
+    
+    return true;
 }
 
 bool parser::is_spdy_frame(const char *ptr)
 {
     // Determine if this a SPDY frame
-    
+    BOOST_ASSERT(ptr);
+
     /*
      * The first byte of a SPDY frame must be either 0 or
      * 0x80. If it's not, assume that this is not SPDY.
@@ -57,20 +95,11 @@ bool parser::is_spdy_frame(const char *ptr)
      * byte, but this is a pretty reliable heuristic for
      * now.)
      */
-    BOOST_ASSERT(ptr);
-    
-    const char *read_ptr = ptr;
-    
-    u_int8_t first_byte = (u_int8_t)*read_ptr;
-    if (first_byte != 0x80 && first_byte != 0x0) {
-        return false;
-    }
-    return true;
+    boost::uint8_t first_byte = *((unsigned char *)ptr);
+    return (first_byte == 0x80 || first_byte == 0x0);
 }
 
-
 bool parser::parse_spdy_frame(boost::system::error_code& ec,
-                              spdy_compression*& compression_data,
                               http_protocol_info& http_info,
                               uint32_t& length_packet,
                               uint32_t current_stream_count)
@@ -130,12 +159,12 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
     }else if (frame.type == SPDY_DATA){
         http_info.http_type = HTTP_DATA;
     }
-    
+
     switch (frame.type) {
         case SPDY_SYN_STREAM:
         case SPDY_SYN_REPLY:
         case SPDY_HEADERS:
-            parse_header_payload(ec, &frame, compression_data, http_info, current_stream_count);
+            parse_header_payload(ec, &frame, http_info, current_stream_count);
             break;
             
         case SPDY_RST_STREAM:
@@ -268,7 +297,6 @@ void parser::populate_frame(boost::system::error_code& ec,
 
 void parser::parse_header_payload(boost::system::error_code &ec,
                                   const spdy_control_frame_info* frame,
-                                  spdy_compression*& compression_data,
                                   http_protocol_info& http_info,
                                   uint32_t current_stream_count)
 {
@@ -327,23 +355,11 @@ void parser::parse_header_payload(boost::system::error_code &ec,
     }
     
     // Decompress header block as necessary.
-    
-    decompressor spdy_decom(m_read_ptr,
-                            ec);
-    
-    if(frame->type == SPDY_SYN_STREAM){
-        
-        if(current_stream_count == 0)
-            spdy_decom.init_decompressor(ec, compression_data);
-        
-    }
-    
-    m_uncompressed_ptr = spdy_decom.decompress(ec,
+    m_uncompressed_ptr = m_decompressor.decompress(ec,
+                                               m_read_ptr,
                                                stream_id,
                                                *frame,
-                                               header_block_length,
-                                               compression_data);
-    
+                                               header_block_length);
     
     if(m_uncompressed_ptr){
         

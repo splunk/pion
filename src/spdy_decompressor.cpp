@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <zlib.h>
 #include <boost/regex.hpp>
+#include <boost/scoped_array.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/asio/detail/socket_ops.hpp>
 #include <pion/spdy/decompressor.hpp>
@@ -20,7 +21,7 @@
 namespace pion {    // begin namespace pion
 namespace spdy {    // begin namespace spdy 
 
-    
+
 // decompressor static members
     
 decompressor::error_category_t *    decompressor::m_error_category_ptr = NULL;
@@ -45,97 +46,89 @@ const boost::uint16_t               decompressor::MAX_UNCOMPRESSED_DATA_BUF_SIZE
 
 // decompressor member functions
 
-decompressor::decompressor(const char *compressed_data_ptr,
-                           boost::system::error_code& ec)
-    : m_compressed_data_ptr(compressed_data_ptr),
-      m_logger(PION_GET_LOGGER("pion.spdy.decompressor"))
+decompressor::decompressor()
+    : m_logger(PION_GET_LOGGER("pion.spdy.decompressor")),
+    m_request_zstream(NULL), m_response_zstream(NULL)
+    
 {
-    BOOST_ASSERT(m_compressed_data_ptr);
+    m_request_zstream = (z_streamp)malloc(sizeof(z_stream));
+    BOOST_ASSERT(m_request_zstream);
+
+    m_request_zstream->zalloc = Z_NULL;
+    m_request_zstream->zfree = Z_NULL;
+    m_request_zstream->opaque = Z_NULL;
+    m_request_zstream->next_in = Z_NULL;
+    m_request_zstream->next_out = Z_NULL;
+    m_request_zstream->avail_in = 0;
+    m_request_zstream->avail_out = 0;
+    
+    m_response_zstream = (z_streamp)malloc(sizeof(z_stream));
+    BOOST_ASSERT(m_response_zstream);
+    
+    m_response_zstream->zalloc = Z_NULL;
+    m_response_zstream->zfree = Z_NULL;
+    m_response_zstream->opaque = Z_NULL;
+    m_response_zstream->next_in = Z_NULL;
+    m_response_zstream->next_out = Z_NULL;
+    m_response_zstream->avail_in = 0;
+    m_response_zstream->avail_out = 0;
+    
+    int retcode = inflateInit2(m_request_zstream, MAX_WBITS);
+    if (retcode == Z_OK) {
+        retcode = inflateInit2(m_response_zstream, MAX_WBITS);
+        if (retcode == Z_OK) {
+            // Get the dictionary id
+            m_dictionary_id = adler32(0L, Z_NULL, 0);
+            
+            m_dictionary_id = adler32(m_dictionary_id,
+                                      (const Bytef *)SPDY_ZLIB_DICTIONARY,
+                                      sizeof(SPDY_ZLIB_DICTIONARY));
+        }
+    }
 }
 
-void decompressor::init_decompressor(boost::system::error_code &ec,
-                                     spdy_compression*& compression_data)
+decompressor::~decompressor()
 {
-    compression_data = (pion::spdy::spdy_compression*)malloc(sizeof(pion::spdy::spdy_compression_t));
-    
-    int retcode = 0;
-    
-    compression_data->rqst_decompressor = (z_streamp)malloc(sizeof(z_stream));
-    compression_data->rply_decompressor = (z_streamp)malloc(sizeof(z_stream));
-    
-    compression_data->rqst_decompressor->zalloc = Z_NULL;
-    compression_data->rqst_decompressor->zfree = Z_NULL;
-    compression_data->rqst_decompressor->opaque = Z_NULL;
-    compression_data->rqst_decompressor->next_in = Z_NULL;
-    compression_data->rqst_decompressor->next_out = Z_NULL;
-    compression_data->rqst_decompressor->avail_in = 0;
-    compression_data->rqst_decompressor->avail_out = 0;
-    
-    compression_data->rply_decompressor->zalloc = Z_NULL;
-    compression_data->rply_decompressor->zfree = Z_NULL;
-    compression_data->rply_decompressor->opaque = Z_NULL;
-    compression_data->rply_decompressor->next_in = Z_NULL;
-    compression_data->rply_decompressor->next_out = Z_NULL;
-    compression_data->rply_decompressor->avail_in = 0;
-    compression_data->rply_decompressor->avail_out = 0;
-    
-    retcode = inflateInit2(compression_data->rqst_decompressor, MAX_WBITS);
-    if (retcode == Z_OK) {
-        retcode = inflateInit2(compression_data->rply_decompressor, MAX_WBITS);
-    }
-    if (retcode != Z_OK) {
-        // Error condition
-        return;
-    }
-    
-    // Get the dictionary id
-    compression_data->dictionary_id = adler32(0L, Z_NULL, 0);
-    
-    compression_data->dictionary_id = adler32(compression_data->dictionary_id,
-                                              (const Bytef *)SPDY_ZLIB_DICTIONARY,
-                                              sizeof(SPDY_ZLIB_DICTIONARY));
+    inflateEnd(m_request_zstream);
+    inflateEnd(m_response_zstream);
+    free(m_request_zstream);
+    free(m_response_zstream);
 }
 
 char* decompressor::decompress(boost::system::error_code& ec,
+                               const char *compressed_data_ptr,
                                uint32_t stream_id,
                                spdy_control_frame_info frame,
-                               int header_block_length,
-                               spdy_compression*& compression_data)
+                               int header_block_length)
 {
-  
-    uint32_t uncomp_length = 0;
-    z_streamp decomp;
-    char *uncomp_ptr;
-    
     /// Get our decompressor.
+    z_streamp decomp = NULL;
     if (stream_id % 2 == 0) {
         // Even streams are server-initiated and should never get a
         // client-initiated header block. Use reply decompressor.
-        
-        decomp = compression_data->rply_decompressor;
+        decomp = m_response_zstream;
     } else if (frame.type == SPDY_HEADERS) {
         // Odd streams are client-initiated, but may have HEADERS from either
         // side. Currently, no known clients send HEADERS so we assume they are
         // all from the server.
-        
-        decomp = compression_data->rply_decompressor;
+        decomp = m_response_zstream;
     } else if (frame.type == SPDY_SYN_STREAM) {
-        
-        decomp = compression_data->rqst_decompressor;
+        decomp = m_request_zstream;
     } else if (frame.type == SPDY_SYN_REPLY) {
-        
-        decomp = compression_data->rply_decompressor;
+        decomp = m_response_zstream;
     } else {
-        
         // Unhandled case. This should never happen.
         BOOST_ASSERT(false);
     }
+    BOOST_ASSERT(decomp);
+    
     // Decompress the data
-    uncomp_ptr = spdy_decompress_header(ec,
-                                        decomp,
-                                        compression_data->dictionary_id,
-                                        (uint32_t)header_block_length,
-                                        &uncomp_length);
+    uint32_t uncomp_length = 0;
+    char * uncomp_ptr = spdy_decompress_header(ec,
+                                               compressed_data_ptr,
+                                               decomp,
+                                               (uint32_t)header_block_length,
+                                               &uncomp_length);
     
     // Catch decompression failures.
     
@@ -158,25 +151,25 @@ void decompressor::create_error_category(void)
 }
 
 char* decompressor::spdy_decompress_header(boost::system::error_code& ec,
+                                           const char *compressed_data_ptr,
                                            z_streamp decomp,
-                                           uint32_t dictionary_id,
                                            uint32_t length,
                                            uint32_t *uncomp_length) {
     int retcode;
     size_t bufsize = MAX_UNCOMPRESSED_DATA_BUF_SIZE;
     
-    const uint8_t *hptr = (uint8_t *)m_compressed_data_ptr;
-    uint8_t *uncomp_block = (uint8_t*)malloc(bufsize);
+    const uint8_t *hptr = (uint8_t *)compressed_data_ptr;
+    boost::scoped_array<uint8_t> uncomp_block(new uint8_t[bufsize]);
     
     decomp->next_in = (Bytef *)hptr;
     decomp->avail_in = length;
-    decomp->next_out = uncomp_block;
+    decomp->next_out = uncomp_block.get();
     decomp->avail_out = bufsize;
     
     retcode = inflate(decomp, Z_SYNC_FLUSH);
     
     if (retcode == Z_NEED_DICT) {
-        if (decomp->adler != dictionary_id) {
+        if (decomp->adler != m_dictionary_id) {
             // Decompressor wants a different dictionary id
         } else {
             retcode = inflateSetDictionary(decomp,
@@ -209,7 +202,7 @@ char* decompressor::spdy_decompress_header(boost::system::error_code& ec,
         return NULL;
     }
     
-    return  (char *)uncomp_block;
+    return reinterpret_cast<char*>(uncomp_block.get());
 }
         
 }   // end namespace spdy

@@ -42,7 +42,6 @@ case "$build_os" in
 	#LDFLAGS="$LDFLAGS"
 	PION_OPT_FLAGS="-O3 -ggdb -fomit-frame-pointer -fstrict-aliasing -fno-tree-pre -falign-loops -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
-	PION_EXTERNAL_LIBS="-licui18n -licuuc -licudata"
 
 	# Check for OSX binary architecture
 	AC_MSG_CHECKING([for OSX binary architectures])
@@ -85,10 +84,9 @@ case "$build_os" in
 *)
 	# Other (Linux): GCC compiler
 	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT"
-	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
+	LDFLAGS="$LDFLAGS -pthread -ldl -Wl,-E"
 	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
 	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
-	PION_EXTERNAL_LIBS="-licui18n -licuuc -licudata"
 	;;
 esac
 
@@ -172,43 +170,3 @@ fi
 AC_MSG_RESULT($PION_PLUGINS_DIRECTORY)
 AC_DEFINE_UNQUOTED([PION_PLUGINS_DIRECTORY],["$PION_PLUGINS_DIRECTORY"],[Define to the directory where Pion Plug-ins are installed.])
 AC_SUBST(PION_PLUGINS_DIRECTORY)
-
-
-# Function to return static version of a given library
-pion_static_lib() {
-	dirs_to_check="/usr/local/lib /lib64 /usr/lib64 /lib /usr/lib"
-	lib=`echo $1 | sed 's;-l;lib;'`
-	for dir in $dirs_to_check
-	do
-		if test -r "$dir/$lib.a"; then
-			echo "$dir/$lib.a"
-			return 1
-		fi
-		# try again with _s extension to library name (used for example by yajl)
-		if test -r "$dir/${lib}_s.a"; then
-			echo "$dir/${lib}_s.a"
-			return 1
-		fi
-	done
-	echo $1
-	return 0
-}
-
-
-# Function that converts a list of libs to static libs
-pion_make_static() {
-	static_libs=""
-	for param in $1
-	do
-		if [[[ "$param" =~ ^-l ]] && [[ "$param" != "-ldl" ]]]; then
-			result=`pion_static_lib $param`
-			if [[ "$result" == "$param" ]]; then
-				AC_MSG_WARN([Unable to find static archive for $param])
-			fi
-			static_libs="$static_libs $result"
-		else
-			static_libs="$static_libs $param"
-		fi
-	done
-	echo $static_libs
-}
