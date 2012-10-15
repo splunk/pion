@@ -84,6 +84,9 @@ public:
     /// Get the pointer to the first character to the spdy data contect 
     const char * get_spdy_data_content( ) { return m_last_data_chunk_ptr; }
     
+    /// Get the pointer to the first character to the spdy data contect
+    const char * get_spdy_read_pointer( ) { return m_read_ptr; }
+    
     /**
      * checks if the frame is spdy frame or not
      *
