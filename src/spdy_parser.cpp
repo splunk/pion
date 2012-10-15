@@ -44,7 +44,12 @@ bool parser::parse(http_protocol_info& http_info,
     set_read_ptr(packet_ptr);
     
     // Parse the frame
-    return parse_spdy_frame(ec, decompressor, http_info, length_packet, current_stream_count);
+    bool return_value = parse_spdy_frame(ec, decompressor, http_info, length_packet, current_stream_count);
+    
+    // Update the packet data pointer value
+    packet_ptr = m_read_ptr;
+    
+    return return_value;
 }
 
 bool parser::is_spdy_control_frame(const char *ptr)
