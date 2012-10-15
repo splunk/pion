@@ -187,11 +187,6 @@ char* decompressor::spdy_decompress_header(boost::system::error_code& ec,
         // This error is not catastrophic as many times we might get inconsistent
         // spdy header frames and we should just log error and continue.
         // No need to call SetError()
-        
-        std::ofstream myfile;
-        myfile.open ("/code/example.txt");
-        myfile << "Error reason : " << retcode << ".";
-        myfile.close();
         PION_LOG_ERROR(m_logger, "Error in decompressing data");
         return NULL;
     }
