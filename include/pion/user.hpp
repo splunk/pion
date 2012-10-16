@@ -12,6 +12,7 @@
 
 #include <map>
 #include <string>
+#include <cstdio>
 #include <cstring>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
