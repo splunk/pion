@@ -14,6 +14,116 @@
 		61AECCA1161268B300BF2B16 /* spdy_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 61AECC9F161268B300BF2B16 /* spdy_parser.cpp */; };
 		61AECCA4161269BF00BF2B16 /* spdy_parser_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 61AECCA21612699D00BF2B16 /* spdy_parser_tests.cpp */; };
 		E31BC82715C1D24600168895 /* error.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E31BC82615C1D24600168895 /* error.hpp */; };
+		E3474E66162E0D99003AA5ED /* admin_rights.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5815BF2D0E00D76F6C /* admin_rights.hpp */; };
+		E3474E67162E0D99003AA5ED /* algorithm.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5915BF2D0E00D76F6C /* algorithm.hpp */; };
+		E3474E68162E0D99003AA5ED /* config.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5A15BF2D0E00D76F6C /* config.hpp */; };
+		E3474E69162E0D99003AA5ED /* hash_map.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5C15BF2D0E00D76F6C /* hash_map.hpp */; };
+		E3474E6A162E0D99003AA5ED /* logger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5D15BF2D0E00D76F6C /* logger.hpp */; };
+		E3474E6B162E0D99003AA5ED /* plugin_manager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5E15BF2D0E00D76F6C /* plugin_manager.hpp */; };
+		E3474E6C162E0D99003AA5ED /* plugin.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5F15BF2D0E00D76F6C /* plugin.hpp */; };
+		E3474E6D162E0D99003AA5ED /* process.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE6015BF2D0E00D76F6C /* process.hpp */; };
+		E3474E6E162E0D99003AA5ED /* scheduler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE6115BF2D0E00D76F6C /* scheduler.hpp */; };
+		E3474E6F162E0D99003AA5ED /* connection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7015BF2D4700D76F6C /* connection.hpp */; };
+		E3474E70162E0D99003AA5ED /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7115BF2D4700D76F6C /* server.hpp */; };
+		E3474E71162E0D99003AA5ED /* stream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7215BF2D4700D76F6C /* stream.hpp */; };
+		E3474E72162E0D99003AA5ED /* timer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7315BF2D4700D76F6C /* timer.hpp */; };
+		E3474E73162E0D99003AA5ED /* auth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7815BF2D5B00D76F6C /* auth.hpp */; };
+		E3474E74162E0D99003AA5ED /* basic_auth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7915BF2D5B00D76F6C /* basic_auth.hpp */; };
+		E3474E75162E0D99003AA5ED /* cookie_auth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7A15BF2D5B00D76F6C /* cookie_auth.hpp */; };
+		E3474E76162E0D99003AA5ED /* message.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7B15BF2D5B00D76F6C /* message.hpp */; };
+		E3474E77162E0D99003AA5ED /* parser.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7C15BF2D5B00D76F6C /* parser.hpp */; };
+		E3474E78162E0D99003AA5ED /* plugin_server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7D15BF2D5B00D76F6C /* plugin_server.hpp */; };
+		E3474E79162E0D99003AA5ED /* plugin_service.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7E15BF2D5B00D76F6C /* plugin_service.hpp */; };
+		E3474E7A162E0D99003AA5ED /* reader.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7F15BF2D5B00D76F6C /* reader.hpp */; };
+		E3474E7B162E0D99003AA5ED /* request_reader.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8015BF2D5B00D76F6C /* request_reader.hpp */; };
+		E3474E7C162E0D99003AA5ED /* request_writer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8115BF2D5B00D76F6C /* request_writer.hpp */; };
+		E3474E7D162E0D99003AA5ED /* request.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8215BF2D5B00D76F6C /* request.hpp */; };
+		E3474E7E162E0D99003AA5ED /* response_reader.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8315BF2D5B00D76F6C /* response_reader.hpp */; };
+		E3474E7F162E0D99003AA5ED /* response_writer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8415BF2D5B00D76F6C /* response_writer.hpp */; };
+		E3474E80162E0D99003AA5ED /* response.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8515BF2D5B00D76F6C /* response.hpp */; };
+		E3474E81162E0D99003AA5ED /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8615BF2D5B00D76F6C /* server.hpp */; };
+		E3474E82162E0D99003AA5ED /* types.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8715BF2D5B00D76F6C /* types.hpp */; };
+		E3474E83162E0D99003AA5ED /* writer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8915BF2D5B00D76F6C /* writer.hpp */; };
+		E3474E84162E0D99003AA5ED /* error.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E31BC82615C1D24600168895 /* error.hpp */; };
+		E3474E85162E0D99003AA5ED /* user.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E3A00AE915CC740A00F79569 /* user.hpp */; };
+		E3474E86162E0D99003AA5ED /* decompressor.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 6140E4F216111BED0052E5A0 /* decompressor.hpp */; };
+		E3474E87162E0D99003AA5ED /* parser.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 6140E4F316111BED0052E5A0 /* parser.hpp */; };
+		E3474E88162E0D99003AA5ED /* types.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 6140E4F416111BED0052E5A0 /* types.hpp */; };
+		E3474E8A162E0D99003AA5ED /* admin_rights.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9C15BF2D8A00D76F6C /* admin_rights.cpp */; };
+		E3474E8B162E0D99003AA5ED /* algorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9D15BF2D8A00D76F6C /* algorithm.cpp */; };
+		E3474E8C162E0D99003AA5ED /* http_auth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9E15BF2D8A00D76F6C /* http_auth.cpp */; };
+		E3474E8D162E0D99003AA5ED /* http_basic_auth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9F15BF2D8A00D76F6C /* http_basic_auth.cpp */; };
+		E3474E8E162E0D99003AA5ED /* http_cookie_auth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA015BF2D8A00D76F6C /* http_cookie_auth.cpp */; };
+		E3474E8F162E0D99003AA5ED /* http_message.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA115BF2D8A00D76F6C /* http_message.cpp */; };
+		E3474E90162E0D99003AA5ED /* http_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA215BF2D8A00D76F6C /* http_parser.cpp */; };
+		E3474E91162E0D99003AA5ED /* http_plugin_server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA315BF2D8A00D76F6C /* http_plugin_server.cpp */; };
+		E3474E92162E0D99003AA5ED /* http_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA415BF2D8A00D76F6C /* http_reader.cpp */; };
+		E3474E93162E0D99003AA5ED /* http_server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA515BF2D8A00D76F6C /* http_server.cpp */; };
+		E3474E94162E0D99003AA5ED /* http_types.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA615BF2D8A00D76F6C /* http_types.cpp */; };
+		E3474E95162E0D99003AA5ED /* http_writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA715BF2D8A00D76F6C /* http_writer.cpp */; };
+		E3474E96162E0D99003AA5ED /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA815BF2D8A00D76F6C /* logger.cpp */; };
+		E3474E97162E0D99003AA5ED /* plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA915BF2D8A00D76F6C /* plugin.cpp */; };
+		E3474E98162E0D99003AA5ED /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEAA15BF2D8A00D76F6C /* process.cpp */; };
+		E3474E99162E0D99003AA5ED /* scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEAB15BF2D8A00D76F6C /* scheduler.cpp */; };
+		E3474E9A162E0D99003AA5ED /* tcp_server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEAC15BF2D8A00D76F6C /* tcp_server.cpp */; };
+		E3474E9B162E0D99003AA5ED /* tcp_timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEAD15BF2D8A00D76F6C /* tcp_timer.cpp */; };
+		E3474E9C162E0D99003AA5ED /* spdy_decompressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 61AECC9E161268B300BF2B16 /* spdy_decompressor.cpp */; };
+		E3474E9D162E0D99003AA5ED /* spdy_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 61AECC9F161268B300BF2B16 /* spdy_parser.cpp */; };
+		E3474EE7162E1053003AA5ED /* admin_rights.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5815BF2D0E00D76F6C /* admin_rights.hpp */; };
+		E3474EE8162E1053003AA5ED /* algorithm.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5915BF2D0E00D76F6C /* algorithm.hpp */; };
+		E3474EE9162E1053003AA5ED /* config.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5A15BF2D0E00D76F6C /* config.hpp */; };
+		E3474EEA162E1053003AA5ED /* hash_map.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5C15BF2D0E00D76F6C /* hash_map.hpp */; };
+		E3474EEB162E1053003AA5ED /* logger.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5D15BF2D0E00D76F6C /* logger.hpp */; };
+		E3474EEC162E1053003AA5ED /* plugin_manager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5E15BF2D0E00D76F6C /* plugin_manager.hpp */; };
+		E3474EED162E1053003AA5ED /* plugin.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5F15BF2D0E00D76F6C /* plugin.hpp */; };
+		E3474EEE162E1053003AA5ED /* process.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE6015BF2D0E00D76F6C /* process.hpp */; };
+		E3474EEF162E1053003AA5ED /* scheduler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE6115BF2D0E00D76F6C /* scheduler.hpp */; };
+		E3474EF0162E1053003AA5ED /* connection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7015BF2D4700D76F6C /* connection.hpp */; };
+		E3474EF1162E1053003AA5ED /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7115BF2D4700D76F6C /* server.hpp */; };
+		E3474EF2162E1053003AA5ED /* stream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7215BF2D4700D76F6C /* stream.hpp */; };
+		E3474EF3162E1053003AA5ED /* timer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7315BF2D4700D76F6C /* timer.hpp */; };
+		E3474EF4162E1053003AA5ED /* auth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7815BF2D5B00D76F6C /* auth.hpp */; };
+		E3474EF5162E1053003AA5ED /* basic_auth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7915BF2D5B00D76F6C /* basic_auth.hpp */; };
+		E3474EF6162E1053003AA5ED /* cookie_auth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7A15BF2D5B00D76F6C /* cookie_auth.hpp */; };
+		E3474EF7162E1053003AA5ED /* message.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7B15BF2D5B00D76F6C /* message.hpp */; };
+		E3474EF8162E1053003AA5ED /* parser.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7C15BF2D5B00D76F6C /* parser.hpp */; };
+		E3474EF9162E1053003AA5ED /* plugin_server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7D15BF2D5B00D76F6C /* plugin_server.hpp */; };
+		E3474EFA162E1053003AA5ED /* plugin_service.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7E15BF2D5B00D76F6C /* plugin_service.hpp */; };
+		E3474EFB162E1053003AA5ED /* reader.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE7F15BF2D5B00D76F6C /* reader.hpp */; };
+		E3474EFC162E1053003AA5ED /* request_reader.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8015BF2D5B00D76F6C /* request_reader.hpp */; };
+		E3474EFD162E1053003AA5ED /* request_writer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8115BF2D5B00D76F6C /* request_writer.hpp */; };
+		E3474EFE162E1053003AA5ED /* request.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8215BF2D5B00D76F6C /* request.hpp */; };
+		E3474EFF162E1053003AA5ED /* response_reader.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8315BF2D5B00D76F6C /* response_reader.hpp */; };
+		E3474F00162E1053003AA5ED /* response_writer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8415BF2D5B00D76F6C /* response_writer.hpp */; };
+		E3474F01162E1053003AA5ED /* response.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8515BF2D5B00D76F6C /* response.hpp */; };
+		E3474F02162E1053003AA5ED /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8615BF2D5B00D76F6C /* server.hpp */; };
+		E3474F03162E1053003AA5ED /* types.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8715BF2D5B00D76F6C /* types.hpp */; };
+		E3474F04162E1053003AA5ED /* writer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE8915BF2D5B00D76F6C /* writer.hpp */; };
+		E3474F05162E1053003AA5ED /* error.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E31BC82615C1D24600168895 /* error.hpp */; };
+		E3474F06162E1053003AA5ED /* user.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E3A00AE915CC740A00F79569 /* user.hpp */; };
+		E3474F07162E1053003AA5ED /* decompressor.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 6140E4F216111BED0052E5A0 /* decompressor.hpp */; };
+		E3474F08162E1053003AA5ED /* parser.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 6140E4F316111BED0052E5A0 /* parser.hpp */; };
+		E3474F09162E1053003AA5ED /* types.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 6140E4F416111BED0052E5A0 /* types.hpp */; };
+		E3474F0B162E1053003AA5ED /* admin_rights.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9C15BF2D8A00D76F6C /* admin_rights.cpp */; };
+		E3474F0C162E1053003AA5ED /* algorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9D15BF2D8A00D76F6C /* algorithm.cpp */; };
+		E3474F0D162E1053003AA5ED /* http_auth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9E15BF2D8A00D76F6C /* http_auth.cpp */; };
+		E3474F0E162E1053003AA5ED /* http_basic_auth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCE9F15BF2D8A00D76F6C /* http_basic_auth.cpp */; };
+		E3474F0F162E1053003AA5ED /* http_cookie_auth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA015BF2D8A00D76F6C /* http_cookie_auth.cpp */; };
+		E3474F10162E1053003AA5ED /* http_message.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA115BF2D8A00D76F6C /* http_message.cpp */; };
+		E3474F11162E1053003AA5ED /* http_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA215BF2D8A00D76F6C /* http_parser.cpp */; };
+		E3474F12162E1053003AA5ED /* http_plugin_server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA315BF2D8A00D76F6C /* http_plugin_server.cpp */; };
+		E3474F13162E1053003AA5ED /* http_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA415BF2D8A00D76F6C /* http_reader.cpp */; };
+		E3474F14162E1053003AA5ED /* http_server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA515BF2D8A00D76F6C /* http_server.cpp */; };
+		E3474F15162E1053003AA5ED /* http_types.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA615BF2D8A00D76F6C /* http_types.cpp */; };
+		E3474F16162E1053003AA5ED /* http_writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA715BF2D8A00D76F6C /* http_writer.cpp */; };
+		E3474F17162E1053003AA5ED /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA815BF2D8A00D76F6C /* logger.cpp */; };
+		E3474F18162E1053003AA5ED /* plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEA915BF2D8A00D76F6C /* plugin.cpp */; };
+		E3474F19162E1053003AA5ED /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEAA15BF2D8A00D76F6C /* process.cpp */; };
+		E3474F1A162E1053003AA5ED /* scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEAB15BF2D8A00D76F6C /* scheduler.cpp */; };
+		E3474F1B162E1053003AA5ED /* tcp_server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEAC15BF2D8A00D76F6C /* tcp_server.cpp */; };
+		E3474F1C162E1053003AA5ED /* tcp_timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCEAD15BF2D8A00D76F6C /* tcp_timer.cpp */; };
+		E3474F1D162E1053003AA5ED /* spdy_decompressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 61AECC9E161268B300BF2B16 /* spdy_decompressor.cpp */; };
+		E3474F1E162E1053003AA5ED /* spdy_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 61AECC9F161268B300BF2B16 /* spdy_parser.cpp */; };
 		E35CCE6315BF2D0E00D76F6C /* admin_rights.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5815BF2D0E00D76F6C /* admin_rights.hpp */; };
 		E35CCE6415BF2D0E00D76F6C /* algorithm.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5915BF2D0E00D76F6C /* algorithm.hpp */; };
 		E35CCE6515BF2D0E00D76F6C /* config.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E35CCE5A15BF2D0E00D76F6C /* config.hpp */; };
@@ -209,6 +319,8 @@
 		61AECC9F161268B300BF2B16 /* spdy_parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spdy_parser.cpp; path = src/spdy_parser.cpp; sourceTree = "<group>"; };
 		61AECCA21612699D00BF2B16 /* spdy_parser_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spdy_parser_tests.cpp; path = tests/spdy_parser_tests.cpp; sourceTree = "<group>"; };
 		E31BC82615C1D24600168895 /* error.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = error.hpp; path = include/pion/error.hpp; sourceTree = "<group>"; };
+		E3474EA2162E0D99003AA5ED /* libpion-pic.a */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libpion-pic.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E3474F23162E1053003AA5ED /* libpion.a */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpion.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E35CCE5815BF2D0E00D76F6C /* admin_rights.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = admin_rights.hpp; path = include/pion/admin_rights.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE5915BF2D0E00D76F6C /* algorithm.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = algorithm.hpp; path = include/pion/algorithm.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E35CCE5A15BF2D0E00D76F6C /* config.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = config.hpp; path = include/pion/config.hpp; sourceTree = "<group>"; };
@@ -310,6 +422,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E3474E9E162E0D99003AA5ED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E3474F1F162E1053003AA5ED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E35CCEE615BF2EE100D76F6C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -445,6 +571,8 @@
 				E35CCF1A15BF2F5700D76F6C /* hasCreateAndDestroy.so */,
 				E35CCF2215BF2F6F00D76F6C /* hasNoCreate.so */,
 				E35CCF6B15BF30AA00D76F6C /* helloserver */,
+				E3474EA2162E0D99003AA5ED /* libpion-pic.a */,
+				E3474F23162E1053003AA5ED /* libpion.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -628,6 +756,90 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		E3474E65162E0D99003AA5ED /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E3474E66162E0D99003AA5ED /* admin_rights.hpp in Headers */,
+				E3474E67162E0D99003AA5ED /* algorithm.hpp in Headers */,
+				E3474E68162E0D99003AA5ED /* config.hpp in Headers */,
+				E3474E69162E0D99003AA5ED /* hash_map.hpp in Headers */,
+				E3474E6A162E0D99003AA5ED /* logger.hpp in Headers */,
+				E3474E6B162E0D99003AA5ED /* plugin_manager.hpp in Headers */,
+				E3474E6C162E0D99003AA5ED /* plugin.hpp in Headers */,
+				E3474E6D162E0D99003AA5ED /* process.hpp in Headers */,
+				E3474E6E162E0D99003AA5ED /* scheduler.hpp in Headers */,
+				E3474E6F162E0D99003AA5ED /* connection.hpp in Headers */,
+				E3474E70162E0D99003AA5ED /* server.hpp in Headers */,
+				E3474E71162E0D99003AA5ED /* stream.hpp in Headers */,
+				E3474E72162E0D99003AA5ED /* timer.hpp in Headers */,
+				E3474E73162E0D99003AA5ED /* auth.hpp in Headers */,
+				E3474E74162E0D99003AA5ED /* basic_auth.hpp in Headers */,
+				E3474E75162E0D99003AA5ED /* cookie_auth.hpp in Headers */,
+				E3474E76162E0D99003AA5ED /* message.hpp in Headers */,
+				E3474E77162E0D99003AA5ED /* parser.hpp in Headers */,
+				E3474E78162E0D99003AA5ED /* plugin_server.hpp in Headers */,
+				E3474E79162E0D99003AA5ED /* plugin_service.hpp in Headers */,
+				E3474E7A162E0D99003AA5ED /* reader.hpp in Headers */,
+				E3474E7B162E0D99003AA5ED /* request_reader.hpp in Headers */,
+				E3474E7C162E0D99003AA5ED /* request_writer.hpp in Headers */,
+				E3474E7D162E0D99003AA5ED /* request.hpp in Headers */,
+				E3474E7E162E0D99003AA5ED /* response_reader.hpp in Headers */,
+				E3474E7F162E0D99003AA5ED /* response_writer.hpp in Headers */,
+				E3474E80162E0D99003AA5ED /* response.hpp in Headers */,
+				E3474E81162E0D99003AA5ED /* server.hpp in Headers */,
+				E3474E82162E0D99003AA5ED /* types.hpp in Headers */,
+				E3474E83162E0D99003AA5ED /* writer.hpp in Headers */,
+				E3474E84162E0D99003AA5ED /* error.hpp in Headers */,
+				E3474E85162E0D99003AA5ED /* user.hpp in Headers */,
+				E3474E86162E0D99003AA5ED /* decompressor.hpp in Headers */,
+				E3474E87162E0D99003AA5ED /* parser.hpp in Headers */,
+				E3474E88162E0D99003AA5ED /* types.hpp in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E3474EE6162E1053003AA5ED /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E3474EE7162E1053003AA5ED /* admin_rights.hpp in Headers */,
+				E3474EE8162E1053003AA5ED /* algorithm.hpp in Headers */,
+				E3474EE9162E1053003AA5ED /* config.hpp in Headers */,
+				E3474EEA162E1053003AA5ED /* hash_map.hpp in Headers */,
+				E3474EEB162E1053003AA5ED /* logger.hpp in Headers */,
+				E3474EEC162E1053003AA5ED /* plugin_manager.hpp in Headers */,
+				E3474EED162E1053003AA5ED /* plugin.hpp in Headers */,
+				E3474EEE162E1053003AA5ED /* process.hpp in Headers */,
+				E3474EEF162E1053003AA5ED /* scheduler.hpp in Headers */,
+				E3474EF0162E1053003AA5ED /* connection.hpp in Headers */,
+				E3474EF1162E1053003AA5ED /* server.hpp in Headers */,
+				E3474EF2162E1053003AA5ED /* stream.hpp in Headers */,
+				E3474EF3162E1053003AA5ED /* timer.hpp in Headers */,
+				E3474EF4162E1053003AA5ED /* auth.hpp in Headers */,
+				E3474EF5162E1053003AA5ED /* basic_auth.hpp in Headers */,
+				E3474EF6162E1053003AA5ED /* cookie_auth.hpp in Headers */,
+				E3474EF7162E1053003AA5ED /* message.hpp in Headers */,
+				E3474EF8162E1053003AA5ED /* parser.hpp in Headers */,
+				E3474EF9162E1053003AA5ED /* plugin_server.hpp in Headers */,
+				E3474EFA162E1053003AA5ED /* plugin_service.hpp in Headers */,
+				E3474EFB162E1053003AA5ED /* reader.hpp in Headers */,
+				E3474EFC162E1053003AA5ED /* request_reader.hpp in Headers */,
+				E3474EFD162E1053003AA5ED /* request_writer.hpp in Headers */,
+				E3474EFE162E1053003AA5ED /* request.hpp in Headers */,
+				E3474EFF162E1053003AA5ED /* response_reader.hpp in Headers */,
+				E3474F00162E1053003AA5ED /* response_writer.hpp in Headers */,
+				E3474F01162E1053003AA5ED /* response.hpp in Headers */,
+				E3474F02162E1053003AA5ED /* server.hpp in Headers */,
+				E3474F03162E1053003AA5ED /* types.hpp in Headers */,
+				E3474F04162E1053003AA5ED /* writer.hpp in Headers */,
+				E3474F05162E1053003AA5ED /* error.hpp in Headers */,
+				E3474F06162E1053003AA5ED /* user.hpp in Headers */,
+				E3474F07162E1053003AA5ED /* decompressor.hpp in Headers */,
+				E3474F08162E1053003AA5ED /* parser.hpp in Headers */,
+				E3474F09162E1053003AA5ED /* types.hpp in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E35CCEE415BF2EE100D76F6C /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -756,6 +968,42 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		E3474E63162E0D99003AA5ED /* pion: static pic */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E3474E9F162E0D99003AA5ED /* Build configuration list for PBXNativeTarget "pion: static pic" */;
+			buildPhases = (
+				E3474E64162E0D99003AA5ED /* ShellScript */,
+				E3474E65162E0D99003AA5ED /* Headers */,
+				E3474E89162E0D99003AA5ED /* Sources */,
+				E3474E9E162E0D99003AA5ED /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "pion: static pic";
+			productName = "pion-net: dynamic";
+			productReference = E3474EA2162E0D99003AA5ED /* libpion-pic.a */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		E3474EE4162E1053003AA5ED /* pion: static */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E3474F20162E1053003AA5ED /* Build configuration list for PBXNativeTarget "pion: static" */;
+			buildPhases = (
+				E3474EE5162E1053003AA5ED /* ShellScript */,
+				E3474EE6162E1053003AA5ED /* Headers */,
+				E3474F0A162E1053003AA5ED /* Sources */,
+				E3474F1F162E1053003AA5ED /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "pion: static";
+			productName = "pion-net: dynamic";
+			productReference = E3474F23162E1053003AA5ED /* libpion.a */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		E35CCEE315BF2EE100D76F6C /* AllowNothingService */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E35CCEE715BF2EE100D76F6C /* Build configuration list for PBXNativeTarget "AllowNothingService" */;
@@ -1008,6 +1256,8 @@
 			projectRoot = "";
 			targets = (
 				E36D8A5E0D29C9D800B4C134 /* pion: dynamic */,
+				E3474EE4162E1053003AA5ED /* pion: static */,
+				E3474E63162E0D99003AA5ED /* pion: static pic */,
 				E35CCF1315BF2F5700D76F6C /* hasCreateAndDestroy */,
 				E370CF23158E6C1A00E46EE9 /* hasCreateButNoDestroy */,
 				E35CCF1B15BF2F6F00D76F6C /* hasNoCreate */,
@@ -1025,6 +1275,32 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		E3474E64162E0D99003AA5ED /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ ! -f \"${PROJECT_DIR}/include/pion/config.hpp\" ]; then\n    cp ${PROJECT_DIR}/include/pion/config.hpp.xcode ${PROJECT_DIR}/include/pion/config.hpp\nfi";
+		};
+		E3474EE5162E1053003AA5ED /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ ! -f \"${PROJECT_DIR}/include/pion/config.hpp\" ]; then\n    cp ${PROJECT_DIR}/include/pion/config.hpp.xcode ${PROJECT_DIR}/include/pion/config.hpp\nfi";
+		};
 		E374024E15CEF78A00208977 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1041,6 +1317,60 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E3474E89162E0D99003AA5ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E3474E8A162E0D99003AA5ED /* admin_rights.cpp in Sources */,
+				E3474E8B162E0D99003AA5ED /* algorithm.cpp in Sources */,
+				E3474E8C162E0D99003AA5ED /* http_auth.cpp in Sources */,
+				E3474E8D162E0D99003AA5ED /* http_basic_auth.cpp in Sources */,
+				E3474E8E162E0D99003AA5ED /* http_cookie_auth.cpp in Sources */,
+				E3474E8F162E0D99003AA5ED /* http_message.cpp in Sources */,
+				E3474E90162E0D99003AA5ED /* http_parser.cpp in Sources */,
+				E3474E91162E0D99003AA5ED /* http_plugin_server.cpp in Sources */,
+				E3474E92162E0D99003AA5ED /* http_reader.cpp in Sources */,
+				E3474E93162E0D99003AA5ED /* http_server.cpp in Sources */,
+				E3474E94162E0D99003AA5ED /* http_types.cpp in Sources */,
+				E3474E95162E0D99003AA5ED /* http_writer.cpp in Sources */,
+				E3474E96162E0D99003AA5ED /* logger.cpp in Sources */,
+				E3474E97162E0D99003AA5ED /* plugin.cpp in Sources */,
+				E3474E98162E0D99003AA5ED /* process.cpp in Sources */,
+				E3474E99162E0D99003AA5ED /* scheduler.cpp in Sources */,
+				E3474E9A162E0D99003AA5ED /* tcp_server.cpp in Sources */,
+				E3474E9B162E0D99003AA5ED /* tcp_timer.cpp in Sources */,
+				E3474E9C162E0D99003AA5ED /* spdy_decompressor.cpp in Sources */,
+				E3474E9D162E0D99003AA5ED /* spdy_parser.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E3474F0A162E1053003AA5ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E3474F0B162E1053003AA5ED /* admin_rights.cpp in Sources */,
+				E3474F0C162E1053003AA5ED /* algorithm.cpp in Sources */,
+				E3474F0D162E1053003AA5ED /* http_auth.cpp in Sources */,
+				E3474F0E162E1053003AA5ED /* http_basic_auth.cpp in Sources */,
+				E3474F0F162E1053003AA5ED /* http_cookie_auth.cpp in Sources */,
+				E3474F10162E1053003AA5ED /* http_message.cpp in Sources */,
+				E3474F11162E1053003AA5ED /* http_parser.cpp in Sources */,
+				E3474F12162E1053003AA5ED /* http_plugin_server.cpp in Sources */,
+				E3474F13162E1053003AA5ED /* http_reader.cpp in Sources */,
+				E3474F14162E1053003AA5ED /* http_server.cpp in Sources */,
+				E3474F15162E1053003AA5ED /* http_types.cpp in Sources */,
+				E3474F16162E1053003AA5ED /* http_writer.cpp in Sources */,
+				E3474F17162E1053003AA5ED /* logger.cpp in Sources */,
+				E3474F18162E1053003AA5ED /* plugin.cpp in Sources */,
+				E3474F19162E1053003AA5ED /* process.cpp in Sources */,
+				E3474F1A162E1053003AA5ED /* scheduler.cpp in Sources */,
+				E3474F1B162E1053003AA5ED /* tcp_server.cpp in Sources */,
+				E3474F1C162E1053003AA5ED /* tcp_timer.cpp in Sources */,
+				E3474F1D162E1053003AA5ED /* spdy_decompressor.cpp in Sources */,
+				E3474F1E162E1053003AA5ED /* spdy_parser.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E35CCEE515BF2EE100D76F6C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1257,18 +1587,13 @@
 					PION_XCODE,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					"$(CONFIGURATION_BUILD_DIR)",
-					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)";
 				LOG4CPLUS_VERSION = 1.0.4.1;
 				OBJROOT = "$(PROJECT_DIR)/bin/tmp";
 				OTHER_CFLAGS = (
 					"-fkeep-inline-functions",
 					"-isystem",
-					/usr/local/include,
+					"$(DEP_PATH)/openssl-$(SSL_VERSION)/include",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -1278,18 +1603,19 @@
 					"$(DEP_PATH)/boost-$(BOOST_VERSION)/include",
 				);
 				OTHER_LDFLAGS = (
-					"-lboost_thread",
-					"-lboost_filesystem",
-					"-lboost_system",
-					"-lboost_regex",
-					"-lboost_date_time",
-					"-llog4cplus",
-					"-lssl",
-					"-lcrypto",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_thread-pic.a",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_filesystem-pic.a",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_system-pic.a",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_regex-pic.a",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_date_time-pic.a",
+					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib/liblog4cplus-pic.a",
+					"$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libssl-pic.a",
+					"$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libcrypto-pic.a",
 					"-lz",
 					"-lbz2",
 				);
 				SDKROOT = macosx;
+				SSL_VERSION = 1.0.1c;
 				SYMROOT = "$(PROJECT_DIR)/bin";
 				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/include";
 				VALID_ARCHS = "ppc64 ppc7400 ppc970 i386 x86_64 ppc";
@@ -1311,17 +1637,12 @@
 					NDEBUG,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					"$(CONFIGURATION_BUILD_DIR)",
-					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)";
 				LOG4CPLUS_VERSION = 1.0.4.1;
 				OBJROOT = "$(PROJECT_DIR)/bin/tmp";
 				OTHER_CFLAGS = (
 					"-isystem",
-					/usr/local/include,
+					"$(DEP_PATH)/openssl-$(SSL_VERSION)/include",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -1331,21 +1652,76 @@
 					"$(DEP_PATH)/boost-$(BOOST_VERSION)/include",
 				);
 				OTHER_LDFLAGS = (
-					"-lboost_thread",
-					"-lboost_filesystem",
-					"-lboost_system",
-					"-lboost_regex",
-					"-lboost_date_time",
-					"-llog4cplus",
-					"-lssl",
-					"-lcrypto",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_thread-pic.a",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_filesystem-pic.a",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_system-pic.a",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_regex-pic.a",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_date_time-pic.a",
+					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib/liblog4cplus-pic.a",
+					"$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libssl-pic.a",
+					"$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libcrypto-pic.a",
 					"-lz",
 					"-lbz2",
 				);
 				SDKROOT = macosx;
+				SSL_VERSION = 1.0.1c;
 				SYMROOT = "$(PROJECT_DIR)/bin";
 				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/include";
 				VALID_ARCHS = "ppc64 ppc7400 ppc970 i386 x86_64 ppc";
+			};
+			name = Release;
+		};
+		E3474EA0162E0D99003AA5ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_EXTENSION = a;
+				EXECUTABLE_PREFIX = lib;
+				INSTALL_PATH = /usr/local/lib;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "pion-pic";
+			};
+			name = Debug;
+		};
+		E3474EA1162E0D99003AA5ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_EXTENSION = a;
+				EXECUTABLE_PREFIX = lib;
+				INSTALL_PATH = /usr/local/lib;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "pion-pic";
+			};
+			name = Release;
+		};
+		E3474F21162E1053003AA5ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_EXTENSION = a;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = YES;
+				INSTALL_PATH = /usr/local/lib;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = pion;
+			};
+			name = Debug;
+		};
+		E3474F22162E1053003AA5ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_EXTENSION = a;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = YES;
+				INSTALL_PATH = /usr/local/lib;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = pion;
 			};
 			name = Release;
 		};
@@ -1582,17 +1958,8 @@
 			buildSettings = {
 				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
-					"-lboost_thread",
-					"-lboost_filesystem",
-					"-lboost_system",
-					"-lboost_regex",
-					"-lboost_date_time",
-					"-llog4cplus",
-					"-lssl",
-					"-lcrypto",
-					"-lz",
-					"-lbz2",
-					"-lboost_unit_test_framework",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_unit_test_framework.a",
+					"$(OTHER_LDFLAGS)",
 				);
 				PRODUCT_NAME = piontests;
 			};
@@ -1603,17 +1970,8 @@
 			buildSettings = {
 				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
-					"-lboost_thread",
-					"-lboost_filesystem",
-					"-lboost_system",
-					"-lboost_regex",
-					"-lboost_date_time",
-					"-llog4cplus",
-					"-lssl",
-					"-lcrypto",
-					"-lz",
-					"-lbz2",
-					"-lboost_unit_test_framework",
+					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_unit_test_framework.a",
+					"$(OTHER_LDFLAGS)",
 				);
 				PRODUCT_NAME = piontests;
 			};
@@ -1649,6 +2007,24 @@
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
 				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E3474E9F162E0D99003AA5ED /* Build configuration list for PBXNativeTarget "pion: static pic" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E3474EA0162E0D99003AA5ED /* Debug */,
+				E3474EA1162E0D99003AA5ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E3474F20162E1053003AA5ED /* Build configuration list for PBXNativeTarget "pion: static" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E3474F21162E1053003AA5ED /* Debug */,
+				E3474F22162E1053003AA5ED /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
