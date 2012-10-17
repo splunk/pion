@@ -80,11 +80,11 @@ public:
      *
      * @return the uncompressed header
      */
-    char* spdy_decompress_header(boost::system::error_code& ec,
-                                 const char *compressed_data_ptr,
-                                 z_streamp decomp,
-                                 uint32_t length,
-                                 uint32_t *uncomp_length);
+    void spdy_decompress_header(boost::system::error_code& ec,
+                                const char *compressed_data_ptr,
+                                z_streamp decomp,
+                                uint32_t length,
+                                uint32_t& uncomp_length);
     
     /// creates the unique error category
     static void create_error_category(void);
@@ -97,6 +97,11 @@ public:
 
     
 private:
+    
+    enum data_size
+    {
+        max_uncompressed_data_buf_size = 16384
+    };
     
     /**
      * sets an error code
@@ -119,15 +124,15 @@ private:
     
     /// dictionary identifier
     uint32_t                            m_dictionary_id;
+    
+    /// Used for decompressing spdy headers
+    u_char                              m_uncompressed_header[max_uncompressed_data_buf_size];
 
     /// points to a single and unique instance of the HTTPParser ErrorCategory
     static error_category_t *           m_error_category_ptr;
     
     /// used to ensure thread safety of the HTTPParser ErrorCategory
     static boost::once_flag             m_instance_flag;
-
-    /// maximum uncompressed data buffer size
-    static const boost::uint16_t        MAX_UNCOMPRESSED_DATA_BUF_SIZE;
     
     // SPDY Dictionary used for zlib decompression
     static const char                   SPDY_ZLIB_DICTIONARY[];

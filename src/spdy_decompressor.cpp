@@ -27,8 +27,7 @@ namespace spdy {    // begin namespace spdy
     
 decompressor::error_category_t *    decompressor::m_error_category_ptr = NULL;
 boost::once_flag                    decompressor::m_instance_flag = BOOST_ONCE_INIT;
-const boost::uint16_t               decompressor::MAX_UNCOMPRESSED_DATA_BUF_SIZE = 16384;
-    
+ 
  const char decompressor::SPDY_ZLIB_DICTIONARY[] =
     "optionsgetheadpostputdeletetraceacceptaccept-charsetaccept-encodingaccept-"
     "languageauthorizationexpectfromhostif-modified-sinceif-matchif-none-matchi"
@@ -125,15 +124,16 @@ char* decompressor::decompress(boost::system::error_code& ec,
     
     // Decompress the data
     uint32_t uncomp_length = 0;
-    char * uncomp_ptr = spdy_decompress_header(ec,
-                                               compressed_data_ptr,
-                                               decomp,
-                                               (uint32_t)header_block_length,
-                                               &uncomp_length);
+    
+    spdy_decompress_header(ec,
+                           compressed_data_ptr,
+                           decomp,
+                           (uint32_t)header_block_length,
+                           uncomp_length);
     
     // Catch decompression failures.
-    
-    if (uncomp_ptr == NULL) {
+
+    if (m_uncompressed_header == NULL) {
         // Error in decompressing
         // This error is not catastrophic as many times we might get inconsistent
         // spdy header frames and we should just log error and continue.
@@ -142,7 +142,7 @@ char* decompressor::decompress(boost::system::error_code& ec,
         
         return NULL;
     }
-    return uncomp_ptr;
+    return reinterpret_cast<char*>(m_uncompressed_header);
 }
 
 void decompressor::create_error_category(void)
@@ -151,20 +151,18 @@ void decompressor::create_error_category(void)
     m_error_category_ptr = &UNIQUE_ERROR_CATEGORY;
 }
 
-char* decompressor::spdy_decompress_header(boost::system::error_code& ec,
-                                           const char *compressed_data_ptr,
-                                           z_streamp decomp,
-                                           uint32_t length,
-                                           uint32_t *uncomp_length) {
+void decompressor::spdy_decompress_header(boost::system::error_code& ec,
+                                          const char *compressed_data_ptr,
+                                          z_streamp decomp,
+                                          uint32_t length,
+                                          uint32_t& uncomp_length) {
     int retcode;
-    size_t bufsize = MAX_UNCOMPRESSED_DATA_BUF_SIZE;
-    
+    uint32_t bufsize = max_uncompressed_data_buf_size;
     const uint8_t *hptr = (uint8_t *)compressed_data_ptr;
-    boost::scoped_array<uint8_t> uncomp_block(new uint8_t[bufsize]);
     
     decomp->next_in = (Bytef *)hptr;
     decomp->avail_in = length;
-    decomp->next_out = uncomp_block.get();
+    decomp->next_out = m_uncompressed_header;
     decomp->avail_out = bufsize;
     
     retcode = inflate(decomp, Z_SYNC_FLUSH);
@@ -192,7 +190,7 @@ char* decompressor::spdy_decompress_header(boost::system::error_code& ec,
     }
     
     // Handle successful inflation. 
-    *uncomp_length = bufsize - decomp->avail_out;
+    uncomp_length = bufsize - decomp->avail_out;
     if (decomp->avail_in != 0) {
         
         // Error condition
@@ -202,8 +200,6 @@ char* decompressor::spdy_decompress_header(boost::system::error_code& ec,
         PION_LOG_ERROR(m_logger, "Error in decompressing data");
         return NULL;
     }
-    
-    return reinterpret_cast<char*>(uncomp_block.get());
 }
         
 }   // end namespace spdy
