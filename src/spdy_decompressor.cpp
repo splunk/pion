@@ -186,7 +186,7 @@ void decompressor::spdy_decompress_header(boost::system::error_code& ec,
         // spdy header frames and we should just log error and continue.
         // No need to call SetError()
         PION_LOG_ERROR(m_logger, "Error in decompressing data");
-        return NULL;
+        return;
     }
     
     // Handle successful inflation. 
@@ -198,7 +198,7 @@ void decompressor::spdy_decompress_header(boost::system::error_code& ec,
         // spdy header frames and we should just log error and continue.
         // No need to call SetError()
         PION_LOG_ERROR(m_logger, "Error in decompressing data");
-        return NULL;
+        return;
     }
 }
         
