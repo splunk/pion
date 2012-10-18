@@ -76,7 +76,7 @@ public:
     /// parse the SPDY Frame
     bool parse(http_protocol_info& http_headers,
                boost::system::error_code& ec,
-               decompressor_ptr decompressor,
+               decompressor_ptr& decompressor,
                const char *packet_ptr,
                uint32_t& length_packet,
                uint32_t current_stream_count);
@@ -116,7 +116,7 @@ protected:
     
     /// populates the frame for every spdy packet
     void populate_frame(boost::system::error_code& ec,
-                        spdy_control_frame_info* frame,
+                        spdy_control_frame_info& frame,
                         uint32_t& length_packet,
                         uint32_t& stream_id,
                         http_protocol_info& http_headers);
@@ -129,45 +129,7 @@ protected:
         boost::call_once(parser::create_error_category, m_instance_flag);
         return *m_error_category_ptr;
     }
-    
-    const char* get_uncompressed_http_data(){ return m_uncompressed_ptr; }
-    
-    /**
-     * converts the char data to 16 bit int
-     *
-     * @param ptr of raw string
-     */
-    static uint16_t int16_from_char(const char* ptr){
-        
-        uint16_t i;
-        uint16_t result;
-        
-        result = 0;
-        for (i = 0; i < sizeof(uint16_t); ++i){
-            uint8_t val = ptr[i];
-            result = (result << CHAR_BIT) + val;
-        }
-        return result;
-    }
-    
-    /**
-     * converts the char data to 32 bit int
-     *
-     * @param ptr of raw string
-     */
-    static uint32_t int32_from_char(const char* ptr){
-        
-        uint32_t i = 0;
-        uint32_t result;
-        
-        result = 0;
-        for (i = 0; i < sizeof(uint32_t); ++i){
-            uint8_t val = ptr[i];               // Only get the 8 bits
-            result = (result << CHAR_BIT) + val;
-        }
-        return result;
-    }
-    
+
     /**
      * sets an error code
      *
@@ -183,8 +145,8 @@ protected:
      *
      */
     void parse_header_payload(boost::system::error_code& ec,
-                              decompressor_ptr decompressor,
-                              const spdy_control_frame_info* frame,
+                              decompressor_ptr& decompressor,
+                              const spdy_control_frame_info& frame,
                               http_protocol_info& http_headers,
                               uint32_t current_stream_count);
     
@@ -193,7 +155,7 @@ protected:
      *
      */
     void parse_spdy_data(boost::system::error_code& ec,
-                         const spdy_control_frame_info* frame,
+                         const spdy_control_frame_info& frame,
                          uint32_t stream_id,
                          http_protocol_info& http_info);
     
@@ -202,42 +164,42 @@ protected:
      *
      */
     void parse_spdy_settings_frame(boost::system::error_code& ec,
-                                   const spdy_control_frame_info* frame);
+                                   const spdy_control_frame_info& frame);
     
     /**
      * parses an the RST stream for SPDY
      *
      */
     void parse_spdy_rst_stream(boost::system::error_code& ec,
-                               const spdy_control_frame_info* frame);
+                               const spdy_control_frame_info& frame);
     
     /**
      * parses an the Ping Frame for SPDY
      *
      */
     void parse_spdy_ping_frame(boost::system::error_code& ec,
-                               const spdy_control_frame_info* frame);
+                               const spdy_control_frame_info& frame);
     
     /**
      * parses an the GoAway Frame for SPDY
      *
      */
     void parse_spdy_goaway_frame(boost::system::error_code& ec,
-                                 const spdy_control_frame_info* frame);
+                                 const spdy_control_frame_info& frame);
     
     /**
      * parses an the WindowUpdate Frame for SPDY
      *
      */
     void parse_spdy_window_update_frame(boost::system::error_code& ec,
-                                        const spdy_control_frame_info* frame);
+                                        const spdy_control_frame_info& frame);
     
     /**
      * parses an the entire SPDY frame
      *
      */
     bool parse_spdy_frame(boost::system::error_code& ec,
-                          decompressor_ptr decompressor,
+                          decompressor_ptr& decompressor,
                           http_protocol_info& http_headers,
                           uint32_t& length_packet,
                           uint32_t current_stream_count);

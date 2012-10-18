@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_syn_reply_frame)
     
     this->set_read_ptr((const char*)spdy_syn_reply_frame);
     
-    this->populate_frame(ec, &frame, length_packet, stream_id, http_info);
+    this->populate_frame(ec, frame, length_packet, stream_id, http_info);
     
     // Check the frame properties
     
@@ -91,11 +91,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_syn_stream_frame)
     
     this->set_read_ptr((const char*)spdy_syn_stream_frame);
     
-    this->populate_frame(ec,
-                               &frame,
-                               length_packet,
-                               stream_id,
-                               http_info);
+    this->populate_frame(ec, frame, length_packet, stream_id, http_info);
     
     // Check the frame properties
     
