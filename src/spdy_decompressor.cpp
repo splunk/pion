@@ -98,7 +98,7 @@ decompressor::~decompressor()
 char* decompressor::decompress(boost::system::error_code& ec,
                                const char *compressed_data_ptr,
                                uint32_t stream_id,
-                               spdy_control_frame_info frame,
+                               const spdy_control_frame_info& frame,
                                int header_block_length)
 {
     /// Get our decompressor.
@@ -157,13 +157,12 @@ void decompressor::spdy_decompress_header(boost::system::error_code& ec,
                                           uint32_t length,
                                           uint32_t& uncomp_length) {
     int retcode;
-    uint32_t bufsize = max_uncompressed_data_buf_size;
     const uint8_t *hptr = (uint8_t *)compressed_data_ptr;
     
     decomp->next_in = (Bytef *)hptr;
     decomp->avail_in = length;
     decomp->next_out = m_uncompressed_header;
-    decomp->avail_out = bufsize;
+    decomp->avail_out = MAX_UNCOMPRESSED_DATA_BUF_SIZE;
     
     retcode = inflate(decomp, Z_SYNC_FLUSH);
     
@@ -190,7 +189,7 @@ void decompressor::spdy_decompress_header(boost::system::error_code& ec,
     }
     
     // Handle successful inflation. 
-    uncomp_length = bufsize - decomp->avail_out;
+    uncomp_length = MAX_UNCOMPRESSED_DATA_BUF_SIZE - decomp->avail_out;
     if (decomp->avail_in != 0) {
         
         // Error condition

@@ -33,6 +33,12 @@ namespace spdy {    // begin namespace spdy
 class PION_API decompressor
 {
 public:
+
+    /// data size constants
+    enum data_size_t {
+        /// maximum size of an uncompressed spdy header
+        MAX_UNCOMPRESSED_DATA_BUF_SIZE = 16384
+    };
     
     /// class-specific error code values
     enum error_value_t {
@@ -72,7 +78,7 @@ public:
     char* decompress(boost::system::error_code& ec,
                      const char *compressed_data_ptr,
                      uint32_t stream_id,
-                     spdy_control_frame_info frame,
+                     const spdy_control_frame_info& frame,
                      int header_block_length);
     
     /**
@@ -98,11 +104,6 @@ public:
     
 private:
     
-    enum data_size
-    {
-        max_uncompressed_data_buf_size = 16384
-    };
-    
     /**
      * sets an error code
      *
@@ -126,7 +127,7 @@ private:
     uint32_t                            m_dictionary_id;
     
     /// Used for decompressing spdy headers
-    u_char                              m_uncompressed_header[max_uncompressed_data_buf_size];
+    u_char                              m_uncompressed_header[MAX_UNCOMPRESSED_DATA_BUF_SIZE];
 
     /// points to a single and unique instance of the HTTPParser ErrorCategory
     static error_category_t *           m_error_category_ptr;
