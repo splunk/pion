@@ -63,3 +63,48 @@ BOOST_AUTO_TEST_CASE(testBase64Routines) {
     BOOST_CHECK_EQUAL(decoded.size(), 10U);
     BOOST_CHECK_EQUAL(memcmp(decoded.c_str(), ptr, 10), 0);
 }
+
+BOOST_AUTO_TEST_CASE(testCharFromToIntRoutines) {
+    char buf[8];
+    
+    algorithm::from_uint16(buf, 32769U);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x80);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x01);
+    BOOST_CHECK_EQUAL(algorithm::to_int16(buf), boost::int16_t(0x8001));
+    BOOST_CHECK_EQUAL(algorithm::to_uint16(buf), 32769U);
+
+    algorithm::from_uint24(buf, 9642497U);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x93);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x22);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x01);
+    BOOST_CHECK_EQUAL(algorithm::to_int24(buf), boost::int32_t(0x932201));
+    BOOST_CHECK_EQUAL(algorithm::to_uint24(buf), 9642497U);
+
+    algorithm::from_uint32(buf, 2147680769UL);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x80);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x03);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x02);
+    BOOST_CHECK_EQUAL(buf[3], (char)0x01);
+    BOOST_CHECK_EQUAL(algorithm::to_int32(buf), boost::int32_t(0x80030201));
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(buf), 2147680769UL);
+
+    algorithm::from_uint32(buf, 1427U);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x05);
+    BOOST_CHECK_EQUAL(buf[3], (char)0x93);
+    BOOST_CHECK_EQUAL(algorithm::to_int32(buf), boost::int32_t(0x00000593));
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(buf), 1427U);
+
+    algorithm::from_uint64(buf, 9223378168241586176ULL);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x80);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x05);
+    BOOST_CHECK_EQUAL(buf[3], (char)0x93);
+    BOOST_CHECK_EQUAL(buf[4], (char)0x93);
+    BOOST_CHECK_EQUAL(buf[5], (char)0x22);
+    BOOST_CHECK_EQUAL(buf[6], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[7], (char)0x00);
+    BOOST_CHECK_EQUAL(algorithm::to_int64(buf), boost::int64_t(0x8000059393220000ULL));
+    BOOST_CHECK_EQUAL(algorithm::to_uint64(buf), 9223378168241586176ULL);
+}

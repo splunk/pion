@@ -83,9 +83,6 @@
    in Preprocessor Definitions, or uncomment the following line, to use SSL. */
 //#define PION_HAVE_SSL
 
-/* Define to 1 if you have the `ICU' library. */
-#undef PION_HAVE_ICU
-
 #ifdef PION_HAVE_SSL
     #if defined _DEBUG
         #pragma comment(lib, "ssleay32d")
