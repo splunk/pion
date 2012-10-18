@@ -1587,6 +1587,7 @@
 					PION_XCODE,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				ICU_VERSION = 49.1.2;
 				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)";
 				LOG4CPLUS_VERSION = 1.0.4.1;
 				OBJROOT = "$(PROJECT_DIR)/bin/tmp";
@@ -1603,14 +1604,6 @@
 					"$(DEP_PATH)/boost-$(BOOST_VERSION)/include",
 				);
 				OTHER_LDFLAGS = (
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_thread-pic.a",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_filesystem-pic.a",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_system-pic.a",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_regex-pic.a",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_date_time-pic.a",
-					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib/liblog4cplus-pic.a",
-					"$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libssl-pic.a",
-					"$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libcrypto-pic.a",
 					"-lz",
 					"-lbz2",
 				);
@@ -1637,6 +1630,7 @@
 					NDEBUG,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				ICU_VERSION = 49.1.2;
 				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)";
 				LOG4CPLUS_VERSION = 1.0.4.1;
 				OBJROOT = "$(PROJECT_DIR)/bin/tmp";
@@ -1652,14 +1646,6 @@
 					"$(DEP_PATH)/boost-$(BOOST_VERSION)/include",
 				);
 				OTHER_LDFLAGS = (
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_thread-pic.a",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_filesystem-pic.a",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_system-pic.a",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_regex-pic.a",
-					"$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_date_time-pic.a",
-					"$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib/liblog4cplus-pic.a",
-					"$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libssl-pic.a",
-					"$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libcrypto-pic.a",
 					"-lz",
 					"-lbz2",
 				);
@@ -1923,6 +1909,39 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				INSTALL_PATH = /usr/local/lib;
+				OTHER_LDFLAGS = (
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libssl-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libcrypto-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/icu-$(ICU_VERSION)/lib/libicudata-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/icu-$(ICU_VERSION)/lib/libicui18n-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/icu-$(ICU_VERSION)/lib/libicutu-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/icu-$(ICU_VERSION)/lib/libicuuc-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_chrono-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_date_time-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_filesystem-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_iostreams-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_regex-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_signals-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_system-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_thread-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib/liblog4cplus-pic.a",
+					"$(OTHER_LDFLAGS)",
+				);
 				PRODUCT_NAME = pion;
 			};
 			name = Debug;
@@ -1933,6 +1952,39 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				INSTALL_PATH = /usr/local/lib;
+				OTHER_LDFLAGS = (
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libssl-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/openssl-$(SSL_VERSION)/lib/libcrypto-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/icu-$(ICU_VERSION)/lib/libicudata-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/icu-$(ICU_VERSION)/lib/libicui18n-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/icu-$(ICU_VERSION)/lib/libicutu-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/icu-$(ICU_VERSION)/lib/libicuuc-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_chrono-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_date_time-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_filesystem-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_iostreams-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_regex-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_signals-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_system-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/boost-$(BOOST_VERSION)/lib/libboost_thread-pic.a",
+					"-Wl,-force_load",
+					"-Wl,$(DEP_PATH)/log4cplus-$(LOG4CPLUS_VERSION)/lib/liblog4cplus-pic.a",
+					"$(OTHER_LDFLAGS)",
+				);
 				PRODUCT_NAME = pion;
 			};
 			name = Release;
