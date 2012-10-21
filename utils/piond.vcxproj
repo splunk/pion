@@ -156,7 +156,7 @@
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>EchoService.lib;FileService.lib;HelloService.lib;LogService.lib;CookieService.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\services\.libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -173,7 +173,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>EchoService.lib;FileService.lib;HelloService.lib;LogService.lib;CookieService.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\services\.libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -203,7 +203,7 @@
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>EchoService.lib;FileService.lib;HelloService.lib;LogService.lib;CookieService.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\services\.libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -273,6 +273,21 @@
     <None Include="testservices.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\services\CookieService.vcxproj">
+      <Project>{1cf012d8-a47c-4d2b-952d-d90d19795a07}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\services\EchoService.vcxproj">
+      <Project>{09c3d3d7-7ce0-48d1-994f-eb534c07cf8b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\services\FileService.vcxproj">
+      <Project>{70ca1fa9-ba9a-4ea4-9b7b-c747238991c1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\services\HelloService.vcxproj">
+      <Project>{9ee2433a-b460-45e0-8968-ec5ce8ef9875}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\services\LogService.vcxproj">
+      <Project>{12f95fe7-ace1-4281-86bf-4117ae2d633e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\src\pion.vcxproj">
       <Project>{61f4b4d5-3608-4264-9f4b-b0da3e3fdf62}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

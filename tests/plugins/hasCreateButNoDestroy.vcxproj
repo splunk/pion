@@ -76,11 +76,11 @@
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_Static|Win32'">$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_Static|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_Static|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_Static|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_Static|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_Static|x64'">$(Platform)\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_Static|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_Static|x64'">$(Configuration)_$(PlatformName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_Static|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_Static|x64'">false</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'" />
