@@ -9,14 +9,6 @@
       <Configuration>Debug_DLL_full</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug_DLL|Win32">
-      <Configuration>Debug_DLL</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug_DLL|x64">
-      <Configuration>Debug_DLL</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug_static|Win32">
       <Configuration>Debug_static</Configuration>
       <Platform>Win32</Platform>
@@ -31,14 +23,6 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release_DLL_full|x64">
       <Configuration>Release_DLL_full</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release_DLL|Win32">
-      <Configuration>Release_DLL</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release_DLL|x64">
-      <Configuration>Release_DLL</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release_static|Win32">
@@ -65,14 +49,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -83,14 +61,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -116,25 +88,11 @@
     <Import Project="..\build\third_party_static_libs_win32.props" />
     <Import Project="..\build\pion_plugin.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\Release_DLL_pion.props" />
-    <Import Project="..\build\depth_2_pion-net.props" />
-    <Import Project="..\build\third_party_libs_win32.props" />
-    <Import Project="..\build\pion_plugin.props" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\build\Debug_static_pion.props" />
     <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\third_party_static_libs_win32.props" />
-    <Import Project="..\build\pion_plugin.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\Debug_DLL_pion.props" />
-    <Import Project="..\build\depth_2_pion-net.props" />
-    <Import Project="..\build\third_party_libs_win32.props" />
     <Import Project="..\build\pion_plugin.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'" Label="PropertySheets">
@@ -158,25 +116,11 @@
     <Import Project="..\build\third_party_static_libs_x64.props" />
     <Import Project="..\build\pion_plugin.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\Release_DLL_pion.props" />
-    <Import Project="..\build\depth_2_pion-net.props" />
-    <Import Project="..\build\third_party_libs_x64.props" />
-    <Import Project="..\build\pion_plugin.props" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\build\Debug_static_pion.props" />
     <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\third_party_static_libs_x64.props" />
-    <Import Project="..\build\pion_plugin.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\Debug_DLL_pion.props" />
-    <Import Project="..\build\depth_2_pion-net.props" />
-    <Import Project="..\build\third_party_libs_x64.props" />
     <Import Project="..\build\pion_plugin.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -188,12 +132,6 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'" />
-    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'" />
-    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'" />
-    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'" />
-    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" />
@@ -206,12 +144,6 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'" />
-    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'" />
-    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'" />
-    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'" />
-    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'" />
@@ -219,31 +151,6 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'" />
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>HELLOSERVICE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'">
-    <Midl>
-      <TargetEnvironment>X64</TargetEnvironment>
-    </Midl>
-    <ClCompile>
-      <PreprocessorDefinitions>HELLOSERVICE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-    </ClCompile>
-    <Link>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
@@ -251,30 +158,6 @@
     <ClCompile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>HELLOSERVICE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'">
-    <Midl>
-      <TargetEnvironment>X64</TargetEnvironment>
-    </Midl>
-    <ClCompile>
-      <PreprocessorDefinitions>HELLOSERVICE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">
     <Midl>
