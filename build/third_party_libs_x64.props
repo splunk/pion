@@ -12,8 +12,8 @@
     <LIBXML_LIB>C:\libxml2-2.6.30\bin\x64</LIBXML_LIB>
     <LOG4CPLUS_INC>C:\log4cplus-1.0.4.1\include</LOG4CPLUS_INC>
     <LOG4CPLUS_LIB>C:\log4cplus-1.0.4.1\bin\x64</LOG4CPLUS_LIB>
-    <OPENSSL_INC>C:\openssl-0.9.8l\inc64</OPENSSL_INC>
-    <OPENSSL_LIB>C:\openssl-0.9.8l\bin\x64</OPENSSL_LIB>
+    <OPENSSL_INC>C:\openssl-1.0.1c\inc64</OPENSSL_INC>
+    <OPENSSL_LIB>C:\openssl-1.0.1c\bin\x64</OPENSSL_LIB>
     <PYTHON_INC>C:\Python26\x64\include</PYTHON_INC>
     <PYTHON_LIB>C:\Python26\x64\libs</PYTHON_LIB>
     <YAJL_INC>C:\yajl-2.0.5\include</YAJL_INC>
@@ -21,6 +21,8 @@
     <ZLIB_INC>C:\zlib-1.2.3\include</ZLIB_INC>
     <ZLIB_LIB>C:\zlib-1.2.3\bin\x64</ZLIB_LIB>
     <PION_PATH>$(BOOST_LIB);$(BZIP2_LIB);$(ICONV_LIB);$(ICU_LIB);$(LIBXML_LIB);$(LOG4CPLUS_LIB);$(OPENSSL_LIB);$(YAJL_LIB);$(ZLIB_LIB);$(PATH)</PION_PATH>
+    <SQLITE_INC>C:\sqlite-3.7.14.1\</SQLITE_INC>
+    <SQLITE_LIB>C:\sqlite-3.7.14.1\lib64\</SQLITE_LIB>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
@@ -93,6 +95,12 @@
     </BuildMacro>
     <BuildMacro Include="PION_PATH">
       <Value>$(PION_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SQLITE_INC">
+      <Value>$(SQLITE_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SQLITE_LIB">
+      <Value>$(SQLITE_LIB)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

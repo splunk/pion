@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 
 #ifdef PION_WIN32
-    static const std::string fakePluginInSandboxWithExt = "sandbox\\fakePlugin.dll";
+    static const std::string fakePluginInSandboxWithExt = "sandbox/fakePlugin.dll";
 #else
     static const std::string fakePluginInSandboxWithExt = "sandbox/fakePlugin.so";
 #endif
