@@ -404,7 +404,7 @@
     </Link>
     <PostBuildEvent>
       <Message>auto run tests</Message>
-      <Command>echo $(PION_PATH) &amp; PATH=$(PION_PATH) &amp; "$(TargetPath)" --log_level=test_suite</Command>
+      <Command>cd $(ProjectDir) &amp; PATH=$(PION_PATH) &amp; "$(TargetPath)" --log_level=test_suite</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">
