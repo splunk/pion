@@ -26,3 +26,9 @@ pion.pc
 *.la
 pion.xcodeproj/xcuserdata/
 pion.xcodeproj/project.xcworkspace/xcuserdata/
+IntermediateOutput/
+Release_*/
+*.user
+*.suo
+*.ncb
+_ReSharper.*/
