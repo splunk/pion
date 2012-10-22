@@ -130,6 +130,15 @@ std::size_t message::receive(tcp::connection& tcp_conn,
     } else {
         // default to close the connection
         tcp_conn.set_lifecycle(tcp::connection::LIFECYCLE_CLOSE);
+        
+        // save the read position as a bookmark so that it can be retrieved
+        // by a new HTTP parser
+        if (headers_only) {
+            const char *read_ptr;
+            const char *read_end_ptr;
+            http_parser.load_read_pos(read_ptr, read_end_ptr);
+            tcp_conn.save_read_pos(read_ptr, read_end_ptr);
+        }
     }
 
     return (http_parser.get_total_bytes_read());
