@@ -21,8 +21,8 @@
     <PYTHON_LIB>C:\Python26\libs</PYTHON_LIB>
     <YAJL_INC>C:\yajl-1.0.9\include</YAJL_INC>
     <YAJL_LIB>C:\yajl-1.0.9\bin</YAJL_LIB>
-    <ZLIB_INC>C:\zlib-1.2.3\include</ZLIB_INC>
-    <ZLIB_LIB>C:\zlib-1.2.3\lib\x64</ZLIB_LIB>
+    <ZLIB_INC>C:\zlib-1.2.7\include</ZLIB_INC>
+    <ZLIB_LIB>C:\zlib-1.2.7\lib\x64</ZLIB_LIB>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
