@@ -12,7 +12,7 @@ AC_CONFIG_AUX_DIR([m4])
 AC_CONFIG_SRCDIR(src/algorithm.cpp)
 
 # package and version args are now taken from AC_INIT()
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 
 # Use "silent mode" for less verbose build commands in automake 1.11+
 m4_ifdef( [AM_SILENT_RULES], [AM_SILENT_RULES([yes])] )
