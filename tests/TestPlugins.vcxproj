@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_DLL_full|Win32">
+      <Configuration>Debug_DLL_full</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_DLL_full|x64">
+      <Configuration>Debug_DLL_full</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_static|Win32">
+      <Configuration>Debug_static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_static|x64">
+      <Configuration>Debug_static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_DLL_full|Win32">
+      <Configuration>Release_DLL_full</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_DLL_full|x64">
+      <Configuration>Release_DLL_full</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_static|Win32">
+      <Configuration>Release_static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_static|x64">
+      <Configuration>Release_static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>TestPluigins</ProjectName>
+    <ProjectGuid>{7080E9F1-318F-4152-9E36-9F427F5CE9B7}</ProjectGuid>
+    <RootNamespace>TestPluigins</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">$(Configuration)_$(PlatformName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">$(Configuration)_$(PlatformName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">$(Configuration)_$(PlatformName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">$(Configuration)_$(PlatformName)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">
+    <PreBuildEvent>
+      <Message>Remove all files from plugins\.libs</Message>
+      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
+      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">
+    <PreBuildEvent>
+      <Message>Remove all files from plugins\.libs</Message>
+      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
+    </PreBuildEvent>
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <PostBuildEvent>
+      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
+      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">
+    <PreBuildEvent>
+      <Message>Remove all files from plugins\.libs</Message>
+      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
+      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">
+    <PreBuildEvent>
+      <Message>Remove all files from plugins\.libs</Message>
+      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
+    </PreBuildEvent>
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <PostBuildEvent>
+      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
+      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">
+    <PreBuildEvent>
+      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
+      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">
+    <PreBuildEvent>
+      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
+    </PreBuildEvent>
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <PostBuildEvent>
+      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
+      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">
+    <PreBuildEvent>
+      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
+      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">
+    <PreBuildEvent>
+      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
+    </PreBuildEvent>
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <PostBuildEvent>
+      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
+      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="plugins\hasCreateAndDestroy.vcxproj">
+      <Project>{cd11b3d6-1296-45f4-b924-034cc103d626}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="plugins\hasCreateButNoDestroy.vcxproj">
+      <Project>{2deab99f-2617-4235-8ef7-653f36efac83}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="plugins\hasNoCreate.vcxproj">
+      <Project>{33deab53-40e1-42ff-9c17-7a9956102052}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
