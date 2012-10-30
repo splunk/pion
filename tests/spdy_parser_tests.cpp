@@ -46,6 +46,15 @@ BOOST_AUTO_TEST_CASE(test_is_spdy_frame_methods)
     BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char*)spdy_syn_reply_frame),
                                                   spdy_control_frame);
     BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char*)spdy_syn_reply_frame), true);
+    
+    // Try a packet with low version number
+    BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char*)spdy_low_version_frame), false);
+    
+    // Try a packet with high version number
+    BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char*)spdy_high_version_frame), false);
+    
+    // Try with an invalid frame
+    BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char*)spdy_invalid_type_frame), false);
 }
 
 BOOST_AUTO_TEST_CASE(test_spdy_parse_syn_reply_frame)
