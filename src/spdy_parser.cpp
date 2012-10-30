@@ -66,8 +66,8 @@ bool parser::is_spdy_control_frame(const char *ptr)
     uint16_t two_bytes = algorithm::to_uint16(ptr);
     version = two_bytes & 0x7FFF;
     
-    if(version > 3){
-        // SPDY does not have a version higher than 3 at the moment
+    if(version < 1 && version > 3){
+        // SPDY does not have a version higher than 3 and lower than 1 at the moment
         return false;
     }
     
@@ -461,9 +461,16 @@ void parser::parse_spdy_rst_stream(boost::system::error_code &ec,
     
     status_code = algorithm::to_uint32(m_read_ptr);
     
-    PION_LOG_INFO(m_logger,
-                  "SPDY " << "Status Code is : "
-                  << rst_stream_status_names[status_code].str);
+    // Check the index before using the stream status array
+    
+    if(status_code >=1 && status_code <= 12){
+    
+        PION_LOG_INFO(m_logger,
+                      "SPDY " << "Status Code is : "
+                      << rst_stream_status_names[status_code].str);
+    }else{
+        PION_LOG_INFO(m_logger, "SPDY RST Invalid status code : " << status_code);
+    }
 }
 
 void parser::parse_spdy_ping_frame(boost::system::error_code &ec,
