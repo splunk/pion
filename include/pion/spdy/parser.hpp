@@ -115,7 +115,8 @@ protected:
     inline void set_read_ptr(const char *ptr) { m_read_ptr = m_current_data_chunk_ptr = ptr; }
     
     /// populates the frame for every spdy packet
-    void populate_frame(boost::system::error_code& ec,
+    /// Returns false if there was an error else returns true
+    bool populate_frame(boost::system::error_code& ec,
                         spdy_control_frame_info& frame,
                         uint32_t& length_packet,
                         uint32_t& stream_id,

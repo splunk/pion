@@ -8,6 +8,7 @@
 //
 
 #include <pion/config.hpp>
+#include <pion/algorithm.hpp>
 #include <pion/test/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/spdy/parser.hpp>
@@ -53,8 +54,37 @@ BOOST_AUTO_TEST_CASE(test_is_spdy_frame_methods)
     // Try a packet with high version number
     BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char*)spdy_high_version_frame), false);
     
-    // Try with an invalid frame
+    // Try with an invalid type frame
     BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char*)spdy_invalid_type_frame), false);
+    
+    // Try with an invalid control frame
+    BOOST_CHECK_EQUAL(parser::is_spdy_control_frame((const char*)spdy_incorrect_control_frame), false);
+}
+
+BOOST_AUTO_TEST_CASE(test_spdy_control_frame_stream_id)
+{
+    // Get the SPDY control frame stream id
+    
+    BOOST_CHECK_EQUAL(parser::get_control_frame_stream_id((const char*)spdy_control_frame_1), 6);
+                      
+    BOOST_CHECK_EQUAL(parser::get_control_frame_stream_id((const char*)spdy_control_frame_2), 1793);
+}
+
+BOOST_AUTO_TEST_CASE(test_get_spdy_frame_type)
+{
+    // Get the SPDY control frame type
+    
+    BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char*)spdy_control_frame_1),
+                      spdy_control_frame);
+    
+    BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char*)spdy_control_frame_2),
+                      spdy_control_frame);
+    
+    BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char*)spdy_incorrect_control_frame),
+                      spdy_invalid_frame);
+    
+    BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char*)spdy_datastream_frame),
+                      spdy_data_frame);
 }
 
 BOOST_AUTO_TEST_CASE(test_spdy_parse_syn_reply_frame)
@@ -83,6 +113,168 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_syn_reply_frame)
     BOOST_CHECK_EQUAL(frame.version, 2U);
 
     BOOST_CHECK_EQUAL(stream_id, 1U);
+}
+
+BOOST_AUTO_TEST_CASE(test_spdy_parse_rst_frame)
+{
+    // Parse a spdy rst frame
+    
+    http_protocol_info http_info;
+    boost::system::error_code ec;
+    
+    decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
+    
+    // Check for interleaved spdy frames
+    // The length is known for this packet
+    uint32_t length_packet = 30;
+    
+    
+    bool more_to_parse = false;
+    
+    more_to_parse = this->parse(http_info, ec,
+                                decompressor,
+                                (const char*)spdy_rst_frame,
+                                length_packet, 1);
+    
+
+    // Check if the parser recognized it as an incorrect rst frame
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 1);
+    
+    length_packet = 30;
+    
+    more_to_parse = this->parse(http_info, ec,
+                                decompressor,
+                                (const char*)spdy_rst_frame_with_correct_length,
+                                length_packet, 1);
+    
+    // Check if the parser recognized it as an incorrect rst frame
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 6169);
+}
+
+BOOST_AUTO_TEST_CASE(test_spdy_parse_goaway_frame)
+{
+    // Parse a spdy go away frame
+    
+    http_protocol_info http_info;
+    boost::system::error_code ec;
+    
+    decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
+    
+    // Check for interleaved spdy frames
+    // The length is known for this packet
+    uint32_t length_packet = 30;
+    
+    
+    bool more_to_parse = false;
+    
+    more_to_parse = this->parse(http_info, ec,
+                                decompressor,
+                                (const char*)spdy_goaway_frame,
+                                length_packet, 1);
+    
+    
+    // Check if the parser recognized it as an incorrect rst frame
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 1);
+    
+    length_packet = 30;
+    
+    more_to_parse = this->parse(http_info, ec,
+                                decompressor,
+                                (const char*)spdy_goaway_frame_with_correct_length,
+                                length_packet, 1);
+    
+    // Check if the parser recognized it as an incorrect rst frame
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 6169);
+}
+
+BOOST_AUTO_TEST_CASE(test_spdy_parse_frames)
+{
+    // Parse a possible spdy frames which we don't parse.
+    // The frames are not parsed but parsing these frames should not cause
+    // any unwanted conditions like seg faults etx
+    
+    http_protocol_info http_info;
+    boost::system::error_code ec;
+    
+    decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
+    
+    // Check for interleaved spdy frames
+    // The length is known for this packet
+    uint32_t length_packet = 30;
+    
+    
+    bool more_to_parse = false;
+    
+    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
+                                     decompressor,
+                                     (const char*)spdy_settings_frame,
+                                     length_packet, 1));
+
+    
+    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
+                                     decompressor,
+                                     (const char*)spdy_noop_frame,
+                                     length_packet, 1));
+
+    
+    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
+                                     decompressor,
+                                     (const char*)spdy_headers_frame,
+                                     length_packet, 1));
+
+    
+    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
+                                     decompressor,
+                                     (const char*)spdy_window_update_frame,
+                                     length_packet, 1));
+    
+    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
+                                     decompressor,
+                                     (const char*)spdy_credential_frame,
+                                     length_packet, 1));
+    
+    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
+                                     decompressor,
+                                     (const char*)spdy_invalid_frame_type,
+                                     length_packet, 1));
+
+    
+}
+
+BOOST_AUTO_TEST_CASE(test_spdy_parse_ping_frame)
+{
+    // Parse a spdy ping frame
+    
+    http_protocol_info http_info;
+    boost::system::error_code ec;
+    
+    decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
+    
+    // Check for interleaved spdy frames
+    // The length is known for this packet
+    uint32_t length_packet = 30;
+    
+    
+    bool more_to_parse = false;
+    
+    more_to_parse = this->parse(http_info, ec,
+                                decompressor,
+                                (const char*)spdy_ping_frame,
+                                length_packet, 1);
+    
+    
+    // Check if the parser recognized it as an incorrect rst frame
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 1);
+    
+    length_packet = 30;
+    
+    more_to_parse = this->parse(http_info, ec,
+                                decompressor,
+                                (const char*)spdy_ping_frame_with_correct_length,
+                                length_packet, 1);
+    
+    // Check if the parser recognized it as an incorrect rst frame
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 6169);
 }
 
 BOOST_AUTO_TEST_CASE(test_spdy_parse_syn_stream_frame)
