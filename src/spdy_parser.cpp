@@ -146,7 +146,13 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
     uint32_t                stream_id = 0;
     
     // Populate the frame
-    populate_frame(ec, frame, length_packet, stream_id, http_info);
+    bool populate_frame_result = populate_frame(ec, frame, length_packet, stream_id, http_info);
+    
+    if(!populate_frame_result){
+        
+        /// There was an error; No need to further parse.
+        return false;
+    }
     
     BOOST_ASSERT(stream_id != 0);
     
@@ -234,7 +240,7 @@ void parser::create_error_category(void)
     m_error_category_ptr = &UNIQUE_ERROR_CATEGORY;
 }
 
-void parser::populate_frame(boost::system::error_code& ec,
+bool parser::populate_frame(boost::system::error_code& ec,
                             spdy_control_frame_info& frame,
                             uint32_t& length_packet,
                             uint32_t& stream_id,
@@ -269,7 +275,7 @@ void parser::populate_frame(boost::system::error_code& ec,
             // This is not a SPDY frame, throw an error
             PION_LOG_ERROR(m_logger, "Invalid SPDY Frame");
             set_error(ec, ERROR_INVALID_SPDY_FRAME);
-            return;
+            return false;
         }
     }else {
         
@@ -314,6 +320,8 @@ void parser::populate_frame(boost::system::error_code& ec,
         four_bytes = algorithm::to_uint32(m_read_ptr);
         stream_id = four_bytes & 0x7FFFFFFF;
     }
+    
+    return true;
 }
 
 void parser::parse_header_payload(boost::system::error_code &ec,
@@ -450,6 +458,12 @@ void parser::parse_spdy_rst_stream(boost::system::error_code &ec,
     uint32_t stream_id = 0;
     uint32_t status_code = 0;
     
+    // First complete the check for size and flag
+    // The flag for RST frame should be 0, The length should be 8
+    if(frame.flags != 0 || frame.length != 8 ){
+        return;
+    }
+
     // Get the 31 bit stream id
     
     uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
@@ -476,6 +490,12 @@ void parser::parse_spdy_rst_stream(boost::system::error_code &ec,
 void parser::parse_spdy_ping_frame(boost::system::error_code &ec,
                                    const spdy_control_frame_info& frame)
 {
+    // First complete the check for size 
+    // The length should be 4 always
+    if(frame.length != 4){
+        return;
+    }
+  
     uint32_t ping_id = 0;
     
     // Get the 32 bit ping id
@@ -496,6 +516,12 @@ void parser::parse_spdy_settings_frame(boost::system::error_code &ec,
 void parser::parse_spdy_goaway_frame(boost::system::error_code &ec,
                                      const spdy_control_frame_info& frame)
 {
+    // First complete the check for size
+    // The length should be 4 always
+    if(frame.length != 4){
+        return;
+    }
+    
     uint32_t last_good_stream_id = 0;
     uint32_t status_code = 0;
     
