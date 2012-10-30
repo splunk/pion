@@ -66,7 +66,7 @@ bool parser::is_spdy_control_frame(const char *ptr)
     uint16_t two_bytes = algorithm::to_uint16(ptr);
     version = two_bytes & 0x7FFF;
     
-    if(version < 1 && version > 3){
+    if(version < 1 || version > 3){
         // SPDY does not have a version higher than 3 and lower than 1 at the moment
         return false;
     }
