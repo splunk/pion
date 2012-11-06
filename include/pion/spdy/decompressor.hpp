@@ -11,13 +11,9 @@
 #define __PION_SPDYDECOMPRESSOR_HEADER__
 
 
-#include <boost/system/error_code.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/logic/tribool.hpp>
-#include <boost/thread/once.hpp>
+#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
-#include <pion/logger.hpp>
-#include <pion/user.hpp>
 #include <pion/spdy/types.hpp>
 #include <zlib.h>
 
@@ -40,30 +36,6 @@ public:
         MAX_UNCOMPRESSED_DATA_BUF_SIZE = 16384
     };
     
-    /// class-specific error code values
-    enum error_value_t {
-        ERROR_DECOMPRESSION_FAILED =1,
-        ERROR_MISSING_HEADER_DATA
-    };
-    
-    /// class-specific error category
-    class error_category_t
-        : public boost::system::error_category
-    {
-    public:
-        const char *name() const { return "SPDYDecompressor"; }
-        std::string message(int ev) const {
-            switch (ev) {
-                case ERROR_DECOMPRESSION_FAILED:
-                    return "error in decompression";
-                case ERROR_MISSING_HEADER_DATA:
-                    return "missing header data";
-                    
-            }
-            return "SPDYDecompressor error";
-        }
-    };
-    
     /// constructs a new decompressor object (default constructor)
     decompressor();
     
@@ -73,49 +45,28 @@ public:
     /**
      * decompresses the http content
      *
-     * @return the uncompressed string
+     * @return the uncompressed string, or null on failure
      */
-    char* decompress(boost::system::error_code& ec,
-                     const char *compressed_data_ptr,
+    char* decompress(const char *compressed_data_ptr,
                      uint32_t stream_id,
                      const spdy_control_frame_info& frame,
                      int header_block_length);
+
     
+protected:
+
     /**
      * decompresses the spdy header
      *
-     * @return the uncompressed header
+     * @return true if successful
      */
-    void spdy_decompress_header(boost::system::error_code& ec,
-                                const char *compressed_data_ptr,
+    bool spdy_decompress_header(const char *compressed_data_ptr,
                                 z_streamp decomp,
                                 uint32_t length,
                                 uint32_t& uncomp_length);
-    
-    /// creates the unique error category
-    static void create_error_category(void);
-    
-    /// returns an instance of parser::error_category_t
-    static inline error_category_t& get_error_category(void) {
-        boost::call_once(decompressor::create_error_category, m_instance_flag);
-        return *m_error_category_ptr;
-    }
 
-    
+
 private:
-    
-    /**
-     * sets an error code
-     *
-     * @param ec error code variable to define
-     * @param ev error value to raise
-     */
-    static inline void set_error(boost::system::error_code& ec, error_value_t ev) {
-        ec = boost::system::error_code(static_cast<int>(ev), get_error_category());
-    }
-    
-    /// primary logging interface used by this class
-    mutable logger                      m_logger;
     
     /// zlib stream for decompression request packets
     z_streamp                           m_request_zstream;
@@ -129,12 +80,6 @@ private:
     /// Used for decompressing spdy headers
     u_char                              m_uncompressed_header[MAX_UNCOMPRESSED_DATA_BUF_SIZE];
 
-    /// points to a single and unique instance of the HTTPParser ErrorCategory
-    static error_category_t *           m_error_category_ptr;
-    
-    /// used to ensure thread safety of the HTTPParser ErrorCategory
-    static boost::once_flag             m_instance_flag;
-    
     // SPDY Dictionary used for zlib decompression
     static const char                   SPDY_ZLIB_DICTIONARY[];
 };

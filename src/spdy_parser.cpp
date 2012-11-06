@@ -34,12 +34,12 @@ parser::parser()
     m_logger(PION_GET_LOGGER("pion.spdy.parser"))
 {}
 
-bool parser::parse(http_protocol_info& http_info,
-                   boost::system::error_code& ec,
-                   decompressor_ptr& decompressor,
-                   const char *packet_ptr,
-                   uint32_t& length_packet,
-                   uint32_t current_stream_count)
+boost::tribool parser::parse(http_protocol_info& http_info,
+                             boost::system::error_code& ec,
+                             decompressor_ptr& decompressor,
+                             const char *packet_ptr,
+                             uint32_t& length_packet,
+                             uint32_t current_stream_count)
 {
     // initialize read position
     set_read_ptr(packet_ptr);
@@ -119,20 +119,17 @@ boost::uint32_t parser::get_control_frame_stream_id(const char *ptr)
     return four_bytes & 0x7FFFFFFF;
 }
     
-bool parser::parse_spdy_frame(boost::system::error_code& ec,
-                              decompressor_ptr& decompressor,
-                              http_protocol_info& http_info,
-                              uint32_t& length_packet,
-                              uint32_t current_stream_count)
+boost::tribool parser::parse_spdy_frame(boost::system::error_code& ec,
+                                        decompressor_ptr& decompressor,
+                                        http_protocol_info& http_info,
+                                        uint32_t& length_packet,
+                                        uint32_t current_stream_count)
 {
-    
-    BOOST_ASSERT(m_read_ptr);
-    
-    bool more_to_parse = false;
-    boost::tribool rc = boost::indeterminate;
+    boost::tribool rc = true;
     
     // Verify that this is a spdy frame
     
+    BOOST_ASSERT(m_read_ptr);
     uint8_t first_byte = (uint8_t)*m_read_ptr;
     if (first_byte != 0x80 && first_byte != 0x0) {
         // This is not a SPDY frame, throw an error
@@ -145,11 +142,12 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
     spdy_control_frame_info frame;
     uint32_t                stream_id = 0;
     
+    ec.clear();
+
     // Populate the frame
     bool populate_frame_result = populate_frame(ec, frame, length_packet, stream_id, http_info);
     
     if(!populate_frame_result){
-        
         /// There was an error; No need to further parse.
         return false;
     }
@@ -162,7 +160,7 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
     if(length_packet > frame.length){
         m_current_data_chunk_ptr = m_read_ptr + frame.length;
         length_packet -= frame.length;
-        more_to_parse = true;
+        rc = boost::indeterminate;
     }
     
     if (!control_bit) {
@@ -228,10 +226,13 @@ bool parser::parse_spdy_frame(boost::system::error_code& ec,
             break;
     }
     
+    if (ec)
+        return false;
+    
     m_last_data_chunk_ptr = m_read_ptr;
     m_read_ptr = m_current_data_chunk_ptr;
     
-    return more_to_parse;
+    return rc;
 }
 
 void parser::create_error_category(void)
@@ -385,59 +386,60 @@ void parser::parse_header_payload(boost::system::error_code &ec,
     }
     
     // Decompress header block as necessary.
-    m_uncompressed_ptr = decompressor->decompress(ec,
-                                                  m_read_ptr,
+    m_uncompressed_ptr = decompressor->decompress(m_read_ptr,
                                                   stream_id,
                                                   frame,
                                                   header_block_length);
     
-    if(m_uncompressed_ptr){
+    if (!m_uncompressed_ptr) {
+        set_error(ec, ERROR_DECOMPRESSION);
+        return;
+    }
         
-        // Now parse the name/value pairs
+    // Now parse the name/value pairs
+    
+    // The number of name/value pairs is 16 bit SPDYv2
+    // and it is 32 bit in SPDYv3
+    
+    // TBD : Add support for SPDYv3
+    uint16_t num_name_val_pairs = algorithm::to_uint16(m_uncompressed_ptr);
+    
+    m_uncompressed_ptr += 2;
+    
+    std::string content_type = "";
+    std::string content_encoding = "";
+    
+    for(uint16_t count = 0; count < num_name_val_pairs; ++count){
         
-        // The number of name/value pairs is 16 bit SPDYv2
-        // and it is 32 bit in SPDYv3
         
-        // TBD : Add support for SPDYv3
-        uint16_t num_name_val_pairs = algorithm::to_uint16(m_uncompressed_ptr);
+        // Get the length of the name
+        uint16_t length_name = algorithm::to_uint16(m_uncompressed_ptr);
+        std::string name = "";
         
         m_uncompressed_ptr += 2;
         
-        std::string content_type = "";
-        std::string content_encoding = "";
-        
-        for(uint16_t count = 0; count < num_name_val_pairs; ++count){
-            
-            
-            // Get the length of the name
-            uint16_t length_name = algorithm::to_uint16(m_uncompressed_ptr);
-            std::string name = "";
-            
-            m_uncompressed_ptr += 2;
-            
-            {
-                for(uint16_t count = 0; count < length_name; ++count){
-                    name.push_back(*(m_uncompressed_ptr+count));
-                }
-                m_uncompressed_ptr += length_name;
+        {
+            for(uint16_t count = 0; count < length_name; ++count){
+                name.push_back(*(m_uncompressed_ptr+count));
             }
-            
-            // Get the length of the value
-            uint16_t length_value = algorithm::to_uint16(m_uncompressed_ptr);
-            std::string value = "";
-            
-            m_uncompressed_ptr += 2;
-            
-            {
-                for(uint16_t count = 0; count < length_value; ++count){
-                    value.push_back(*(m_uncompressed_ptr+count));
-                }
-                m_uncompressed_ptr += length_value;
-            }
-            
-            // Save these headers
-            http_info.http_headers.insert(std::make_pair(name, value));
+            m_uncompressed_ptr += length_name;
         }
+        
+        // Get the length of the value
+        uint16_t length_value = algorithm::to_uint16(m_uncompressed_ptr);
+        std::string value = "";
+        
+        m_uncompressed_ptr += 2;
+        
+        {
+            for(uint16_t count = 0; count < length_value; ++count){
+                value.push_back(*(m_uncompressed_ptr+count));
+            }
+            m_uncompressed_ptr += length_value;
+        }
+        
+        // Save these headers
+        http_info.http_headers.insert(std::make_pair(name, value));
     }
 }
 

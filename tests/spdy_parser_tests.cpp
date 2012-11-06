@@ -65,9 +65,9 @@ BOOST_AUTO_TEST_CASE(test_spdy_control_frame_stream_id)
 {
     // Get the SPDY control frame stream id
     
-    BOOST_CHECK_EQUAL(parser::get_control_frame_stream_id((const char*)spdy_control_frame_1), 6);
+    BOOST_CHECK_EQUAL(parser::get_control_frame_stream_id((const char*)spdy_control_frame_1), 6U);
                       
-    BOOST_CHECK_EQUAL(parser::get_control_frame_stream_id((const char*)spdy_control_frame_2), 1793);
+    BOOST_CHECK_EQUAL(parser::get_control_frame_stream_id((const char*)spdy_control_frame_2), 1793U);
 }
 
 BOOST_AUTO_TEST_CASE(test_get_spdy_frame_type)
@@ -128,27 +128,27 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_rst_frame)
     // The length is known for this packet
     uint32_t length_packet = 30;
     
+    boost::tribool result = false;
     
-    bool more_to_parse = false;
-    
-    more_to_parse = this->parse(http_info, ec,
-                                decompressor,
-                                (const char*)spdy_rst_frame,
-                                length_packet, 1);
-    
+    result = this->parse(http_info, ec,
+                         decompressor,
+                         (const char*)spdy_rst_frame,
+                         length_packet, 1);
 
     // Check if the parser recognized it as an incorrect rst frame
-    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 1);
+    BOOST_CHECK_EQUAL(result, true);
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 1U);
     
     length_packet = 30;
     
-    more_to_parse = this->parse(http_info, ec,
-                                decompressor,
-                                (const char*)spdy_rst_frame_with_correct_length,
-                                length_packet, 1);
+    result = this->parse(http_info, ec,
+                         decompressor,
+                         (const char*)spdy_rst_frame_with_correct_length,
+                         length_packet, 1);
     
     // Check if the parser recognized it as an incorrect rst frame
-    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 6169);
+    BOOST_CHECK(boost::indeterminate(result));
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 6169U);
 }
 
 BOOST_AUTO_TEST_CASE(test_spdy_parse_goaway_frame)
@@ -164,27 +164,27 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_goaway_frame)
     // The length is known for this packet
     uint32_t length_packet = 30;
     
+    boost::tribool result = false;
     
-    bool more_to_parse = false;
-    
-    more_to_parse = this->parse(http_info, ec,
-                                decompressor,
-                                (const char*)spdy_goaway_frame,
-                                length_packet, 1);
-    
+    result = this->parse(http_info, ec,
+                         decompressor,
+                         (const char*)spdy_goaway_frame,
+                         length_packet, 1);
     
     // Check if the parser recognized it as an incorrect rst frame
-    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 1);
+    BOOST_CHECK_EQUAL(result, true);
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 1U);
     
     length_packet = 30;
     
-    more_to_parse = this->parse(http_info, ec,
-                                decompressor,
-                                (const char*)spdy_goaway_frame_with_correct_length,
-                                length_packet, 1);
+    result = this->parse(http_info, ec,
+                         decompressor,
+                         (const char*)spdy_goaway_frame_with_correct_length,
+                         length_packet, 1);
     
     // Check if the parser recognized it as an incorrect rst frame
-    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 6169);
+    BOOST_CHECK(boost::indeterminate(result));
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 6169U);
 }
 
 BOOST_AUTO_TEST_CASE(test_spdy_parse_frames)
@@ -202,43 +202,46 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_frames)
     // The length is known for this packet
     uint32_t length_packet = 30;
     
+    boost::tribool result = false;
     
-    bool more_to_parse = false;
-    
-    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
-                                     decompressor,
-                                     (const char*)spdy_settings_frame,
-                                     length_packet, 1));
+    BOOST_CHECK_NO_THROW(result = this->parse(http_info, ec,
+                                              decompressor,
+                                              (const char*)spdy_settings_frame,
+                                              length_packet, 1));
+    BOOST_CHECK_EQUAL(result, true);
 
     
-    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
-                                     decompressor,
-                                     (const char*)spdy_noop_frame,
-                                     length_packet, 1));
+    BOOST_CHECK_NO_THROW(result = this->parse(http_info, ec,
+                                              decompressor,
+                                              (const char*)spdy_noop_frame,
+                                              length_packet, 1));
+    BOOST_CHECK_EQUAL(result, true);
 
     
-    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
-                                     decompressor,
-                                     (const char*)spdy_headers_frame,
-                                     length_packet, 1));
+    BOOST_CHECK_NO_THROW(result = this->parse(http_info, ec,
+                                              decompressor,
+                                              (const char*)spdy_headers_frame,
+                                              length_packet, 1));
+    BOOST_CHECK_EQUAL(result, false);  // TODO: should this be failing?
 
     
-    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
-                                     decompressor,
-                                     (const char*)spdy_window_update_frame,
-                                     length_packet, 1));
+    BOOST_CHECK_NO_THROW(result = this->parse(http_info, ec,
+                                              decompressor,
+                                              (const char*)spdy_window_update_frame,
+                                              length_packet, 1));
+    BOOST_CHECK(boost::indeterminate(result));
     
-    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
-                                     decompressor,
-                                     (const char*)spdy_credential_frame,
-                                     length_packet, 1));
+    BOOST_CHECK_NO_THROW(result = this->parse(http_info, ec,
+                                              decompressor,
+                                              (const char*)spdy_credential_frame,
+                                              length_packet, 1));
+    BOOST_CHECK(boost::indeterminate(result));
     
-    BOOST_CHECK_NO_THROW(this->parse(http_info, ec,
-                                     decompressor,
-                                     (const char*)spdy_invalid_frame_type,
-                                     length_packet, 1));
-
-    
+    BOOST_CHECK_NO_THROW(result = this->parse(http_info, ec,
+                                              decompressor,
+                                              (const char*)spdy_invalid_frame_type,
+                                              length_packet, 1));
+    BOOST_CHECK_EQUAL(result, false);  // TODO: should this be failing?
 }
 
 BOOST_AUTO_TEST_CASE(test_spdy_parse_ping_frame)
@@ -254,27 +257,27 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_ping_frame)
     // The length is known for this packet
     uint32_t length_packet = 30;
     
+    boost::tribool result = false;
     
-    bool more_to_parse = false;
-    
-    more_to_parse = this->parse(http_info, ec,
-                                decompressor,
-                                (const char*)spdy_ping_frame,
-                                length_packet, 1);
-    
+    result = this->parse(http_info, ec,
+                         decompressor,
+                         (const char*)spdy_ping_frame,
+                         length_packet, 1);
     
     // Check if the parser recognized it as an incorrect rst frame
-    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 1);
+    BOOST_CHECK_EQUAL(result, true);
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 1U);
     
     length_packet = 30;
     
-    more_to_parse = this->parse(http_info, ec,
-                                decompressor,
-                                (const char*)spdy_ping_frame_with_correct_length,
-                                length_packet, 1);
+    result = this->parse(http_info, ec,
+                         decompressor,
+                         (const char*)spdy_ping_frame_with_correct_length,
+                         length_packet, 1);
     
     // Check if the parser recognized it as an incorrect rst frame
-    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 6169);
+    BOOST_CHECK(boost::indeterminate(result));
+    BOOST_CHECK_EQUAL(algorithm::to_uint32(this->get_spdy_data_content()), 6169U);
 }
 
 BOOST_AUTO_TEST_CASE(test_spdy_parse_syn_stream_frame)
@@ -322,15 +325,14 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_interleaved_frame)
     // The length is known for this packet
     uint32_t length_packet = 1460;
     
+    boost::tribool result = false;
     
-    bool more_to_parse = false;
+    result = this->parse(http_info, ec,
+                         decompressor,
+                         (const char*)spdy_window_frame,
+                         length_packet, 1);
     
-    more_to_parse = this->parse(http_info, ec,
-                                decompressor,
-                                (const char*)spdy_window_frame,
-                                length_packet, 1);
-    
-    BOOST_CHECK_EQUAL(more_to_parse, true);
+    BOOST_CHECK(boost::indeterminate(result));
 }
 
 BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
@@ -346,16 +348,16 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
     
     decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
     
-    bool more_to_parse = false;
+    boost::tribool result = false;
     
-    more_to_parse = this->parse(http_info,
-                                ec,
-                                decompressor,
-                                (const char*)spdy_syn_stream_frame,
-                                length_packet,
-                                0);
+    result = this->parse(http_info,
+                         ec,
+                         decompressor,
+                         (const char*)spdy_syn_stream_frame,
+                         length_packet,
+                         0);
     
-    BOOST_CHECK_EQUAL(more_to_parse, true);
+    BOOST_CHECK(boost::indeterminate(result));
     
     // Verify the HTTP Info
     BOOST_CHECK_EQUAL(http_info.data_offset, 8U);
@@ -387,15 +389,16 @@ BOOST_AUTO_TEST_CASE(test_populate_http_info_syn_stream_frame)
     
     decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
     
-    bool more_to_parse = false;
-    
     http_protocol_info   http_info;
     
-    more_to_parse = this->parse(http_info, ec,
-                                decompressor,
-                                (const char*)spdy_syn_stream_frame,
-                                length_packet, 1);
+    boost::tribool result = false;
     
+    result = this->parse(http_info, ec,
+                         decompressor,
+                         (const char*)spdy_syn_stream_frame,
+                         length_packet, 1);
+
+    BOOST_CHECK_EQUAL(result, true);
     BOOST_CHECK_EQUAL(http_info.http_headers.size(), 10U);
     BOOST_CHECK_EQUAL(http_info.data_offset, 8U);
     BOOST_CHECK_EQUAL(http_info.data_size, 286U);
@@ -412,17 +415,19 @@ BOOST_AUTO_TEST_CASE(test_populate_http_info_datastream_frame)
     // Check for interleaved spdy frames
     // The length is known for this packet
     
-    bool more_to_parse = false;
     decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
 
     http_protocol_info   http_info;
     uint32_t length_packet = 1460;
 
-    more_to_parse = this->parse(http_info, ec,
-                                decompressor,
-                                (const char*)spdy_datastream_frame,
-                                length_packet, 1);
+    boost::tribool result = false;
+    
+    result = this->parse(http_info, ec,
+                         decompressor,
+                         (const char*)spdy_datastream_frame,
+                         length_packet, 1);
 
+    BOOST_CHECK(boost::indeterminate(result));
     BOOST_CHECK_EQUAL(http_info.http_headers.size(), 0U);
     BOOST_CHECK_EQUAL(http_info.data_offset, 8U);
     BOOST_CHECK_EQUAL(http_info.data_size, 1427U);
