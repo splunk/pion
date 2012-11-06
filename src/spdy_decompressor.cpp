@@ -9,15 +9,11 @@
 
 #include <cstdlib>
 #include <zlib.h>
-#include <boost/regex.hpp>
-#include <boost/scoped_array.hpp>
-#include <boost/logic/tribool.hpp>
-#include <boost/asio/detail/socket_ops.hpp>
-#include <pion/spdy/decompressor.hpp>
-#include <pion/spdy/types.hpp>
-
 #include <iostream>
 #include <fstream>
+#include <boost/asio/detail/socket_ops.hpp>
+#include <pion/spdy/decompressor.hpp>
+
 
 namespace pion {    // begin namespace pion
 namespace spdy {    // begin namespace spdy 
@@ -25,10 +21,7 @@ namespace spdy {    // begin namespace spdy
 
 // decompressor static members
     
-decompressor::error_category_t *    decompressor::m_error_category_ptr = NULL;
-boost::once_flag                    decompressor::m_instance_flag = BOOST_ONCE_INIT;
- 
- const char decompressor::SPDY_ZLIB_DICTIONARY[] =
+const char decompressor::SPDY_ZLIB_DICTIONARY[] =
     "optionsgetheadpostputdeletetraceacceptaccept-charsetaccept-encodingaccept-"
     "languageauthorizationexpectfromhostif-modified-sinceif-matchif-none-matchi"
     "f-rangeif-unmodifiedsincemax-forwardsproxy-authorizationrangerefererteuser"
@@ -47,9 +40,7 @@ boost::once_flag                    decompressor::m_instance_flag = BOOST_ONCE_I
 // decompressor member functions
 
 decompressor::decompressor()
-    : m_logger(PION_GET_LOGGER("pion.spdy.decompressor")),
-    m_request_zstream(NULL), m_response_zstream(NULL)
-    
+    : m_request_zstream(NULL), m_response_zstream(NULL)
 {
     m_request_zstream = (z_streamp)malloc(sizeof(z_stream));
     BOOST_ASSERT(m_request_zstream);
@@ -95,8 +86,7 @@ decompressor::~decompressor()
     free(m_response_zstream);
 }
 
-char* decompressor::decompress(boost::system::error_code& ec,
-                               const char *compressed_data_ptr,
+char* decompressor::decompress(const char *compressed_data_ptr,
                                uint32_t stream_id,
                                const spdy_control_frame_info& frame,
                                int header_block_length)
@@ -125,34 +115,20 @@ char* decompressor::decompress(boost::system::error_code& ec,
     // Decompress the data
     uint32_t uncomp_length = 0;
     
-    spdy_decompress_header(ec,
-                           compressed_data_ptr,
-                           decomp,
-                           (uint32_t)header_block_length,
-                           uncomp_length);
-    
     // Catch decompression failures.
-
-    if (m_uncompressed_header == NULL) {
+    if (!spdy_decompress_header(compressed_data_ptr, decomp,
+                                (uint32_t)header_block_length, uncomp_length))
+    {
         // Error in decompressing
         // This error is not catastrophic as many times we might get inconsistent
         // spdy header frames and we should just log error and continue.
         // No need to call SetError()
-        PION_LOG_ERROR(m_logger, "Error in decompressing headers");
-        
         return NULL;
     }
     return reinterpret_cast<char*>(m_uncompressed_header);
 }
 
-void decompressor::create_error_category(void)
-{
-    static error_category_t UNIQUE_ERROR_CATEGORY;
-    m_error_category_ptr = &UNIQUE_ERROR_CATEGORY;
-}
-
-void decompressor::spdy_decompress_header(boost::system::error_code& ec,
-                                          const char *compressed_data_ptr,
+bool decompressor::spdy_decompress_header(const char *compressed_data_ptr,
                                           z_streamp decomp,
                                           uint32_t length,
                                           uint32_t& uncomp_length) {
@@ -184,21 +160,20 @@ void decompressor::spdy_decompress_header(boost::system::error_code& ec,
         // This error is not catastrophic as many times we might get inconsistent
         // spdy header frames and we should just log error and continue.
         // No need to call SetError()
-        PION_LOG_ERROR(m_logger, "Error in decompressing data");
-        return;
+        return false;
     }
     
     // Handle successful inflation. 
     uncomp_length = MAX_UNCOMPRESSED_DATA_BUF_SIZE - decomp->avail_out;
     if (decomp->avail_in != 0) {
-        
         // Error condition
         // This error is not catastrophic as many times we might get inconsistent
         // spdy header frames and we should just log error and continue.
         // No need to call SetError()
-        PION_LOG_ERROR(m_logger, "Error in decompressing data");
-        return;
+        return false;
     }
+    
+    return true;
 }
         
 }   // end namespace spdy

@@ -12,13 +12,11 @@
 
 
 #include <boost/shared_ptr.hpp>
-#include <boost/system/error_code.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/logic/tribool.hpp>
+#include <boost/system/error_code.hpp>
 #include <boost/thread/once.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
-#include <pion/user.hpp>
 #include <pion/spdy/types.hpp>
 #include <pion/spdy/decompressor.hpp>
 
@@ -73,13 +71,20 @@ public:
     /// destructor
     ~parser() {}
     
-    /// parse the SPDY Frame
-    bool parse(http_protocol_info& http_headers,
-               boost::system::error_code& ec,
-               decompressor_ptr& decompressor,
-               const char *packet_ptr,
-               uint32_t& length_packet,
-               uint32_t current_stream_count);
+    /**
+     * parse a SPDY packet
+     *
+     * @return boost::tribool result of parsing:
+     *                        false = SPDY frame has an error,
+     *                        true = finished parsing SPDY frame,
+     *                        indeterminate = not yet finished parsing SPDY frame
+     */
+    boost::tribool parse(http_protocol_info& http_headers,
+                         boost::system::error_code& ec,
+                         decompressor_ptr& decompressor,
+                         const char *packet_ptr,
+                         uint32_t& length_packet,
+                         uint32_t current_stream_count);
     
     /// Get the pointer to the first character to the spdy data contect 
     const char * get_spdy_data_content( ) { return m_last_data_chunk_ptr; }
@@ -196,14 +201,18 @@ protected:
                                         const spdy_control_frame_info& frame);
     
     /**
-     * parses an the entire SPDY frame
+     * parse a SPDY frame (protected implementation)
      *
+     * @return boost::tribool result of parsing:
+     *                        false = SPDY frame has an error,
+     *                        true = finished parsing SPDY frame,
+     *                        indeterminate = not yet finished parsing SPDY frame
      */
-    bool parse_spdy_frame(boost::system::error_code& ec,
-                          decompressor_ptr& decompressor,
-                          http_protocol_info& http_headers,
-                          uint32_t& length_packet,
-                          uint32_t current_stream_count);
+    boost::tribool parse_spdy_frame(boost::system::error_code& ec,
+                                    decompressor_ptr& decompressor,
+                                    http_protocol_info& http_headers,
+                                    uint32_t& length_packet,
+                                    uint32_t current_stream_count);
     
 private:
     

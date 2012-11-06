@@ -10,7 +10,7 @@
 #ifndef __PION_SPDYTYPES_HEADER__
 #define __PION_SPDYTYPES_HEADER__
 
-#include <zlib.h>
+#include <map>
 #include <pion/config.hpp>
 
 
@@ -89,14 +89,10 @@ typedef struct _spdy_header_info{
     uint16_t frame_type;
 } spdy_header_info;
 
-    
-/// This structure contains the HTTP Headers
-typedef std::map<std::string, std::string>          HTTPHeaders;
 
-    
 /// This structure contains the HTTP Protocol information
 typedef struct _http_protocol_info_t{
-    HTTPHeaders http_headers;
+    std::map<std::string, std::string> http_headers;
     uint        http_type;
     uint        stream_id;
     uint        data_offset;
