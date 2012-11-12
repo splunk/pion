@@ -48,9 +48,9 @@ public:
      * @return the uncompressed string, or null on failure
      */
     char* decompress(const char *compressed_data_ptr,
-                     uint32_t stream_id,
+                     boost::uint32_t stream_id,
                      const spdy_control_frame_info& frame,
-                     int header_block_length);
+                     boost::uint32_t header_block_length);
 
     
 protected:
@@ -62,8 +62,8 @@ protected:
      */
     bool spdy_decompress_header(const char *compressed_data_ptr,
                                 z_streamp decomp,
-                                uint32_t length,
-                                uint32_t& uncomp_length);
+                                boost::uint32_t length,
+                                boost::uint32_t& uncomp_length);
 
 
 private:
@@ -75,7 +75,7 @@ private:
     z_streamp                           m_response_zstream;
     
     /// dictionary identifier
-    uint32_t                            m_dictionary_id;
+    boost::uint32_t                     m_dictionary_id;
     
     /// Used for decompressing spdy headers
     u_char                              m_uncompressed_header[MAX_UNCOMPRESSED_DATA_BUF_SIZE];
