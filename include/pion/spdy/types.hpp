@@ -47,7 +47,7 @@ namespace spdy {    // begin namespace spdy
     
 /// SPDY value string data type
 typedef struct _value_string {
-    uint32_t  value;
+    boost::uint32_t  value;
     std::string   str;
 } value_string;
 
@@ -72,10 +72,10 @@ static const value_string rst_stream_status_names[] = {
 /// This structure will be tied to each SPDY frame
 typedef struct spdy_control_frame_info{
     bool control_bit;
-    uint16_t  version;
-    uint16_t  type;
-    uint8_t   flags;
-    uint32_t  length;  // Actually only 24 bits.
+    boost::uint16_t  version;
+    boost::uint16_t  type;
+    boost::uint8_t   flags;
+    boost::uint32_t  length;  // Actually only 24 bits.
 } spdy_control_frame_info;
 
     
@@ -83,21 +83,21 @@ typedef struct spdy_control_frame_info{
 /// Only applies to frames containing headers: SYN_STREAM, SYN_REPLY, HEADERS
 /// Note that there may be multiple SPDY frames in one packet.
 typedef struct _spdy_header_info{
-    uint32_t stream_id;
-    uint8_t *header_block;
-    uint8_t  header_block_len;
-    uint16_t frame_type;
+    boost::uint32_t stream_id;
+    boost::uint8_t *header_block;
+    boost::uint8_t  header_block_len;
+    boost::uint16_t frame_type;
 } spdy_header_info;
 
 
 /// This structure contains the HTTP Protocol information
 typedef struct _http_protocol_info_t{
     std::map<std::string, std::string> http_headers;
-    uint        http_type;
-    uint        stream_id;
-    uint        data_offset;
-    uint        data_size;
-    bool        last_chunk;
+    boost::uint32_t     http_type;
+    boost::uint32_t     stream_id;
+    boost::uint32_t     data_offset;
+    boost::uint32_t     data_size;
+    bool                last_chunk;
     
     _http_protocol_info_t()
     : http_type(NON_SPDY),
