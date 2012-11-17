@@ -78,7 +78,7 @@ private:
     boost::uint32_t                     m_dictionary_id;
     
     /// Used for decompressing spdy headers
-    u_char                              m_uncompressed_header[MAX_UNCOMPRESSED_DATA_BUF_SIZE];
+    boost::uint8_t                      m_uncompressed_header[MAX_UNCOMPRESSED_DATA_BUF_SIZE];
 
     // SPDY Dictionary used for zlib decompression
     static const char                   SPDY_ZLIB_DICTIONARY[];
