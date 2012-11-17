@@ -233,6 +233,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
+      <AdditionalDependencies>zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">
@@ -251,6 +252,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalDependencies>zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -269,6 +271,8 @@
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="process.cpp" />
     <ClCompile Include="scheduler.cpp" />
+    <ClCompile Include="spdy_decompressor.cpp" />
+    <ClCompile Include="spdy_parser.cpp" />
     <ClCompile Include="tcp_server.cpp" />
     <ClCompile Include="tcp_timer.cpp" />
   </ItemGroup>
@@ -277,6 +281,9 @@
     <ClInclude Include="..\include\pion\algorithm.hpp" />
     <ClInclude Include="..\include\pion\http\auth.hpp" />
     <ClInclude Include="..\include\pion\http\basic_auth.hpp" />
+    <ClInclude Include="..\include\pion\spdy\decompressor.hpp" />
+    <ClInclude Include="..\include\pion\spdy\parser.hpp" />
+    <ClInclude Include="..\include\pion\spdy\types.hpp" />
     <ClInclude Include="..\include\pion\tcp\connection.hpp" />
     <ClInclude Include="..\include\pion\http\cookie_auth.hpp" />
     <ClInclude Include="..\include\pion\hash_map.hpp" />
