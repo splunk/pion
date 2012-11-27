@@ -12,7 +12,6 @@
 
 #include <string>
 #include <boost/noncopyable.hpp>
-#include <boost/function/function2.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/thread/once.hpp>
@@ -41,9 +40,6 @@ public:
     /// maximum length for HTTP payload content
     static const std::size_t        DEFAULT_CONTENT_MAX;
 
-    /// callback type used to consume payload content
-    typedef boost::function2<void, const char *, std::size_t>   payload_handler_t;
-    
     /// class-specific error code values
     enum error_value_t {
         ERROR_METHOD_CHAR = 1,
@@ -130,7 +126,8 @@ public:
         m_bytes_content_remaining(0), m_bytes_content_read(0),
         m_bytes_last_read(0), m_bytes_total_read(0),
         m_max_content_length(max_content_length),
-        m_parse_headers_only(false), m_save_raw_headers(false)
+        m_parse_headers_only(false), m_save_raw_headers(false),
+        m_incremental_parsing(false), m_finished_parsing_headers(false)
     {}
 
     /// default destructor
@@ -239,6 +236,7 @@ public:
         m_query_string.erase();
         m_raw_headers.erase();
         m_bytes_content_read = m_bytes_last_read = m_bytes_total_read = 0;
+        m_finished_parsing_headers = false;
     }
 
     /// returns true if there are no more bytes available in the read buffer
@@ -265,15 +263,18 @@ public:
     /// returns true if the parser is saving raw HTTP header contents
     inline bool get_save_raw_headers(void) const { return m_save_raw_headers; }
 
+    /// returns true if incremental content parsing is enabled
+    inline bool get_incremental_parsing(void) const { return m_incremental_parsing; }
+    
     /// returns true if the parser is being used to parse an HTTP request
     inline bool is_parsing_request(void) const { return m_is_request; }
 
     /// returns true if the parser is being used to parse an HTTP response
     inline bool is_parsing_response(void) const { return ! m_is_request; }
 
-    /// defines a callback function to be used for consuming payload content
-    inline void set_payload_handler(payload_handler_t& h) { m_payload_handler = h; }
-
+    /// returns true if we have finished parsing the HTTP headers
+    inline bool get_finished_parsing_headers(void) const { return m_finished_parsing_headers; }
+    
     /// sets the maximum length for HTTP payload content
     inline void set_max_content_length(std::size_t n) { m_max_content_length = n; }
 
@@ -283,6 +284,9 @@ public:
     /// sets parameter for saving raw HTTP header content
     inline void set_save_raw_headers(bool b) { m_save_raw_headers = b; }
 
+    /// sets parameter for incrementally parsing HTTP payload content
+    inline void set_incremental_parsing(bool b) { m_incremental_parsing = b; }
+    
     /// sets the logger to be used
     inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
 
@@ -400,9 +404,6 @@ public:
 
 protected:
 
-    /// Called after we have finished parsing the HTTP message headers
-    virtual void finished_parsing_headers(const boost::system::error_code& ec) {}
-    
     /**
      * parses an HTTP message up to the end of the headers using bytes 
      * available in the read buffer
@@ -427,7 +428,7 @@ protected:
     /**
      * parses a chunked HTTP message-body using bytes available in the read buffer
      *
-     * @param chunk_buffers buffers to be populated from parsing chunked content
+     * @param http_msg the HTTP message object to consume content for
      * @param ec error_code contains additional information for parsing errors
      *
      * @return boost::tribool result of parsing:
@@ -435,7 +436,7 @@ protected:
      *                        true = finished parsing message,
      *                        indeterminate = message is not yet finished
      */
-    boost::tribool parse_chunks(http::message::chunk_cache_t& chunk_buffers,
+    boost::tribool parse_chunks(http::message& http_msg,
         boost::system::error_code& ec);
 
     /**
@@ -456,10 +457,10 @@ protected:
      * consume the bytes available in the read buffer, converting them into
      * the next chunk for the HTTP message
      *
-     * @param chunk_buffers buffers to be populated from parsing chunked content
+     * @param http_msg the HTTP message object to consume content for
      * @return std::size_t number of content bytes consumed, if any
      */
-    std::size_t consume_content_as_next_chunk(http::message::chunk_cache_t& chunk_buffers);
+    std::size_t consume_content_as_next_chunk(http::message& http_msg);
 
     /**
      * compute and sets a HTTP Message data integrity status
@@ -579,9 +580,6 @@ private:
     /// the current state of parsing chunked content
     chunk_parse_state_t                 m_chunked_content_parse_state;
     
-    /// if defined, this function is used to consume payload content
-    payload_handler_t                   m_payload_handler;
-
     /// Used for parsing the HTTP response status code
     boost::uint16_t                     m_status_code;
 
@@ -636,6 +634,12 @@ private:
     /// if true, the raw contents of HTTP headers are stored into m_raw_headers
     bool                                m_save_raw_headers;
 
+    /// if true, incremental content parsing behavior is enabled
+    bool                                m_incremental_parsing;
+    
+    /// true if we have finished parsing the HTTP headers
+    bool                                m_finished_parsing_headers;
+    
     /// points to a single and unique instance of the parser error_category_t
     static error_category_t *           m_error_category_ptr;
         

@@ -34,7 +34,7 @@ void reader::receive(void)
     } else {
         // no pipelined messages available in the read buffer -> read bytes from the socket
         m_tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE);   // default to close the connection
-        read_bytes_with_timeout();
+        read_bytes();
     }
 }
 
@@ -116,11 +116,11 @@ void reader::consume_bytes(void)
         finished_reading(ec);
     } else {
         // not yet finished parsing the message -> read more data
-        read_bytes_with_timeout();
+        read_bytes();
     }
 }
 
-void reader::read_bytes_with_timeout(void)
+void reader::begin_timeout(void)
 {
     if (m_read_timeout > 0) {
         m_timer_ptr.reset(new tcp::timer(m_tcp_conn));
@@ -128,7 +128,6 @@ void reader::read_bytes_with_timeout(void)
     } else if (m_timer_ptr) {
         m_timer_ptr.reset();
     }
-    read_bytes();
 }
 
 void reader::handle_read_error(const boost::system::error_code& read_error)

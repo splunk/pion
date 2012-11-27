@@ -69,6 +69,9 @@ protected:
     /// Consumes bytes that have been read using an HTTP parser
     void consume_bytes(void);
     
+    /// starts tcp::timer object to timeout reads (if timeout is not zero)
+    void begin_timeout(void);
+    
     /// Reads more bytes from the TCP connection
     virtual void read_bytes(void) = 0;
 
@@ -81,9 +84,6 @@ protected:
 
 private:
 
-    /// reads more bytes for parsing, with timeout support
-    void read_bytes_with_timeout(void);
-
     /**
      * Handles errors that occur during read operations
      *
@@ -93,17 +93,17 @@ private:
 
 
     /// default maximum number of seconds for read operations
-    static const boost::uint32_t            DEFAULT_READ_TIMEOUT;
+    static const boost::uint32_t        DEFAULT_READ_TIMEOUT;
 
 
     /// The HTTP connection that has a new HTTP message to parse
-    tcp::connection_ptr                        m_tcp_conn;
+    tcp::connection_ptr                 m_tcp_conn;
     
     /// pointer to a tcp::timer object if read timeouts are enabled
-    tcp::timer_ptr                             m_timer_ptr;
+    tcp::timer_ptr                      m_timer_ptr;
 
     /// maximum number of seconds for read operations
-    boost::uint32_t                         m_read_timeout;
+    boost::uint32_t                     m_read_timeout;
 };
 
 

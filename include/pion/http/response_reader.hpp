@@ -13,7 +13,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include <boost/function/function2.hpp>
+#include <boost/function/function3.hpp>
+#include <boost/function/function4.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <pion/config.hpp>
@@ -35,10 +36,31 @@ class response_reader :
 
 public:
 
-    /// function called after the HTTP message has been parsed
+    /// function type called by incremental handler when it's finished
+    typedef boost::function0<void>  continue_handler_t;
+    
+    /**
+     * function type called during incremental processing when not finished.
+     * parameters are:
+     *
+     * shared pointer to HTTP object being parsed,
+     * shared pointer to tcp connection being used,
+     * boolean true if finished parsing headers
+     * function object to be called when ready to process more
+     */
+    typedef boost::function4<void, http::response_ptr, tcp::connection_ptr,
+        bool, continue_handler_t>   incremental_handler_t;
+    
+    /**
+     * function type called after the HTTP message has been parsed.
+     * parameters are:
+     *
+     * shared pointer to HTTP object being parsed,
+     * shared pointer to tcp connection being used,
+     * error code if a problem occured during parsing
+     */
     typedef boost::function3<void, http::response_ptr, tcp::connection_ptr,
         const boost::system::error_code&>   finished_handler_t;
-
     
     // default destructor
     virtual ~response_reader() {}
@@ -58,8 +80,8 @@ public:
             (new response_reader(tcp_conn, http_request, handler));
     }
 
-    /// sets a function to be called after HTTP headers have been parsed
-    inline void set_headers_parsed_callback(finished_handler_t& h) { m_parsed_headers = h; }
+    /// defines a callback function to be used for incremental processing
+    inline void set_incremental_handler(incremental_handler_t& h) { m_incremental_handler = h; set_incremental_parsing(true); }
 
     
 protected:
@@ -80,20 +102,27 @@ protected:
         set_logger(PION_GET_LOGGER("pion.http.response_reader"));
     }
         
-    /// Reads more bytes from the TCP connection
-    virtual void read_bytes(void) {
+    /// read and process more bytes from tcp connection
+    void async_read_some(void) {
+        begin_timeout();
         get_connection()->async_read_some(boost::bind(&response_reader::consume_bytes,
-                                                        shared_from_this(),
-                                                        boost::asio::placeholders::error,
-                                                        boost::asio::placeholders::bytes_transferred));
+                                                      shared_from_this(),
+                                                      boost::asio::placeholders::error,
+                                                      boost::asio::placeholders::bytes_transferred));
     }
 
-    /// Called after we have finished parsing the HTTP message headers
-    virtual void finished_parsing_headers(const boost::system::error_code& ec) {
-        // call the finished headers handler with the HTTP message
-        if (m_parsed_headers) m_parsed_headers(m_http_msg, get_connection(), ec);
+    /// Reads more bytes from the TCP connection
+    virtual void read_bytes(void) {
+        if (m_incremental_handler) {
+            // call the finished handler allowing it to incrementally process
+            // and return control when finished by calling http::reader::receive()
+            m_incremental_handler(m_http_msg, get_connection(), get_finished_parsing_headers(),
+                                  boost::bind(&response_reader::async_read_some, shared_from_this()));
+        } else {
+            async_read_some();
+        }
     }
-    
+
     /// Called after we have finished reading/parsing the HTTP message
     virtual void finished_reading(const boost::system::error_code& ec) {
         // call the finished handler with the finished HTTP message
@@ -105,13 +134,13 @@ protected:
 
     
     /// The new HTTP message container being created
-    http::response_ptr             m_http_msg;
+    http::response_ptr          m_http_msg;
 
     /// function called after the HTTP message has been parsed
-    finished_handler_t             m_finished;
+    finished_handler_t          m_finished;
 
-    /// function called after the HTTP message headers have been parsed
-    finished_handler_t             m_parsed_headers;
+    /// true if we should process the HTTP message incrementally
+    incremental_handler_t       m_incremental_handler;
 };
 
 

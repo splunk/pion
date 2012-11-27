@@ -337,7 +337,6 @@ public:
     inline void clear_content(void) {
         set_content_length(0);
         create_content_buffer();
-        delete_value(m_headers, HEADER_CONTENT_TYPE);
     }
 
     /// sets the content type for the message payload
