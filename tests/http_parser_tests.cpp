@@ -139,6 +139,55 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithTabs)
     BOOST_CHECK_EQUAL(i->second, "BOB");
 }
 
+BOOST_AUTO_TEST_CASE(testParseMultipartFormData)
+{
+    const std::string FORM_DATA("------WebKitFormBoundarynqrI4c1BfROrEpu7\r\n"
+                                "Content-Disposition: form-data; name=\"field1\"\r\n"
+                                "\r\n"
+                                "this\r\n"
+                                "------WebKitFormBoundarynqrI4c1BfROrEpu7\r\n"
+                                "Content-Disposition: form-data; name=\"field2\"\r\n"
+                                "\r\n"
+                                "is\r\n"
+                                "------WebKitFormBoundarynqrI4c1BfROrEpu7\r\n"
+                                "Content-Disposition: form-data; name=\"funny$field1\"\r\n"
+                                "\r\n"
+                                "a\r\n"
+                                "------WebKitFormBoundarynqrI4c1BfROrEpu7\r\n"
+                                "Content-Disposition: form-data; name=\"skipme\"\r\n"
+                                "content-type: application/octet-stream\r\n"
+                                "\r\n"
+                                "SKIP ME!\r\n"
+                                "------WebKitFormBoundarynqrI4c1BfROrEpu7\r\n"
+                                "Content-Disposition: form-data; name=\"funny$field2\"\r\n"
+                                "\r\n"
+                                "funky test!\r\n"
+                                "------WebKitFormBoundarynqrI4c1BfROrEpu7--");
+    ihash_multimap params;
+    BOOST_REQUIRE(http::parser::parse_multipart_form_data(params, "multipart/form-data; boundary=----WebKitFormBoundarynqrI4c1BfROrEpu7", FORM_DATA));
+    BOOST_CHECK_EQUAL(params.size(), 4UL);
+    ihash_multimap::const_iterator i;
+
+    i = params.find("skipme");
+    BOOST_REQUIRE(i == params.end());
+
+    i = params.find("field1");
+    BOOST_REQUIRE(i != params.end());
+    BOOST_CHECK_EQUAL(i->second, "this");
+
+    i = params.find("field2");
+    BOOST_REQUIRE(i != params.end());
+    BOOST_CHECK_EQUAL(i->second, "is");
+
+    i = params.find("funny$field1");
+    BOOST_REQUIRE(i != params.end());
+    BOOST_CHECK_EQUAL(i->second, "a");
+
+    i = params.find("funny$field2");
+    BOOST_REQUIRE(i != params.end());
+    BOOST_CHECK_EQUAL(i->second, "funky test!");
+}
+
 BOOST_AUTO_TEST_CASE(testParseSingleCookieHeader)
 {
     std::string cookie_header;

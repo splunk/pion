@@ -8,9 +8,11 @@
 //
 
 #include <cstdlib>
+#include <cstring>
 #include <boost/regex.hpp>
 #include <boost/assert.hpp>
 #include <boost/logic/tribool.hpp>
+#include <boost/algorithm/string.hpp>
 #include <pion/http/parser.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/response.hpp>
@@ -942,6 +944,165 @@ bool parser::parse_url_encoded(ihash_multimap& dict,
     return true;
 }
 
+bool parser::parse_multipart_form_data(ihash_multimap& dict,
+                                       const std::string& content_type,
+                                       const char *ptr, const size_t len)
+{
+    // parse field boundary
+    std::size_t pos = content_type.find("boundary=");
+    if (pos == std::string::npos)
+        return false;
+    const std::string boundary = std::string("--") + content_type.substr(pos+9);
+    
+    // used to track what we are parsing
+    enum MultiPartParseState {
+        MP_PARSE_START,
+        MP_PARSE_HEADER_CR, MP_PARSE_HEADER_LF,
+        MP_PARSE_HEADER_NAME, MP_PARSE_HEADER_SPACE, MP_PARSE_HEADER_VALUE,
+        MP_PARSE_HEADER_LAST_LF, MP_PARSE_FIELD_DATA
+    } parse_state = MP_PARSE_START;
+
+    // a few variables used for parsing
+    std::string header_name;
+    std::string header_value;
+    std::string field_name;
+    std::string field_value;
+    bool save_current_field = true;
+    const char * const end_ptr = ptr + len;
+
+    ptr = strstr(ptr, boundary.c_str());
+
+    while (ptr != NULL && ptr < end_ptr) {
+        switch (parse_state) {
+            case MP_PARSE_START:
+                // start parsing a new field
+                header_name.clear();
+                header_value.clear();
+                field_name.clear();
+                field_value.clear();
+                save_current_field = true;
+                ptr += boundary.size() - 1;
+                parse_state = MP_PARSE_HEADER_CR;
+                break;
+            case MP_PARSE_HEADER_CR:
+                // expecting CR while parsing headers
+                if (*ptr == '\r') {
+                    // got it -> look for linefeed
+                    parse_state = MP_PARSE_HEADER_LF;
+                } else if (*ptr == '\n') {
+                    // got a linefeed? try to ignore and start parsing header
+                    parse_state = MP_PARSE_HEADER_NAME;
+                } else if (*ptr == '-' && ptr+1 < end_ptr && ptr[1] == '-') {
+                    // end of multipart content
+                    return true;
+                } else return false;
+                break;
+            case MP_PARSE_HEADER_LF:
+                // expecting LF while parsing headers
+                if (*ptr == '\n') {
+                    // got it -> start parsing header name
+                    parse_state = MP_PARSE_HEADER_NAME;
+                } else return false;
+                break;
+            case MP_PARSE_HEADER_NAME:
+                // parsing the name of a header
+                if (*ptr == '\r' || *ptr == '\n') {
+                    if (header_name.empty()) {
+                        // got CR or LF at beginning; skip to data
+                        parse_state = (*ptr == '\r' ? MP_PARSE_HEADER_LAST_LF : MP_PARSE_FIELD_DATA);
+                    } else {
+                        // premature CR or LF -> just ignore and start parsing next header
+                        parse_state = (*ptr == '\r' ? MP_PARSE_HEADER_LF : MP_PARSE_HEADER_NAME);
+                    }
+                } else if (*ptr == ':') {
+                    // done parsing header name -> consume space next
+                    parse_state = MP_PARSE_HEADER_SPACE;
+                } else {
+                    // one more byte for header name
+                    header_name += *ptr;
+                }
+                break;
+            case MP_PARSE_HEADER_SPACE:
+                // expecting a space before header value
+                if (*ptr == '\r') {
+                    // premature CR -> just ignore and start parsing next header
+                    parse_state = MP_PARSE_HEADER_LF;
+                } else if (*ptr == '\n') {
+                    // premature LF -> just ignore and start parsing next header
+                    parse_state = MP_PARSE_HEADER_NAME;
+                } else if (*ptr != ' ') {
+                    // not a space -> assume it's a value char
+                    header_value += *ptr;
+                    parse_state = MP_PARSE_HEADER_VALUE;
+                }
+                // otherwise just ignore the space(s)
+                break;
+            case MP_PARSE_HEADER_VALUE:
+                // parsing the value of a header
+                if (*ptr == '\r' || *ptr == '\n') {
+                    // reached the end of the value -> check if it's important
+                    if (boost::algorithm::iequals(header_name, types::HEADER_CONTENT_TYPE)) {
+                        // only keep fields that have a text type or no type
+                        save_current_field = boost::algorithm::iequals(header_value.substr(0, 5), "text/");
+                    } else if (boost::algorithm::iequals(header_name, types::HEADER_CONTENT_DISPOSITION)) {
+                        // get current field from content-disposition header
+                        std::size_t name_pos = header_value.find("name=\"");
+                        if (name_pos != std::string::npos) {
+                            for (name_pos += 6; name_pos < header_value.size() && header_value[name_pos] != '\"'; ++name_pos) {
+                                field_name += header_value[name_pos];
+                            }
+                        }
+                    }
+                    // clear values and start parsing next header
+                    header_name.clear();
+                    header_value.clear();
+                    parse_state = (*ptr == '\r' ? MP_PARSE_HEADER_LF : MP_PARSE_HEADER_NAME);
+                } else {
+                    // one more byte for header value
+                    header_value += *ptr;
+                }
+                break;
+            case MP_PARSE_HEADER_LAST_LF:
+                // expecting final linefeed to terminate headers and begin field data
+                if (*ptr == '\n') {
+                    // got it
+                    if (save_current_field && !field_name.empty()) {
+                        // parse the field if we care & know enough about it
+                        parse_state = MP_PARSE_FIELD_DATA;
+                    } else {
+                        // otherwise skip ahead to next field
+                        parse_state = MP_PARSE_START;
+                        ptr = strstr(ptr, boundary.c_str());
+                    }
+                } else return false;
+                break;
+            case MP_PARSE_FIELD_DATA:
+                // parsing the value of a field -> find the end of it
+                const char *field_end_ptr = end_ptr;
+                const char *next_ptr = strstr(ptr, boundary.c_str());
+                if (next_ptr) {
+                    // don't include CRLF before next boundary
+                    const char *temp_ptr = next_ptr - 2;
+                    if (temp_ptr[0] == '\r' && temp_ptr[1] == '\n')
+                        field_end_ptr = temp_ptr;
+                    else field_end_ptr = next_ptr;
+                }
+                field_value.assign(ptr, field_end_ptr - ptr);
+                // add the field to the query dictionary
+                dict.insert( std::make_pair(field_name, field_value) );
+                // skip ahead to next field
+                parse_state = MP_PARSE_START;
+                ptr = next_ptr;
+                break;
+        }
+        // we've already bumped position if MP_PARSE_START
+        if (parse_state != MP_PARSE_START)
+            ++ptr;
+    }
+    
+    return true;
+}
+
 bool parser::parse_cookie_header(ihash_multimap& dict,
                                    const char *ptr, const size_t len,
                                    bool set_cookie_header)
@@ -1319,8 +1480,16 @@ void parser::finish(http::message& http_msg) const
         {
             if (! parse_url_encoded(http_request.get_queries(),
                                   http_request.get_content(),
-                                  http_request.get_content_length())) 
-                PION_LOG_WARN(m_logger, "Request query string parsing failed (POST content)");
+                                  http_request.get_content_length()))
+                PION_LOG_WARN(m_logger, "Request form data parsing failed (POST urlencoded)");
+        } else if (content_type_header.compare(0, http::types::CONTENT_TYPE_MULTIPART_FORM_DATA.length(),
+                                               http::types::CONTENT_TYPE_MULTIPART_FORM_DATA) == 0)
+        {
+            if (! parse_multipart_form_data(http_request.get_queries(),
+                                            content_type_header,
+                                            http_request.get_content(),
+                                            http_request.get_content_length()))
+                PION_LOG_WARN(m_logger, "Request form data parsing failed (POST multipart)");
         }
     }
 }

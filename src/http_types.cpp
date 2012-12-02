@@ -34,6 +34,7 @@ const std::string   types::HEADER_CONTENT_TYPE("Content-Type");
 const std::string   types::HEADER_CONTENT_LENGTH("Content-Length");
 const std::string   types::HEADER_CONTENT_LOCATION("Content-Location");
 const std::string   types::HEADER_CONTENT_ENCODING("Content-Encoding");
+const std::string   types::HEADER_CONTENT_DISPOSITION("Content-Disposition");
 const std::string   types::HEADER_LAST_MODIFIED("Last-Modified");
 const std::string   types::HEADER_IF_MODIFIED_SINCE("If-Modified-Since");
 const std::string   types::HEADER_TRANSFER_ENCODING("Transfer-Encoding");
@@ -49,6 +50,7 @@ const std::string   types::CONTENT_TYPE_HTML("text/html");
 const std::string   types::CONTENT_TYPE_TEXT("text/plain");
 const std::string   types::CONTENT_TYPE_XML("text/xml");
 const std::string   types::CONTENT_TYPE_URLENCODED("application/x-www-form-urlencoded");
+const std::string   types::CONTENT_TYPE_MULTIPART_FORM_DATA("multipart/form-data");
 
 // common HTTP request methods
 const std::string   types::REQUEST_METHOD_HEAD("HEAD");

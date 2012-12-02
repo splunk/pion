@@ -42,6 +42,7 @@ struct PION_API types
     static const std::string    HEADER_CONTENT_LENGTH;
     static const std::string    HEADER_CONTENT_LOCATION;
     static const std::string    HEADER_CONTENT_ENCODING;
+    static const std::string    HEADER_CONTENT_DISPOSITION;
     static const std::string    HEADER_LAST_MODIFIED;
     static const std::string    HEADER_IF_MODIFIED_SINCE;
     static const std::string    HEADER_TRANSFER_ENCODING;
@@ -57,6 +58,7 @@ struct PION_API types
     static const std::string    CONTENT_TYPE_TEXT;
     static const std::string    CONTENT_TYPE_XML;
     static const std::string    CONTENT_TYPE_URLENCODED;
+    static const std::string    CONTENT_TYPE_MULTIPART_FORM_DATA;
     
     // common HTTP request methods
     static const std::string    REQUEST_METHOD_HEAD;
