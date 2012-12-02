@@ -320,6 +320,21 @@ public:
                                 const char *ptr, const std::size_t len);
 
     /**
+     * parse key-value pairs out of a multipart/form-data payload content
+     * (http://www.ietf.org/rfc/rfc2388.txt)
+     *
+     * @param dict dictionary for key-values pairs
+     * @param content_type value of the content-type HTTP header
+     * @param ptr points to the start of the encoded data
+     * @param len length of the encoded data, in bytes
+     *
+     * @return bool true if successful
+     */
+    static bool parse_multipart_form_data(ihash_multimap& dict,
+                                          const std::string& content_type,
+                                          const char *ptr, const std::size_t len);
+    
+    /**
      * parse key-value pairs out of a "Cookie" request header
      * (i.e. this=that; a=value)
      * 
@@ -363,6 +378,23 @@ public:
         const std::string& query)
     {
         return parse_url_encoded(dict, query.c_str(), query.size());
+    }
+    
+    /**
+     * parse key-value pairs out of a multipart/form-data payload content
+     * (http://www.ietf.org/rfc/rfc2388.txt)
+     *
+     * @param dict dictionary for key-values pairs
+     * @param content_type value of the content-type HTTP header
+     * @param form_data the encoded form data
+     *
+     * @return bool true if successful
+     */
+    static inline bool parse_multipart_form_data(ihash_multimap& dict,
+                                                 const std::string& content_type,
+                                                 const std::string& form_data)
+    {
+        return parse_multipart_form_data(dict, content_type, form_data.c_str(), form_data.size());
     }
     
     /**
