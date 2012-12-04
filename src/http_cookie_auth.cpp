@@ -111,15 +111,15 @@ bool cookie_auth::process_login(http::request_ptr& http_request_ptr, tcp::connec
         return false; // no login processing done
     }
 
-    std::string redirect_url = algorithm::url_decode(http_request_ptr->get_query("url"));
+    std::string redirect_url = http_request_ptr->get_query("url");
     std::string new_cookie;
     bool delete_cookie = false;
 
     if (resource == m_login) {
         // process login
         // check username
-        std::string username = algorithm::url_decode(http_request_ptr->get_query("user"));
-        std::string password = algorithm::url_decode(http_request_ptr->get_query("pass"));
+        std::string username = http_request_ptr->get_query("user");
+        std::string password = http_request_ptr->get_query("pass");
 
         // match username/password
         user_ptr user=m_user_manager->get_user(username,password);

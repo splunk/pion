@@ -13,6 +13,7 @@
 #include <boost/assert.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/algorithm/string.hpp>
+#include <pion/algorithm.hpp>
 #include <pion/http/parser.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/response.hpp>
@@ -898,7 +899,7 @@ bool parser::parse_url_encoded(ihash_multimap& dict,
                 // if query name is empty, just skip it (i.e. "&&")
                 if (! query_name.empty()) {
                     // assume that "=" is missing -- it's OK if the value is empty
-                    dict.insert( std::make_pair(query_name, query_value) );
+                    dict.insert( std::make_pair(algorithm::url_decode(query_name), algorithm::url_decode(query_value)) );
                     query_name.erase();
                 }
             } else if (*ptr == '\r' || *ptr == '\n' || *ptr == '\t') {
@@ -917,7 +918,7 @@ bool parser::parse_url_encoded(ihash_multimap& dict,
             if (*ptr == '&') {
                 // end of value found (OK if empty)
                 if (! query_name.empty()) {
-                    dict.insert( std::make_pair(query_name, query_value) );
+                    dict.insert( std::make_pair(algorithm::url_decode(query_name), algorithm::url_decode(query_value)) );
                     query_name.erase();
                 }
                 query_value.erase();
@@ -939,7 +940,7 @@ bool parser::parse_url_encoded(ihash_multimap& dict,
 
     // handle last pair in string
     if (! query_name.empty())
-        dict.insert( std::make_pair(query_name, query_value) );
+        dict.insert( std::make_pair(algorithm::url_decode(query_name), algorithm::url_decode(query_value)) );
 
     return true;
 }

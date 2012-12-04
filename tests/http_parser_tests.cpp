@@ -67,10 +67,10 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleValues)
     BOOST_CHECK_EQUAL(i->second, "2");
     i = params.find("three");
     BOOST_REQUIRE(i != params.end());
-    BOOST_CHECK_EQUAL(algorithm::url_decode(i->second), " four with spaces");
+    BOOST_CHECK_EQUAL(i->second, " four with spaces");
     i = params.find("five");
     BOOST_REQUIRE(i != params.end());
-    BOOST_CHECK_EQUAL(algorithm::url_decode(i->second), "sixty two");
+    BOOST_CHECK_EQUAL(i->second, "sixty two");
 }
 
 BOOST_AUTO_TEST_CASE(testParseQueryStringWithDoubleAmpersand)

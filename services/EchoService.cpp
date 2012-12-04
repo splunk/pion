@@ -21,12 +21,11 @@ namespace plugins {     // begin namespace plugins
     
 /// used by handle_request to write dictionary terms
 void writeDictionaryTerm(http::response_writer_ptr& writer,
-                         const ihash_multimap::value_type& val,
-                         const bool decode)
+                         const ihash_multimap::value_type& val)
 {
     // text is copied into writer text cache
     writer << val.first << http::types::HEADER_NAME_VALUE_DELIMITER
-    << (decode ? algorithm::url_decode(val.second) : val.second)
+    << val.second
     << http::types::STRING_CRLF;
 }
 
@@ -80,7 +79,7 @@ void EchoService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
     writer->write_no_copy(http::types::STRING_CRLF);
     writer->write_no_copy(http::types::STRING_CRLF);
     std::for_each(http_request_ptr->get_headers().begin(), http_request_ptr->get_headers().end(),
-                  boost::bind(&writeDictionaryTerm, writer, _1, false));
+                  boost::bind(&writeDictionaryTerm, writer, _1));
     writer->write_no_copy(http::types::STRING_CRLF);
 
     // write query parameters
@@ -88,7 +87,7 @@ void EchoService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
     writer->write_no_copy(http::types::STRING_CRLF);
     writer->write_no_copy(http::types::STRING_CRLF);
     std::for_each(http_request_ptr->get_queries().begin(), http_request_ptr->get_queries().end(),
-                  boost::bind(&writeDictionaryTerm, writer, _1, true));
+                  boost::bind(&writeDictionaryTerm, writer, _1));
     writer->write_no_copy(http::types::STRING_CRLF);
     
     // write cookie parameters
@@ -96,7 +95,7 @@ void EchoService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
     writer->write_no_copy(http::types::STRING_CRLF);
     writer->write_no_copy(http::types::STRING_CRLF);
     std::for_each(http_request_ptr->get_cookies().begin(), http_request_ptr->get_cookies().end(),
-                  boost::bind(&writeDictionaryTerm, writer, _1, false));
+                  boost::bind(&writeDictionaryTerm, writer, _1));
     writer->write_no_copy(http::types::STRING_CRLF);
     
     // write POST content
