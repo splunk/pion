@@ -34,7 +34,7 @@ void CookieService::operator()(http::request_ptr& http_request_ptr, tcp::connect
 
     // Check if we have an action to perform
     if (http_request_ptr->has_query("action")) {
-        if (algorithm::url_decode(http_request_ptr->get_query("action")) == "Add Cookie") {
+        if (http_request_ptr->get_query("action") == "Add Cookie") {
             // add a new cookie
             const std::string cookie_name(http_request_ptr->get_query("cookie_name"));
             const std::string cookie_value(http_request_ptr->get_query("cookie_value"));
