@@ -131,18 +131,16 @@ std::string types::make_set_cookie_header(const std::string& name,
                                               const unsigned long max_age)
 {
     std::string set_cookie_header(name);
-    set_cookie_header += "=\"";
+    set_cookie_header += "=";
     set_cookie_header += value;
-    set_cookie_header += "\"; Version=\"1\"";
+    set_cookie_header += "; Version=1";
     if (! path.empty()) {
-        set_cookie_header += "; Path=\"";
+        set_cookie_header += "; Path=";
         set_cookie_header += path;
-        set_cookie_header += '\"';
     }
     if (has_max_age) {
-        set_cookie_header += "; Max-Age=\"";
+        set_cookie_header += "; Max-Age=";
         set_cookie_header += boost::lexical_cast<std::string>(max_age);
-        set_cookie_header += '\"';
     }
     return set_cookie_header;
 }
