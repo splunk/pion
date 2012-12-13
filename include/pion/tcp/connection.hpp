@@ -72,8 +72,8 @@ public:
         ssl_socket_type(boost::asio::io_service& io_service) : m_socket(io_service) {}
         inline socket_type& next_layer(void) { return m_socket; }
         inline const socket_type& next_layer(void) const { return m_socket; }
-        inline socket_type& lowest_layer(void) { return m_socket.lowest_layer(); }
-        inline const socket_type& lowest_layer(void) const { return m_socket.lowest_layer(); }
+        inline socket_type::lowest_layer_type& lowest_layer(void) { return m_socket.lowest_layer(); }
+        inline const socket_type::lowest_layer_type& lowest_layer(void) const { return m_socket.lowest_layer(); }
     private:
         socket_type  m_socket;
     };
