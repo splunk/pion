@@ -146,7 +146,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">
     <PreBuildEvent>
       <Message>Copying config.hpp.win -&gt;config.hpp</Message>
-      <Command>copy $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
+      <Command>copy /Y $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
     </PreBuildEvent>
     <ClCompile>
       <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -155,7 +155,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">
     <PreBuildEvent>
       <Message>Copying config.hpp.win -&gt;config.hpp</Message>
-      <Command>copy $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
+      <Command>copy /Y $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
     </PreBuildEvent>
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
@@ -168,7 +168,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">
     <PreBuildEvent>
       <Message>Copying config.hpp.win -&gt;config.hpp</Message>
-      <Command>copy $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
+      <Command>copy /Y $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
     </PreBuildEvent>
     <ClCompile>
       <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -178,7 +178,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">
     <PreBuildEvent>
       <Message>Copying config.hpp.win -&gt;config.hpp</Message>
-      <Command>copy $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
+      <Command>copy /Y $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
     </PreBuildEvent>
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
@@ -191,7 +191,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">
     <PreBuildEvent>
       <Message>Copying config.hpp.win -&gt;config.hpp</Message>
-      <Command>copy $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
+      <Command>copy /Y $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
     </PreBuildEvent>
     <ClCompile>
       <PreprocessorDefinitions>PION_EXPORTS;PION_FULL;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -205,7 +205,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">
     <PreBuildEvent>
       <Message>Copying config.hpp.win -&gt;config.hpp</Message>
-      <Command>copy $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
+      <Command>copy /Y $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
     </PreBuildEvent>
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
@@ -224,7 +224,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">
     <PreBuildEvent>
       <Message>Copying config.hpp.win -&gt;config.hpp</Message>
-      <Command>copy $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
+      <Command>copy /Y $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
     </PreBuildEvent>
     <ClCompile>
       <PreprocessorDefinitions>PION_EXPORTS;PION_FULL;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -239,7 +239,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">
     <PreBuildEvent>
       <Message>Copying config.hpp.win -&gt;config.hpp</Message>
-      <Command>copy $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
+      <Command>copy /Y $(SolutionDir)include\pion\config.hpp.win $(SolutionDir)include\pion\config.hpp</Command>
     </PreBuildEvent>
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
