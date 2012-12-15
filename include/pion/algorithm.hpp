@@ -40,6 +40,34 @@ struct PION_API algorithm {
     /// encodes strings so that they are safe for URLs (with%20spaces)
     static std::string url_encode(const std::string& str);
 
+    /// convert sequence of bytes in IEEE 754 format into a native floating point data type
+    /// reference: http://en.wikipedia.org/wiki/Single_precision_floating-point_format
+    static void float_from_bytes(long double& value, const unsigned char *ptr, size_t num_exp_bits, size_t num_fraction_bits);
+
+    /// convert native floating point type into a sequence of bytes in IEEE 754 format
+    /// reference: http://en.wikipedia.org/wiki/Single_precision_floating-point_format
+    static void float_to_bytes(long double value, unsigned char *ptr, size_t num_exp_bits, size_t num_fraction_bits);
+
+    /// convert sequence of one byte to 8-bit unsigned integer
+    static inline boost::uint8_t to_uint8(unsigned char byte) {
+        return boost::uint8_t(byte);
+    }
+    
+    /// convert sequence of one byte to 8-bit signed integer
+    static inline boost::int8_t to_int8(unsigned char byte) {
+        return boost::int8_t(byte);
+    }
+    
+    /// convert sequence of one byte to 8-bit unsigned integer
+    static inline boost::uint8_t to_uint8(char byte) {
+        return boost::uint8_t(byte);
+    }
+    
+    /// convert sequence of one byte to 8-bit signed integer
+    static inline boost::int8_t to_int8(char byte) {
+        return boost::int8_t(byte);
+    }
+    
     /// convert sequence of two bytes to 16-bit unsigned integer
     static inline boost::uint16_t to_uint16(unsigned char high, unsigned char low) {
         return (((boost::uint16_t)high) << 8) | ((boost::uint16_t)low);
@@ -154,6 +182,19 @@ struct PION_API algorithm {
                         static_cast<unsigned char>(low));
     }
     
+    
+    /// convert byte pointer into an 8-bit unsigned integer
+    template <typename Byte>
+    static inline boost::uint8_t to_uint8(const Byte *buf) {
+        return to_uint8(buf[0]);
+    }
+    
+    /// convert byte pointer into an 8-bit signed integer
+    template <typename Byte>
+    static inline boost::int8_t to_int8(const Byte *buf) {
+        return to_int8(buf[0]);
+    }
+    
     /// convert sequence of two bytes to 16-bit unsigned integer
     template <typename Byte>
     static inline boost::uint16_t to_uint16(const Byte *buf) {
@@ -200,6 +241,18 @@ struct PION_API algorithm {
     template <typename Byte>
     static inline boost::int64_t to_int64(const Byte *buf) {
         return to_int64(buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
+    }
+
+    /// convert 8-bit unsigned integer into sequence of one byte
+    template <typename Byte>
+    static inline void from_uint8(Byte *buf, const boost::uint8_t n) {
+        buf[0] = n & 0xFF;
+    }
+    
+    /// convert 8-bit signed integer into sequence of one byte
+    template <typename Byte>
+    static inline void from_int8(Byte *buf, const boost::int8_t n) {
+        buf[0] = n & 0xFF;
     }
     
     /// convert 16-bit unsigned integer into sequence of two bytes
@@ -276,6 +329,53 @@ struct PION_API algorithm {
         buf[7] = n & 0xFF;
     }
     
+    /// convert sequence of four bytes in 32-bit "single precision" binary32 format into a float
+    /// http://en.wikipedia.org/wiki/Single_precision_floating-point_format
+    template <typename Byte>
+    static inline float to_float(const Byte *ptr) {
+        long double value;
+        float_from_bytes(value, (unsigned char *)ptr, 8U, 23U);
+        return value;
+    }
+    
+    /// convert sequence of eight bytes in 64-bit "double precision" binary64 format into a double
+    /// http://en.wikipedia.org/wiki/Double_precision_floating-point_format
+    template <typename Byte>
+    static inline double to_double(const Byte *ptr) {
+        long double value;
+        float_from_bytes(value, (unsigned char *)ptr, 11U, 52U);
+        return value;
+    }
+    
+    /// convert sequence of sixteen bytes in 128-bit "quadruple precision" format into a long double
+    /// http://en.wikipedia.org/wiki/Quadruple_precision_floating-point_format
+    template <typename Byte>
+    static inline long double to_long_double(const Byte *ptr) {
+        long double value;
+        float_from_bytes(value, (unsigned char *)ptr, 15U, 112U);
+        return value;
+    }
+    
+    /// convert float into sequence of four bytes in "single precision" binary32 format
+    /// http://en.wikipedia.org/wiki/Single_precision_floating-point_format
+    template <typename Byte>
+    static inline void from_float(Byte *ptr, const float n) {
+        float_to_bytes(n, (unsigned char*)ptr, 8U, 23U);
+    }
+
+    /// convert double into sequence of eight bytes in "double precision" binary64 format
+    /// http://en.wikipedia.org/wiki/Double_precision_floating-point_format
+    template <typename Byte>
+    static inline void from_double(Byte *ptr, const double n) {
+        float_to_bytes(n, (unsigned char*)ptr, 11U, 52U);
+    }
+
+    /// convert long double into sequence of sixteen bytes in 128-bit "quadruple precision" format
+    /// http://en.wikipedia.org/wiki/Quadruple_precision_floating-point_format
+    template <typename Byte>
+    static inline void from_long_double(Byte *ptr, const long double n) {
+        float_to_bytes(n, (unsigned char*)ptr, 15U, 112U);
+    }
 };
     
 }   // end namespace pion
