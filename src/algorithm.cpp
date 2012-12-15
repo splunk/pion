@@ -7,10 +7,14 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <cmath>
 #include <cstdlib>
 #include <cstdio>
 #include <pion/algorithm.hpp>
 #include <boost/assert.hpp>
+
+// macro to shift bitmask by a single bit
+#define SHIFT_BITMASK(ptr, mask)    if (mask & 0x01) { mask = 0x80; ++ptr; } else mask >>= 1;
 
 
 namespace pion {        // begin namespace pion
@@ -210,6 +214,129 @@ std::string algorithm::url_encode(const std::string& str)
     };
     
     return result;
-}   
+}
+    
+void algorithm::float_from_bytes(long double& value, const unsigned char *ptr, size_t num_exp_bits, size_t num_fraction_bits)
+{
+    // get sign of the number from the first bit
+    const int value_sign = (*ptr & 0x80) ? -1 : 1;
+    
+    // build exponent value from bitstream
+    unsigned char mask = 0x80;
+    boost::int16_t exponent = 0;
+    for (size_t n = 0; n < num_exp_bits; ++n) {
+        SHIFT_BITMASK(ptr, mask);
+        exponent *= 2;
+        if (*ptr & mask)
+            exponent += 1;
+    }
+    
+    // build significand from bitstream
+    long double significand = exponent ? 1.0 : 0.0;
+    long double significand_value = 1.0;
+    while (num_fraction_bits) {
+        SHIFT_BITMASK(ptr, mask);
+        significand_value /= 2;
+        if (*ptr & mask)
+            significand += significand_value;
+        --num_fraction_bits;
+    }
+    
+    // calculate final value
+    exponent -= (::pow(2, num_exp_bits - 1) - 1);
+    value = value_sign * significand * ::pow(2, exponent);
+}
+
+void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num_exp_bits, size_t num_fraction_bits)
+{
+    // first initialize output buffer to zeros
+    unsigned char *ptr = buf;
+    memset(ptr, 0x00, ::ceil(static_cast<float>(num_exp_bits + num_fraction_bits + 1) / 8));
+    
+    // initialize first byte starting with sign of number
+    if (value < 0) {
+        *ptr = 0x80;
+        value *= -1;
+    }
+    
+    // skip past exponent bits because we don't know the value yet
+    unsigned char mask = 0x40;
+    for (size_t n = num_exp_bits; n > 0; --n) {
+        if (n >= 8) {
+            ++ptr;
+            n -= 7;
+        } else {
+            SHIFT_BITMASK(ptr, mask);
+        }
+    }
+    
+    // break number into int value and fractional value
+    bool got_exponent = false;
+    boost::int16_t num_bits = 0;
+    boost::int16_t exponent = 0;
+    long double high_bit = ::pow(2, num_fraction_bits - 1);
+    long double int_value = ::floor(value);
+    value -= int_value;
+    
+    // serialize int value >= 1.0
+    if (int_value >= 1) {
+        for (boost::int16_t high_bit_pos = num_fraction_bits - 1; high_bit_pos >= 0; --high_bit_pos) {
+            if (got_exponent) {
+                if (int_value >= high_bit) {
+                    *ptr |= mask;
+                    int_value -= high_bit;
+                }
+                SHIFT_BITMASK(ptr, mask);
+                ++num_bits;
+            } else {
+                if (int_value >= high_bit) {
+                    int_value -= high_bit;
+                    exponent = high_bit_pos;
+                    got_exponent = true;
+                }
+            }
+            high_bit /= 2;
+        }
+    }
+    
+    // serialize fractional value < 1.0
+    while (value && num_bits < num_fraction_bits) {
+        value *= 2;
+        if (got_exponent) {
+            if (value >= 1.0) {
+                *ptr |= mask;
+                value -= 1.0;
+            }
+            SHIFT_BITMASK(ptr, mask);
+            ++num_bits;
+        } else {
+            --exponent;
+            if (value >= 1.0) {
+                value -= 1.0;
+                got_exponent = true;
+            }
+        }
+    }
+    
+    // normalize exponent.
+    // note: we should have a zero exponent if value == 0
+    high_bit = ::pow(2, num_exp_bits - 1);
+    if (got_exponent)
+        exponent += (high_bit - 1);
+    else
+        exponent = 0;
+    
+    // serialize exponent bits
+    ptr = buf;
+    mask = 0x80;
+    for (size_t n = 0; n < num_exp_bits; ++n) {
+        SHIFT_BITMASK(ptr, mask);
+        if (exponent >= high_bit) {
+            *ptr |= mask;
+            exponent -= high_bit;
+        }
+        high_bit /= 2;
+    }
+}
     
 }   // end namespace pion

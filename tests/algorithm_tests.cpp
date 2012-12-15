@@ -67,6 +67,11 @@ BOOST_AUTO_TEST_CASE(testBase64Routines) {
 BOOST_AUTO_TEST_CASE(testCharFromToIntRoutines) {
     char buf[8];
     
+    algorithm::from_uint8(buf, 129U);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x81);
+    BOOST_CHECK_EQUAL(algorithm::to_int8(buf), boost::int8_t(0x81));
+    BOOST_CHECK_EQUAL(algorithm::to_uint8(buf), 129U);
+
     algorithm::from_uint16(buf, 32769U);
     BOOST_CHECK_EQUAL(buf[0], (char)0x80);
     BOOST_CHECK_EQUAL(buf[1], (char)0x01);
@@ -107,4 +112,86 @@ BOOST_AUTO_TEST_CASE(testCharFromToIntRoutines) {
     BOOST_CHECK_EQUAL(buf[7], (char)0x00);
     BOOST_CHECK_EQUAL(algorithm::to_int64(buf), boost::int64_t(0x8000059393220000ULL));
     BOOST_CHECK_EQUAL(algorithm::to_uint64(buf), 9223378168241586176ULL);
+}
+
+BOOST_AUTO_TEST_CASE(testCharFromToFloatRoutines) {
+    char buf[16];
+    
+    algorithm::from_float(buf, 0.0);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[3], (char)0x00);
+    BOOST_CHECK_EQUAL(algorithm::to_float(buf), 0.0);
+    
+    algorithm::from_float(buf, -13021.0);
+    BOOST_CHECK_EQUAL(buf[0], (char)0xc6);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x4b);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x74);
+    BOOST_CHECK_EQUAL(buf[3], (char)0x00);
+    BOOST_CHECK_EQUAL(algorithm::to_float(buf), -13021.0);
+    
+    algorithm::from_float(buf, 12.375);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x41);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x46);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[3], (char)0x00);
+    BOOST_CHECK_EQUAL(algorithm::to_float(buf), 12.375);
+
+    algorithm::from_float(buf, 1);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x3f);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x80);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[3], (char)0x00);
+    BOOST_CHECK_EQUAL(algorithm::to_float(buf), 1.0);
+    
+    algorithm::from_float(buf, 0.25);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x3e);
+    BOOST_CHECK_EQUAL(buf[1], (char)0x80);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[3], (char)0x00);
+    BOOST_CHECK_EQUAL(algorithm::to_float(buf), 0.25);
+    
+    algorithm::from_float(buf, 0.375);
+    BOOST_CHECK_EQUAL(buf[0], (char)0x3e);
+    BOOST_CHECK_EQUAL(buf[1], (char)0xc0);
+    BOOST_CHECK_EQUAL(buf[2], (char)0x00);
+    BOOST_CHECK_EQUAL(buf[3], (char)0x00);
+    BOOST_CHECK_EQUAL(algorithm::to_float(buf), 0.375);
+    
+    algorithm::from_double(buf, 0);
+    BOOST_CHECK_EQUAL(algorithm::to_double(buf), 0);
+
+    algorithm::from_double(buf, -13021.0);
+    BOOST_CHECK_EQUAL(algorithm::to_double(buf), -13021.0);
+    
+    algorithm::from_double(buf, 12.375);
+    BOOST_CHECK_EQUAL(algorithm::to_double(buf), 12.375);
+    
+    algorithm::from_double(buf, 1);
+    BOOST_CHECK_EQUAL(algorithm::to_double(buf), 1.0);
+    
+    algorithm::from_double(buf, 0.25);
+    BOOST_CHECK_EQUAL(algorithm::to_double(buf), 0.25);
+    
+    algorithm::from_double(buf, 0.375);
+    BOOST_CHECK_EQUAL(algorithm::to_double(buf), 0.375);
+    
+    algorithm::from_long_double(buf, 0);
+    BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 0);
+    
+    algorithm::from_long_double(buf, -13021.0);
+    BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), -13021.0);
+    
+    algorithm::from_long_double(buf, 12.375);
+    BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 12.375);
+    
+    algorithm::from_long_double(buf, 1);
+    BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 1.0);
+    
+    algorithm::from_long_double(buf, 0.25);
+    BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 0.25);
+
+    algorithm::from_long_double(buf, 0.375);
+    BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 0.375);
 }
