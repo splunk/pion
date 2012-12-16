@@ -3,8 +3,8 @@
   <PropertyGroup Label="UserMacros">
     <BOOST_INC>C:\boost\include\boost-1_51</BOOST_INC>
     <BOOST_LIB>C:\boost\lib\x64</BOOST_LIB>
-    <BZIP2_INC>C:\bzip2-1.0.5\include</BZIP2_INC>
-    <BZIP2_LIB>C:\bzip2-1.0.5\lib</BZIP2_LIB>
+    <BZIP2_INC>C:\bzip2-1.0.6\include</BZIP2_INC>
+    <BZIP2_LIB>C:\bzip2-1.0.6\lib</BZIP2_LIB>
     <ICONV_INC>C:\iconv-1.9.2\include</ICONV_INC>
     <ICONV_LIB>C:\iconv-1.9.2\lib\x64</ICONV_LIB>
     <ICU_INC>C:\icu4c-49_1_2\icu\include</ICU_INC>
@@ -15,12 +15,12 @@
     <LOG4CPLUS_LIB>C:\log4cplus-1.0.4.1\bin\x64</LOG4CPLUS_LIB>
     <LOG4CXX_INC>C:\apache\apache-log4cxx-0.10.0\src\main\include</LOG4CXX_INC>
     <LOG4CXX_LIB>C:\apache\apache-log4cxx-0.10.0\bin</LOG4CXX_LIB>
-    <OPENSSL_INC>C:\openssl-0.9.8l\inc64</OPENSSL_INC>
-    <OPENSSL_LIB>C:\openssl-0.9.8l\lib\x64</OPENSSL_LIB>
+    <OPENSSL_INC>C:\openssl-1.0.1c\inc64</OPENSSL_INC>
+    <OPENSSL_LIB>C:\openssl-1.0.1c\lib\x64</OPENSSL_LIB>
     <PYTHON_INC>C:\Python26\include</PYTHON_INC>
     <PYTHON_LIB>C:\Python26\libs</PYTHON_LIB>
-    <YAJL_INC>C:\yajl-1.0.9\include</YAJL_INC>
-    <YAJL_LIB>C:\yajl-1.0.9\bin</YAJL_LIB>
+    <YAJL_INC>C:\yajl-2.0.5\include</YAJL_INC>
+    <YAJL_LIB>C:\yajl-2.0.5\bin</YAJL_LIB>
     <ZLIB_INC>C:\zlib-1.2.7\include</ZLIB_INC>
     <ZLIB_LIB>C:\zlib-1.2.7\lib\x64</ZLIB_LIB>
   </PropertyGroup>
