@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 #include <pion/algorithm.hpp>
 #include <boost/assert.hpp>
 
