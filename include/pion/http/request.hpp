@@ -169,6 +169,21 @@ protected:
         m_first_line += get_version_string();
     }
     
+    /**
+     * appends the HTTP headers for cookies to a vector of write buffers
+     *
+     * @param write_buffers the buffers to append HTTP headers into
+     */
+    virtual void append_cookie_headers(write_buffers_t& write_buffers) {
+        for (ihash_multimap::const_iterator i = get_cookies().begin(); i != get_cookies().end(); ++i) {
+            write_buffers.push_back(boost::asio::buffer(HEADER_COOKIE));
+            write_buffers.push_back(boost::asio::buffer(HEADER_NAME_VALUE_DELIMITER));
+            write_buffers.push_back(boost::asio::buffer(i->first));
+            write_buffers.push_back(boost::asio::buffer(COOKIE_NAME_VALUE_DELIMITER));
+            write_buffers.push_back(boost::asio::buffer(i->second));
+            write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
+        }
+    }
     
 private:
 

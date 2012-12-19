@@ -585,4 +585,39 @@ BOOST_AUTO_TEST_CASE(checkWriteReadMixedMessages) {
     BOOST_CHECK_EQUAL(contents, new_contents);
 }
 
+BOOST_AUTO_TEST_CASE(checkWriteHTTPRequestWithCookies) {
+    // build a request
+    http::request req;
+    req.set_resource("/test.html");
+    req.add_cookie("a", "value");
+    
+    // write to file
+    boost::system::error_code ec;
+    req.write(m_file, ec);
+    BOOST_REQUIRE(! ec);
+    m_file.flush();
+    
+    // validate file contents
+    std::string req_contents = getFileContents();
+    BOOST_CHECK_EQUAL(req_contents, "GET /test.html HTTP/1.1\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nCookie: a=value\r\n\r\n");
+}
+
+BOOST_AUTO_TEST_CASE(checkWriteHTTPResponseWithCookies) {
+    // build a request
+    http::response rsp;
+    rsp.set_status_code(200);
+    rsp.set_status_message("OK");
+    rsp.add_cookie("a", "value");
+
+    // write to file
+    boost::system::error_code ec;
+    rsp.write(m_file, ec);
+    BOOST_REQUIRE(! ec);
+    m_file.flush();
+    
+    // validate file contents
+    std::string rsp_contents = getFileContents();
+    BOOST_CHECK_EQUAL(rsp_contents, "HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nSet-Cookie: a=value\r\n\r\n");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
