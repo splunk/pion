@@ -24,6 +24,7 @@ const std::string   types::STRING_EMPTY;
 const std::string   types::STRING_CRLF("\x0D\x0A");
 const std::string   types::STRING_HTTP_VERSION("HTTP/");
 const std::string   types::HEADER_NAME_VALUE_DELIMITER(": ");
+const std::string   types::COOKIE_NAME_VALUE_DELIMITER("=");
 
 // common HTTP header names
 const std::string   types::HEADER_HOST("Host");
