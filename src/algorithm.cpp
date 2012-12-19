@@ -272,7 +272,7 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
     
     // break number into int value and fractional value
     bool got_exponent = false;
-    boost::int16_t num_bits = 0;
+    boost::uint16_t num_bits = 0;
     boost::int16_t exponent = 0;
     long double high_bit = ::pow(2, (double)(num_fraction_bits - 1));
     long double int_value = ::floor(value);
