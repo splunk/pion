@@ -96,7 +96,13 @@ public:
     /// returns the logger currently in use
     inline logger get_logger(void) { return m_logger; }
     
+    /// returns mutable reference to the TCP connection acceptor
+    inline boost::asio::ip::tcp::acceptor& get_acceptor(void) { return m_tcp_acceptor; }
 
+    /// returns const reference to the TCP connection acceptor
+    inline const boost::asio::ip::tcp::acceptor& get_acceptor(void) const { return m_tcp_acceptor; }
+
+    
 protected:
         
     /**
