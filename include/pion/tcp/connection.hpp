@@ -74,6 +74,7 @@ public:
         inline const socket_type& next_layer(void) const { return m_socket; }
         inline socket_type::lowest_layer_type& lowest_layer(void) { return m_socket.lowest_layer(); }
         inline const socket_type::lowest_layer_type& lowest_layer(void) const { return m_socket.lowest_layer(); }
+        inline void shutdown(void) {}
     private:
         socket_type  m_socket;
     };
@@ -148,18 +149,22 @@ public:
     
     /// closes the tcp socket and cancels any pending asynchronous operations
     inline void close(void) {
-        if (m_ssl_socket.lowest_layer().is_open())
-            m_ssl_socket.lowest_layer().close();
+        if (is_open()) {
+            try {
+                if (get_ssl_flag())
+                    m_ssl_socket.shutdown();
+                m_ssl_socket.next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+            } catch (...) {}
+            boost::system::error_code ec;
+            m_ssl_socket.next_layer().close(ec);
+        }
     }
 
-    /*
-    Use close instead; basic_socket::cancel is deprecated for Windows XP.
-
-    /// cancels any asynchronous operations pending on the socket
+	/// cancels any asynchronous operations pending on the socket
+	/// WARNING: Use close instead; basic_socket::cancel doesn't work on Windows pre-Vista!
     inline void cancel(void) {
-        m_ssl_socket.lowest_layer().cancel();
+        m_ssl_socket.next_layer().cancel();
     }
-    */
     
     /// virtual destructor
     virtual ~connection() { close(); }
