@@ -383,6 +383,8 @@ public:
         // add first message line
         write_buffers.push_back(boost::asio::buffer(get_first_line()));
         write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
+        // append cookie headers (if any)
+        append_cookie_headers();
         // append HTTP headers
         append_headers(write_buffers);
     }
@@ -540,18 +542,12 @@ protected:
             write_buffers.push_back(boost::asio::buffer(i->second));
             write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
         }
-        // add cookie headers
-        append_cookie_headers(write_buffers);
         // add an extra CRLF to end HTTP headers
         write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
     }
 
-    /**
-     * appends the HTTP headers for cookies to a vector of write buffers
-     *
-     * @param write_buffers the buffers to append HTTP headers into
-     */
-    virtual void append_cookie_headers(write_buffers_t& write_buffers) {}
+    /// appends HTTP headers for any cookies defined by the http::message
+    virtual void append_cookie_headers(void) {}
 
     /**
      * Returns the first value in a dictionary if key is found; or an empty

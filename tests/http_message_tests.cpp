@@ -617,7 +617,7 @@ BOOST_AUTO_TEST_CASE(checkWriteHTTPResponseWithCookies) {
     
     // validate file contents
     std::string rsp_contents = getFileContents();
-    BOOST_CHECK_EQUAL(rsp_contents, "HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nSet-Cookie: a=value\r\n\r\n");
+    BOOST_CHECK_EQUAL(rsp_contents, "HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\nSet-Cookie: a=\"value\"; Version=\"1\"; Path=\"/\"\r\n\r\n");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
