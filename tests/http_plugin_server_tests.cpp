@@ -391,6 +391,39 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponses) {
     checkSendAndReceiveMessages(tcp_conn);
 }
 
+BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponseLeftoverConnection) {
+    // load simple Hello service and start the server
+    m_server.load_service("/hello", "HelloService");
+    m_server.start();
+    
+    // open a connection
+    pion::tcp::connection tcp_conn(get_io_service());
+    tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
+    boost::system::error_code error_code;
+    error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
+    BOOST_REQUIRE(! error_code);
+    
+    // send valid request to the server
+    http::request http_request("/hello");
+    http_request.send(tcp_conn, error_code);
+    BOOST_REQUIRE(! error_code);
+    
+    // receive the response from the server
+    http::response http_response(http_request);
+    http_response.receive(tcp_conn, error_code);
+    BOOST_REQUIRE(! error_code);
+    BOOST_CHECK_EQUAL(http_response.get_header(http::types::HEADER_CONNECTION), "Keep-Alive");
+    
+    // check that the response is OK
+    boost::regex hello_regex(".*Hello\\sWorld.*");
+    BOOST_REQUIRE(http_response.get_status_code() == 200);
+    BOOST_REQUIRE(http_response.get_content_length() > 0);
+    BOOST_REQUIRE(boost::regex_match(http_response.get_content(), hello_regex));
+    
+    // shut down the server while the connection is still alive and waiting for data
+    m_server.stop();
+}
+
 BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
     m_server.load_service("/echo", "EchoService");
     m_server.start();
@@ -604,6 +637,42 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponsesUsingSSL) {
     BOOST_REQUIRE(! error_code);
 
     checkSendAndReceiveMessages(tcp_conn);
+}
+
+BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponseLeftoverConnectionUsingSSL) {
+    // load simple Hello service and start the server
+    m_server.set_ssl_key_file(SSL_PEM_FILE);
+    m_server.load_service("/hello", "HelloService");
+    m_server.start();
+    
+    // open a connection
+    pion::tcp::connection tcp_conn(get_io_service(), true);
+    tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
+    boost::system::error_code error_code;
+    error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
+    BOOST_REQUIRE(! error_code);
+    error_code = tcp_conn.handshake_client();
+    BOOST_REQUIRE(! error_code);
+    
+    // send valid request to the server
+    http::request http_request("/hello");
+    http_request.send(tcp_conn, error_code);
+    BOOST_REQUIRE(! error_code);
+    
+    // receive the response from the server
+    http::response http_response(http_request);
+    http_response.receive(tcp_conn, error_code);
+    BOOST_REQUIRE(! error_code);
+    BOOST_CHECK_EQUAL(http_response.get_header(http::types::HEADER_CONNECTION), "Keep-Alive");
+    
+    // check that the response is OK
+    boost::regex hello_regex(".*Hello\\sWorld.*");
+    BOOST_REQUIRE(http_response.get_status_code() == 200);
+    BOOST_REQUIRE(http_response.get_content_length() > 0);
+    BOOST_REQUIRE(boost::regex_match(http_response.get_content(), hello_regex));
+    
+    // shut down the server while the connection is still alive and waiting for data
+    m_server.stop();
 }
 #endif
 

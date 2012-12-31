@@ -151,8 +151,9 @@ public:
     inline void close(void) {
         if (is_open()) {
             try {
-                if (get_ssl_flag())
-                    m_ssl_socket.shutdown();
+                // shutting down SSL will wait forever for a response from the remote end,
+                // which causes it to hang indefinitely if the other end died unexpectedly
+                // if (get_ssl_flag()) m_ssl_socket.shutdown();
                 m_ssl_socket.next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both);
             } catch (...) {}
             boost::system::error_code ec;
