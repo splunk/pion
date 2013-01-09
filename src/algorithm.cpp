@@ -260,6 +260,13 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
         value *= -1;
     }
     
+    // break down numbers >= 1.0 by incrementing the exponent & dividing by 2
+    boost::int16_t exponent = 0;
+    while (value >= 1) {
+        value /= 2;
+        ++exponent;
+    }
+
     // skip past exponent bits because we don't know the value yet
     unsigned char mask = 0x40;
     for (size_t n = num_exp_bits; n > 0; --n) {
@@ -271,36 +278,9 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
         }
     }
     
-    // break number into int value and fractional value
+    // serialize fractional value < 1.0
     bool got_exponent = false;
     boost::uint16_t num_bits = 0;
-    boost::int16_t exponent = 0;
-    long double high_bit = ::pow(2, (double)(num_fraction_bits - 1));
-    long double int_value = ::floor(value);
-    value -= int_value;
-    
-    // serialize int value >= 1.0
-    if (int_value >= 1) {
-        for (boost::int16_t high_bit_pos = num_fraction_bits - 1; high_bit_pos >= 0; --high_bit_pos) {
-            if (got_exponent) {
-                if (int_value >= high_bit) {
-                    *ptr |= mask;
-                    int_value -= high_bit;
-                }
-                SHIFT_BITMASK(ptr, mask);
-                ++num_bits;
-            } else {
-                if (int_value >= high_bit) {
-                    int_value -= high_bit;
-                    exponent = high_bit_pos;
-                    got_exponent = true;
-                }
-            }
-            high_bit /= 2;
-        }
-    }
-    
-    // serialize fractional value < 1.0
     while (value && num_bits < num_fraction_bits) {
         value *= 2;
         if (got_exponent) {
@@ -321,7 +301,7 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
     
     // normalize exponent.
     // note: we should have a zero exponent if value == 0
-    high_bit = ::pow((long double)2, (int)(num_exp_bits - 1));
+    boost::int32_t high_bit = ::pow((long double)2, (int)(num_exp_bits - 1));
     if (got_exponent)
         exponent += (high_bit - 1);
     else

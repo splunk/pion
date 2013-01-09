@@ -177,6 +177,12 @@ BOOST_AUTO_TEST_CASE(testCharFromToFloatRoutines) {
     algorithm::from_double(buf, 0.375);
     BOOST_CHECK_EQUAL(algorithm::to_double(buf), 0.375);
     
+    algorithm::from_double(buf, 1.0123456789012345e-300);
+    BOOST_CHECK_EQUAL(algorithm::to_double(buf), 1.0123456789012345e-300);
+    
+    algorithm::from_double(buf, 1.0123456789012345e+300);
+    BOOST_CHECK_EQUAL(algorithm::to_double(buf), 1.0123456789012345e+300);
+    
     algorithm::from_long_double(buf, 0);
     BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 0);
     
@@ -194,4 +200,10 @@ BOOST_AUTO_TEST_CASE(testCharFromToFloatRoutines) {
 
     algorithm::from_long_double(buf, 0.375);
     BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 0.375);
+
+    algorithm::from_long_double(buf, 1.0123456789012345e-300);
+    BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 1.0123456789012345e-300);
+
+    algorithm::from_long_double(buf, 1.0123456789012345e+300);
+    BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 1.0123456789012345e+300);
 }
