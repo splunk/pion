@@ -416,6 +416,70 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
     BOOST_CHECK(boost::regex_match(http_response.get_content(), content_regex));
 }
 
+BOOST_AUTO_TEST_CASE(testHTTPParserWithSemicolons)
+{
+    http::parser request_parser(true);
+    request_parser.set_read_buffer((const char*)chunked_request_with_semicolon,
+                                   sizeof(chunked_request_with_semicolon));
+    
+    http::request http_request;
+    boost::system::error_code ec;
+    BOOST_CHECK(request_parser.parse(http_request, ec));
+    BOOST_CHECK(!ec);
+    
+    // The content length should be 15 and the ignored data after ';'
+    // should not be added to content length
+    BOOST_CHECK_EQUAL(http_request.get_content_length(), 15UL);
+    BOOST_CHECK_EQUAL(request_parser.get_total_bytes_read(), sizeof(chunked_request_with_semicolon));
+    BOOST_CHECK_EQUAL(request_parser.get_content_bytes_read(), 48UL);
+    
+}
+
+BOOST_AUTO_TEST_CASE(testHTTPParserWithFooters)
+{
+    http::parser request_parser(true);
+    request_parser.set_read_buffer((const char*)chunked_request_with_footers,
+                                   sizeof(chunked_request_with_footers));
+    
+    http::request http_request;
+    boost::system::error_code ec;
+    BOOST_CHECK(request_parser.parse(http_request, ec));
+    BOOST_CHECK(!ec);
+    
+    BOOST_CHECK_EQUAL(http_request.get_content_length(), 15UL);
+    BOOST_CHECK_EQUAL(request_parser.get_total_bytes_read(), sizeof(chunked_request_with_footers));
+    BOOST_CHECK_EQUAL(request_parser.get_content_bytes_read(), 28UL);
+    BOOST_CHECK_EQUAL(http_request.get_header("Transfer-Encoding"), "chunked");
+    
+    // Check if the footers are added as a part of the HTTP Data
+    BOOST_CHECK_EQUAL(http_request.get_header("some-footer"), "some-value");
+    BOOST_CHECK_EQUAL(http_request.get_header("another-footer"), "another-value");
+}
+
+BOOST_AUTO_TEST_CASE(testHTTPParserWithErrorInFooters)
+{
+    http::parser request_parser(true);
+    request_parser.set_read_buffer((const char*)chunked_request_with_error_in_footers,
+                                   sizeof(chunked_request_with_error_in_footers));
+    
+    http::request http_request;
+    boost::system::error_code ec;
+    
+    // The HTTP Packet does not contain any footer value associated with the footer key
+    // This will lead to any error within the parse_headers() method
+    BOOST_CHECK_EQUAL(request_parser.parse(http_request, ec), false);
+    
+    // Check if there is an error generated
+    BOOST_CHECK_EQUAL(ec.value(), http::parser::ERROR_HEADER_CHAR);
+
+    BOOST_CHECK_EQUAL(http_request.get_content_length(), 15UL);
+    BOOST_CHECK_EQUAL(request_parser.get_total_bytes_read(), 84UL);
+    BOOST_CHECK_EQUAL(http_request.get_header("Transfer-Encoding"), "chunked");
+    
+    // Check if the footers are added as a part of the HTTP Data
+    BOOST_CHECK_EQUAL(http_request.get_header("some-footer"), "some-value");
+}
+
 
 /// fixture used for testing http::parser's X-Fowarded-For header parsing
 class HTTPParserForwardedForTests_F

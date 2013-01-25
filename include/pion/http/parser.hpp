@@ -571,7 +571,7 @@ private:
 
     /// state used to keep track of where we are in parsing the HTTP message
     enum message_parse_state_t {
-        PARSE_START, PARSE_HEADERS, PARSE_CONTENT,
+        PARSE_START, PARSE_HEADERS, PARSE_FOOTERS, PARSE_CONTENT,
         PARSE_CONTENT_NO_LENGTH, PARSE_CHUNKS, PARSE_END
     };
 
@@ -593,11 +593,12 @@ private:
     /// state used to keep track of where we are in parsing chunked content
     /// (only used if message_parse_state_t == PARSE_CHUNKS)
     enum chunk_parse_state_t {
-        PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE, 
+        PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE,
+        PARSE_EXPECTING_IGNORED_TEXT_AFTER_CHUNK_SIZE,
         PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE,
         PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE, PARSE_CHUNK, 
         PARSE_EXPECTING_CR_AFTER_CHUNK, PARSE_EXPECTING_LF_AFTER_CHUNK,
-        PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK, 
+        PARSE_EXPECTING_FINAL_CR_OR_FOOTERS_AFTER_LAST_CHUNK, 
         PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK
     };
 
