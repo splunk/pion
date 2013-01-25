@@ -64,11 +64,13 @@ boost::tribool parser::parse(http::message& http_msg,
 
             // parsing the HTTP headers
             case PARSE_HEADERS:
+            case PARSE_FOOTERS:
                 rc = parse_headers(http_msg, ec);
                 total_bytes_parsed += m_bytes_last_read;
                 // check if we have finished parsing HTTP headers
-                if (rc == true) {
+                if (rc == true && m_message_parse_state == PARSE_HEADERS) {
                     // finish_header_parsing() updates m_message_parse_state
+                    // We only call this for Headers and not Footers
                     rc = finish_header_parsing(http_msg, ec);
                 }
                 break;
@@ -80,6 +82,10 @@ boost::tribool parser::parse(http::message& http_msg,
                 // check if we have finished parsing all chunks
                 if (rc == true && !m_payload_handler) {
                     http_msg.concatenate_chunks();
+                    
+                    // Handle footers if present
+                    rc = ((m_message_parse_state == PARSE_FOOTERS) ?
+                          boost::indeterminate : (boost::tribool)true);
                 }
                 break;
 
@@ -129,6 +135,7 @@ boost::tribool parser::parse_missing_data(http::message& http_msg,
         // cannot recover from missing data while parsing HTTP headers
         case PARSE_START:
         case PARSE_HEADERS:
+        case PARSE_FOOTERS:
             set_error(ec, ERROR_MISSING_HEADER_DATA);
             rc = false;
             break;
@@ -1258,10 +1265,20 @@ boost::tribool parser::parse_chunks(http::message::chunk_cache_t& chunks,
                 // Ignore trailing tabs or spaces.  Technically, the standard probably doesn't allow this, 
                 // but we'll be flexible, since there's no ambiguity.
                 m_chunked_content_parse_state = PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE;
+            } else if (*m_read_ptr == ';') {
+                // Following the semicolon we have text which will be ignored till we encounter
+                //  a CRLF
+                m_chunked_content_parse_state = PARSE_EXPECTING_IGNORED_TEXT_AFTER_CHUNK_SIZE;
             } else {
                 set_error(ec, ERROR_CHUNK_CHAR);
                 return false;
             }
+            break;
+                
+        case PARSE_EXPECTING_IGNORED_TEXT_AFTER_CHUNK_SIZE:
+            if (*m_read_ptr == '\x0D') {
+                m_chunked_content_parse_state = PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE;
+            } 
             break;
 
         case PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE:
@@ -1284,7 +1301,7 @@ boost::tribool parser::parse_chunks(http::message::chunk_cache_t& chunks,
                 m_bytes_read_in_current_chunk = 0;
                 m_size_of_current_chunk = strtol(m_chunk_size_str.c_str(), 0, 16);
                 if (m_size_of_current_chunk == 0) {
-                    m_chunked_content_parse_state = PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK;
+                    m_chunked_content_parse_state = PARSE_EXPECTING_FINAL_CR_OR_FOOTERS_AFTER_LAST_CHUNK;
                 } else {
                     m_chunked_content_parse_state = PARSE_CHUNK;
                 }
@@ -1333,13 +1350,20 @@ boost::tribool parser::parse_chunks(http::message::chunk_cache_t& chunks,
             }
             break;
 
-        case PARSE_EXPECTING_FINAL_CR_AFTER_LAST_CHUNK:
+        case PARSE_EXPECTING_FINAL_CR_OR_FOOTERS_AFTER_LAST_CHUNK:
             // we've read the final chunk; expecting final CRLF
             if (*m_read_ptr == '\x0D') {
                 m_chunked_content_parse_state = PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK;
             } else {
-                set_error(ec, ERROR_CHUNK_CHAR);
-                return false;
+                // Packet contains footers; Chunk parsing is commplete
+                // Footer data contains name value pairs to be added to HTTP Message
+                m_message_parse_state = PARSE_FOOTERS;
+                m_headers_parse_state = PARSE_HEADER_START;
+                m_bytes_last_read = (m_read_ptr - read_start_ptr);
+                m_bytes_total_read += m_bytes_last_read;
+                m_bytes_content_read += m_bytes_last_read;
+                PION_LOG_DEBUG(m_logger, "Parsed " << m_bytes_last_read << " chunked payload content bytes; chunked content complete.");
+                return true;
             }
             break;
 
@@ -1446,6 +1470,7 @@ void parser::finish(http::message& http_msg) const
         http_msg.set_is_valid(true);
         break;
     case PARSE_HEADERS:
+    case PARSE_FOOTERS:
         http_msg.set_is_valid(false);
         update_message_with_header_data(http_msg);
         http_msg.set_content_length(0);

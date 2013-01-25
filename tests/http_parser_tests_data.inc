@@ -387,3 +387,27 @@ unsigned char resp2_frame6[] = {
 0x6d, 0x6c, 0x3e, 0x0a, 0x0a, 0x0a };
 
 const unsigned char request_data_bad[] = { 'G', 'E', 'T', ' ', '/', ' ', 'B', 'L', 'A', 'H' };
+
+const unsigned char chunked_request_with_semicolon[] = { 
+'P', 'O', 'S', 'T', ' ', '/', 'r', 'e', 's', 'o', 'u', 'r', 'c', 'e', '1', ' ', 'H', 'T', 'T', 'P', '/', '1', '.', '1', 0x0D, 0x0A,
+'T', 'r', 'a', 'n', 's', 'f', 'e', 'r', '-', 'E', 'n', 'c', 'o', 'd', 'i', 'n', 'g', ':', ' ', 'c', 'h', 'u', 'n', 'k', 'e', 'd', 0x0D, 0x0A, 0x0D, 0x0A,
+'A', ';', ' ', 'i', 'g', 'n', 'o', 'r', 'e', ' ', 't', 'h', 'i', 's', ' ', 'd', 'a', 't', 'a', 0x0D, 0x0A,
+'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 0x0D, 0x0A, '5', 0x0D, 0x0A, 'k', 'l', 'm', 'n', 'o', 0x0D, 0x0A, '0', 0x0D, 0x0A, 0x0D, 0x0A};
+
+const unsigned char chunked_request_with_footers[] = { 
+'P', 'O', 'S', 'T', ' ', '/', 'r', 'e', 's', 'o', 'u', 'r', 'c', 'e', '1', ' ', 'H', 'T', 'T', 'P', '/', '1', '.', '1', 0x0D, 0x0A,
+'T', 'r', 'a', 'n', 's', 'f', 'e', 'r', '-', 'E', 'n', 'c', 'o', 'd', 'i', 'n', 'g', ':', ' ', 'c', 'h', 'u', 'n', 'k', 'e', 'd', 0x0D, 0x0A, 0x0D, 0x0A,
+'A', 0x0D, 0x0A,
+'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 0x0D, 0x0A, '5', 0x0D, 0x0A, 'k', 'l', 'm', 'n', 'o', 0x0D, 0x0A, '0', 0x0D, 0x0A,
+'s', 'o', 'm', 'e', '-', 'f', 'o', 'o', 't', 'e', 'r', ':', ' ', 's', 'o', 'm', 'e', '-', 'v', 'a', 'l', 'u', 'e', 0x0D, 0x0A,  
+'a', 'n', 'o', 't', 'h', 'e', 'r', '-', 'f', 'o', 'o', 't', 'e', 'r', ':', ' ', 'a', 'n', 'o', 't', 'h', 'e', 'r', '-', 'v', 'a', 'l', 'u', 'e', 0x0D, 0x0A, 
+0x0D, 0x0A};  
+
+const unsigned char chunked_request_with_error_in_footers[] = { 
+'P', 'O', 'S', 'T', ' ', '/', 'r', 'e', 's', 'o', 'u', 'r', 'c', 'e', '1', ' ', 'H', 'T', 'T', 'P', '/', '1', '.', '1', 0x0D, 0x0A,
+'T', 'r', 'a', 'n', 's', 'f', 'e', 'r', '-', 'E', 'n', 'c', 'o', 'd', 'i', 'n', 'g', ':', ' ', 'c', 'h', 'u', 'n', 'k', 'e', 'd', 0x0D, 0x0A, 0x0D, 0x0A,
+'A', 0x0D, 0x0A,
+'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 0x0D, 0x0A, '5', 0x0D, 0x0A, 'k', 'l', 'm', 'n', 'o', 0x0D, 0x0A, '0', 0x0D, 0x0A,
+'s', 'o', 'm', 'e', '-', 'f', 'o', 'o', 't', 'e', 'r', ':', ' ', 's', 'o', 'm', 'e', '-', 'v', 'a', 'l', 'u', 'e', 0x0D, 0x0A,  
+'a', 'n', 'o', 't', 'h', 'e', 'r', '-', 'f', 'o', 'o', 't', 'e', 'r', 0x0D, 0x0A, 
+0x0D, 0x0A};  
