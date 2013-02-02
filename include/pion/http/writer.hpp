@@ -108,6 +108,11 @@ public:
         if (m_stream_is_empty) m_stream_is_empty = false;
     }
 
+    inline void write(std::ostream& (*iomanip)(std::ostream&)) {
+        m_content_stream << iomanip;
+        if (m_stream_is_empty) m_stream_is_empty = false;
+    }
+
     /**
      * write binary payload content
      *
@@ -361,11 +366,15 @@ typedef boost::shared_ptr<writer>   writer_ptr;
 
 /// override operator<< for convenience
 template <typename T>
-writer_ptr& operator<<(writer_ptr& writer, const T& data) {
+inline const writer_ptr& operator<<(const writer_ptr& writer, const T& data) {
     writer->write(data);
     return writer;
 }
 
+inline const writer_ptr& operator<<(const writer_ptr& writer, std::ostream& (*iomanip)(std::ostream&)) {
+    writer->write(iomanip);
+    return writer;
+}
 
 }   // end namespace http
 }   // end namespace pion
