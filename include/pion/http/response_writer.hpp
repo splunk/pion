@@ -182,6 +182,10 @@ const response_writer_ptr& operator<<(const response_writer_ptr& writer, const T
     return writer;
 }
 
+inline response_writer_ptr& operator<<(response_writer_ptr& writer, std::ostream& (*iomanip)(std::ostream&)) {
+    writer->write(iomanip);
+    return writer;
+}
 
 }   // end namespace http
 }   // end namespace pion
