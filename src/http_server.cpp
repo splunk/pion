@@ -39,13 +39,22 @@ void server::handle_request(http::request_ptr& http_request_ptr,
 {
     if (ec || ! http_request_ptr->is_valid()) {
         tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE); // make sure it will get closed
-        if (tcp_conn->is_open() && (&ec.category() == &http::parser::get_error_category())) {
+        if (tcp_conn->is_open() && (ec.category() == http::parser::get_error_category())) {
             // HTTP parser error
             PION_LOG_INFO(m_logger, "Invalid HTTP request (" << ec.message() << ")");
             m_bad_request_handler(http_request_ptr, tcp_conn);
         } else {
-            // other (IO) error
-            PION_LOG_INFO(m_logger, "Lost connection on port " << get_port());
+            static const boost::system::error_condition
+                    ERRCOND_CANCELED(boost::system::errc::operation_canceled, boost::system::system_category()),
+                    ERRCOND_EOF(boost::asio::error::eof, boost::asio::error::misc_category);
+
+            if (ec == ERRCOND_CANCELED || ec == ERRCOND_EOF) {
+                // don't spam the log with common (non-)errors that happen during normal operation
+                PION_LOG_DEBUG(m_logger, "Lost connection on port " << get_port() << " (" << ec.message() << ")");
+            } else {
+                PION_LOG_INFO(m_logger, "Lost connection on port " << get_port() << " (" << ec.message() << ")");
+            }
+
             tcp_conn->finish();
         }
         return;
