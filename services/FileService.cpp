@@ -735,6 +735,11 @@ void FileService::createMIMETypes(void) {
     mime_types["png"] = "image/png";
     mime_types["jpg"] = "image/jpeg";
     mime_types["jpeg"] = "image/jpeg";
+    mime_types["svg"] = "image/svg+xml";
+    mime_types["eof"] = "application/vnd.ms-fontobject";
+    mime_types["otf"] = "application/x-font-opentype";
+    mime_types["ttf"] = "application/x-font-ttf";
+    mime_types["woff"] = "application/font-woff";
     // ...
 
     // set the static pointer
