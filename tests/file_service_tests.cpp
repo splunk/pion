@@ -95,6 +95,9 @@ public:
         boost::filesystem::ofstream emptyFile("sandbox/emptyFile");
         emptyFile.close();
         BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1"));
+        boost::filesystem::ofstream file4("sandbox/dir1/file4");
+        file4 << "123" << std::endl;
+        file4.close();
 
         m_server.load_service("/resource1", "FileService");
     }
@@ -396,7 +399,22 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_0_Request) {
     checkWebServerResponseContent(boost::regex("abc\\s*"));
 }
 
+BOOST_AUTO_TEST_CASE(checkDirectoryOptionWithForwardSlash) {
+    m_server.set_service_option("/resource1", "directory", "sandbox/dir1");
+    sendRequestAndCheckResponseHead("GET", "/resource1/file4");
+    checkWebServerResponseContent(boost::regex("123\\s*"));
+}
+
+#ifdef PION_WIN32
+BOOST_AUTO_TEST_CASE(checkDirectoryOptionWithBackslash) {
+    m_server.set_service_option("/resource1", "directory", "sandbox\\dir1");
+    sendRequestAndCheckResponseHead("GET", "/resource1/file4");
+    checkWebServerResponseContent(boost::regex("123\\s*"));
+}
+#endif
+
 BOOST_AUTO_TEST_SUITE_END()
+
 
 class RunningFileServiceWithWritingEnabled_F : public RunningFileService_F {
 public:

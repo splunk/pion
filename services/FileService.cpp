@@ -53,6 +53,7 @@ void FileService::set_option(const std::string& name, const std::string& value)
 {
     if (name == "directory") {
         m_directory = value;
+        m_directory.normalize();
         plugin::check_cygwin_path(m_directory, value);
         // make sure that the directory exists
         if (! boost::filesystem::exists(m_directory) || ! boost::filesystem::is_directory(m_directory)) {
