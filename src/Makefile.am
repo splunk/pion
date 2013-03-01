@@ -17,4 +17,4 @@ libpion_la_SOURCES = \
 libpion_la_LDFLAGS = -no-undefined -release $(PION_LIBRARY_VERSION)
 libpion_la_LIBADD = @PION_EXTERNAL_LIBS@
 
-EXTRA_DIST = *.vcproj
+EXTRA_DIST = *.vcxproj *.vcxproj.filters

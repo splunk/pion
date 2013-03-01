@@ -45,4 +45,4 @@ AllowNothingService_la_LDFLAGS = -no-undefined -module -avoid-version
 AllowNothingService_la_LIBADD = ../src/libpion.la @PION_EXTERNAL_LIBS@
 AllowNothingService_la_DEPENDENCIES = ../src/libpion.la
 
-EXTRA_DIST = *.vcproj
+EXTRA_DIST = *.vcxproj *.vcxproj.filters

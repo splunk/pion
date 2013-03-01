@@ -18,6 +18,7 @@
 
 namespace pion {
     namespace test {
+        std::ofstream config::m_test_log_file;
         BOOST_GLOBAL_FIXTURE(config);
     }
 }

@@ -14,4 +14,4 @@ piond_SOURCES = piond.cpp
 piond_LDADD = ../src/libpion.la @PION_EXTERNAL_LIBS@
 piond_DEPENDENCIES = ../src/libpion.la
 
-EXTRA_DIST = sslkey.pem testservices.html *.conf *.vcproj
+EXTRA_DIST = sslkey.pem testservices.html *.conf *.vcxproj *.vcxproj.filters

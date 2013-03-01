@@ -24,4 +24,4 @@ hasNoCreate_la_LDFLAGS = -no-undefined -module -avoid-version
 hasNoCreate_la_LIBADD = ../../src/libpion.la @PION_EXTERNAL_LIBS@
 hasNoCreate_la_DEPENDENCIES = ../../src/libpion.la
 
-EXTRA_DIST = *.vcproj
+EXTRA_DIST = *.vcxproj *.vcxproj.filters

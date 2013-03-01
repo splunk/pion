@@ -12,7 +12,11 @@
 
 #include <iostream>
 #include <fstream>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/test/unit_test_log.hpp>
+#include <boost/test/output/xml_log_formatter.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <pion/logger.hpp>
 
@@ -31,7 +35,127 @@
 
 namespace pion {    // begin namespace pion
 namespace test {    // begin namespace test
-
+    
+    /// thread-safe wrapper for Boost.Tests's XML log formatter
+    class safe_xml_log_formatter
+        : public boost::unit_test::output::xml_log_formatter
+    {
+    public:
+        
+        /// default constructor
+        safe_xml_log_formatter()
+            : m_entry_in_progress(false)
+        {}
+        
+        /// virtual destructor
+        virtual ~safe_xml_log_formatter() {}
+    
+        /// wrapper to flush output for xml_log_formatter::log_start
+        virtual void log_start(std::ostream& ostr,
+                               boost::unit_test::counter_t test_cases_amount )
+        {
+            xml_log_formatter::log_start(ostr, test_cases_amount);
+            ostr << std::endl;
+        }
+    
+        /// wrapper to flush output for xml_log_formatter::log_finish
+        virtual void log_finish(std::ostream& ostr)
+        {
+            xml_log_formatter::log_finish(ostr);
+            ostr << std::endl;
+        }
+    
+        /// wrapper to flush output for xml_log_formatter::log_build_info
+        virtual void log_build_info(std::ostream& ostr)
+        {
+            xml_log_formatter::log_build_info(ostr);
+            ostr << std::endl;
+        }
+    
+        /// wrapper to flush output for xml_log_formatter::test_unit_start
+        virtual void test_unit_start(std::ostream& ostr,
+                                     boost::unit_test::test_unit const& tu )
+        {
+            xml_log_formatter::test_unit_start(ostr, tu);
+            ostr << std::endl;
+        }
+    
+        /// wrapper to flush output for xml_log_formatter::test_unit_finish
+        virtual void test_unit_finish(std::ostream& ostr,
+                                      boost::unit_test::test_unit const& tu,
+                                      unsigned long elapsed )
+        {
+            xml_log_formatter::test_unit_finish(ostr, tu, elapsed);
+            ostr << std::endl;
+        }
+    
+        /// wrapper to flush output for xml_log_formatter::test_unit_skipped
+        virtual void test_unit_skipped(std::ostream& ostr,
+                                       boost::unit_test::test_unit const& tu )
+        {
+            xml_log_formatter::test_unit_skipped(ostr, tu);
+            ostr << std::endl;
+        }
+    
+        /// wrapper to flush output for xml_log_formatter::log_exception
+        virtual void log_exception(std::ostream& ostr,
+                                   boost::unit_test::log_checkpoint_data const& d,
+                                   boost::execution_exception const& ex )
+        {
+            xml_log_formatter::log_exception(ostr, d, ex);
+            ostr << std::endl;
+        }
+    
+        /// thread-safe wrapper for xml_log_formatter::log_entry_start
+        virtual void log_entry_start( std::ostream& ostr,
+                                     boost::unit_test::log_entry_data const& entry_data,
+                                     log_entry_types let )
+        {
+            boost::mutex::scoped_lock entry_lock(m_mutex);
+            while (m_entry_in_progress) {
+                m_entry_complete.wait(entry_lock);
+            }
+            m_entry_in_progress = true;
+            xml_log_formatter::log_entry_start(ostr, entry_data, let);
+            ostr.flush();
+        }
+    
+        /// thread-safe wrapper for xml_log_formatter::log_entry_value
+        /// ensures that an entry is in progress
+        virtual void log_entry_value( std::ostream& ostr, boost::unit_test::const_string value )
+        {
+            boost::mutex::scoped_lock entry_lock(m_mutex);
+            if (m_entry_in_progress) {
+                xml_log_formatter::log_entry_value(ostr, value);
+                ostr.flush();
+            }
+        }
+        
+        /// thread-safe wrapper for xml_log_formatter::log_entry_finish
+        /// assumes the current thread has control via call to log_entry_start()
+        virtual void log_entry_finish( std::ostream& ostr )
+        {
+            boost::mutex::scoped_lock entry_lock(m_mutex);
+            if (m_entry_in_progress) {
+                xml_log_formatter::log_entry_finish(ostr);
+                ostr << std::endl;
+                m_entry_in_progress = false;
+                m_entry_complete.notify_one();
+            }
+        }
+        
+    private:
+        
+        /// true if a log entry is in progress
+        volatile bool       m_entry_in_progress;
+        
+        /// condition used to signal the completion of a log entry
+        boost::condition    m_entry_complete;
+        
+        /// mutex used to prevent multiple threads from interleaving entries
+        boost::mutex        m_mutex;
+    };
+    
     
     /// config is intended for use as a global fixture.  By including the 
     /// following line in one source code file of a unit test project, the constructor will
@@ -45,24 +169,38 @@ namespace test {    // begin namespace test
             // argc and argv do not include parameters handled by the boost unit test framework, such as --log_level.
             int argc = boost::unit_test::framework::master_test_suite().argc;
             char** argv = boost::unit_test::framework::master_test_suite().argv;
-            
             bool verbose = false;
+
             if (argc > 1) {
                 if (argv[1][0] == '-' && argv[1][1] == 'v') {
                     verbose = true;
+                } else if (strlen(argv[1]) > 13 && strncmp(argv[1], "--log_output=", 13) == 0) {
+                    const char * const test_log_filename = argv[1] + 13;
+                    m_test_log_file.open(test_log_filename);
+                    if (m_test_log_file.is_open()) {
+                        boost::unit_test::unit_test_log.set_stream(m_test_log_file);
+                        boost::unit_test::unit_test_log.set_formatter(new safe_xml_log_formatter);
+                    } else {
+                        std::cerr << "unable to open " << test_log_filename << std::endl;
+                    }
                 }
             }
+    
             if (verbose) {
                 PION_LOG_CONFIG_BASIC;
             } else {
                 std::cout << "Use '-v' to enable logging of errors and warnings from pion.\n";
             }
+
             pion::logger log_ptr = PION_GET_LOGGER("pion");
             PION_LOG_SETLEVEL_WARN(log_ptr);
         }
         virtual ~config() {
             std::cout << "global teardown for all pion unit tests\n";
         }
+
+        /// xml log results output stream (needs to be global)
+        static std::ofstream    m_test_log_file;
     };
     
 

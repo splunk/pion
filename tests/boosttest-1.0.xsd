@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Error">
+    <xs:complexType mixed="true">
+      <xs:attribute name="line" type="xs:positiveInteger" use="required" />
+      <xs:attribute name="file" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="FatalError">
+    <xs:complexType mixed="true">
+      <xs:attribute name="line" type="xs:positiveInteger" use="required" />
+      <xs:attribute name="file" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Info">
+    <xs:complexType mixed="true">
+      <xs:attribute name="line" type="xs:positiveInteger" use="required" />
+      <xs:attribute name="file" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="LastCheckpoint">
+    <xs:complexType>
+      <xs:attribute name="line" type="xs:positiveInteger" use="required" />
+      <xs:attribute name="file" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Exception">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="LastCheckpoint" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Message">
+    <xs:complexType mixed="true">
+      <xs:attribute name="line" type="xs:positiveInteger" use="required" />
+      <xs:attribute name="file" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TestCase">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="Info" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Error" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FatalError" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="Message"  minOccurs="0" maxOccurs="unbounded"  />
+        <xs:element ref="Exception" minOccurs="0" maxOccurs="unbounded"  />
+      </xs:choice>
+      <xs:element ref="TestingTime"  minOccurs="1" maxOccurs="1" />
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:NMTOKEN" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TestingTime">
+    <xs:complexType mixed="true">
+    </xs:complexType>    
+  </xs:element>
+
+  <xs:element name="TestLog">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="TestSuite" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TestSuite">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TestCase"  minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="TestSuite"  minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
+      <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

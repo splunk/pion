@@ -19,4 +19,5 @@ piontests_DEPENDENCIES = ../src/libpion.la \
 	plugins/hasCreateAndDestroy.la plugins/hasCreateButNoDestroy.la \
 	plugins/hasNoCreate.la
 
-EXTRA_DIST = *.vcproj http_parser_tests_data.inc
+EXTRA_DIST = *.vcxproj *.vcxproj.filters boost*.xsd boost*.xsl config doc \
+	http_parser_tests_data.inc spdy_parser_tests_data.inc

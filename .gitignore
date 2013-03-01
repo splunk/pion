@@ -32,3 +32,8 @@ Release_*/
 *.suo
 *.ncb
 _ReSharper.*/
+tests/test_log.xml
+tests/test_results.xml
+pion-*.tar.gz
+pion-*.tar.bz2
+pion-*.tar.zip
