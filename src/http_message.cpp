@@ -46,13 +46,9 @@ std::size_t message::send(tcp::connection& tcp_conn,
 }
 
 std::size_t message::receive(tcp::connection& tcp_conn,
-                                 boost::system::error_code& ec,
-                                 bool headers_only)
+                             boost::system::error_code& ec,
+                             parser& http_parser)
 {
-    // assumption: this can only be either an http::request or an http::response
-    const bool is_request = (dynamic_cast<http::request*>(this) != NULL);
-    http::parser http_parser(is_request);
-    http_parser.parse_headers_only(headers_only);
     std::size_t last_bytes_read = 0;
 
     // make sure that we start out with an empty message
@@ -133,7 +129,7 @@ std::size_t message::receive(tcp::connection& tcp_conn,
         
         // save the read position as a bookmark so that it can be retrieved
         // by a new HTTP parser
-        if (headers_only) {
+        if (http_parser.get_parse_headers_only()) {
             const char *read_ptr;
             const char *read_end_ptr;
             http_parser.load_read_pos(read_ptr, read_end_ptr);
@@ -142,6 +138,17 @@ std::size_t message::receive(tcp::connection& tcp_conn,
     }
 
     return (http_parser.get_total_bytes_read());
+}
+
+std::size_t message::receive(tcp::connection& tcp_conn,
+                             boost::system::error_code& ec,
+                             bool headers_only,
+                             std::size_t max_content_length)
+{
+    http::parser http_parser(dynamic_cast<http::request*>(this) != NULL);
+    http_parser.parse_headers_only(headers_only);
+    http_parser.set_max_content_length(max_content_length);
+    return receive(tcp_conn, ec, http_parser);
 }
 
 std::size_t message::write(std::ostream& out,
@@ -171,17 +178,13 @@ std::size_t message::write(std::ostream& out,
 }
 
 std::size_t message::read(std::istream& in,
-    boost::system::error_code& ec, bool headers_only)
+                          boost::system::error_code& ec,
+                          parser& http_parser)
 {
     // make sure that we start out with an empty message & clear error_code
     clear();
     ec.clear();
     
-    // assumption: this can only be either an http::request or an http::response
-    const bool is_request = (dynamic_cast<http::request*>(this) != NULL);
-    http::parser http_parser(is_request);
-    http_parser.parse_headers_only(headers_only);
-
     // parse data from file one byte at a time
     boost::tribool parse_result;
     char c;
@@ -211,6 +214,17 @@ std::size_t message::read(std::istream& in,
     }
     
     return (http_parser.get_total_bytes_read());
+}
+
+std::size_t message::read(std::istream& in,
+                          boost::system::error_code& ec,
+                          bool headers_only,
+                          std::size_t max_content_length)
+{
+    http::parser http_parser(dynamic_cast<http::request*>(this) != NULL);
+    http_parser.parse_headers_only(headers_only);
+    http_parser.set_max_content_length(max_content_length);
+    return read(in, ec, http_parser);
 }
 
 void message::concatenate_chunks(void)

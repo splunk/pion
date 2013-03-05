@@ -265,6 +265,9 @@ public:
     /// returns true if the parser is saving raw HTTP header contents
     inline bool get_save_raw_headers(void) const { return m_save_raw_headers; }
 
+    /// returns true if parsing headers only
+    inline bool get_parse_headers_only(void) { return m_parse_headers_only; }
+    
     /// returns true if the parser is being used to parse an HTTP request
     inline bool is_parsing_request(void) const { return m_is_request; }
 

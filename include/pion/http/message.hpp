@@ -35,6 +35,10 @@ namespace tcp {
 namespace http {    // begin namespace http
 
 
+// forward declaration of parser class
+class parser;
+
+    
 ///
 /// message: base container for HTTP messages
 /// 
@@ -399,20 +403,37 @@ public:
      *
      * @return std::size_t number of bytes written to the connection
      */
-    std::size_t send(tcp::connection& tcp_conn, boost::system::error_code& ec,
-        bool headers_only = false);
+    std::size_t send(tcp::connection& tcp_conn,
+                     boost::system::error_code& ec,
+                     bool headers_only = false);
 
     /**
      * receives a new message from a TCP connection (blocks until finished)
      *
      * @param tcp_conn TCP connection to use
      * @param ec contains error code if the receive fails
-     * @param headers_only if true then only HTTP headers are received
+     * @param http_parser http parser object to use
      *
      * @return std::size_t number of bytes read from the connection
      */
-    std::size_t receive(tcp::connection& tcp_conn, boost::system::error_code& ec,
-        bool headers_only = false);
+    std::size_t receive(tcp::connection& tcp_conn,
+                        boost::system::error_code& ec,
+                        parser& http_parser);
+    
+    /**
+     * receives a new message from a TCP connection (blocks until finished)
+     *
+     * @param tcp_conn TCP connection to use
+     * @param ec contains error code if the receive fails
+     * @param headers_only if true then only HTTP headers are received
+     * @param max_content_length maximum number of content bytes received
+     *
+     * @return std::size_t number of bytes read from the connection
+     */
+    std::size_t receive(tcp::connection& tcp_conn,
+                        boost::system::error_code& ec,
+                        bool headers_only = false,
+                        std::size_t max_content_length = static_cast<size_t>(-1));
 
     /**
      * writes the message to a std::ostream (blocks until finished)
@@ -423,20 +444,37 @@ public:
      *
      * @return std::size_t number of bytes written to the connection
      */
-    std::size_t write(std::ostream& out, boost::system::error_code& ec,
-        bool headers_only = false);
+    std::size_t write(std::ostream& out,
+                      boost::system::error_code& ec,
+                      bool headers_only = false);
 
     /**
      * reads a new message from a std::istream (blocks until finished)
      *
      * @param in std::istream to use
      * @param ec contains error code if the read fails
-     * @param headers_only if true then only HTTP headers are read
+     * @param http_parser http parser object to use
      *
      * @return std::size_t number of bytes read from the connection
      */
-    std::size_t read(std::istream& in, boost::system::error_code& ec,
-        bool headers_only = false);
+    std::size_t read(std::istream& in,
+                     boost::system::error_code& ec,
+                     parser& http_parser);
+    
+    /**
+     * reads a new message from a std::istream (blocks until finished)
+     *
+     * @param in std::istream to use
+     * @param ec contains error code if the read fails
+     * @param headers_only if true then only HTTP headers are read
+     * @param max_content_length maximum number of content bytes received
+     *
+     * @return std::size_t number of bytes read from the connection
+     */
+    std::size_t read(std::istream& in,
+                     boost::system::error_code& ec,
+                     bool headers_only = false,
+                     std::size_t max_content_length = static_cast<size_t>(-1));
 
     /**
      * pieces together all the received chunks
