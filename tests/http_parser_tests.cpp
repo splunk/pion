@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(testParseSimpleQueryString)
     BOOST_CHECK_EQUAL(i->second, "b");
 }
 
-BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleValues)
+BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleParameters)
 {
     const std::string QUERY_STRING("test=2&three=%20four%20with%20spaces&five=sixty+two");
     ihash_multimap params;
@@ -71,6 +71,75 @@ BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleValues)
     i = params.find("five");
     BOOST_REQUIRE(i != params.end());
     BOOST_CHECK_EQUAL(i->second, "sixty two");
+}
+
+BOOST_AUTO_TEST_CASE(testParseQueryStringWithMultipleValues)
+{
+    const std::string QUERY_STRING("var1=10&var2=20&var1=30&var2=40");
+    ihash_multimap params;
+    BOOST_REQUIRE(http::parser::parse_url_encoded(params, QUERY_STRING));
+    BOOST_REQUIRE_EQUAL(params.size(), 4UL);
+    
+    std::pair<ihash_multimap::const_iterator,ihash_multimap::const_iterator> range;
+
+    range = params.equal_range("var1");
+    BOOST_CHECK(range.first != range.second);
+    BOOST_CHECK(range.first->second == "10" || range.first->second == "30");
+    BOOST_REQUIRE(++(range.first) != range.second);
+    BOOST_CHECK(range.first->second == "10" || range.first->second == "30");
+    BOOST_CHECK(++(range.first) == range.second);
+
+    range = params.equal_range("var2");
+    BOOST_CHECK(range.first != range.second);
+    BOOST_CHECK(range.first->second == "20" || range.first->second == "40");
+    BOOST_REQUIRE(++(range.first) != range.second);
+    BOOST_CHECK(range.first->second == "20" || range.first->second == "40");
+    BOOST_CHECK(++(range.first) == range.second);
+}
+
+BOOST_AUTO_TEST_CASE(testParseQueryStringWithCommaSeparatedValues)
+{
+    const std::string QUERY_STRING("var1=10,30&var2=20,40");
+    ihash_multimap params;
+    BOOST_REQUIRE(http::parser::parse_url_encoded(params, QUERY_STRING));
+    BOOST_REQUIRE_EQUAL(params.size(), 4UL);
+    
+    std::pair<ihash_multimap::const_iterator,ihash_multimap::const_iterator> range;
+    
+    range = params.equal_range("var1");
+    BOOST_CHECK(range.first != range.second);
+    BOOST_CHECK(range.first->second == "10" || range.first->second == "30");
+    BOOST_REQUIRE(++(range.first) != range.second);
+    BOOST_CHECK(range.first->second == "10" || range.first->second == "30");
+    BOOST_CHECK(++(range.first) == range.second);
+    
+    range = params.equal_range("var2");
+    BOOST_CHECK(range.first != range.second);
+    BOOST_CHECK(range.first->second == "20" || range.first->second == "40");
+    BOOST_REQUIRE(++(range.first) != range.second);
+    BOOST_CHECK(range.first->second == "20" || range.first->second == "40");
+    BOOST_CHECK(++(range.first) == range.second);
+}
+
+BOOST_AUTO_TEST_CASE(testParseQueryStringWithEqualInValue)
+{
+    const std::string QUERY_STRING("time=1363409375&cookie_id=cmid=b8c7b029-be7b-6afd-563e-32b25909e443&cookie_id=xxx");
+    ihash_multimap params;
+    BOOST_REQUIRE(http::parser::parse_url_encoded(params, QUERY_STRING));
+    BOOST_CHECK_EQUAL(params.size(), 3UL);
+    
+    std::pair<ihash_multimap::const_iterator,ihash_multimap::const_iterator> range;
+    
+    ihash_multimap::const_iterator i = params.find("time");
+    BOOST_REQUIRE(i != params.end());
+    BOOST_CHECK_EQUAL(i->second, "1363409375");
+
+    range = params.equal_range("cookie_id");
+    BOOST_CHECK(range.first != range.second);
+    BOOST_CHECK(range.first->second == "cmid=b8c7b029-be7b-6afd-563e-32b25909e443" || range.first->second == "xxx");
+    BOOST_CHECK(++(range.first) != range.second);
+    BOOST_CHECK(range.first->second == "cmid=b8c7b029-be7b-6afd-563e-32b25909e443" || range.first->second == "xxx");
+    BOOST_CHECK(++(range.first) == range.second);
 }
 
 BOOST_AUTO_TEST_CASE(testParseQueryStringWithDoubleAmpersand)

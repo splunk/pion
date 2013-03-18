@@ -930,6 +930,11 @@ bool parser::parse_url_encoded(ihash_multimap& dict,
                 }
                 query_value.erase();
                 parse_state = QUERY_PARSE_NAME;
+            } else if (*ptr == ',') {
+                // end of value found in multi-value list (OK if empty)
+                if (! query_name.empty())
+                    dict.insert( std::make_pair(algorithm::url_decode(query_name), algorithm::url_decode(query_value)) );
+                query_value.erase();
             } else if (*ptr == '\r' || *ptr == '\n' || *ptr == '\t') {
                 // ignore linefeeds, carriage return and tabs (normally within POST content)
             } else if (is_control(*ptr) || query_value.size() >= QUERY_VALUE_MAX) {
