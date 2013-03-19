@@ -18,6 +18,13 @@
     #include <boost/asio/ssl.hpp>
 #endif
 
+#if defined(_MSC_VER) && (!defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0600)
+    // required to enable use of cancel() on pre-vista windows
+    // see http://www.boost.org/doc/libs/1_53_0/doc/html/boost_asio/reference/basic_stream_socket/cancel/overload2.html
+    #define BOOST_ASIO_ENABLE_CANCELIO
+    #define BOOST_ASIO_DISABLE_IOCP
+#endif
+
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
@@ -150,21 +157,15 @@ public:
     /// closes the tcp socket and cancels any pending asynchronous operations
     inline void close(void) {
         if (is_open()) {
-            try {
-                // shutting down SSL will wait forever for a response from the remote end,
-                // which causes it to hang indefinitely if the other end died unexpectedly
-                // if (get_ssl_flag()) m_ssl_socket.shutdown();
-                m_ssl_socket.next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-            } catch (...) {}
             boost::system::error_code ec;
             m_ssl_socket.next_layer().close(ec);
         }
     }
 
-	/// cancels any asynchronous operations pending on the socket
-	/// WARNING: Use close instead; basic_socket::cancel doesn't work on Windows pre-Vista!
+    /// cancels any asynchronous operations pending on the socket
     inline void cancel(void) {
-        m_ssl_socket.next_layer().cancel();
+        boost::system::error_code ec;
+        m_ssl_socket.next_layer().cancel(ec);
     }
     
     /// virtual destructor
