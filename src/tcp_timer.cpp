@@ -45,7 +45,7 @@ void timer::timer_callback(const boost::system::error_code& ec)
     boost::mutex::scoped_lock timer_lock(m_mutex);
     m_timer_active = false;
     if (! m_was_cancelled)
-        m_conn_ptr->close();
+        m_conn_ptr->cancel();
 }
 
 

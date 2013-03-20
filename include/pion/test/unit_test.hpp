@@ -12,12 +12,14 @@
 
 #include <iostream>
 #include <fstream>
+#include <boost/version.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_log.hpp>
-#include <boost/test/output/xml_log_formatter.hpp>
+#include <boost/test/unit_test_log_formatter.hpp>
 #include <boost/test/test_case_template.hpp>
+#include <boost/test/utils/xml_printer.hpp>
 #include <pion/logger.hpp>
 
 #ifdef _MSC_VER
@@ -36,9 +38,9 @@
 namespace pion {    // begin namespace pion
 namespace test {    // begin namespace test
     
-    /// thread-safe wrapper for Boost.Tests's XML log formatter
-    class safe_xml_log_formatter
-        : public boost::unit_test::output::xml_log_formatter
+    /// thread-safe version of Boost.Test's xml_log_formatter class
+    class PION_API safe_xml_log_formatter
+        : public boost::unit_test::unit_test_log_formatter
     {
     public:
         
@@ -54,30 +56,33 @@ namespace test {    // begin namespace test
         virtual void log_start(std::ostream& ostr,
                                boost::unit_test::counter_t test_cases_amount )
         {
-            xml_log_formatter::log_start(ostr, test_cases_amount);
-            ostr << std::endl;
+            ostr << "<TestLog>" << std::endl;
         }
     
         /// wrapper to flush output for xml_log_formatter::log_finish
         virtual void log_finish(std::ostream& ostr)
         {
-            xml_log_formatter::log_finish(ostr);
-            ostr << std::endl;
+            ostr << "</TestLog>" << std::endl;
         }
     
         /// wrapper to flush output for xml_log_formatter::log_build_info
         virtual void log_build_info(std::ostream& ostr)
         {
-            xml_log_formatter::log_build_info(ostr);
-            ostr << std::endl;
+            ostr  << "<BuildInfo"
+                << " platform"  << attr_value() << BOOST_PLATFORM
+                << " compiler"  << attr_value() << BOOST_COMPILER
+                << " stl"       << attr_value() << BOOST_STDLIB
+                << " boost=\""  << BOOST_VERSION/100000     << "."
+                << BOOST_VERSION/100 % 1000 << "."
+                << BOOST_VERSION % 100      << '\"'
+                << "/>" << std::endl;
         }
     
         /// wrapper to flush output for xml_log_formatter::test_unit_start
         virtual void test_unit_start(std::ostream& ostr,
                                      boost::unit_test::test_unit const& tu )
         {
-            xml_log_formatter::test_unit_start(ostr, tu);
-            ostr << std::endl;
+            ostr << "<" << tu_type_name( tu ) << " name" << attr_value() << tu.p_name.get() << ">" << std::endl;
         }
     
         /// wrapper to flush output for xml_log_formatter::test_unit_finish
@@ -85,25 +90,45 @@ namespace test {    // begin namespace test
                                       boost::unit_test::test_unit const& tu,
                                       unsigned long elapsed )
         {
-            xml_log_formatter::test_unit_finish(ostr, tu, elapsed);
-            ostr << std::endl;
+            if ( tu.p_type == boost::unit_test::tut_case )
+                ostr << "<TestingTime>" << elapsed << "</TestingTime>";
+            ostr << "</" << tu_type_name( tu ) << ">" << std::endl;
         }
     
         /// wrapper to flush output for xml_log_formatter::test_unit_skipped
         virtual void test_unit_skipped(std::ostream& ostr,
                                        boost::unit_test::test_unit const& tu )
         {
-            xml_log_formatter::test_unit_skipped(ostr, tu);
-            ostr << std::endl;
+            ostr << "<" << tu_type_name( tu )
+                << " name"    << attr_value() << tu.p_name.get()
+                << " skipped" << attr_value() << "yes"
+                << "/>" << std::endl;
         }
     
         /// wrapper to flush output for xml_log_formatter::log_exception
         virtual void log_exception(std::ostream& ostr,
-                                   boost::unit_test::log_checkpoint_data const& d,
+                                   boost::unit_test::log_checkpoint_data const& checkpoint_data,
                                    boost::execution_exception const& ex )
         {
-            xml_log_formatter::log_exception(ostr, d, ex);
-            ostr << std::endl;
+            boost::execution_exception::location const& loc = ex.where();
+            
+            ostr << "<Exception file" << attr_value() << loc.m_file_name
+                << " line" << attr_value() << loc.m_line_num;
+            
+            if( !loc.m_function.is_empty() )
+                ostr << " function"   << attr_value() << loc.m_function;
+            
+            ostr << ">" << boost::unit_test::cdata() << ex.what();
+            
+            if( !checkpoint_data.m_file_name.is_empty() ) {
+                ostr << "<LastCheckpoint file" << attr_value() << checkpoint_data.m_file_name
+                    << " line"                << attr_value() << checkpoint_data.m_line_num
+                    << ">"
+                    << boost::unit_test::cdata() << checkpoint_data.m_message
+                    << "</LastCheckpoint>";
+            }
+            
+            ostr << "</Exception>" << std::endl;
         }
     
         /// thread-safe wrapper for xml_log_formatter::log_entry_start
@@ -116,7 +141,14 @@ namespace test {    // begin namespace test
                 m_entry_complete.wait(entry_lock);
             }
             m_entry_in_progress = true;
-            xml_log_formatter::log_entry_start(ostr, entry_data, let);
+            
+            static boost::unit_test::literal_string xml_tags[] = { "Info", "Message", "Warning", "Error", "FatalError" };
+            m_curr_tag = xml_tags[let];
+            ostr << '<' << m_curr_tag
+                << BOOST_TEST_L( " file" ) << attr_value() << entry_data.m_file_name
+                << BOOST_TEST_L( " line" ) << attr_value() << entry_data.m_line_num
+                << BOOST_TEST_L( "><![CDATA[" );
+
             ostr.flush();
         }
     
@@ -126,7 +158,7 @@ namespace test {    // begin namespace test
         {
             boost::mutex::scoped_lock entry_lock(m_mutex);
             if (m_entry_in_progress) {
-                xml_log_formatter::log_entry_value(ostr, value);
+                ostr << value;
                 ostr.flush();
             }
         }
@@ -137,14 +169,23 @@ namespace test {    // begin namespace test
         {
             boost::mutex::scoped_lock entry_lock(m_mutex);
             if (m_entry_in_progress) {
-                xml_log_formatter::log_entry_finish(ostr);
-                ostr << std::endl;
+                ostr << BOOST_TEST_L( "]]></" ) << m_curr_tag << BOOST_TEST_L( ">" ) << std::endl;
+                m_curr_tag.clear();
                 m_entry_in_progress = false;
                 m_entry_complete.notify_one();
             }
         }
         
     private:
+
+        /// output appropriate xml element name
+        static boost::unit_test::const_string tu_type_name( boost::unit_test::test_unit const& tu )
+        {
+            return tu.p_type == boost::unit_test::tut_case ? "TestCase" : "TestSuite";
+        }
+        
+        /// re-use attr_value data type from xml_printer.hpp
+        typedef boost::unit_test::attr_value    attr_value;
         
         /// true if a log entry is in progress
         volatile bool       m_entry_in_progress;
@@ -154,6 +195,9 @@ namespace test {    // begin namespace test
         
         /// mutex used to prevent multiple threads from interleaving entries
         boost::mutex        m_mutex;
+
+        /// current xml tag
+        boost::unit_test::const_string  m_curr_tag;
     };
     
     
