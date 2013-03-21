@@ -39,7 +39,7 @@ namespace pion {    // begin namespace pion
 namespace test {    // begin namespace test
     
     /// thread-safe version of Boost.Test's xml_log_formatter class
-    class PION_API safe_xml_log_formatter
+    class safe_xml_log_formatter
         : public boost::unit_test::unit_test_log_formatter
     {
     public:
