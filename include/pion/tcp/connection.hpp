@@ -18,13 +18,6 @@
     #include <boost/asio/ssl.hpp>
 #endif
 
-#if defined(_MSC_VER) && (!defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0600)
-    // required to enable use of cancel() on pre-vista windows
-    // see http://www.boost.org/doc/libs/1_53_0/doc/html/boost_asio/reference/basic_stream_socket/cancel/overload2.html
-    #define BOOST_ASIO_ENABLE_CANCELIO
-    #define BOOST_ASIO_DISABLE_IOCP
-#endif
-
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
@@ -162,10 +155,16 @@ public:
         }
     }
 
-    /// cancels any asynchronous operations pending on the socket
+    /// cancels any asynchronous operations pending on the socket.
+    /// there is no good way to do this on windows until vista or later (0x0600)
+    /// see http://www.boost.org/doc/libs/1_53_0/doc/html/boost_asio/reference/basic_stream_socket/cancel/overload2.html
+    /// note that the asio docs are misleading because close() is not thread-safe,
+    /// and the suggested #define statements cause WAY too much trouble and heartache
     inline void cancel(void) {
+#if !defined(_MSC_VER) || (_WIN32_WINNT >= 0x0600)
         boost::system::error_code ec;
         m_ssl_socket.next_layer().cancel(ec);
+#endif
     }
     
     /// virtual destructor
