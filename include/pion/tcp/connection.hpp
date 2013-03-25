@@ -150,6 +150,19 @@ public:
     /// closes the tcp socket and cancels any pending asynchronous operations
     inline void close(void) {
         if (is_open()) {
+            try {
+
+                // shutting down SSL will wait forever for a response from the remote end,
+                // which causes it to hang indefinitely if the other end died unexpectedly
+                // if (get_ssl_flag()) m_ssl_socket.shutdown();
+
+                // windows seems to require this otherwise it doesn't
+                // recognize that connections have been closed
+                m_ssl_socket.next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+                
+            } catch (...) {}    // ignore exceptions
+            
+            // close the underlying socket (ignore errors)
             boost::system::error_code ec;
             m_ssl_socket.next_layer().close(ec);
         }
