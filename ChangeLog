@@ -1,3 +1,9 @@
+Version 5.0.2 (2013-06-02)
+==========================
+
+* parse_multipart_form_data() corrupts binary files (Alexandre Parenteau)
+
+
 Version 5.0.1 (2013-04-15)
 ==========================
 

@@ -983,7 +983,7 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
     bool save_current_field = true;
     const char * const end_ptr = ptr + len;
 
-    ptr = strstr(ptr, boundary.c_str());
+    ptr = std::search(ptr, end_ptr, boundary.begin(), boundary.end());
 
     while (ptr != NULL && ptr < end_ptr) {
         switch (parse_state) {
@@ -1085,14 +1085,14 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                     } else {
                         // otherwise skip ahead to next field
                         parse_state = MP_PARSE_START;
-                        ptr = strstr(ptr, boundary.c_str());
+                        ptr = std::search(ptr, end_ptr, boundary.begin(), boundary.end());
                     }
                 } else return false;
                 break;
             case MP_PARSE_FIELD_DATA:
                 // parsing the value of a field -> find the end of it
                 const char *field_end_ptr = end_ptr;
-                const char *next_ptr = strstr(ptr, boundary.c_str());
+                const char *next_ptr = std::search(ptr, end_ptr, boundary.begin(), boundary.end());
                 if (next_ptr) {
                     // don't include CRLF before next boundary
                     const char *temp_ptr = next_ptr - 2;
