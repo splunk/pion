@@ -72,15 +72,24 @@ namespace pion {    // begin namespace pion
         boost::exception const * const be = dynamic_cast<const boost::exception*>(&e);
         std::exception const * const se = dynamic_cast<const std::exception*>(&e);
         std::ostringstream tmp;
-        tmp << (se ? se->what() : "unknown exception");
+        if (se) {
+            tmp << se->what();
+        } else {
+#if BOOST_VERSION >= 104700
+            tmp << boost::units::detail::demangle(BOOST_EXCEPTION_DYNAMIC_TYPEID(e).type_->name());
+#else
+            tmp << boost::units::detail::demangle(BOOST_EXCEPTION_DYNAMIC_TYPEID(e).type_.name());
+#endif
+        }
         if (be) {
-            char const * const * fn=boost::get_error_info<boost::throw_function>(*be);
+            //char const * const * fn=boost::get_error_info<boost::throw_function>(*be);
+            //if (fn) tmp << " at " << *fn;
             char const * const * f=boost::get_error_info<boost::throw_file>(*be);
-            if (fn) tmp << " at " << *fn;
             if (f) {
                 tmp << " [" << *f;
-                if( int const * l=boost::get_error_info<boost::throw_line>(*be) )
+                if (int const * l=boost::get_error_info<boost::throw_line>(*be))
                     tmp << ':' << *l;
+                tmp << "]";
             }
         }
         return tmp.str();

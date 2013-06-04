@@ -109,9 +109,13 @@ void server::handle_request(http::request_ptr& http_request_ptr,
             // propagate memory errors (FATAL)
             throw;
         } catch (std::exception& e) {
-            // recover gracefully from other exceptions thrown request handlers
-            PION_LOG_ERROR(m_logger, "HTTP request handler: " << boost::diagnostic_information(e));
+            // recover gracefully from other exceptions thrown by request handlers
+            PION_LOG_ERROR(m_logger, "HTTP request handler: " << pion::diagnostic_information(e));
             m_server_error_handler(http_request_ptr, tcp_conn, e.what());
+        } catch (boost::exception& e) {
+            // recover gracefully from boost exceptions thrown by request handlers
+            PION_LOG_ERROR(m_logger, "HTTP request handler: " << pion::diagnostic_information(e));
+            m_server_error_handler(http_request_ptr, tcp_conn, pion::diagnostic_information(e));
         }
         
     } else {
