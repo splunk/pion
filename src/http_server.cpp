@@ -111,7 +111,7 @@ void server::handle_request(http::request_ptr& http_request_ptr,
         } catch (std::exception& e) {
             // recover gracefully from other exceptions thrown request handlers
             PION_LOG_ERROR(m_logger, "HTTP request handler: " << boost::diagnostic_information(e));
-            m_server_error_handler(http_request_ptr, tcp_conn, boost::diagnostic_information(e));
+            m_server_error_handler(http_request_ptr, tcp_conn, e.what());
         }
         
     } else {
