@@ -216,7 +216,96 @@ std::string algorithm::url_encode(const std::string& str)
     
     return result;
 }
+
+// TODO
+//std::string algorithm::xml_decode(const std::string& str)
+//{
+//}
+
+std::string algorithm::xml_encode(const std::string& str)
+{
+    std::string result;
+    result.reserve(str.size() + 20);    // Assume ~5 characters converted (length increases)
+    const unsigned char *ptr = reinterpret_cast<const unsigned char*>(str.c_str());
+    const unsigned char *end_ptr = ptr + str.size();
+    while (ptr < end_ptr) {
+        // check byte ranges for valid UTF-8
+        // see http://en.wikipedia.org/wiki/UTF-8
+        // also, see http://www.w3.org/TR/REC-xml/#charsets
+        // this implementation is the strictest subset of both
+        if ((*ptr >= 0x20 && *ptr <= 0x7F) || *ptr == 0x9 || *ptr == 0xa || *ptr == 0xd) {
+            // regular ASCII character
+            switch(*ptr) {
+                    // Escape special XML characters.
+                case '&':
+                    result += "&amp;";
+                    break;
+                case '<':
+                    result += "&lt;";
+                    break;
+                case '>':
+                    result += "&gt;";
+                    break;
+                case '\"':
+                    result += "&quot;";
+                    break;
+                case '\'':
+                    result += "&apos;";
+                    break;
+                default:
+                    result += *ptr;
+            }
+        } else if (*ptr >= 0xC2 && *ptr <= 0xDF) {
+            // two-byte sequence
+            if (*(ptr+1) >= 0x80 && *(ptr+1) <= 0xBF) {
+                result += *ptr;
+                result += *(++ptr);
+            } else {
+                // insert replacement char
+                result += 0xef;
+                result += 0xbf;
+                result += 0xbd;
+            }
+        } else if (*ptr >= 0xE0 && *ptr <= 0xEF) {
+            // three-byte sequence
+            if (*(ptr+1) >= 0x80 && *(ptr+1) <= 0xBF
+                && *(ptr+2) >= 0x80 && *(ptr+2) <= 0xBF) {
+                result += *ptr;
+                result += *(++ptr);
+                result += *(++ptr);
+            } else {
+                // insert replacement char
+                result += 0xef;
+                result += 0xbf;
+                result += 0xbd;
+            }
+        } else if (*ptr >= 0xF0 && *ptr <= 0xF4) {
+            // four-byte sequence
+            if (*(ptr+1) >= 0x80 && *(ptr+1) <= 0xBF
+                && *(ptr+2) >= 0x80 && *(ptr+2) <= 0xBF
+                && *(ptr+3) >= 0x80 && *(ptr+3) <= 0xBF) {
+                result += *ptr;
+                result += *(++ptr);
+                result += *(++ptr);
+                result += *(++ptr);
+            } else {
+                // insert replacement char
+                result += 0xef;
+                result += 0xbf;
+                result += 0xbd;
+            }
+        } else {
+            // insert replacement char
+            result += 0xef;
+            result += 0xbf;
+            result += 0xbd;
+        }
+        ++ptr;
+    }
     
+    return result;
+}
+
 void algorithm::float_from_bytes(long double& value, const unsigned char *ptr, size_t num_exp_bits, size_t num_fraction_bits)
 {
     // get sign of the number from the first bit

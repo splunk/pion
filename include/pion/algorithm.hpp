@@ -40,6 +40,12 @@ struct PION_API algorithm {
     /// encodes strings so that they are safe for URLs (with%20spaces)
     static std::string url_encode(const std::string& str);
 
+    /// TODO: escapes XML/HTML-encoded strings (1 &lt; 2)
+    //static std::string xml_decode(const std::string& str);
+    
+    /// encodes strings so that they are safe for XML/HTML (2 &gt; 1)
+    static std::string xml_encode(const std::string& str);
+    
     /// convert sequence of bytes in IEEE 754 format into a native floating point data type
     /// reference: http://en.wikipedia.org/wiki/Single_precision_floating-point_format
     static void float_from_bytes(long double& value, const unsigned char *ptr, size_t num_exp_bits, size_t num_fraction_bits);

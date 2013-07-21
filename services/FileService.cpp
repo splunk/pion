@@ -19,6 +19,7 @@
 #include "FileService.hpp"
 #include <pion/error.hpp>
 #include <pion/plugin.hpp>
+#include <pion/algorithm.hpp>
 #include <pion/http/response_writer.hpp>
 
 using namespace pion;
@@ -172,7 +173,7 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
         writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_FORBIDDEN);
         if (http_request_ptr->get_method() != http::types::REQUEST_METHOD_HEAD) {
             writer->write_no_copy(FORBIDDEN_HTML_START);
-            writer << http_request_ptr->get_resource();
+            writer << algorithm::xml_encode(http_request_ptr->get_resource());
             writer->write_no_copy(FORBIDDEN_HTML_FINISH);
         }
         writer->send();
@@ -198,7 +199,7 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
         writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_FORBIDDEN);
         if (http_request_ptr->get_method() != http::types::REQUEST_METHOD_HEAD) {
             writer->write_no_copy(FORBIDDEN_HTML_START);
-            writer << http_request_ptr->get_resource();
+            writer << algorithm::xml_encode(http_request_ptr->get_resource());
             writer->write_no_copy(FORBIDDEN_HTML_FINISH);
         }
         writer->send();
@@ -428,7 +429,7 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
             writer->get_response().set_status_code(http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
             writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
             writer->write_no_copy(NOT_ALLOWED_HTML_START);
-            writer << http_request_ptr->get_method();
+            writer << algorithm::xml_encode(http_request_ptr->get_method());
             writer->write_no_copy(NOT_ALLOWED_HTML_FINISH);
             writer->get_response().add_header("Allow", "GET, HEAD");
             writer->send();
@@ -457,7 +458,7 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
                         writer->get_response().set_status_code(http::types::RESPONSE_CODE_NOT_FOUND);
                         writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NOT_FOUND);
                         writer->write_no_copy(NOT_FOUND_HTML_START);
-                        writer << http_request_ptr->get_resource();
+                        writer << algorithm::xml_encode(http_request_ptr->get_resource());
                         writer->write_no_copy(NOT_FOUND_HTML_FINISH);
                         writer->send();
                         return;
@@ -475,7 +476,7 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
                     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_CREATED);
                     writer->get_response().add_header(http::types::HEADER_LOCATION, http_request_ptr->get_resource());
                     writer->write_no_copy(CREATED_HTML_START);
-                    writer << http_request_ptr->get_resource();
+                    writer << algorithm::xml_encode(http_request_ptr->get_resource());
                     writer->write_no_copy(CREATED_HTML_FINISH);
                 }
                 std::ios_base::openmode mode = http_request_ptr->get_method() == http::types::REQUEST_METHOD_POST?
@@ -496,7 +497,7 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
                     writer->get_response().set_status_code(http::types::RESPONSE_CODE_SERVER_ERROR);
                     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_SERVER_ERROR);
                     writer->write_no_copy(PUT_FAILED_HTML_START);
-                    writer << http_request_ptr->get_resource();
+                    writer << algorithm::xml_encode(http_request_ptr->get_resource());
                     writer->write_no_copy(PUT_FAILED_HTML_FINISH);
                 }
                 writer->send();
@@ -522,7 +523,7 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
                         writer->get_response().set_status_code(http::types::RESPONSE_CODE_SERVER_ERROR);
                         writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_SERVER_ERROR);
                         writer->write_no_copy(DELETE_FAILED_HTML_START);
-                        writer << http_request_ptr->get_resource()
+                        writer << algorithm::xml_encode(http_request_ptr->get_resource())
                             << ".</p><p>"
                             << boost::diagnostic_information(e);
                         writer->write_no_copy(DELETE_FAILED_HTML_FINISH);
@@ -553,7 +554,7 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
         writer->get_response().set_status_code(http::types::RESPONSE_CODE_NOT_IMPLEMENTED);
         writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NOT_IMPLEMENTED);
         writer->write_no_copy(NOT_IMPLEMENTED_HTML_START);
-        writer << http_request_ptr->get_method();
+        writer << algorithm::xml_encode(http_request_ptr->get_method());
         writer->write_no_copy(NOT_IMPLEMENTED_HTML_FINISH);
         writer->send();
     }
@@ -577,7 +578,7 @@ void FileService::sendNotFoundResponse(http::request_ptr& http_request_ptr,
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NOT_FOUND);
     if (http_request_ptr->get_method() != http::types::REQUEST_METHOD_HEAD) {
         writer->write_no_copy(NOT_FOUND_HTML_START);
-        writer << http_request_ptr->get_resource();
+        writer << algorithm::xml_encode(http_request_ptr->get_resource());
         writer->write_no_copy(NOT_FOUND_HTML_FINISH);
     }
     writer->send();

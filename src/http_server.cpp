@@ -8,6 +8,7 @@
 //
 
 #include <boost/exception/diagnostic_information.hpp>
+#include <pion/algorithm.hpp>
 #include <pion/http/server.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/request_reader.hpp>
@@ -218,7 +219,7 @@ void server::handle_not_found_request(http::request_ptr& http_request_ptr,
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_NOT_FOUND);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NOT_FOUND);
     writer->write_no_copy(NOT_FOUND_HTML_START);
-    writer << http_request_ptr->get_resource();
+    writer << algorithm::xml_encode(http_request_ptr->get_resource());
     writer->write_no_copy(NOT_FOUND_HTML_FINISH);
     writer->send();
 }
@@ -241,7 +242,7 @@ void server::handle_server_error(http::request_ptr& http_request_ptr,
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_SERVER_ERROR);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_SERVER_ERROR);
     writer->write_no_copy(SERVER_ERROR_HTML_START);
-    writer << error_msg;
+    writer << algorithm::xml_encode(error_msg);
     writer->write_no_copy(SERVER_ERROR_HTML_FINISH);
     writer->send();
 }
@@ -266,7 +267,7 @@ void server::handle_forbidden_request(http::request_ptr& http_request_ptr,
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_FORBIDDEN);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_FORBIDDEN);
     writer->write_no_copy(FORBIDDEN_HTML_START);
-    writer << http_request_ptr->get_resource();
+    writer << algorithm::xml_encode(http_request_ptr->get_resource());
     writer->write_no_copy(FORBIDDEN_HTML_MIDDLE);
     writer << error_msg;
     writer->write_no_copy(FORBIDDEN_HTML_FINISH);
@@ -293,7 +294,7 @@ void server::handle_method_not_allowed(http::request_ptr& http_request_ptr,
     if (! allowed_methods.empty())
         writer->get_response().add_header("Allow", allowed_methods);
     writer->write_no_copy(NOT_ALLOWED_HTML_START);
-    writer << http_request_ptr->get_method();
+    writer << algorithm::xml_encode(http_request_ptr->get_method());
     writer->write_no_copy(NOT_ALLOWED_HTML_FINISH);
     writer->send();
 }
