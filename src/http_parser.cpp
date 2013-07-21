@@ -781,12 +781,13 @@ boost::tribool parser::finish_header_parsing(http::message& http_msg,
                 if (m_bytes_content_remaining > m_max_content_length)
                     http_msg.set_content_length(m_max_content_length);
 
-                // allocate a buffer for payload content (may be zero-size)
-                http_msg.create_content_buffer();
-                
-                // return true if parsing headers only
-                if (m_parse_headers_only)
+                if (m_parse_headers_only) {
+                    // return true if parsing headers only
                     rc = true;
+                } else {
+                    // allocate a buffer for payload content (may be zero-size)
+                    http_msg.create_content_buffer();
+                }
             }
 
         } else {
@@ -881,8 +882,12 @@ bool parser::parse_uri(const std::string& uri, std::string& proto,
 }
 
 bool parser::parse_url_encoded(ihash_multimap& dict,
-                                 const char *ptr, const size_t len)
+                               const char *ptr, const size_t len)
 {
+    // sanity check
+    if (ptr == NULL || len == 0)
+        return true;
+
     // used to track whether we are parsing the name or value
     enum QueryParseState {
         QUERY_PARSE_NAME, QUERY_PARSE_VALUE
@@ -961,6 +966,10 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                                        const std::string& content_type,
                                        const char *ptr, const size_t len)
 {
+    // sanity check
+    if (ptr == NULL || len == 0)
+        return true;
+    
     // parse field boundary
     std::size_t pos = content_type.find("boundary=");
     if (pos == std::string::npos)
@@ -980,6 +989,7 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
     std::string header_value;
     std::string field_name;
     std::string field_value;
+    bool found_parameter = false;
     bool save_current_field = true;
     const char * const end_ptr = ptr + len;
 
@@ -1103,6 +1113,7 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                 field_value.assign(ptr, field_end_ptr - ptr);
                 // add the field to the query dictionary
                 dict.insert( std::make_pair(field_name, field_value) );
+                found_parameter = true;
                 // skip ahead to next field
                 parse_state = MP_PARSE_START;
                 ptr = next_ptr;
@@ -1113,7 +1124,7 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
             ++ptr;
     }
     
-    return true;
+    return found_parameter;
 }
 
 bool parser::parse_cookie_header(ihash_multimap& dict,
@@ -1500,7 +1511,7 @@ void parser::finish(http::message& http_msg) const
 
     compute_msg_status(http_msg, http_msg.is_valid());
 
-    if (is_parsing_request() && !m_payload_handler) {
+    if (is_parsing_request() && !m_payload_handler && !m_parse_headers_only) {
         // Parse query pairs from post content if content type is x-www-form-urlencoded.
         // Type could be followed by parameters (as defined in section 3.6 of RFC 2616)
         // e.g. Content-Type: application/x-www-form-urlencoded; charset=UTF-8
