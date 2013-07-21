@@ -1457,10 +1457,11 @@ std::size_t parser::consume_content_as_next_chunk(http::message::chunk_cache_t& 
     if (bytes_available() == 0) {
         m_bytes_last_read = 0;
     } else {
+        // note: m_bytes_last_read must be > 0 because of bytes_available() check
         m_bytes_last_read = (m_read_end_ptr - m_read_ptr);
         if (m_payload_handler) {
-            if (m_bytes_last_read)
-                m_payload_handler(m_read_ptr, m_bytes_last_read);
+            m_payload_handler(m_read_ptr, m_bytes_last_read);
+            m_read_ptr += m_bytes_last_read;
         } else {
             while (m_read_ptr < m_read_end_ptr) {
                 if (chunks.size() < m_max_content_length)
