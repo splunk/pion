@@ -1,0 +1,2 @@
+configure_file(${PION_SRC_ROOT}/cmake/plugin_path.inc.cmake ${PION_PLUGIN_PATH}/plugin_path.hpp @ONLY)
+configure_file(${PION_SRC_ROOT}/cmake/testservices.conf.cmake ${PION_PLUGIN_PATH}/testservices.conf @ONLY)

@@ -17,17 +17,27 @@
 
 using namespace pion;
 
-
-#if defined(PION_WIN32)
-    static const std::string directoryOfPluginsForTests = "plugins/.libs";
-    static const std::string sharedLibExt = ".dll";
-#else
-    #if defined(PION_XCODE)
-        static const std::string directoryOfPluginsForTests = "../bin/Debug";
+#if defined(PION_CMAKE_BUILD)
+    #include "plugin_path.hpp"
+    static const std::string directoryOfPluginsForTests = PATH_TO_PLUGINS;
+    #if defined(PION_WIN32)
+        static const std::string sharedLibExt = ".dll";
     #else
-        static const std::string directoryOfPluginsForTests = "plugins/.libs";
+        static const std::string sharedLibExt = ".so";
     #endif
-    static const std::string sharedLibExt = ".so";
+#else
+
+    #if defined(PION_WIN32)
+        static const std::string directoryOfPluginsForTests = "plugins/.libs";
+        static const std::string sharedLibExt = ".dll";
+    #else
+        #if defined(PION_XCODE)
+            static const std::string directoryOfPluginsForTests = "../bin/Debug";
+        #else
+            static const std::string directoryOfPluginsForTests = "plugins/.libs";
+        #endif
+        static const std::string sharedLibExt = ".so";
+    #endif
 #endif
 
 
@@ -50,7 +60,7 @@ private:
 struct InterfaceStub {
 };
 
-BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(new_plugin_manager_S, 
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(new_plugin_manager_S,
                                        boost::mpl::list<new_plugin_manager_F<InterfaceStub> >)
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkEmptyIsTrue) {
@@ -93,7 +103,7 @@ public:
     }
 };
 
-BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(plugin_manager_with_plugin_loaded_S, 
+BOOST_AUTO_TEST_SUITE_FIXTURE_TEMPLATE(plugin_manager_with_plugin_loaded_S,
                                        boost::mpl::list<plugin_manager_with_plugin_loaded_F>)
 
 BOOST_AUTO_TEST_CASE_FIXTURE_TEMPLATE(checkEmptyIsFalse) {
