@@ -20,22 +20,32 @@
 
 using namespace pion;
 
-
-#if defined(PION_WIN32)
-    static const std::string directoryOfPluginsForTests = "plugins/.libs";
-    static const std::string sharedLibExt = ".dll";
-#else
-    #if defined(PION_XCODE)
-        static const std::string directoryOfPluginsForTests = "../bin/Debug";
+#if defined(PION_CMAKE_BUILD)
+    #include "plugin_path.hpp"
+    static const std::string directoryOfPluginsForTests = PATH_TO_PLUGINS;
+    #if defined(PION_WIN32)
+        static const std::string sharedLibExt = ".dll";
     #else
-        static const std::string directoryOfPluginsForTests = "plugins/.libs";
+        static const std::string sharedLibExt = ".so";
     #endif
-    static const std::string sharedLibExt = ".so";
+#else
+
+    #if defined(PION_WIN32)
+        static const std::string directoryOfPluginsForTests = "plugins/.libs";
+        static const std::string sharedLibExt = ".dll";
+    #else
+        #if defined(PION_XCODE)
+            static const std::string directoryOfPluginsForTests = "../bin/Debug";
+        #else
+            static const std::string directoryOfPluginsForTests = "plugins/.libs";
+        #endif
+        static const std::string sharedLibExt = ".so";
+    #endif
 #endif
 
 class EmptyPluginPtr_F : public plugin_ptr<InterfaceStub> {
 public:
-    EmptyPluginPtr_F() { 
+    EmptyPluginPtr_F() {
         BOOST_REQUIRE(GET_DIRECTORY(m_old_cwd, DIRECTORY_MAX_SIZE) != NULL);
         BOOST_REQUIRE(CHANGE_DIRECTORY(directoryOfPluginsForTests.c_str()) == 0);
     }
@@ -118,7 +128,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 class EmptyPluginPtrWithPluginInSubdirectory_F : public EmptyPluginPtr_F {
 public:
-    EmptyPluginPtrWithPluginInSubdirectory_F() { 
+    EmptyPluginPtrWithPluginInSubdirectory_F() {
         boost::filesystem::remove_all("dir1");
         boost::filesystem::create_directory("dir1");
         boost::filesystem::create_directory("dir1/dir2");
@@ -156,7 +166,7 @@ tested is included in the fixture, rather than inherited by the fixture.
 These tests are a subset of those in the previous suite, for comparison purposes.
 */
 struct EmptyPluginPtr2_F {
-    EmptyPluginPtr2_F() : m_pluginPtr() { 
+    EmptyPluginPtr2_F() : m_pluginPtr() {
         BOOST_REQUIRE(GET_DIRECTORY(m_old_cwd, DIRECTORY_MAX_SIZE) != NULL);
         BOOST_REQUIRE(CHANGE_DIRECTORY(directoryOfPluginsForTests.c_str()) == 0);
     }
@@ -200,7 +210,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 
 struct PluginPtrWithPluginLoaded_F : EmptyPluginPtr_F {
-    PluginPtrWithPluginLoaded_F() { 
+    PluginPtrWithPluginLoaded_F() {
         s = NULL;
         open("hasCreateAndDestroy");
     }
@@ -248,8 +258,8 @@ public:
         m_cwd = boost::filesystem::current_path().string();
 #else
         m_cwd = boost::filesystem::current_path().directory_string();
-#endif 
-        
+#endif
+
         boost::filesystem::remove_all("sandbox");
         BOOST_REQUIRE(boost::filesystem::create_directory("sandbox"));
         BOOST_REQUIRE(boost::filesystem::create_directory("sandbox/dir1"));

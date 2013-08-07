@@ -37,14 +37,14 @@
             #pragma comment(lib, "log4cxx")
         #endif
         #pragma comment(lib, "odbc32")
-    #endif 
+    #endif
 
     namespace pion {
         typedef log4cxx::LoggerPtr  logger;
         typedef log4cxx::AppenderSkeleton   log_appender;
         typedef log_appender *   log_appender_ptr;
     }
-    
+
     #define PION_HAS_LOG_APPENDER   1
     #define PION_LOG_CONFIG_BASIC   log4cxx::BasicConfigurator::configure();
     #define PION_LOG_CONFIG(FILE)   log4cxx::PropertyConfigurator::configure(FILE);
@@ -73,11 +73,12 @@
     #include <log4cplus/appender.h>
     #include <log4cplus/spi/loggingevent.h>
     #include <log4cplus/loglevel.h>
+    #include <log4cplus/loggingmacros.h>
 
     #include <boost/circular_buffer.hpp>
     #include <boost/thread/mutex.hpp>
 
-    #if defined _MSC_VER
+    #if defined(_MSC_VER) && !defined(PION_CMAKE_BUILD)
         #if defined _DEBUG
             #if defined PION_STATIC_LINKING
                 #pragma comment(lib, "log4cplusSD")
@@ -91,7 +92,7 @@
                 #pragma comment(lib, "log4cplus")
             #endif
         #endif
-    #endif 
+    #endif
 
     namespace pion {
         typedef log4cplus::Logger   logger;
@@ -100,7 +101,7 @@
 
         ///
         /// circular_buffer_appender: caches log events in a circular buffer
-        /// 
+        ///
         class circular_buffer_appender : public log4cplus::Appender
         {
         public:
@@ -109,7 +110,7 @@
             // default constructor and destructor
             circular_buffer_appender(void) : m_log_events(1000) {};
             virtual ~circular_buffer_appender() {}
-            
+
             /// returns an iterator to the log events in the buffer
             const LogEventBuffer& getLogIterator() const {
                 return m_log_events;

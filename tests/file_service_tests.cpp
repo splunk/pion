@@ -29,7 +29,9 @@ using namespace pion;
 
 PION_DECLARE_PLUGIN(FileService)
 
-#if defined(PION_XCODE)
+#if defined(PION_CMAKE_BUILD)
+    #include "plugin_path.hpp"
+#elif defined(PION_XCODE)
     static const std::string PATH_TO_PLUGINS("../bin/Debug");
 #else
     // same for Unix and Windows
