@@ -143,6 +143,15 @@ public:
             memcpy(ptr, value.c_str(), value.size());
     }
     
+    /// add content (for POST) from buffer of given size
+    inline void set_content(const char* value, const boost::uint64_t& size) {
+        if ( NULL == value || 0 == size )
+            return;
+        set_content_length(size);
+        char *ptr = create_content_buffer();
+        memcpy(ptr, value, size);
+    }
+    
     /// sets the user record for HTTP request after authentication
     inline void set_user(user_ptr user) { m_user_record = user; }
     
