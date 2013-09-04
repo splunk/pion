@@ -39,7 +39,9 @@ PION_DECLARE_PLUGIN(HelloService)
 PION_DECLARE_PLUGIN(LogService)
 PION_DECLARE_PLUGIN(CookieService)
 
-#if defined(PION_XCODE)
+#if defined(PION_CMAKE_BUILD)
+    #include "plugin_path.hpp"
+#elif defined(PION_XCODE)
     static const std::string PATH_TO_PLUGINS("../bin/Debug");
     static const std::string SSL_PEM_FILE("../utils/sslkey.pem");
     static const std::string SERVICES_CONFIG_FILE("../tests/config/testservices.conf");

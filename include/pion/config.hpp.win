@@ -83,7 +83,7 @@
    in Preprocessor Definitions, or uncomment the following line, to use SSL. */
 //#define PION_HAVE_SSL
 
-#ifdef PION_HAVE_SSL
+#if defined(PION_HAVE_SSL) && !defined(PION_CMAKE_BUILD)
     #if defined _DEBUG
         #pragma comment(lib, "ssleay32d")
         #pragma comment(lib, "libeay32d")
@@ -102,7 +102,7 @@
 //#define PION_HAVE_PYTHON
 
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WINDOWS)
     #define PION_WIN32  1
     #ifndef _WIN32_WINNT
         #define _WIN32_WINNT    0x0501
