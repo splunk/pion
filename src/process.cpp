@@ -10,15 +10,19 @@
 #include <signal.h>
 #ifdef _MSC_VER
     #include <windows.h>
+    #include <tchar.h>
 #else
     #include <fcntl.h>
     #include <unistd.h>
     #include <sys/stat.h>
 #endif
 
+#include <boost/filesystem.hpp>
+#include <boost/date_time.hpp>
+
 #include <pion/config.hpp>
 #include <pion/process.hpp>
-
+#include <pion/logger.hpp>
 
 namespace pion {    // begin namespace pion
     
@@ -71,6 +75,139 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
             return FALSE;
     }
 }
+
+void process::set_dumpfile_directory(const std::string& dir)
+{
+    config_type& cfg = get_config();
+    static const TCHAR* DBGHELP_DLL = _T("DBGHELP.DLL");
+
+    if (!dir.empty() && !boost::filesystem::is_directory(dir)) {
+        throw dumpfile_init_exception("Dump file directory doesn't exist: " + dir);
+    }
+
+    cfg.dumpfile_dir = dir;
+
+    // load dbghelp.dll
+    if (!dir.empty()) {
+        HMODULE hDll = NULL;
+        TCHAR szDbgHelpPath[_MAX_PATH];
+
+        // try loading side-by-side version of DbgHelp.dll first
+        if (GetModuleFileName(NULL, szDbgHelpPath, _MAX_PATH)) {
+            TCHAR *pSlash = _tcsrchr(szDbgHelpPath, _T('\\'));
+            if (pSlash) {
+                _tcscpy(pSlash+1, DBGHELP_DLL);
+                hDll = ::LoadLibrary( szDbgHelpPath );
+            }
+        }
+        // if not found, load the default version
+        if (hDll == NULL) {
+            hDll = ::LoadLibrary( DBGHELP_DLL );
+        }
+        cfg.h_dbghelp = hDll;
+
+        if (hDll == NULL) {
+            throw dumpfile_init_exception("Failed to load DbgHelp.dll");
+        }
+    } else {
+        cfg.h_dbghelp = NULL;
+    }
+
+    // get MiniDumpWriteDump proc address
+    if (cfg.h_dbghelp != NULL) {
+        cfg.p_dump_proc = (MINIDUMPWRITEDUMP)::GetProcAddress(cfg.h_dbghelp, "MiniDumpWriteDump");
+
+        if (cfg.p_dump_proc == NULL) {
+            throw dumpfile_init_exception("Failed to get MiniDumpWriteDump proc address, probably dbghelp.dll version is too old");
+        }
+    } else {
+        cfg.p_dump_proc = NULL;
+    }
+
+    pion::logger _logger = PION_GET_LOGGER("pion.process");
+    // (re)set the exception filter
+    if (cfg.p_dump_proc) {
+        ::SetUnhandledExceptionFilter(process::unhandled_exception_filter);
+         PION_LOG_INFO(_logger, "Dump file generation enabled to " << cfg.dumpfile_dir );
+    } else {
+        ::SetUnhandledExceptionFilter(NULL);
+        PION_LOG_INFO(_logger, "Unhandled exception handling reset to default");
+    }
+}
+
+std::string process::generate_dumpfile_name()
+{
+    config_type& cfg = get_config();
+
+    // generate file name based on current timestamp
+    using namespace boost::posix_time;
+    static std::locale loc(std::cout.getloc(), new time_facet("%Y%m%d_%H%M%S"));
+    std::stringstream ss;
+    ss.imbue(loc);
+    ss << second_clock::universal_time() << ".dmp";
+
+    // build the full path
+    boost::filesystem::path p(boost::filesystem::system_complete(cfg.dumpfile_dir));
+
+    p /= ss.str();
+    p.normalize();
+
+# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+    return p.string();
+#else
+    return p.file_string();
+#endif 
+
+}
+
+LONG WINAPI process::unhandled_exception_filter(struct _EXCEPTION_POINTERS *pExceptionInfo)
+{
+    config_type& cfg = get_config();
+    pion::logger _logger = PION_GET_LOGGER("pion.process");
+    
+    // make sure we have all the necessary setup
+    if (cfg.dumpfile_dir.empty() || cfg.p_dump_proc == NULL) {
+        PION_LOG_FATAL(_logger, "Unhandled exception caught when dump file handling not configured!");
+        pion::logger::shutdown();
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+
+    std::string dumpfile_path = generate_dumpfile_name();
+    LONG rc = EXCEPTION_CONTINUE_SEARCH;
+
+    // create the dump file and, if successful, write it
+    HANDLE hFile = ::CreateFile(dumpfile_path.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL, NULL);
+
+    if (hFile!=INVALID_HANDLE_VALUE) {
+        _MINIDUMP_EXCEPTION_INFORMATION ExInfo;
+
+        ExInfo.ThreadId = ::GetCurrentThreadId();
+        ExInfo.ExceptionPointers = pExceptionInfo;
+        ExInfo.ClientPointers = NULL;
+
+        // write the dump
+        BOOL bOK = cfg.p_dump_proc(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL );
+
+        if (bOK) {
+            PION_LOG_INFO(_logger, "Saved process dump file to " << dumpfile_path);
+        } else {
+            PION_LOG_ERROR(_logger, "Failed to save dump file to " << dumpfile_path << 
+                " error code: " << GetLastError());
+        }
+
+        ::CloseHandle(hFile);
+        rc = EXCEPTION_EXECUTE_HANDLER; // dump saved, so we can die peacefully..
+    } else {
+        PION_LOG_ERROR(_logger, "Failed to create dump file " << dumpfile_path << 
+            " error code: " << GetLastError());
+    }
+
+    PION_LOG_FATAL(_logger, "Unhandled exception caught. The process will be terminated!");
+    pion::logger::shutdown();
+    return rc;
+}
+
 
 void process::initialize(void)
 {
