@@ -20,6 +20,10 @@
 #include <pion/logger.hpp>
 #include <pion/http/message.hpp>
 
+#ifndef BOOST_SYSTEM_NOEXCEPT
+    #define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
+#endif
+
 
 namespace pion {    // begin namespace pion
 namespace http {    // begin namespace http
@@ -71,7 +75,7 @@ public:
         : public boost::system::error_category
     {
     public:
-        const char *name() const { return "parser"; }
+        const char *name() const BOOST_SYSTEM_NOEXCEPT { return "parser"; }
         std::string message(int ev) const {
             switch (ev) {
             case ERROR_METHOD_CHAR:
