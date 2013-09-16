@@ -1,3 +1,11 @@
+Version 5.0.4 (2013-09-16)
+==========================
+
+* Attributes in Set-Cookie headers should not be quoted (thanks sba)
+* Use BOOST_SYSTEM_NOEXCEPT for compatibility with Boost 1.54 (thanks rogerim)
+* Added http::request function to set content given a buffer pointer and size
+
+
 Version 5.0.3 (2013-07-26)
 ==========================
 
