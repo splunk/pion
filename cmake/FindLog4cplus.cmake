@@ -48,6 +48,7 @@ find_path(LOG4CPLUS_INCLUDE_DIR
         $ENV{LOG4CPLUS_ROOT}/include
         ${LOG4CPLUS_DIR}/include
         ${LOG4CPLUS_ROOT}/include
+    NO_DEFAULT_PATH
 )
 
 if(Log4Cplus_USE_STATIC_LIBS)
