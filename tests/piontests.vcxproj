@@ -305,6 +305,7 @@
     <ClCompile Include="piontests.cpp" />
     <ClCompile Include="plugin_manager_tests.cpp" />
     <ClCompile Include="plugin_tests.cpp" />
+    <ClCompile Include="process_tests.cpp" />
     <ClCompile Include="tcp_server_tests.cpp" />
     <ClCompile Include="tcp_stream_tests.cpp" />
   </ItemGroup>
