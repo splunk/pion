@@ -17,6 +17,15 @@
 #include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 
+// Dump file generation support on Windows
+#ifdef _MSC_VER
+#include <DbgHelp.h>
+// based on dbghelp.h
+typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
+									CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+									CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+									CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+#endif
 
 namespace pion {    // begin namespace pion
 
@@ -46,13 +55,43 @@ public:
     /// fork process and run as a background daemon
     static void daemonize(void);
 
+#ifdef _MSC_VER
+
+    class dumpfile_init_exception : public std::exception
+    {
+    public:
+        dumpfile_init_exception(const std::string& cause) : m_cause(cause) {}
+
+        virtual const char* what() const { return m_cause.c_str(); }
+    protected:
+        std::string m_cause;
+    };
+
+    /**
+     * enables mini-dump generation on unhandled exceptions (AVs, etc.)
+     * throws an dumpfile_init_exception if unable to set the unhandled exception processing
+     * @param dir file system path to store mini dumps  
+     */ 
+    static void set_dumpfile_directory(const std::string& dir);
+
+protected:
+    /// unhandled exception filter proc
+    static LONG WINAPI unhandled_exception_filter(struct _EXCEPTION_POINTERS *pExceptionInfo);
+
+    /// generates a name for a dump file
+    static std::string generate_dumpfile_name();
+#endif
 
 protected:
 
     /// data type for static/global process configuration information
     struct config_type {
         /// constructor just initializes native types
+#ifdef _MSC_VER
+        config_type() : shutdown_now(false), h_dbghelp(NULL), p_dump_proc(NULL) {}
+#else
         config_type() : shutdown_now(false) {}
+#endif
     
         /// true if we should shutdown now
         bool                    shutdown_now;
@@ -62,9 +101,20 @@ protected:
 
         /// used to protect the shutdown condition
         boost::mutex            shutdown_mutex;
+
+// Dump file generation support on Windows
+#ifdef _MSC_VER
+        /// mini-dump file location
+        std::string             dumpfile_dir;
+        
+        /// dbghelp.dll library handle
+        HMODULE                 h_dbghelp;
+
+        /// address of MiniDumpWriteDump inside dbghelp.dll
+        MINIDUMPWRITEDUMP       p_dump_proc;
+#endif
     };
 
-    
     /// returns a singleton instance of config_type
     static inline config_type& get_config(void) {
         boost::call_once(process::create_config, m_instance_flag);
