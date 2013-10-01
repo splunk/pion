@@ -206,6 +206,7 @@
 		E35CCF5B15BF30A300D76F6C /* http_types_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCED515BF2DE500D76F6C /* http_types_tests.cpp */; };
 		E35CCF6715BF30AA00D76F6C /* libpion.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E36D8A5F0D29C9D800B4C134 /* libpion.dylib */; };
 		E35CCF6D15BF30BE00D76F6C /* helloserver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E35CCECC15BF2DC800D76F6C /* helloserver.cpp */; };
+		E3623BE517FB96DA00A14A84 /* process_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3623BE417FB96DA00A14A84 /* process_tests.cpp */; };
 		E36D8BF40D29D72200B4C134 /* libpion.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E36D8A5F0D29C9D800B4C134 /* libpion.dylib */; };
 		E370CF3B158E700F00E46EE9 /* libpion.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E36D8A5F0D29C9D800B4C134 /* libpion.dylib */; };
 		E3A00AEA15CC740A00F79569 /* user.hpp in Headers */ = {isa = PBXBuildFile; fileRef = E3A00AE915CC740A00F79569 /* user.hpp */; };
@@ -413,6 +414,7 @@
 		E35CCF2215BF2F6F00D76F6C /* hasNoCreate.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = hasNoCreate.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		E35CCF6B15BF30AA00D76F6C /* helloserver */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = helloserver; sourceTree = BUILT_PRODUCTS_DIR; };
 		E35CCFB115BF3AB600D76F6C /* testservices.conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = testservices.conf; path = tests/config/testservices.conf; sourceTree = "<group>"; };
+		E3623BE417FB96DA00A14A84 /* process_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = process_tests.cpp; path = tests/process_tests.cpp; sourceTree = "<group>"; };
 		E36D8A5F0D29C9D800B4C134 /* libpion.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpion.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		E36D8BE70D29D6DC00B4C134 /* piond */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piond; sourceTree = BUILT_PRODUCTS_DIR; };
 		E370CEC0158D962700E46EE9 /* piontests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piontests; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -681,6 +683,7 @@
 				E35CCED615BF2DE500D76F6C /* piontests.cpp */,
 				E35CCED715BF2DE500D76F6C /* plugin_manager_tests.cpp */,
 				E35CCED815BF2DE500D76F6C /* plugin_tests.cpp */,
+				E3623BE417FB96DA00A14A84 /* process_tests.cpp */,
 				61AECCA21612699D00BF2B16 /* spdy_parser_tests.cpp */,
 				E35CCED915BF2DE500D76F6C /* tcp_server_tests.cpp */,
 				E35CCEDA15BF2DE500D76F6C /* tcp_stream_tests.cpp */,
@@ -1496,6 +1499,7 @@
 				E3A1AE3215C878E100FFE9E3 /* piontests.cpp in Sources */,
 				E35CCF5B15BF30A300D76F6C /* http_types_tests.cpp in Sources */,
 				61AECCA4161269BF00BF2B16 /* spdy_parser_tests.cpp in Sources */,
+				E3623BE517FB96DA00A14A84 /* process_tests.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
