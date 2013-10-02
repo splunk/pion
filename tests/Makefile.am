@@ -13,7 +13,7 @@ piontests_SOURCES = piontests.cpp \
 	algorithm_tests.cpp file_service_tests.cpp http_message_tests.cpp \
 	http_parser_tests.cpp http_plugin_server_tests.cpp http_request_tests.cpp \
 	http_response_tests.cpp http_types_tests.cpp plugin_manager_tests.cpp \
-	plugin_tests.cpp spdy_parser_tests.cpp tcp_server_tests.cpp tcp_stream_tests.cpp
+	plugin_tests.cpp process_tests.cpp spdy_parser_tests.cpp tcp_server_tests.cpp tcp_stream_tests.cpp
 piontests_LDADD = ../src/libpion.la @PION_EXTERNAL_LIBS@ @BOOST_TEST_LIB@
 piontests_DEPENDENCIES = ../src/libpion.la \
 	plugins/hasCreateAndDestroy.la plugins/hasCreateButNoDestroy.la \
