@@ -121,7 +121,7 @@ public:
      */
     inline void write(const void *data, size_t length) {
         if (length != 0) {
-            flushContentStream();
+            flush_content_stream();
             m_content_buffers.push_back(m_binary_cache.add(data, length));
             m_content_length += length;
         }
@@ -136,7 +136,7 @@ public:
      */
     inline void write_no_copy(const std::string& data) {
         if (! data.empty()) {
-            flushContentStream();
+            flush_content_stream();
             m_content_buffers.push_back(boost::asio::buffer(data));
             m_content_length += data.size();
         }
@@ -151,7 +151,7 @@ public:
      */
     inline void write_no_copy(void *data, size_t length) {
         if (length > 0) {
-            flushContentStream();
+            flush_content_stream();
             m_content_buffers.push_back(boost::asio::buffer(data, length));
             m_content_length += length;
         }
@@ -267,15 +267,17 @@ private:
     inline void send_more_data(const bool send_final_chunk, SendHandler send_handler)
     {
         // make sure that we did not lose the TCP connection
-        if (! m_tcp_conn->is_open())
+        if (m_tcp_conn->is_open()) {
+            // make sure that the content-length is up-to-date
+            flush_content_stream();
+            // prepare the write buffers to be sent
+            http::message::write_buffers_t write_buffers;
+            prepare_write_buffers(write_buffers, send_final_chunk);
+            // send data in the write buffers
+            m_tcp_conn->async_write(write_buffers, send_handler);
+        } else {
             finished_writing(boost::asio::error::connection_reset);
-        // make sure that the content-length is up-to-date
-        flushContentStream();
-        // prepare the write buffers to be sent
-        http::message::write_buffers_t write_buffers;
-        prepare_write_buffers(write_buffers, send_final_chunk);
-        // send data in the write buffers
-        m_tcp_conn->async_write(write_buffers, send_handler);
+        }
     }
     
     /**
@@ -288,7 +290,7 @@ private:
                                const bool send_final_chunk);
     
     /// flushes any text data in the content stream after caching it in the text_cache_t
-    inline void flushContentStream(void) {
+    inline void flush_content_stream(void) {
         if (! m_stream_is_empty) {
             std::string string_to_add(m_content_stream.str());
             if (! string_to_add.empty()) {
