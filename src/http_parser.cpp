@@ -563,9 +563,10 @@ boost::tribool parser::parse_headers(http::message& http_msg,
             } else if (*m_read_ptr == '\n') {
                 m_headers_parse_state = PARSE_EXPECTING_CR;
             } else if (*m_read_ptr != '\t' && *m_read_ptr != ' ') {
-                if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr))
+                if (!is_char(*m_read_ptr) || is_control(*m_read_ptr) || is_special(*m_read_ptr)) {
                     set_error(ec, ERROR_HEADER_CHAR);
                     return false;
+                }
                 // assume it is the first character for the name of a header
                 m_header_name.erase();
                 m_header_name.push_back(*m_read_ptr);
