@@ -38,6 +38,7 @@ message(">>> Building Pion version: ${PION_VERSION}")
 #----------------------------------------------------------
 
 option(BUILD_SHARED_LIBS "Build Pion as shared library" ON)
+option(BUILD_SPDY "Enable SPDY" OFF)
 option(BUILD_UT "Enable Unit test" OFF)
 # logging options
 option(USE_LOG4CPLUS "Use log4cplus" OFF)
