@@ -20,11 +20,20 @@ if(MSVC)
 endif()
 # build target
 add_library(${PROJECT_NAME} ${SRC_FILES} ${HDR_FILES})
-target_link_libraries(${PROJECT_NAME} 
-    ${Boost_LIBRARIES} ${ZLIB_LIBRARIES}
-    ${OPENSSL_LIBRARIES}
-    ${LOG4CPLUS_LIBRARIES}
-    )
+
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+if (ZLIB_FOUND)
+    target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES})
+endif()
+if (BZIP2_FOUND )
+    target_link_libraries(${PROJECT_NAME} ${BZIP2_LIBRARIES})
+endif()
+if (OPENSSL_FOUND )
+    target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBRARIES})
+endif()
+if (LOG4CPLUS_FOUND )
+    target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
+endif()
 
 install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin
