@@ -37,10 +37,20 @@ message(">>> Building Pion version: ${PION_VERSION}")
 # Configuration options block
 #----------------------------------------------------------
 
+# general
 option(BUILD_SHARED_LIBS "Build Pion as shared library" ON)
 option(BUILD_SPDY "Enable SPDY" OFF)
 option(BUILD_UT "Enable Unit test" OFF)
-# logging options
+
+# services
+option(BUILD_ALLOWNOTHINGSERVICE "Enable AllowNothingService" ON)
+option(BUILD_COOKIESERVICE "Enable CookieService" ON)
+option(BUILD_ECHOSERVICE "Enable EchoService" ON)
+option(BUILD_FILESERVICE "Enable FileService" ON)
+option(BUILD_HELLOSERVICE "Enable HelloService" ON)
+option(BUILD_LOGSERVICE "Enable LogService" ON)
+
+# logging
 option(USE_LOG4CPLUS "Use log4cplus" OFF)
 option(USE_LOG4CXX "Use log4cxx" OFF)
 option(USE_LOG4CPP "Use log4cpp" OFF)
