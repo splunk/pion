@@ -42,6 +42,10 @@ option(BUILD_SHARED_LIBS "Build Pion as shared library" ON)
 option(BUILD_SPDY "Enable SPDY" OFF)
 option(BUILD_UT "Enable Unit test" OFF)
 
+# utils
+option(BUILD_PIOND "Enable piond" ON)
+option(BUILD_HELLOSERVER "Enable helloserver" ON)
+
 # services
 option(BUILD_ALLOWNOTHINGSERVICE "Enable AllowNothingService" ON)
 option(BUILD_COOKIESERVICE "Enable CookieService" ON)
