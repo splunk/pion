@@ -126,14 +126,12 @@ endif()
 
 if(USE_LOG4CXX)
     message(FATAL_ERROR "log4cxx not supported")
-    # find package
-    # set(PION_USE_LOG4CXX 1)
+    # TODO: find package and set(PION_USE_LOG4CXX 1)
 endif()
 
 if(USE_LOG4CPP)
     message(FATAL_ERROR "log4cpp not supported")
-    # find package
-    # set(PION_USE_LOG4CPP 1)
+    # TODO: find package and set(PION_USE_LOG4CPP 1)
 endif()
 
 if (DISABLE_LOGGING)
