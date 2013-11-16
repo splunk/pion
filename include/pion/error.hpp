@@ -19,6 +19,7 @@
 #include <boost/exception/info.hpp>
 #include <boost/exception/error_info.hpp>
 #include <boost/exception/get_error_info.hpp>
+#include <boost/units/detail/utility.hpp>
 #include <pion/config.hpp>
 
 
