@@ -222,7 +222,7 @@ public:
      * @see boost::asio::basic_socket_acceptor::async_connect()
      */
     template <typename ConnectHandler>
-    inline void async_connect(boost::asio::ip::tcp::endpoint& tcp_endpoint,
+    inline void async_connect(const boost::asio::ip::tcp::endpoint& tcp_endpoint,
                               ConnectHandler handler)
     {
         m_ssl_socket.lowest_layer().async_connect(tcp_endpoint, handler);
