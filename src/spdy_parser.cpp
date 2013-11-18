@@ -252,7 +252,7 @@ bool parser::populate_frame(boost::system::error_code& ec,
     boost::uint16_t byte_value = algorithm::to_uint16(m_read_ptr);
     control_bit = byte_value >> (sizeof(short) * CHAR_BIT - 1);
     
-    frame.control_bit = (bool)control_bit;
+    frame.control_bit = (control_bit != 0);
     
     if(control_bit){
         

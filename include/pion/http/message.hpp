@@ -183,7 +183,7 @@ public:
     }
 
     /// returns the length of the payload content (in bytes)
-    inline boost::uint64_t get_content_length(void) const { return m_content_length; }
+    inline size_t get_content_length(void) const { return m_content_length; }
 
     /// returns true if the message content is chunked
     inline bool is_chunked(void) const { return m_is_chunked; }
@@ -293,7 +293,7 @@ public:
     }
 
     /// sets the length of the payload content (in bytes)
-    inline void set_content_length(const boost::uint64_t n) { m_content_length = n; }
+    inline void set_content_length(size_t n) { m_content_length = n; }
 
     /// if called, the content-length will not be sent in the HTTP headers
     inline void set_do_not_send_content_length(void) { m_do_not_send_content_length = true; }
@@ -312,7 +312,7 @@ public:
         } else {
             std::string trimmed_length(i->second);
             boost::algorithm::trim(trimmed_length);
-            m_content_length = boost::lexical_cast<boost::uint64_t>(trimmed_length);
+            m_content_length = boost::lexical_cast<size_t>(trimmed_length);
         }
     }
 
@@ -699,7 +699,7 @@ private:
     boost::uint16_t                 m_version_minor;
 
     /// the length of the payload content (in bytes)
-    boost::uint64_t                 m_content_length;
+    size_t                          m_content_length;
 
     /// the payload content, if any was sent with the message
     content_buffer_t                m_content_buf;
