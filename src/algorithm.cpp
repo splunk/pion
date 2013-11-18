@@ -262,9 +262,9 @@ std::string algorithm::xml_encode(const std::string& str)
                 result += *(++ptr);
             } else {
                 // insert replacement char
-                result += 0xef;
-                result += 0xbf;
-                result += 0xbd;
+                result += '\xef';
+                result += '\xbf';
+                result += '\xbd';
             }
         } else if (*ptr >= 0xE0 && *ptr <= 0xEF) {
             // three-byte sequence
@@ -275,9 +275,9 @@ std::string algorithm::xml_encode(const std::string& str)
                 result += *(++ptr);
             } else {
                 // insert replacement char
-                result += 0xef;
-                result += 0xbf;
-                result += 0xbd;
+                result += '\xef';
+                result += '\xbf';
+                result += '\xbd';
             }
         } else if (*ptr >= 0xF0 && *ptr <= 0xF4) {
             // four-byte sequence
@@ -290,15 +290,15 @@ std::string algorithm::xml_encode(const std::string& str)
                 result += *(++ptr);
             } else {
                 // insert replacement char
-                result += 0xef;
-                result += 0xbf;
-                result += 0xbd;
+                result += '\xef';
+                result += '\xbf';
+                result += '\xbd';
             }
         } else {
             // insert replacement char
-            result += 0xef;
-            result += 0xbf;
-            result += 0xbd;
+            result += '\xef';
+            result += '\xbf';
+            result += '\xbd';
         }
         ++ptr;
     }
