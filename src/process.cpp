@@ -8,10 +8,7 @@
 //
 
 #include <signal.h>
-#ifdef _MSC_VER
-    #include <windows.h>
-    #include <tchar.h>
-#else
+#ifndef _MSC_VER
     #include <fcntl.h>
     #include <unistd.h>
     #include <sys/stat.h>
