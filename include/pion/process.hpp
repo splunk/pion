@@ -19,6 +19,8 @@
 
 // Dump file generation support on Windows
 #ifdef _MSC_VER
+#include <windows.h>
+#include <tchar.h>
 #include <DbgHelp.h>
 // based on dbghelp.h
 typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
