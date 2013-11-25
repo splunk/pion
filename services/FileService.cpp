@@ -314,6 +314,11 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
                     // copy cache contents so that we can release the mutex
                     response_file = cache_itr->second;
 
+                    // check if max size has been exceeded
+                    if (cache_was_updated && m_max_cache_size > 0 && cache_itr->second.getFileSize() > m_max_cache_size) {
+                        cache_itr->second.resetFileContent();
+                    }
+
                     PION_LOG_DEBUG(m_logger, (cache_was_updated ? "Updated" : "Using")
                                    << " cache entry for request ("
                                    << get_resource() << "): " << relative_path);
