@@ -145,7 +145,7 @@ public:
     
     /// add content (for POST) from buffer of given size
     /// does nothing if the buffer is invalid or the buffer size is zero
-    inline void set_content(const char* value, const boost::uint64_t& size) {
+    inline void set_content(const char* value, size_t size) {
         if ( NULL == value || 0 == size )
             return;
         set_content_length(size);
