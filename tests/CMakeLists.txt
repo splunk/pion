@@ -1,7 +1,12 @@
-#--------------------------------------------
-# C++ language project template
+# ---------------------------------------------------------------------
+# pion:  a Boost C++ framework for building lightweight HTTP interfaces
+# ---------------------------------------------------------------------
+# Copyright (C) 2013 Cloudmeter, Inc.  (http://www.cloudmeter.com)
 #
-#--------------------------------------------
+# Distributed under the Boost Software License, Version 1.0.
+# See http://www.boost.org/LICENSE_1_0.txt
+# ---------------------------------------------------------------------
+
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 
 set(PROJECT_NAME piontests)

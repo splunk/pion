@@ -1,3 +1,12 @@
+# ---------------------------------------------------------------------
+# pion:  a Boost C++ framework for building lightweight HTTP interfaces
+# ---------------------------------------------------------------------
+# Copyright (C) 2013 Cloudmeter, Inc.  (http://www.cloudmeter.com)
+#
+# Distributed under the Boost Software License, Version 1.0.
+# See http://www.boost.org/LICENSE_1_0.txt
+# ---------------------------------------------------------------------
+
 macro(pion_get_version _config_ac_PATH vmajor vminor vpatch)
     file(STRINGS "${_config_ac_PATH}/configure.ac" _pion_VER_STRING_AUX REGEX "^AC_INIT")
 #    message("_pion_VER_STRING_AUX = ${_pion_VER_STRING_AUX}")
