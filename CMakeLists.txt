@@ -1,13 +1,12 @@
-#-------------------------------------------------------------------------------------
-# C++ project template
+# ---------------------------------------------------------------------
+# pion:  a Boost C++ framework for building lightweight HTTP interfaces
+# ---------------------------------------------------------------------
+# Copyright (C) 2013 Cloudmeter, Inc.  (http://www.cloudmeter.com)
 #
-# default folder structure as follows
-# <project root folder>
-#      cmake/   <- here the additional modules with handy macro and finders
-#      include/
-#      src/
-#      test/
-#-------------------------------------------------------------------------------------
+# Distributed under the Boost Software License, Version 1.0.
+# See http://www.boost.org/LICENSE_1_0.txt
+# ---------------------------------------------------------------------
+
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 set(PROJECT_NAME pion_solution)
 project(${PROJECT_NAME} CXX C)

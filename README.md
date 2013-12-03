@@ -35,6 +35,29 @@ You can build and run all the unit tests with
 
     make check
 
+Generate build using CMake
+---------------------------
+[CMake](http://www.cmake.org) is cross-platform build generator.
+Pion required cmake version 2.8.10+
+
+To generate build call 
+
+    cmake <path to pion clone> [-G <generator name>] [-D<option>...]
+
+for example to generate MSVS2012 Win64 solution run
+
+    git clone git@github.com:cloudmeter/pion.git
+    cd pion/build
+    cmake .. -G"Visual Studio 11 Win64"
+
+this will create pion_solution.sln for MSVS2012/Win64
+
+if cmake can't find dependency, use -D<option> to control Find<library> modules search behaviour
+    
+    -DBOOST_ROOT=<path to installed boost libraries>
+    -DZLIB_ROOT=<path to installed zlib>
+    -DOPENSSL_ROOT_DIR=...
+    -DLOG4CPLUS_ROOT=...
 
 Third Party Libraries
 ---------------------
