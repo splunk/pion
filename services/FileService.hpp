@@ -75,7 +75,7 @@ public:
     inline char *getFileContent(void) { return m_file_content.get(); }
 
     /// returns true if there is cached file content
-    inline bool hasFileContent(void) const { return m_file_content; }
+    inline bool hasFileContent(void) const { return static_cast<bool>(m_file_content); }
 
     /// returns size of the file's content
     inline unsigned long getFileSize(void) const { return m_file_size; }
