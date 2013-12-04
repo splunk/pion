@@ -20,6 +20,10 @@
 #include <pion/spdy/types.hpp>
 #include <pion/spdy/decompressor.hpp>
 
+#ifndef BOOST_SYSTEM_NOEXCEPT
+    #define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
+#endif
+
 
 namespace pion {    // begin namespace pion
 namespace spdy {    // begin namespace spdy
