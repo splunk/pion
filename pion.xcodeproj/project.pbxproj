@@ -1611,11 +1611,10 @@
 					"-lz",
 					"-lbz2",
 				);
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx10.8;
 				SSL_VERSION = 1.0.1c;
 				SYMROOT = "$(PROJECT_DIR)/bin";
 				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/include";
-				VALID_ARCHS = "ppc64 ppc7400 ppc970 i386 x86_64 ppc";
 			};
 			name = Debug;
 		};
@@ -1653,11 +1652,10 @@
 					"-lz",
 					"-lbz2",
 				);
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx10.8;
 				SSL_VERSION = 1.0.1c;
 				SYMROOT = "$(PROJECT_DIR)/bin";
 				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/include";
-				VALID_ARCHS = "ppc64 ppc7400 ppc970 i386 x86_64 ppc";
 			};
 			name = Release;
 		};

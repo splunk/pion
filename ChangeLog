@@ -1,3 +1,16 @@
+Version 5.0.5 (2013-12-16)
+==========================
+
+* Support for automatically generating dump files on Windows
+* FileService was not honoring max file size when file is modified
+* tcp_server tries to gain admin rights for ephemeral ports (thanks jrosser)
+* Fixed bug parsing whitespace before HTTP header names (thanks maksqwe)
+* Fixed bug in http::writer::send_more_data (thanks magnum)
+* Various updates to support Boost 1.55.0 (thanks maysl, snikulov)
+* Various updates to support Visual C++ (thanks pmed, snikulov)
+* Added support for building with CMake (thanks snikulov)
+
+
 Version 5.0.4 (2013-09-16)
 ==========================
 

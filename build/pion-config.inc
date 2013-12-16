@@ -55,7 +55,7 @@ if test "x$unordered_map_type" = "xtr1_unordered_map"; then
 	# test to make sure it's good enough
 	AC_MSG_CHECKING(if unordered_map is ok)
 	AC_TRY_LINK([#include <tr1/unordered_map>],[
-		#if defined(__APPLE__)
+		#if defined(__APPLE__) && (!defined(__apple_build_version__) || __apple_build_version__ < 5000000)
 			#error completely broken on OSX, even for gcc 4.2
 		#elif !defined(__GNUC__) || (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
 			return(0);

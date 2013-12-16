@@ -84,7 +84,7 @@ supported by Pion within the `doc` subdirectory (`README.platform`).
 License
 -------
 
-Copyright &copy; 2007-2012 Cloudmeter, Inc.
+Copyright &copy; 2007-2013 Splunk Inc.
 
 The Pion Network Library is published under the
 [Boost Software License](http://www.boost.org/users/license.html).

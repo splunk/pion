@@ -26,6 +26,7 @@ pion.pc
 *.la
 pion.xcodeproj/xcuserdata/
 pion.xcodeproj/project.xcworkspace/xcuserdata/
+pion.xcodeproj/project.xcworkspace/xcshareddata/pion.xccheckout
 IntermediateOutput/
 Release_*/
 *.user
