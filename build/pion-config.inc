@@ -167,7 +167,7 @@ if test "x_$openssl_location" != "x_no"; then
 	AC_CHECK_HEADERS([openssl/ssl.h],,AC_MSG_ERROR([Unable to find the OpenSSL headers]))
 	# Check for OpenSSL library
 	LIBS_SAVED="$LIBS"
-	LIBS="$LIBS_SAVED -lssl -lcrypto"
+	LIBS="-lssl -lcrypto $LIBS_SAVED"
 	AC_MSG_CHECKING(linking with openssl)
 	AC_TRY_LINK([#include <openssl/ssl.h>],[ SSL_library_init(); return(0); ],
 		[ AC_MSG_RESULT(ok) ],
