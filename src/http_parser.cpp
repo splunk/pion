@@ -511,7 +511,7 @@ boost::tribool parser::parse_headers(http::message& http_msg,
             if (*m_read_ptr == '\n') {
                 // check if this is a HTTP 0.9 "Simple Request"
                 if (m_is_request && http_msg.get_version_major() == 0) {
-                    PION_LOG_WARN(m_logger, "HTTP 0.9 Simple-Request found");
+                    PION_LOG_DEBUG(m_logger, "HTTP 0.9 Simple-Request found");
                     ++m_read_ptr;
                     m_bytes_last_read = (m_read_ptr - read_start_ptr);
                     m_bytes_total_read += m_bytes_last_read;
