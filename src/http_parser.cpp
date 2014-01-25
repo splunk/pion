@@ -509,7 +509,16 @@ boost::tribool parser::parse_headers(http::message& http_msg,
         case PARSE_EXPECTING_NEWLINE:
             // we received a CR; expecting a newline to follow
             if (*m_read_ptr == '\n') {
-                m_headers_parse_state = PARSE_HEADER_START;
+                // check if this is a HTTP 0.9 "Simple Request"
+                if (m_is_request && http_msg.get_version_major() == 0) {
+                    PION_LOG_WARN(m_logger, "HTTP 0.9 Simple-Request found");
+                    ++m_read_ptr;
+                    m_bytes_last_read = (m_read_ptr - read_start_ptr);
+                    m_bytes_total_read += m_bytes_last_read;
+                    return true;
+                } else {
+                    m_headers_parse_state = PARSE_HEADER_START;
+                }
             } else if (*m_read_ptr == '\r') {
                 // we received two CR's in a row
                 // assume CR only is (incorrectly) being used for line termination
