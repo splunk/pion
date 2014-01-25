@@ -607,7 +607,7 @@ BOOST_AUTO_TEST_CASE(testHTTP_0_9_ResponseParser)
     BOOST_CHECK(boost::indeterminate(rc));
     BOOST_CHECK(!ec);
     
-    // HTTP 0.9 response has no lengh specified; simulating server closing the connection to finalize it
+    // HTTP 0.9 response has no length specified; simulating server closing the connection to finalize it
     response_parser.finish(http_response);
     BOOST_CHECK(http_response.is_valid()); // must be a valid response
     BOOST_CHECK(http_response.get_version_major() == 0);
