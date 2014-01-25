@@ -597,11 +597,6 @@ BOOST_AUTO_TEST_CASE(testHTTP_0_9_ResponseParser)
     http_response.update_request_info(http_request);
 
     // this logic is currently implemented by HTTPProtocol and required for proper handling of v0.9 request
-    // TODO: move to update_request_info?
-    http_response.set_status_code(0U);
-    http_response.set_status_message("");
-    http_response.set_version_major(0);
-    http_response.set_version_minor(0);
     response_parser.skip_header_parsing(http_response);
     
     response_parser.set_read_buffer(response_str.c_str(), response_str.length());

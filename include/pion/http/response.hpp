@@ -94,8 +94,15 @@ public:
      */
     inline void update_request_info(const http::request& http_request) {
         m_request_method = http_request.get_method();
-        if (http_request.get_version_major() == 1 && http_request.get_version_minor() >= 1)
+        if (http_request.get_version_major() == 1 && http_request.get_version_minor() >= 1) {
             set_chunks_supported(true);
+        } else if (http_request.get_version_major() == 0) {
+            // the request is likely HTTP 0.9 "simple-request", so expect the response to contain no header and no version info
+            set_status_code(0U);
+            set_status_message("");
+            set_version_major(0);
+            set_version_minor(0);
+        }
     }
     
     /// sets the HTTP response status code
