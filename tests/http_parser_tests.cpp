@@ -559,6 +559,62 @@ BOOST_AUTO_TEST_CASE(testHTTPParserWithErrorInFooters)
     BOOST_CHECK_EQUAL(http_request.get_header("some-footer"), "some-value");
 }
 
+BOOST_AUTO_TEST_CASE(testHTTP_0_9_RequestParser)
+{
+    http::parser request_parser(true);
+    std::string request_str = "GET /uri\r\n";
+ 
+    request_parser.set_read_buffer(request_str.c_str(), request_str.length());
+    
+    http::request http_request;
+    boost::system::error_code ec;
+    BOOST_CHECK(request_parser.parse(http_request, ec));
+
+    BOOST_CHECK(!ec);
+    
+    BOOST_CHECK(http_request.is_valid()); // this should be a valid request
+    BOOST_CHECK(http_request.get_version_major() == 0); // we don't set the actual 0.9 version, but the major version should be 0
+}
+
+BOOST_AUTO_TEST_CASE(testHTTP_0_9_ResponseParser)
+{
+    http::parser request_parser(true);
+    std::string request_str = "GET /uri\r\n";
+    
+    request_parser.set_read_buffer(request_str.c_str(), request_str.length());
+    
+    http::request http_request;
+    boost::system::error_code ec;
+    BOOST_CHECK(request_parser.parse(http_request, ec));
+    BOOST_CHECK(!ec);
+
+    http::parser response_parser(false);
+    std::string response_str = "Response Body";
+    
+    http::response http_response;
+    
+    // HTTP 0.9 logic only applies if HTTP 0.9 request is detected
+    http_response.update_request_info(http_request);
+
+    // this logic is currently implemented by HTTPProtocol and required for proper handling of v0.9 request
+    response_parser.skip_header_parsing(http_response);
+    
+    response_parser.set_read_buffer(response_str.c_str(), response_str.length());
+    
+    ec.clear();
+    
+    boost::tribool rc = response_parser.parse(http_response, ec);
+    BOOST_CHECK(boost::indeterminate(rc));
+    BOOST_CHECK(!ec);
+    
+    // HTTP 0.9 response has no length specified; simulating server closing the connection to finalize it
+    response_parser.finish(http_response);
+    BOOST_CHECK(http_response.is_valid()); // must be a valid response
+    BOOST_CHECK(http_response.get_version_major() == 0);
+    BOOST_CHECK(response_str.compare(http_response.get_content()) == 0);
+    
+}
+
 
 /// fixture used for testing http::parser's X-Fowarded-For header parsing
 class HTTPParserForwardedForTests_F
