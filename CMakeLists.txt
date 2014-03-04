@@ -124,3 +124,5 @@ add_subdirectory(src)
 add_subdirectory(services)
 add_subdirectory(utils)
 
+install(DIRECTORY ${PION_SRC_ROOT}/include/ DESTINATION include FILES_MATCHING PATTERN "*.hpp")
+install(FILES ${COMMON_BIN_PATH}/pion/config.hpp DESTINATION include/pion/)
