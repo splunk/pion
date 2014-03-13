@@ -34,6 +34,17 @@ struct PION_API algorithm {
      */
     static bool base64_encode(std::string const &input, std::string & output);
 
+    /**
+     * resolves paths relative to the location of another file
+     *
+     * @param base_path_to_file path to a file that will be used if orig_path is relative
+     * @param orig_path the original path (may be relative or absolute)
+     *
+     * @return std::string resolved, absolute path to the file
+     */
+    static std::string resolve_relative_path(const std::string& base_path_to_file,
+                                             const std::string& orig_path);
+
     /// escapes URL-encoded strings (a%20value+with%20spaces)
     static std::string url_decode(const std::string& str);
 

@@ -26,7 +26,7 @@ namespace tcp {     // begin namespace tcp
 ///
 /// timer: helper class used to time-out TCP connections
 ///
-class timer
+class PION_API timer
     : public boost::enable_shared_from_this<timer>
 {
 public:
