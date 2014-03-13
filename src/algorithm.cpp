@@ -13,7 +13,6 @@
 #include <cstring>
 #include <pion/algorithm.hpp>
 #include <boost/assert.hpp>
-#include <boost/filesystem/operations.hpp>
 
 // macro to shift bitmask by a single bit
 #define SHIFT_BITMASK(ptr, mask)    if (mask & 0x01) { mask = 0x80; ++ptr; } else mask >>= 1;
@@ -149,25 +148,6 @@ bool algorithm::base64_encode(const std::string &input, std::string &output)
     }
 
     return true;
-}
-
-std::string algorithm::resolve_relative_path(const std::string& base_path_to_file,
-                                             const std::string& orig_path)
-{
-    // return the original if it is not relative
-    if (boost::filesystem::path(orig_path).is_complete())
-        return orig_path;
-    
-    // build a new path using the config file location as a starting point
-    boost::filesystem::path new_path(boost::filesystem::system_complete(base_path_to_file));
-    new_path.remove_leaf();
-    new_path /= orig_path;
-    new_path.normalize();
-# if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
-    return new_path.string();
-#else
-    return new_path.file_string();
-#endif 
 }
 
 std::string algorithm::url_decode(const std::string& str)

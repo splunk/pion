@@ -320,20 +320,3 @@ BOOST_AUTO_TEST_CASE(testCharFromToFloatRoutines) {
     algorithm::from_long_double(buf, 1.0123456789012345e+300);
     BOOST_CHECK_EQUAL(algorithm::to_long_double(buf), 1.0123456789012345e+300);
 }
-
-// unit tests for resolve_relative_path
-
-BOOST_AUTO_TEST_CASE(checkResolveRelativePaths) {
-    BOOST_CHECK_EQUAL(algorithm::resolve_relative_path("/etc/config/file.xml", "another.xml"), "/etc/config/another.xml");
-    BOOST_CHECK_EQUAL(algorithm::resolve_relative_path("/etc/config/file.xml", "./another.xml"), "/etc/config/another.xml");
-    BOOST_CHECK_EQUAL(algorithm::resolve_relative_path("/etc/config/file.xml", "../b/another.xml"), "/etc/b/another.xml");
-    BOOST_CHECK_EQUAL(algorithm::resolve_relative_path("/etc/config/file.xml", "/tmp/another.xml"), "/tmp/another.xml");
-#ifdef _MSC_VER
-    BOOST_CHECK_EQUAL(algorithm::resolve_relative_path("C:\\config\\file.xml", "another.xml"), "C:\\config\\another.xml");
-    BOOST_CHECK_EQUAL(algorithm::resolve_relative_path("C:\\config\\file.xml", ".\\another.xml"), "C:\\config\\another.xml");
-    BOOST_CHECK_EQUAL(algorithm::resolve_relative_path("C:\\config\\file.xml", "..\\b\\another.xml"), "C:\\b\\another.xml");
-    BOOST_CHECK_EQUAL(algorithm::resolve_relative_path("C:\\config\\file.xml", "C:\\tmp\\another.xml"), "C:\\tmp\\another.txt");
-    BOOST_CHECK_EQUAL(algorithm::resolve_relative_path("C:\\config\\file.xml", "N:\\tmp\\another.xml"), "N:\\tmp\\another.txt");
-#endif
-}
-
