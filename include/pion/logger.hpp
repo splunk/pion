@@ -192,7 +192,11 @@
 
     // Logging is disabled -> add do-nothing stubs for logging
     namespace pion {
-        typedef int     logger;
+        struct PION_API logger {
+            logger(int /* glog */) {}
+            operator bool() const { return false; }
+            static void shutdown() {}
+        };
         typedef int     log_appender;
         typedef log_appender *   log_appender_ptr;
     }
@@ -202,22 +206,20 @@
     #define PION_LOG_CONFIG(FILE)   {}
     #define PION_GET_LOGGER(NAME)   0
 
-    // use "++LOG" to avoid warnings about LOG not being used
-    #define PION_LOG_SETLEVEL_DEBUG(LOG)    { if (false) ++LOG; }
-    #define PION_LOG_SETLEVEL_INFO(LOG)     { if (false) ++LOG; }
-    #define PION_LOG_SETLEVEL_WARN(LOG)     { if (false) ++LOG; }
-    #define PION_LOG_SETLEVEL_ERROR(LOG)    { if (false) ++LOG; }
-    #define PION_LOG_SETLEVEL_FATAL(LOG)    { if (false) ++LOG; }
-    #define PION_LOG_SETLEVEL_UP(LOG)       { if (false) ++LOG; }
-    #define PION_LOG_SETLEVEL_DOWN(LOG)     { if (false) ++LOG; }
+    // use LOG to avoid warnings about LOG not being used
+    #define PION_LOG_SETLEVEL_DEBUG(LOG)    { if (LOG) {} }
+    #define PION_LOG_SETLEVEL_INFO(LOG)     { if (LOG) {} }
+    #define PION_LOG_SETLEVEL_WARN(LOG)     { if (LOG) {} }
+    #define PION_LOG_SETLEVEL_ERROR(LOG)    { if (LOG) {} }
+    #define PION_LOG_SETLEVEL_FATAL(LOG)    { if (LOG) {} }
+    #define PION_LOG_SETLEVEL_UP(LOG)       { if (LOG) {} }
+    #define PION_LOG_SETLEVEL_DOWN(LOG)     { if (LOG) {} }
 
-    // use "++LOG" to avoid warnings about LOG not being used
-    #define PION_LOG_DEBUG(LOG, MSG)    { if (false) ++LOG; }
-    #define PION_LOG_INFO(LOG, MSG)     { if (false) ++LOG; }
-    #define PION_LOG_WARN(LOG, MSG)     { if (false) ++LOG; }
-    #define PION_LOG_ERROR(LOG, MSG)    { if (false) ++LOG; }
-    #define PION_LOG_FATAL(LOG, MSG)    { if (false) ++LOG; }
-
+    #define PION_LOG_DEBUG(LOG, MSG)    { if (LOG) {} }
+    #define PION_LOG_INFO(LOG, MSG)     { if (LOG) {} }
+    #define PION_LOG_WARN(LOG, MSG)     { if (LOG) {} }
+    #define PION_LOG_ERROR(LOG, MSG)    { if (LOG) {} }
+    #define PION_LOG_FATAL(LOG, MSG)    { if (LOG) {} }
 #else
 
     #define PION_USE_OSTREAM_LOGGING
@@ -237,6 +239,7 @@
             logger(void) : m_name("pion") {}
             logger(const std::string& name) : m_name(name) {}
             logger(const logger& p) : m_name(p.m_name) {}
+            static void shutdown() {}
             std::string                 m_name;
             static log_priority_type     m_priority;
         };
