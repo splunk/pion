@@ -18,12 +18,15 @@ file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
 # build targets from each file
 foreach(_file ${SRC_FILES})
     get_filename_component(_prj_name ${_file} NAME_WE)
-    add_library(${_prj_name} MODULE ${_file})
-    target_link_libraries(${_prj_name} pion)
-    install(TARGETS ${_prj_name}
-        RUNTIME DESTINATION services
-        LIBRARY DESTINATION services
-        ARCHIVE DESTINATION services
-        )
-
+    string(TOUPPER ${_prj_name} _prj_name_upper)
+    message("BUILD_${_prj_name_upper} = ${BUILD_${_prj_name_upper}}")
+    if (BUILD_${_prj_name_upper})
+        add_library(${_prj_name} MODULE ${_file})
+        target_link_libraries(${_prj_name} pion)
+        install(TARGETS ${_prj_name}
+            RUNTIME DESTINATION services
+            LIBRARY DESTINATION services
+            ARCHIVE DESTINATION services
+            )
+    endif()
 endforeach()

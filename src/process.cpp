@@ -165,7 +165,7 @@ LONG WINAPI process::unhandled_exception_filter(struct _EXCEPTION_POINTERS *pExc
     // make sure we have all the necessary setup
     if (cfg.dumpfile_dir.empty() || cfg.p_dump_proc == NULL) {
         PION_LOG_FATAL(_logger, "Unhandled exception caught when dump file handling not configured!");
-        pion::logger::shutdown();
+        PION_SHUTDOWN_LOGGER;
         return EXCEPTION_CONTINUE_SEARCH;
     }
 
@@ -201,7 +201,7 @@ LONG WINAPI process::unhandled_exception_filter(struct _EXCEPTION_POINTERS *pExc
     }
 
     PION_LOG_FATAL(_logger, "Unhandled exception caught. The process will be terminated!");
-    pion::logger::shutdown();
+    PION_SHUTDOWN_LOGGER;
     return rc;
 }
 
