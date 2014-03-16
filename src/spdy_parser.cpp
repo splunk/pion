@@ -20,6 +20,26 @@
 namespace pion {    // begin namespace pion
 namespace spdy {    // begin namespace spdy
 
+/// RST stream status string from code, return NULL for unknown status code
+static char const* rst_stream_status(boost::uint32_t rst_stream_status_code)
+{
+    switch (rst_stream_status_code)
+    {
+    case  1: return "PROTOCOL_ERROR";
+    case  2: return "INVALID_STREAM";
+    case  3: return "REFUSED_STREAM";
+    case  4: return "UNSUPPORTED_VERSION";
+    case  5: return "CANCEL";
+    case  6: return "INTERNAL_ERROR";
+    case  7: return "FLOW_CONTROL_ERROR";
+    case  8: return "STREAM_IN_USE";
+    case  9: return "STREAM_ALREADY_CLOSED";
+    case 10: return "INVALID_CREDENTIALS";
+    case 11: return "FRAME_TOO_LARGE";
+    case 12: return "INVALID";
+    default: return NULL;
+    }
+}
 
 parser::error_category_t *  parser::m_error_category_ptr = NULL;
 boost::once_flag            parser::m_instance_flag = BOOST_ONCE_INIT;
@@ -477,13 +497,9 @@ void parser::parse_spdy_rst_stream(boost::system::error_code &ec,
     
     status_code = algorithm::to_uint32(m_read_ptr);
     
-    // Check the index before using the stream status array
-    
-    if(status_code >=1 && status_code <= 12){
-    
-        PION_LOG_INFO(m_logger,
-                      "SPDY " << "Status Code is : "
-                      << rst_stream_status_names[status_code].str);
+    char const* const status_code_str = rst_stream_status(status_code);
+    if(status_code_str){
+        PION_LOG_INFO(m_logger, "SPDY Status Code is : " << status_code_str);
     }else{
         PION_LOG_INFO(m_logger, "SPDY RST Invalid status code : " << status_code);
     }
