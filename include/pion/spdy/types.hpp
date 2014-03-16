@@ -44,31 +44,6 @@ namespace spdy {    // begin namespace spdy
 #define HTTP_DATA                   3
 #define SPDY_CONTROL                4
 
-    
-/// SPDY value string data type
-typedef struct _value_string {
-    boost::uint32_t  value;
-    std::string   str;
-} value_string;
-
-    
-/// Int-String value pairs of the status code for the RST Stream
-static const value_string rst_stream_status_names[] = {
-    { 1,  "PROTOCOL_ERROR" },
-    { 2,  "INVALID_STREAM" },
-    { 3,  "REFUSED_STREAM" },
-    { 4,  "UNSUPPORTED_VERSION" },
-    { 5,  "CANCEL" },
-    { 6,  "INTERNAL_ERROR" },
-    { 7,  "FLOW_CONTROL_ERROR" },
-    { 8,  "STREAM_IN_USE" },
-    { 9,  "STREAM_ALREADY_CLOSED" },
-    { 10, "INVALID_CREDENTIALS" },
-    { 11, "FRAME_TOO_LARGE" },
-    { 12, "INVALID" },
-};
-    
-
 /// This structure will be tied to each SPDY frame
 typedef struct spdy_control_frame_info{
     bool control_bit;
