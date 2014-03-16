@@ -40,12 +40,34 @@ pion_update_compilation_opts()
 set(PION_VERSION "${PION_V_MAJOR}.${PION_V_MINOR}.${PION_V_PATCH}" CACHE STRING "Pion version" FORCE)
 message(">>> Building Pion version: ${PION_VERSION}")
 
-#-------------------------------------------------
+#----------------------------------------------------------
 # Configuration options block
 #----------------------------------------------------------
+
+# general
 option(BUILD_SHARED_LIBS "Build Pion as shared library" ON)
-option(PION_DISABLE_LOGGING "Disable logging" OFF)
-option(PION_BUILD_UT "Enable Unit test" ON)
+option(BUILD_SPDY "Enable SPDY" OFF)
+option(BUILD_UT "Enable Unit test" OFF)
+
+# utils
+option(BUILD_PIOND "Enable piond" ON)
+option(BUILD_HELLOSERVER "Enable helloserver" ON)
+
+# services
+option(BUILD_ALLOWNOTHINGSERVICE "Enable AllowNothingService" ON)
+option(BUILD_COOKIESERVICE "Enable CookieService" ON)
+option(BUILD_ECHOSERVICE "Enable EchoService" ON)
+option(BUILD_FILESERVICE "Enable FileService" ON)
+option(BUILD_HELLOSERVICE "Enable HelloService" ON)
+option(BUILD_LOGSERVICE "Enable LogService" ON)
+
+# logging
+option(USE_LOG4CPLUS "Use log4cplus" OFF)
+option(USE_LOG4CXX "Use log4cxx" OFF)
+option(USE_LOG4CPP "Use log4cpp" OFF)
+option(DISABLE_LOGGING "Disable logging" ON)
+
+#----------------------------------------------------------
 
 # cleanup prefix lib for Unix-like OSes
 set(CMAKE_SHARED_MODULE_PREFIX)
@@ -78,10 +100,14 @@ endif()
 
 include(PionConfigure)
 
-find_package(ZLIB REQUIRED)
+find_package(ZLIB)
 if (ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIRS})
     set(PION_HAVE_ZLIB 1)
+else()
+    if (BUILD_SPDY)
+        message(FATAL_ERROR "zlib is mandatory required for SPDY support")
+    endif()
 endif()
 
 find_package(BZip2)
@@ -96,13 +122,27 @@ if(OPENSSL_FOUND)
     set(PION_HAVE_SSL 1)
 endif()
 
-if(NOT PION_DISABLE_LOGGING)
+if(USE_LOG4CPLUS)
     set(Log4Cplus_USE_STATIC_LIBS 1)
     find_package(Log4cplus)
     if (LOG4CPLUS_FOUND)
         include_directories(${LOG4CPLUS_INCLUDE_DIR})
         set(PION_USE_LOG4CPLUS 1)
     endif()
+endif()
+
+if(USE_LOG4CXX)
+    message(FATAL_ERROR "log4cxx not supported")
+    # TODO: find package and set(PION_USE_LOG4CXX 1)
+endif()
+
+if(USE_LOG4CPP)
+    message(FATAL_ERROR "log4cpp not supported")
+    # TODO: find package and set(PION_USE_LOG4CPP 1)
+endif()
+
+if (DISABLE_LOGGING)
+    set(PION_DISABLE_LOGGING 1)
 endif()
 
 find_package(Doxygen)
@@ -121,7 +161,7 @@ add_definitions(-DPION_CMAKE_BUILD)
 #-------------------------------------------------
 # enable TDD
 #-------------------------------------------------
-if(PION_BUILD_UT)
+if(BUILD_UT)
     include(CTest)
     enable_testing()
     add_subdirectory(tests)

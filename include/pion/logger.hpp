@@ -20,6 +20,7 @@
 
     // log4cxx headers
     #include <log4cxx/logger.h>
+    #include <log4cxx/logmanager.h>
 #ifdef _MSC_VER
     #pragma warning(push)
     #pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
@@ -49,6 +50,7 @@
     #define PION_LOG_CONFIG_BASIC   log4cxx::BasicConfigurator::configure();
     #define PION_LOG_CONFIG(FILE)   log4cxx::PropertyConfigurator::configure(FILE);
     #define PION_GET_LOGGER(NAME)   log4cxx::Logger::get_logger(NAME)
+    #define PION_SHUTDOWN_LOGGER    log4cxx::LogManager::shutdown();
 
     #define PION_LOG_SETLEVEL_DEBUG(LOG)    LOG->setLevel(log4cxx::Level::toLevel(log4cxx::Level::DEBUG_INT));
     #define PION_LOG_SETLEVEL_INFO(LOG)     LOG->setLevel(log4cxx::Level::toLevel(log4cxx::Level::INFO_INT));
@@ -138,6 +140,7 @@
     #define PION_LOG_CONFIG_BASIC   log4cplus::BasicConfigurator::doConfigure();
     #define PION_LOG_CONFIG(FILE)   log4cplus::PropertyConfigurator::doConfigure(FILE);
     #define PION_GET_LOGGER(NAME)   log4cplus::Logger::getInstance(NAME)
+    #define PION_SHUTDOWN_LOGGER    log4cplus::Logger::shutdown();
 
     #define PION_LOG_SETLEVEL_DEBUG(LOG)    LOG.setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
     #define PION_LOG_SETLEVEL_INFO(LOG)     LOG.setLogLevel(log4cplus::INFO_LOG_LEVEL);
@@ -173,6 +176,7 @@
     #define PION_LOG_CONFIG_BASIC   { log4cpp::OstreamAppender *app = new log4cpp::OstreamAppender("cout", &std::cout); app->setLayout(new log4cpp::BasicLayout()); log4cpp::Category::getRoot().setAppender(app); }
     #define PION_LOG_CONFIG(FILE)   { log4cpp::PropertyConfigurator::configure(FILE); }
     #define PION_GET_LOGGER(NAME)   (&log4cpp::Category::getInstance(NAME))
+    #define PION_SHUTDOWN_LOGGER    log4cpp::Category::shutdown();
 
     #define PION_LOG_SETLEVEL_DEBUG(LOG)    { LOG->setPriority(log4cpp::Priority::DEBUG); }
     #define PION_LOG_SETLEVEL_INFO(LOG)     { LOG->setPriority(log4cpp::Priority::INFO); }
@@ -205,6 +209,7 @@
     #define PION_LOG_CONFIG_BASIC   {}
     #define PION_LOG_CONFIG(FILE)   {}
     #define PION_GET_LOGGER(NAME)   0
+    #define PION_SHUTDOWN_LOGGER    0
 
     // use LOG to avoid warnings about LOG not being used
     #define PION_LOG_SETLEVEL_DEBUG(LOG)    { if (LOG) {} }
@@ -251,6 +256,7 @@
     #define PION_LOG_CONFIG_BASIC   {}
     #define PION_LOG_CONFIG(FILE)   {}
     #define PION_GET_LOGGER(NAME)   pion::logger(NAME)
+    #define PION_SHUTDOWN_LOGGER    {}
 
     #define PION_LOG_SETLEVEL_DEBUG(LOG)    { LOG.m_priority = pion::logger::LOG_LEVEL_DEBUG; }
     #define PION_LOG_SETLEVEL_INFO(LOG)     { LOG.m_priority = pion::logger::LOG_LEVEL_INFO; }
