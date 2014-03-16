@@ -3,13 +3,13 @@ Pion Network Library
 
 C++ framework for building lightweight HTTP interfaces
 
-**Project Home:** https://github.com/cloudmeter/pion
+**Project Home:** https://github.com/splunk/pion
 
 
 Retrieving the code
 -------------------
 
-    git clone git@github.com:cloudmeter/pion.git
+    git clone git@github.com:splunk/pion.git
     cd pion
 
 
@@ -46,7 +46,7 @@ To generate build call
 
 for example to generate MSVS2012 Win64 solution run
 
-    git clone git@github.com:cloudmeter/pion.git
+    git clone git@github.com:splunk/pion.git
     cd pion/build
     cmake .. -G"Visual Studio 11 Win64"
 
@@ -84,7 +84,7 @@ supported by Pion within the `doc` subdirectory (`README.platform`).
 License
 -------
 
-Copyright &copy; 2007-2013 Splunk Inc.
+Copyright &copy; 2007-2014 Splunk Inc.
 
 The Pion Network Library is published under the
 [Boost Software License](http://www.boost.org/users/license.html).
