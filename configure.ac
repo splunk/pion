@@ -3,7 +3,7 @@
 # ------------------------------------------------
 
 # Set pion version information
-AC_INIT([pion], [5.0.5], [pion-users@lists.sourceforge.net])
+AC_INIT([pion], [5.0.6], [pion-users@lists.sourceforge.net])
 
 # Initialize some other things
 AC_PREREQ([2.59])

@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
 // pion:  a Boost C++ framework for building lightweight HTTP interfaces
 // ---------------------------------------------------------------------
-// Copyright (C) 2007-2012 Cloudmeter, Inc.  (http://www.cloudmeter.com)
+// Copyright (C) 2007-2014 Splunk Inc.  (https://github.com/splunk/pion)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See http://www.boost.org/LICENSE_1_0.txt
@@ -22,7 +22,7 @@
 #endif
 
 /* Define to the version number of pion. */
-#define PION_VERSION "5.0.5"
+#define PION_VERSION "5.0.6"
 
 /* Define to the directory where Pion plug-ins are installed. */
 //#undef PION_PLUGINS_DIRECTORY

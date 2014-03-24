@@ -40,4 +40,4 @@ tests/piontests.trs
 test-suite.log
 pion-*.tar.gz
 pion-*.tar.bz2
-pion-*.tar.zip
+pion-*.zip

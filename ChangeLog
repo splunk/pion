@@ -1,3 +1,16 @@
+Version 5.0.6 (2014-03-24)
+==========================
+
+* Updated copyrights and misc files for move from Cloudmeter to Splunk
+* pion::http::parser - added HTTP 0.9 Simple-Request support
+* autoconf - fixed order of library linking for Ubuntu 12.04
+* cmake - make install does not copy headers (thanks snikulov)
+* cmake - patches for Visual Studio 2012 (thanks nullable-type)
+* cmake - disabled in-source build with log message (thanks snikulov)
+* SPDY fix for RST stream status code logging (thanks pmed)
+* PION_DISABLE_LOGGING and PION_USE_OSTREAM_LOGGING fixes (thanks snikulov)
+
+
 Version 5.0.5 (2013-12-16)
 ==========================
 
