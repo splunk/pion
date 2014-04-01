@@ -7,7 +7,7 @@
 # See http://www.boost.org/LICENSE_1_0.txt
 # ---------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.7 FATAL_ERROR)
 set(PROJECT_NAME pion_solution)
 project(${PROJECT_NAME} CXX C)
 
