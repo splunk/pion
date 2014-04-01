@@ -1,0 +1,24 @@
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+before_script:
+  - mkdir build.ci
+  - cd build.ci
+  - cmake ..
+
+script: make
+
+branches:
+  only:
+    - develop
+    - r5_0_7
+
+notifications:
+  recipients:
+    - sergey.nikulov@gmail.com
+  email:
+    on_success: change
+    on_failure: always
