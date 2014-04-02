@@ -93,7 +93,7 @@ find_package(Boost COMPONENTS thread system filesystem regex unit_test_framework
 if (Boost_FOUND)
     # disable autolinking feature
     add_definitions(-DBOOST_ALL_NO_LIB)
-    include_directories(${Boost_INCLUDE_DIR})
+    include_directories(${Boost_INCLUDE_DIRS})
 else()
     message(FATAL_ERROR "Boost >= 1.35 required to build Pion")
 endif()
