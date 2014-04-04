@@ -20,9 +20,11 @@ install:
 before_script:
   - mkdir build.ci
   - cd build.ci
-  - cmake ..
+  - cmake .. -DBUILD_UT=ON -DBUILD_SPDY=ON
 
-script: make
+script:
+  - make
+  - ctest -VV
 
 branches:
   only:
@@ -31,6 +33,7 @@ branches:
 notifications:
   recipients:
     - sergey.nikulov@gmail.com
+    - pion-users@lists.sourceforge.net
   email:
     on_success: change
     on_failure: always
