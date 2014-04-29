@@ -148,6 +148,7 @@ std::string process::generate_dumpfile_name()
 
     p /= ss.str();
     p.normalize();
+    p.make_preferred();
 
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
     return p.string();
