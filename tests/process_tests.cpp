@@ -70,10 +70,10 @@ BOOST_AUTO_TEST_CASE(checkGenerateDumpFileName)
 
     std::string dumpfile_name = generate_dumpfile_name();
 
-    BOOST_ASSERT(!dumpfile_name.empty());
+    BOOST_CHECK(!dumpfile_name.empty());
 
     // temp file must be in a specified directory
-    BOOST_ASSERT(dumpfile_name.find(temp_path) != std::string::npos);
+    BOOST_CHECK(dumpfile_name.find(temp_path) != std::string::npos);
 }
 #endif
 
