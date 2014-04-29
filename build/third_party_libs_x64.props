@@ -12,8 +12,8 @@
     <LIBXML_LIB>C:\libxml2-2.9.0\bin\x64</LIBXML_LIB>
     <LOG4CPLUS_INC>C:\log4cplus-1.0.4.1\include</LOG4CPLUS_INC>
     <LOG4CPLUS_LIB>C:\log4cplus-1.0.4.1\bin\x64</LOG4CPLUS_LIB>
-    <OPENSSL_INC>C:\openssl-1.0.1c\inc64</OPENSSL_INC>
-    <OPENSSL_LIB>C:\openssl-1.0.1c\bin\x64</OPENSSL_LIB>
+    <OPENSSL_INC>C:\openssl-1.0.1g\inc64</OPENSSL_INC>
+    <OPENSSL_LIB>C:\openssl-1.0.1g\bin\x64</OPENSSL_LIB>
     <PYTHON_INC>C:\Python26\x64\include</PYTHON_INC>
     <PYTHON_LIB>C:\Python26\x64\libs</PYTHON_LIB>
     <YAJL_INC>C:\yajl-2.0.5\include</YAJL_INC>
