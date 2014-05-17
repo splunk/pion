@@ -41,6 +41,42 @@ BOOST_AUTO_TEST_CASE(testParseHttpUri)
     BOOST_CHECK_EQUAL(port, 80);
     BOOST_CHECK_EQUAL(path, "/folder/file.ext");
     BOOST_CHECK_EQUAL(query, "");
+
+    uri = "http://www.cloudmeter.com";
+    
+    BOOST_CHECK(http::parser::parse_uri(uri, proto, host, port, path, query));
+    BOOST_CHECK_EQUAL(proto, "http");
+    BOOST_CHECK_EQUAL(host, "www.cloudmeter.com");
+    BOOST_CHECK_EQUAL(port, 80);
+    BOOST_CHECK_EQUAL(path, "/");
+    BOOST_CHECK_EQUAL(query, "");
+
+    uri = "http://www.cloudmeter.com:8000";
+    
+    BOOST_CHECK(http::parser::parse_uri(uri, proto, host, port, path, query));
+    BOOST_CHECK_EQUAL(proto, "http");
+    BOOST_CHECK_EQUAL(host, "www.cloudmeter.com");
+    BOOST_CHECK_EQUAL(port, 8000);
+    BOOST_CHECK_EQUAL(path, "/");
+    BOOST_CHECK_EQUAL(query, "");
+
+    uri = "http://www.cloudmeter.com:8000/path/to/file.txt";
+    
+    BOOST_CHECK(http::parser::parse_uri(uri, proto, host, port, path, query));
+    BOOST_CHECK_EQUAL(proto, "http");
+    BOOST_CHECK_EQUAL(host, "www.cloudmeter.com");
+    BOOST_CHECK_EQUAL(port, 8000);
+    BOOST_CHECK_EQUAL(path, "/path/to/file.txt");
+    BOOST_CHECK_EQUAL(query, "");
+
+    uri = "http://www.cloudmeter.com:8000/path/to/file.txt?and=query";
+    
+    BOOST_CHECK(http::parser::parse_uri(uri, proto, host, port, path, query));
+    BOOST_CHECK_EQUAL(proto, "http");
+    BOOST_CHECK_EQUAL(host, "www.cloudmeter.com");
+    BOOST_CHECK_EQUAL(port, 8000);
+    BOOST_CHECK_EQUAL(path, "/path/to/file.txt");
+    BOOST_CHECK_EQUAL(query, "and=query");
 }
 
 BOOST_AUTO_TEST_CASE(testParseSimpleQueryString)

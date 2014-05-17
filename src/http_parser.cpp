@@ -844,8 +844,10 @@ bool parser::parse_uri(const std::string& uri, std::string& proto,
     // find a first slash charact
     // that indicates the end of the <server>:<port> part
     size_t server_port_end = uri.find('/', proto_len);
-    if(server_port_end == std::string::npos) {
-        return false;
+    if (server_port_end == std::string::npos) {
+        // no path -> use just /
+        path = "/";
+        server_port_end = uri.size();
     }
     
     // copy <server>:<port> into temp string
@@ -875,17 +877,19 @@ bool parser::parse_uri(const std::string& uri, std::string& proto,
         port = 0;
     }
     
-    // copy the rest of the URI into path part
-    path = uri.substr(server_port_end);
-    
-    // split the path and the query string parts
-    size_t query_pos = path.find('?', 0);
-    
-    if(query_pos != std::string::npos) {
-        query = path.substr(query_pos + 1, path.length() - query_pos - 1);
-        path = path.substr(0, query_pos);
-    } else {
-        query.clear();
+    if (server_port_end < uri.size()) {
+        // copy the rest of the URI into path part
+        path = uri.substr(server_port_end);
+        
+        // split the path and the query string parts
+        size_t query_pos = path.find('?', 0);
+        
+        if(query_pos != std::string::npos) {
+            query = path.substr(query_pos + 1, path.length() - query_pos - 1);
+            path = path.substr(0, query_pos);
+        } else {
+            query.clear();
+        }
     }
     
     return true;
