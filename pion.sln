@@ -30,7 +30,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hasCreateButNoDestroy", "te
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hasNoCreate", "tests\plugins\hasNoCreate.vcxproj", "{33DEAB53-40E1-42FF-9C17-7A9956102052}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPluigins", "tests\TestPlugins.vcxproj", "{7080E9F1-318F-4152-9E36-9F427F5CE9B7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPlugins", "tests\TestPlugins.vcxproj", "{7080E9F1-318F-4152-9E36-9F427F5CE9B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

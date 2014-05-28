@@ -35,9 +35,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>TestPluigins</ProjectName>
+    <ProjectName>TestPlugins</ProjectName>
     <ProjectGuid>{7080E9F1-318F-4152-9E36-9F427F5CE9B7}</ProjectGuid>
-    <RootNamespace>TestPluigins</RootNamespace>
+    <RootNamespace>TestPlugins</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" Label="Configuration">
@@ -94,22 +94,6 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">$(Configuration)_$(PlatformName)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">$(Configuration)_$(PlatformName)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(PlatformName)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">$(Configuration)_$(PlatformName)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">$(Configuration)_$(PlatformName)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">
     <PreBuildEvent>
@@ -119,7 +103,9 @@
     <PostBuildEvent>
       <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
       <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
-copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs
+del $(LastBuildState)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">
@@ -133,7 +119,9 @@ copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)pl
     <PostBuildEvent>
       <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
       <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
-copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs
+del $(LastBuildState)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">
@@ -144,7 +132,9 @@ copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)pl
     <PostBuildEvent>
       <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
       <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
-copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs
+del $(LastBuildState)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">
@@ -158,54 +148,18 @@ copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)pl
     <PostBuildEvent>
       <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
       <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
-copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
+copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs
+del $(LastBuildState)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">
-    <PreBuildEvent>
-      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
-      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
-copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">
-    <PreBuildEvent>
-      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
-    </PreBuildEvent>
-    <Midl>
-      <TargetEnvironment>X64</TargetEnvironment>
-    </Midl>
-    <PostBuildEvent>
-      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
-      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
-copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">
-    <PreBuildEvent>
-      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
-      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
-copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">
-    <PreBuildEvent>
-      <Command>if exist $(ProjectDir)plugins\.libs del /Q $(ProjectDir)plugins\.libs\*.*</Command>
-    </PreBuildEvent>
-    <Midl>
-      <TargetEnvironment>X64</TargetEnvironment>
-    </Midl>
-    <PostBuildEvent>
-      <Message>Copy the plugin DLLs for the current configuration into plugins\.libs</Message>
-      <Command>if not exist $(ProjectDir)plugins\.libs md $(ProjectDir)plugins\.libs
-copy $(ProjectDir)plugins\$(Configuration)_$(PlatformName)\*.dll $(ProjectDir)plugins\.libs</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="plugins\hasCreateAndDestroy.vcxproj">
