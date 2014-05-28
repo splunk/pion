@@ -29,9 +29,13 @@ pion.xcodeproj/project.xcworkspace/xcuserdata/
 pion.xcodeproj/project.xcworkspace/xcshareddata/pion.xccheckout
 IntermediateOutput/
 Release_*/
+Debug_*/
 *.user
 *.suo
 *.ncb
+*.ipch
+*.sdf
+*.opensdf
 _ReSharper.*/
 tests/test_log.xml
 tests/test_results.xml

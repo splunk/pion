@@ -69,67 +69,59 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\build\Release_DLL_pion.props" />
     <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\third_party_libs_win32.props" />
-    <Import Project="..\build\Release_DLL_pion.props" />
+    <Import Project="..\build\pion_plugin.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\build\Debug_DLL_pion.props" />
     <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\third_party_libs_win32.props" />
-    <Import Project="..\build\Debug_DLL_pion.props" />
+    <Import Project="..\build\pion_plugin.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\Release_static_pion.props" />
+    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\third_party_static_libs_win32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\Debug_static_pion.props" />
+    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\third_party_static_libs_win32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\Release_DLL_pion.props" />
+    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\third_party_libs_x64.props" />
+    <Import Project="..\build\pion_plugin.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\Debug_DLL_pion.props" />
-    <Import Project="..\build\third_party_static_libs_x64.props" />
+    <Import Project="..\build\depth_2_pion-net.props" />
+    <Import Project="..\build\third_party_libs_x64.props" />
+    <Import Project="..\build\pion_plugin.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\Release_static_pion.props" />
+    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\third_party_static_libs_x64.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\Debug_static_pion.props" />
+    <Import Project="..\build\depth_2_pion-net.props" />
     <Import Project="..\build\third_party_static_libs_x64.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">$(Configuration)_$(PlatformName)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_static|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">$(Configuration)_$(PlatformName)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">$(Configuration)_$(PlatformName)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">$(SolutionDir)IntermediateOutput\$(ProjectName)\$(Configuration)_$(Platform)\</IntDir>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|Win32'" />
@@ -154,8 +146,6 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'" />
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">$(Configuration)_$(PlatformName)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">$(Configuration)_$(PlatformName)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|x64'">
     <Midl>
