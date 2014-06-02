@@ -112,7 +112,8 @@
       <Message>Copy the plugin DLLs for the current configuration into services\.libs</Message>
       <Command>if not exist services\.libs md services\.libs
 copy services\$(Configuration)_$(Platform)\*.dll services\.libs
-</Command>
+del $(LastBuildState)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL_full|x64'">
@@ -128,7 +129,8 @@ copy services\$(Configuration)_$(Platform)\*.dll services\.libs
       <Message>Copy the plugin DLLs for the current configuration into services\.libs</Message>
       <Command>if not exist services\.libs md services\.libs
 copy services\$(Configuration)_$(Platform)\*.dll services\.libs
-</Command>
+del $(LastBuildState)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|Win32'">
@@ -141,7 +143,8 @@ copy services\$(Configuration)_$(Platform)\*.dll services\.libs
       <Message>Copy the plugin DLLs for the current configuration into services\.libs</Message>
       <Command>if not exist services\.libs md services\.libs
 copy services\$(Configuration)_$(Platform)\*.dll services\.libs
-</Command>
+del $(LastBuildState)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL_full|x64'">
@@ -157,7 +160,8 @@ copy services\$(Configuration)_$(Platform)\*.dll services\.libs
       <Message>Copy the plugin DLLs for the current configuration into services\.libs</Message>
       <Command>if not exist services\.libs md services\.libs
 copy services\$(Configuration)_$(Platform)\*.dll services\.libs
-</Command>
+del $(LastBuildState)
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_static|x64'">

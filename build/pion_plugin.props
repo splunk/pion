@@ -1,30 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Label="PropertySheets">
-    <Import Project="pion.props" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros">
-    <REACTORS_DIR>$(PION_HOME)\platform\reactors\$(Configuration)_$(Platform)</REACTORS_DIR>
-    <DATABASES_DIR>$(PION_HOME)\platform\databases\$(Configuration)_$(Platform)</DATABASES_DIR>
-    <PROTOCOLS_DIR>$(PION_HOME)\platform\protocols\$(Configuration)_$(Platform)</PROTOCOLS_DIR>
-    <SERVICES_DIR>$(PION_HOME)\platform\services\$(Configuration)_$(Platform)</SERVICES_DIR>
-  </PropertyGroup>
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
     <OutDir>$(Configuration)_$(PlatformName)\</OutDir>
   </PropertyGroup>
-  <ItemGroup>
-    <BuildMacro Include="REACTORS_DIR">
-      <Value>$(REACTORS_DIR)</Value>
-    </BuildMacro>
-    <BuildMacro Include="DATABASES_DIR">
-      <Value>$(DATABASES_DIR)</Value>
-    </BuildMacro>
-    <BuildMacro Include="PROTOCOLS_DIR">
-      <Value>$(PROTOCOLS_DIR)</Value>
-    </BuildMacro>
-    <BuildMacro Include="SERVICES_DIR">
-      <Value>$(SERVICES_DIR)</Value>
-    </BuildMacro>
-  </ItemGroup>
+  <ItemGroup />
 </Project>
