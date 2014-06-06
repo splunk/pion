@@ -7,16 +7,16 @@
 # See http://www.boost.org/LICENSE_1_0.txt
 # ---------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.7 FATAL_ERROR)
 set(PROJECT_NAME pion_solution)
 project(${PROJECT_NAME} CXX C)
 
 if( CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR "In-source builds are not allowed. CMake would overwrite "
-"the files distributed with LLVM. Please create a directory and run cmake "
-"from there, passing the path to this source directory as the last argument. "
-"This process created the file `CMakeCache.txt' and the directory "
-"`CMakeFiles'. Please delete them.")
+    "the files distributed with PION. Please create a directory and run cmake "
+    "from there, passing the path to this source directory as the last argument. "
+    "This process created the file `CMakeCache.txt' and the directory "
+    "`CMakeFiles'. Please delete them.")
 endif()
 
 #-------------------------------------------------

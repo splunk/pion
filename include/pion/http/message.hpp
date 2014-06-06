@@ -22,14 +22,9 @@
 #include <pion/config.hpp>
 #include <pion/http/types.hpp>
 
-#ifndef BOOST_SYSTEM_NOEXCEPT
-    #define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
-#endif
-
-
 namespace pion {    // begin namespace pion
-	
-	
+
+
 namespace tcp {
     // forward declaration for class used by send() and receive()
     class connection;
@@ -42,10 +37,10 @@ namespace http {    // begin namespace http
 // forward declaration of parser class
 class parser;
 
-    
+
 ///
 /// message: base container for HTTP messages
-/// 
+///
 class PION_API message
     : public http::types
 {
@@ -62,7 +57,13 @@ public:
         : public boost::system::error_category
     {
         virtual ~receive_error_t() {}
-        virtual inline const char *name() const BOOST_SYSTEM_NOEXCEPT { return "receive_error_t"; }
+#if defined(BOOST_NOEXCEPT)
+        virtual inline const char *name() const BOOST_NOEXCEPT
+#else
+        virtual inline const char *name() const
+#endif
+        { return "receive_error_t"; }
+
         virtual inline std::string message(int ev) const {
             std::string result;
             switch(ev) {
@@ -81,8 +82,8 @@ public:
     enum data_status_t
     {
         STATUS_NONE,        // no data received (i.e. all lost)
-        STATUS_TRUNCATED,   // one or more missing packets at the end 
-        STATUS_PARTIAL,     // one or more missing packets but NOT at the end 
+        STATUS_TRUNCATED,   // one or more missing packets at the end
+        STATUS_PARTIAL,     // one or more missing packets but NOT at the end
         STATUS_OK           // no missing packets
     };
 
@@ -190,10 +191,10 @@ public:
 
     /// returns true if buffer for content is allocated
     bool is_content_buffer_allocated() const { return !m_content_buf.is_empty(); }
-    
+
     /// returns size of allocated buffer
     inline std::size_t get_content_buffer_size() const { return m_content_buf.size(); }
-    
+
     /// returns a pointer to the payload content, or empty string if there is none
     inline char *get_content(void) { return m_content_buf.get(); }
 
@@ -223,7 +224,7 @@ public:
     inline const std::string& get_cookie(const std::string& key) const {
         return get_value(m_cookie_params, key);
     }
-    
+
     /// returns the cookie parameters
     inline ihash_multimap& get_cookies(void) {
         return m_cookie_params;
@@ -234,7 +235,7 @@ public:
     inline bool has_cookie(const std::string& key) const {
         return(m_cookie_params.find(key) != m_cookie_params.end());
     }
-    
+
     /// adds a value for the cookie
     /// since cookie names are insensitive, key should use lowercase alpha chars
     inline void add_cookie(const std::string& key, const std::string& value) {
@@ -252,7 +253,7 @@ public:
     inline void delete_cookie(const std::string& key) {
         delete_value(m_cookie_params, key);
     }
-    
+
     /// returns a string containing the first line for the HTTP message
     inline const std::string& get_first_line(void) const {
         if (m_first_line.empty())
@@ -260,9 +261,9 @@ public:
         return m_first_line;
     }
 
-    /// true if there were missing packets 
+    /// true if there were missing packets
     inline bool has_missing_packets() const { return m_has_missing_packets; }
-    
+
     /// set to true when missing packets detected
     inline void set_missing_packets(bool newVal) { m_has_missing_packets = newVal; }
 
@@ -301,7 +302,7 @@ public:
     /// return the data receival status
     inline data_status_t get_status() const { return m_status; }
 
-    /// 
+    ///
     inline void set_status(data_status_t newVal) { m_status = newVal; }
 
     /// sets the length of the payload content using the Content-Length header
@@ -333,7 +334,7 @@ public:
         m_content_buf.resize(m_content_length);
         return m_content_buf.get();
     }
-    
+
     /// resets payload content to match the value of a string
     inline void set_content(const std::string& content) {
         set_content_length(content.size());
@@ -423,7 +424,7 @@ public:
     std::size_t receive(tcp::connection& tcp_conn,
                         boost::system::error_code& ec,
                         parser& http_parser);
-    
+
     /**
      * receives a new message from a TCP connection (blocks until finished)
      *
@@ -464,7 +465,7 @@ public:
     std::size_t read(std::istream& in,
                      boost::system::error_code& ec,
                      parser& http_parser);
-    
+
     /**
      * reads a new message from a std::istream (blocks until finished)
      *
@@ -487,7 +488,7 @@ public:
 
 
 protected:
-    
+
     /// a simple helper class used to manage a fixed-size payload content buffer
     class content_buffer_t {
     public:
@@ -517,19 +518,19 @@ protected:
             }
             return *this;
         }
-        
+
         /// returns true if buffer is empty
         inline bool is_empty() const { return m_len == 0; }
-        
+
         /// returns size in bytes
         inline std::size_t size() const { return m_len; }
-        
+
         /// returns const pointer to data
         inline const char *get() const { return m_ptr; }
-        
+
         /// returns mutable pointer to data
         inline char *get() { return m_ptr; }
-        
+
         /// changes the size of the content buffer
         inline void resize(std::size_t len) {
             m_len = len;
@@ -542,10 +543,10 @@ protected:
                 m_ptr = m_buf.get();
             }
         }
-        
+
         /// clears the content buffer
         inline void clear() { resize(0); }
-        
+
     private:
         boost::scoped_array<char>   m_buf;
         std::size_t                 m_len;

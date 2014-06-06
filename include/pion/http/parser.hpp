@@ -20,11 +20,6 @@
 #include <pion/logger.hpp>
 #include <pion/http/message.hpp>
 
-#ifndef BOOST_SYSTEM_NOEXCEPT
-    #define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
-#endif
-
-
 namespace pion {    // begin namespace pion
 namespace http {    // begin namespace http
 
@@ -47,7 +42,7 @@ public:
 
     /// callback type used to consume payload content
     typedef boost::function2<void, const char *, std::size_t>   payload_handler_t;
-    
+
     /// class-specific error code values
     enum error_value_t {
         ERROR_METHOD_CHAR = 1,
@@ -69,13 +64,18 @@ public:
         ERROR_MISSING_HEADER_DATA,
         ERROR_MISSING_TOO_MUCH_CONTENT,
     };
-    
+
     /// class-specific error category
     class error_category_t
         : public boost::system::error_category
     {
     public:
-        const char *name() const BOOST_SYSTEM_NOEXCEPT { return "parser"; }
+#if defined(BOOST_NOEXCEPT)
+        const char *name() const BOOST_NOEXCEPT
+#else
+        const char *name() const
+#endif
+        { return "parser"; }
         std::string message(int ev) const {
             switch (ev) {
             case ERROR_METHOD_CHAR:
@@ -230,7 +230,7 @@ public:
         boost::system::error_code ec;
         finish_header_parsing(http_msg, ec);
     }
-    
+
     /// resets the parser to its initial state
     inline void reset(void) {
         m_message_parse_state = PARSE_START;
@@ -249,7 +249,7 @@ public:
     inline bool eof(void) const { return m_read_ptr == NULL || m_read_ptr >= m_read_end_ptr; }
 
     /// returns the number of bytes available in the read buffer
-    inline std::size_t bytes_available(void) const { return (eof() ? 0 : (std::size_t)(m_read_end_ptr - m_read_ptr)); } 
+    inline std::size_t bytes_available(void) const { return (eof() ? 0 : (std::size_t)(m_read_end_ptr - m_read_ptr)); }
 
     /// returns the number of bytes read during the last parse operation
     inline std::size_t gcount(void) const { return m_bytes_last_read; }
@@ -271,7 +271,7 @@ public:
 
     /// returns true if parsing headers only
     inline bool get_parse_headers_only(void) { return m_parse_headers_only; }
-    
+
     /// returns true if the parser is being used to parse an HTTP request
     inline bool is_parsing_request(void) const { return m_is_request; }
 
@@ -309,18 +309,18 @@ public:
      *
      * @return true if the URI was successfully parsed, false if there was an error
      */
-    static bool parse_uri(const std::string& uri, std::string& proto, 
+    static bool parse_uri(const std::string& uri, std::string& proto,
                          std::string& host, boost::uint16_t& port, std::string& path,
                          std::string& query);
 
     /**
      * parse key-value pairs out of a url-encoded string
      * (i.e. this=that&a=value)
-     * 
+     *
      * @param dict dictionary for key-values pairs
      * @param ptr points to the start of the encoded string
      * @param len length of the encoded string, in bytes
-     * 
+     *
      * @return bool true if successful
      */
     static bool parse_url_encoded(ihash_multimap& dict,
@@ -340,16 +340,16 @@ public:
     static bool parse_multipart_form_data(ihash_multimap& dict,
                                           const std::string& content_type,
                                           const char *ptr, const std::size_t len);
-    
+
     /**
      * parse key-value pairs out of a "Cookie" request header
      * (i.e. this=that; a=value)
-     * 
+     *
      * @param dict dictionary for key-values pairs
      * @param ptr points to the start of the header string to be parsed
      * @param len length of the encoded string, in bytes
      * @param set_cookie_header set true if parsing Set-Cookie response header
-     * 
+     *
      * @return bool true if successful
      */
     static bool parse_cookie_header(ihash_multimap& dict,
@@ -359,11 +359,11 @@ public:
     /**
      * parse key-value pairs out of a "Cookie" request header
      * (i.e. this=that; a=value)
-     * 
+     *
      * @param dict dictionary for key-values pairs
      * @param cookie_header header string to be parsed
      * @param set_cookie_header set true if parsing Set-Cookie response header
-     * 
+     *
      * @return bool true if successful
      */
     static inline bool parse_cookie_header(ihash_multimap& dict,
@@ -375,10 +375,10 @@ public:
     /**
      * parse key-value pairs out of a url-encoded string
      * (i.e. this=that&a=value)
-     * 
+     *
      * @param dict dictionary for key-values pairs
      * @param query the encoded query string to be parsed
-     * 
+     *
      * @return bool true if successful
      */
     static inline bool parse_url_encoded(ihash_multimap& dict,
@@ -386,7 +386,7 @@ public:
     {
         return parse_url_encoded(dict, query.c_str(), query.size());
     }
-    
+
     /**
      * parse key-value pairs out of a multipart/form-data payload content
      * (http://www.ietf.org/rfc/rfc2388.txt)
@@ -403,7 +403,7 @@ public:
     {
         return parse_multipart_form_data(dict, content_type, form_data.c_str(), form_data.size());
     }
-    
+
     /**
      * should be called after parsing HTTP headers, to prepare for payload content parsing
      * available in the read buffer
@@ -429,7 +429,7 @@ public:
      * @return bool true if a public IP address was found and extracted
      */
     static bool parse_forwarded_for(const std::string& header, std::string& public_ip);
-    
+
     /// returns an instance of parser::error_category_t
     static inline error_category_t& get_error_category(void) {
         boost::call_once(parser::create_error_category, m_instance_flag);
@@ -441,9 +441,9 @@ protected:
 
     /// Called after we have finished parsing the HTTP message headers
     virtual void finished_parsing_headers(const boost::system::error_code& ec) {}
-    
+
     /**
-     * parses an HTTP message up to the end of the headers using bytes 
+     * parses an HTTP message up to the end of the headers using bytes
      * available in the read buffer
      *
      * @param http_msg the HTTP message object to populate from parsing
@@ -478,11 +478,11 @@ protected:
         boost::system::error_code& ec);
 
     /**
-     * consumes payload content in the parser's read buffer 
+     * consumes payload content in the parser's read buffer
      *
      * @param http_msg the HTTP message object to consume content for
      * @param ec error_code contains additional information for parsing errors
-     *  
+     *
      * @return boost::tribool result of parsing:
      *                        false = message has an error,
      *                        true = finished parsing message,
@@ -502,7 +502,7 @@ protected:
 
     /**
      * compute and sets a HTTP Message data integrity status
-     * @param http_msg target HTTP message 
+     * @param http_msg target HTTP message
      * @param msg_parsed_ok message parsing result
      */
     static void compute_msg_status(http::message& http_msg, bool msg_parsed_ok);
@@ -603,9 +603,9 @@ private:
         PARSE_CHUNK_SIZE_START, PARSE_CHUNK_SIZE,
         PARSE_EXPECTING_IGNORED_TEXT_AFTER_CHUNK_SIZE,
         PARSE_EXPECTING_CR_AFTER_CHUNK_SIZE,
-        PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE, PARSE_CHUNK, 
+        PARSE_EXPECTING_LF_AFTER_CHUNK_SIZE, PARSE_CHUNK,
         PARSE_EXPECTING_CR_AFTER_CHUNK, PARSE_EXPECTING_LF_AFTER_CHUNK,
-        PARSE_EXPECTING_FINAL_CR_OR_FOOTERS_AFTER_LAST_CHUNK, 
+        PARSE_EXPECTING_FINAL_CR_OR_FOOTERS_AFTER_LAST_CHUNK,
         PARSE_EXPECTING_FINAL_LF_AFTER_LAST_CHUNK
     };
 
@@ -618,7 +618,7 @@ private:
 
     /// the current state of parsing chunked content
     chunk_parse_state_t                 m_chunked_content_parse_state;
-    
+
     /// if defined, this function is used to consume payload content
     payload_handler_t                   m_payload_handler;
 
@@ -669,7 +669,7 @@ private:
 
     /// maximum length for HTTP payload content
     std::size_t                         m_max_content_length;
-    
+
     /// if true, then only HTTP headers will be parsed (no content parsing)
     bool                                m_parse_headers_only;
 
@@ -678,7 +678,7 @@ private:
 
     /// points to a single and unique instance of the parser error_category_t
     static error_category_t *           m_error_category_ptr;
-        
+
     /// used to ensure thread safety of the parser error_category_t
     static boost::once_flag             m_instance_flag;
 };
