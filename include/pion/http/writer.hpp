@@ -49,7 +49,7 @@ protected:
      * @param tcp_conn TCP connection used to send the message
      * @param handler function called after the request has been sent
      */
-    writer(tcp::connection_ptr& tcp_conn, finished_handler_t handler)
+    writer(tcp::connection_ptr tcp_conn, finished_handler_t handler)
         : m_logger(PION_GET_LOGGER("pion.http.writer")),
         m_tcp_conn(tcp_conn), m_content_length(0), m_stream_is_empty(true), 
         m_client_supports_chunks(true), m_sending_chunks(false),
