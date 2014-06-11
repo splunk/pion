@@ -172,7 +172,7 @@ namespace test {    // begin namespace test
                 ostr << BOOST_TEST_L( "]]></" ) << m_curr_tag << BOOST_TEST_L( ">" ) << std::endl;
                 m_curr_tag.clear();
                 m_entry_in_progress = false;
-                m_entry_complete.notify_one();
+                m_entry_complete.notify_all();
             }
         }
         
