@@ -1612,7 +1612,7 @@
 					"-lbz2",
 				);
 				SDKROOT = macosx10.8;
-				SSL_VERSION = 1.0.1c;
+				SSL_VERSION = 1.0.1h;
 				SYMROOT = "$(PROJECT_DIR)/bin";
 				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/include";
 			};
@@ -1653,7 +1653,7 @@
 					"-lbz2",
 				);
 				SDKROOT = macosx10.8;
-				SSL_VERSION = 1.0.1c;
+				SSL_VERSION = 1.0.1h;
 				SYMROOT = "$(PROJECT_DIR)/bin";
 				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/include";
 			};
