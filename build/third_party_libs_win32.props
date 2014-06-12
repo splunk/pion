@@ -18,8 +18,8 @@
     <LOG4CPLUS_LIB>C:\log4cplus-1.0.4.1\bin</LOG4CPLUS_LIB>
     <LOG4CXX_INC>C:\apache\apache-log4cxx-0.10.0\src\main\include</LOG4CXX_INC>
     <LOG4CXX_LIB>C:\apache\apache-log4cxx-0.10.0\bin</LOG4CXX_LIB>
-    <OPENSSL_INC>C:\openssl-1.0.1g\inc32</OPENSSL_INC>
-    <OPENSSL_LIB>C:\openssl-1.0.1g\bin</OPENSSL_LIB>
+    <OPENSSL_INC>C:\openssl-1.0.1h\inc32</OPENSSL_INC>
+    <OPENSSL_LIB>C:\openssl-1.0.1h\bin</OPENSSL_LIB>
     <PYTHON_INC>C:\Python26\include</PYTHON_INC>
     <PYTHON_LIB>C:\Python26\libs</PYTHON_LIB>
     <YAJL_INC>C:\yajl-2.0.5\include</YAJL_INC>
