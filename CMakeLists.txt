@@ -151,7 +151,7 @@ if (DOXYGEN_FOUND)
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endif()
 
-configure_file(${CMAKE_MODULE_PATH}/config.hpp.cmake ${COMMON_BIN_PATH}/pion/config.hpp)
+configure_file(${PION_SRC_ROOT}/cmake/config.hpp.cmake ${COMMON_BIN_PATH}/pion/config.hpp)
 include_directories(${COMMON_BIN_PATH})
 
 # TODO: handle #pragma comment, which is hardcoded in config.hpp
