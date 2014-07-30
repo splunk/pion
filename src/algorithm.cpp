@@ -168,7 +168,8 @@ std::string algorithm::url_decode(const std::string& str)
                 decode_buf[0] = str[++pos];
                 decode_buf[1] = str[++pos];
                 decode_buf[2] = '\0';
-                result += static_cast<char>( strtol(decode_buf, 0, 16) );
+                char decoded_char =  static_cast<char>( strtol(decode_buf, 0, 16) );
+                result += decoded_char != '\0' ? decoded_char : decode_buf;
             } else {
                 // recover from error by not decoding character
                 result += '%';
