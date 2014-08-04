@@ -20,6 +20,17 @@ BOOST_AUTO_TEST_CASE(testURLEncoding) {
                       "He%20said%2C%20%22Hello%2C%20World!%22");
 }
 
+BOOST_AUTO_TEST_CASE(testURLDecoding) {
+    BOOST_CHECK_EQUAL(algorithm::url_decode("hello%20world"), "hello world");
+    BOOST_CHECK_EQUAL(algorithm::url_decode("He%20said%2C%20%22Hello%2C%20World!%22"),
+                      "He said, \"Hello, World!\"");
+}
+
+BOOST_AUTO_TEST_CASE(testURLDecodingOfStringWithInvalidEscape) {
+    BOOST_CHECK_EQUAL(algorithm::url_decode("hello%world"), "hello%world");
+    BOOST_CHECK_EQUAL(algorithm::url_decode("hello%00world"), "hello%00world");
+}
+
 BOOST_AUTO_TEST_CASE(testURLEncodingOfStringWithNegativeCharacter) {
     std::string s = "abcde";
     s[0] = -30;
