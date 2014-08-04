@@ -163,12 +163,22 @@ std::string algorithm::url_decode(const std::string& str)
             result += ' ';
             break;
         case '%':
-            // decode hexidecimal value
+            // decode hexadecimal value
             if (pos + 2 < str.size()) {
                 decode_buf[0] = str[++pos];
                 decode_buf[1] = str[++pos];
                 decode_buf[2] = '\0';
-                result += static_cast<char>( strtol(decode_buf, 0, 16) );
+
+                char decoded_char = static_cast<char>( strtol(decode_buf, 0, 16) );
+
+                // decoded_char will be '\0' if strtol can't parse decode_buf as hex
+                // (or if decode_buf == "00", which is also not valid).
+                // In this case, recover from error by not decoding.
+                if (decoded_char == '\0') {
+                    result += '%';
+                    pos -= 2;
+                } else
+                    result += decoded_char;
             } else {
                 // recover from error by not decoding character
                 result += '%';
