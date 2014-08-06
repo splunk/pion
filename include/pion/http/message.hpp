@@ -23,7 +23,13 @@
 #include <pion/http/types.hpp>
 
 #ifndef BOOST_SYSTEM_NOEXCEPT
-    #define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
+    // if 'BOOST_NOEXCEPT' is not defined, as with some older versions of
+    // boost, setting it to nothing should be harmless.
+    #ifndef BOOST_NOEXCEPT
+        #define BOOST_SYSTEM_NOEXCEPT
+    #else
+        #define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
+    #endif
 #endif
 
 
