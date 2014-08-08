@@ -143,12 +143,6 @@
     <ClInclude Include="..\include\pion\http\types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\pion\http\user.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\pion\net\WebService.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\pion\http\writer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -159,6 +153,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\pion\spdy\types.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pion\http\plugin_server.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pion\http\plugin_service.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pion\plugin_manager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pion\user.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pion\error.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pion\logger.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pion\tcp\stream.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pion\test\unit_test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

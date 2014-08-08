@@ -281,8 +281,13 @@
   <ItemGroup>
     <ClInclude Include="..\include\pion\admin_rights.hpp" />
     <ClInclude Include="..\include\pion\algorithm.hpp" />
+    <ClInclude Include="..\include\pion\error.hpp" />
     <ClInclude Include="..\include\pion\http\auth.hpp" />
     <ClInclude Include="..\include\pion\http\basic_auth.hpp" />
+    <ClInclude Include="..\include\pion\http\plugin_server.hpp" />
+    <ClInclude Include="..\include\pion\http\plugin_service.hpp" />
+    <ClInclude Include="..\include\pion\logger.hpp" />
+    <ClInclude Include="..\include\pion\plugin_manager.hpp" />
     <ClInclude Include="..\include\pion\spdy\decompressor.hpp" />
     <ClInclude Include="..\include\pion\spdy\parser.hpp" />
     <ClInclude Include="..\include\pion\spdy\types.hpp" />
@@ -303,11 +308,12 @@
     <ClInclude Include="..\include\pion\scheduler.hpp" />
     <ClInclude Include="..\include\pion\http\server.hpp" />
     <ClInclude Include="..\include\pion\tcp\server.hpp" />
+    <ClInclude Include="..\include\pion\tcp\stream.hpp" />
     <ClInclude Include="..\include\pion\tcp\timer.hpp" />
     <ClInclude Include="..\include\pion\http\types.hpp" />
-    <ClInclude Include="..\include\pion\http\user.hpp" />
-    <ClInclude Include="..\include\pion\net\WebService.hpp" />
     <ClInclude Include="..\include\pion\http\writer.hpp" />
+    <ClInclude Include="..\include\pion\test\unit_test.hpp" />
+    <ClInclude Include="..\include\pion\user.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
