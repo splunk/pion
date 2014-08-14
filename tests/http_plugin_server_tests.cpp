@@ -173,6 +173,14 @@ void ChunkedPostRequestSender::handle_write(const boost::system::error_code& wri
     }
 }
 
+// sample passwords and corresponding hashes
+static const std::string PASSWORD_1 = "Whatever";
+static const std::string SHA_1_HASH_OF_PASSWORD_1 = "c916e71d733d06cb77a4775de5f77fd0b480a7e8";
+static const std::string SHA_256_HASH_OF_PASSWORD_1 = "e497135e5c9481c39bc35e62927bc53b7cad4ed3193f1831e63ee66973b970b1";
+static const std::string PASSWORD_2 = "Open, Sesame!";
+static const std::string SHA_1_HASH_OF_PASSWORD_2 = "a46a5895a829d1fedc9bd4ef1801a2c99fd4f044";
+static const std::string SHA_256_HASH_OF_PASSWORD_2 = "b620fa9f74d0173f84c8f27116766ef426d9beb0f38534555655a9e80a03a8c5";
+
 ///
 /// WebServerTests_F: fixture used for running web server tests
 /// 
@@ -749,7 +757,7 @@ BOOST_AUTO_TEST_CASE(checkPionUserPasswordSanity) {
 
 #ifdef PION_HAVE_SSL
     std::string encrypted_pw = u.get_password();
-    BOOST_CHECK_EQUAL(encrypted_pw.size(), static_cast<unsigned int>(SHA_DIGEST_LENGTH * 2));
+    BOOST_CHECK_EQUAL(encrypted_pw.size(), static_cast<unsigned int>(SHA256_DIGEST_LENGTH * 2));
     BOOST_CHECK(clear_pw != encrypted_pw);
     
     u.set_password_hash(encrypted_pw);
@@ -757,6 +765,62 @@ BOOST_AUTO_TEST_CASE(checkPionUserPasswordSanity) {
     BOOST_CHECK(u.match_password(clear_pw));
 #endif
 }
+
+BOOST_AUTO_TEST_CASE(checkMatchPassword) {
+    user u("test-user", PASSWORD_1);
+    BOOST_CHECK(u.match_password(PASSWORD_1));
+    BOOST_CHECK(! u.match_password(PASSWORD_2));
+}
+
+#ifdef PION_HAVE_SSL
+BOOST_AUTO_TEST_CASE(checkSetPasswordCreatesSha256PasswordHash) {
+    user u("test-user");
+    u.set_password(PASSWORD_1);
+    BOOST_CHECK_EQUAL(u.get_password(), SHA_256_HASH_OF_PASSWORD_1);
+}
+
+BOOST_AUTO_TEST_CASE(checkNewUserGetsSha256PasswordHash) {
+    user u("test-user", PASSWORD_1);
+    BOOST_CHECK_EQUAL(u.get_password(), SHA_256_HASH_OF_PASSWORD_1);
+}
+
+BOOST_AUTO_TEST_CASE(checkAddUserCreatesSha256PasswordHash) {
+    user_manager userManager;
+    BOOST_CHECK(userManager.add_user("test-user", PASSWORD_1));
+    user_ptr u = userManager.get_user("test-user");
+    BOOST_CHECK_EQUAL(u->get_password(), SHA_256_HASH_OF_PASSWORD_1);
+}
+
+BOOST_AUTO_TEST_CASE(checkUpdateUserCreatesSha256PasswordHash) {
+    user_manager userManager;
+    BOOST_REQUIRE(userManager.add_user("test-user", PASSWORD_1));
+
+    BOOST_CHECK(userManager.update_user("test-user", PASSWORD_2));
+    user_ptr u = userManager.get_user("test-user");
+    BOOST_CHECK_EQUAL(u->get_password(), SHA_256_HASH_OF_PASSWORD_2);
+}
+
+BOOST_AUTO_TEST_CASE(checkAddUserHashWorksWithSha256PasswordHash) {
+    user_manager userManager;
+    BOOST_CHECK(userManager.add_user_hash("test-user", SHA_256_HASH_OF_PASSWORD_1));
+    user_ptr u = userManager.get_user("test-user");
+    BOOST_CHECK(u->match_password(PASSWORD_1));
+}
+
+// Check that SHA-1 (legacy) password hashes still work.
+BOOST_AUTO_TEST_CASE(checkSha1PasswordHashStillWorks) {
+    user u("test-user");
+    u.set_password_hash(SHA_1_HASH_OF_PASSWORD_1);
+    BOOST_CHECK(u.match_password(PASSWORD_1));
+}
+
+BOOST_AUTO_TEST_CASE(checkAddUserHashWorksWithLegacySha1PasswordHash) {
+    user_manager userManager;
+    BOOST_CHECK(userManager.add_user_hash("test-user", SHA_1_HASH_OF_PASSWORD_2));
+    user_ptr u = userManager.get_user("test-user");
+    BOOST_CHECK(u->match_password(PASSWORD_2));
+}
+#endif
 
 BOOST_AUTO_TEST_CASE(checkBasicAuthServiceFailure) {
     m_server.load_service("/auth", "EchoService");

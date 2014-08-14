@@ -43,11 +43,17 @@ public:
 
     /// construct a new user object
     user(std::string const &username) :
+#ifdef PION_HAVE_SSL
+        m_password_hash_type(EMPTY),
+#endif
         m_username(username)
     {}
 
     /// construct a new user object
     user(std::string const &username, std::string const &password) :
+#ifdef PION_HAVE_SSL
+        m_password_hash_type(EMPTY),
+#endif
         m_username(username)
     {
         set_password(password);
@@ -69,9 +75,16 @@ public:
      */
     virtual bool match_password(const std::string& password) const {
 #ifdef PION_HAVE_SSL
-        unsigned char sha1_hash[SHA_DIGEST_LENGTH];
-        SHA1(reinterpret_cast<const unsigned char *>(password.data()), password.size(), sha1_hash);
-        return (memcmp(sha1_hash, m_password_hash, SHA_DIGEST_LENGTH) == 0);
+        if (m_password_hash_type == SHA_256) {
+            unsigned char sha256_hash[SHA256_DIGEST_LENGTH];
+            SHA256(reinterpret_cast<const unsigned char *>(password.data()), password.size(), sha256_hash);
+            return (memcmp(sha256_hash, m_password_hash, SHA256_DIGEST_LENGTH) == 0);
+        } else if (m_password_hash_type == SHA_1) {
+            unsigned char sha1_hash[SHA_DIGEST_LENGTH];
+            SHA1(reinterpret_cast<const unsigned char *>(password.data()), password.size(), sha1_hash);
+            return (memcmp(sha1_hash, m_password_hash, SHA_DIGEST_LENGTH) == 0);
+        } else
+            return false;
 #else
         return m_password == password;
 #endif
@@ -81,12 +94,13 @@ public:
     virtual void set_password(const std::string& password) { 
 #ifdef PION_HAVE_SSL
         // store encrypted hash value
-        SHA1((const unsigned char *)password.data(), password.size(), m_password_hash);
+        SHA256((const unsigned char *)password.data(), password.size(), m_password_hash);
+        m_password_hash_type = SHA_256;
 
         // update password string (convert binary to hex)
         m_password.clear();
         char buf[3];
-        for (unsigned int n = 0; n < SHA_DIGEST_LENGTH; ++n) {
+        for (unsigned int n = 0; n < SHA256_DIGEST_LENGTH; ++n) {
             sprintf(buf, "%.2x", static_cast<unsigned int>(m_password_hash[n]));
             m_password += buf;
         }
@@ -99,8 +113,13 @@ public:
     /// sets encrypted password credentials for given user
     virtual void set_password_hash(const std::string& password_hash) {
         // update password string representation
-        if (password_hash.size() != SHA_DIGEST_LENGTH*2)
+        if (password_hash.size() == SHA256_DIGEST_LENGTH * 2) {
+            m_password_hash_type = SHA_256;
+        } else if (password_hash.size() == SHA_DIGEST_LENGTH * 2) {
+            m_password_hash_type = SHA_1;
+        } else {
             BOOST_THROW_EXCEPTION( error::bad_password_hash() );
+        }
         m_password = password_hash;
 
         // convert string from hex to binary value
@@ -128,8 +147,13 @@ protected:
     std::string         m_password;
 
 #ifdef PION_HAVE_SSL
-    /// SHA1 hash of the password
-    unsigned char       m_password_hash[SHA_DIGEST_LENGTH];
+    enum password_hash_type_t {EMPTY, SHA_1, SHA_256};
+
+    /// SHA_256 when hash created by set_password, determined by length of hash when hash is given
+    password_hash_type_t   m_password_hash_type;
+
+    /// SHA256_DIGEST_LENGTH is sufficient for SHA-256 or SHA-1
+    unsigned char          m_password_hash[SHA256_DIGEST_LENGTH];
 #endif
 };
 

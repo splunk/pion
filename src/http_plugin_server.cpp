@@ -11,8 +11,6 @@
 #include <pion/error.hpp>
 #include <pion/http/plugin_server.hpp>
 #include <pion/http/request.hpp>
-#include <pion/http/request_reader.hpp>
-#include <pion/http/response_writer.hpp>
 #include <pion/http/basic_auth.hpp>
 #include <pion/http/cookie_auth.hpp>
 #include <fstream>
