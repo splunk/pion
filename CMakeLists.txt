@@ -11,14 +11,6 @@ cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 set(PROJECT_NAME pion_solution)
 project(${PROJECT_NAME} CXX C)
 
-if( CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-  message(FATAL_ERROR "In-source builds are not allowed. CMake would overwrite "
-"the files distributed with LLVM. Please create a directory and run cmake "
-"from there, passing the path to this source directory as the last argument. "
-"This process created the file `CMakeCache.txt' and the directory "
-"`CMakeFiles'. Please delete them.")
-endif()
-
 #-------------------------------------------------
 # prepare folders var's
 #-------------------------------------------------
@@ -31,14 +23,15 @@ set(EXECUTABLE_OUTPUT_PATH ${COMMON_BIN_PATH}/${CMAKE_BUILD_TYPE})
 # set where to find additional cmake modules if any
 set(CMAKE_MODULE_PATH ${PION_SRC_ROOT}/cmake ${CMAKE_MODULE_PATH})
 
-message("EXECUTABLE_OUTPUT_PATH = ${EXECUTABLE_OUTPUT_PATH}")
-
 include(PionUtils)
+
+enforce_out_of_source("${PROJECT_NAME} required out-of-source build. Use 'cmake <path to source>'")
 pion_get_version("${PION_SRC_ROOT}" PION_V_MAJOR PION_V_MINOR PION_V_PATCH)
 pion_update_compilation_opts()
 
 set(PION_VERSION "${PION_V_MAJOR}.${PION_V_MINOR}.${PION_V_PATCH}" CACHE STRING "Pion version" FORCE)
 message(">>> Building Pion version: ${PION_VERSION}")
+message(">>> EXECUTABLE_OUTPUT_PATH = ${EXECUTABLE_OUTPUT_PATH}")
 
 #----------------------------------------------------------
 # Configuration options block
@@ -158,6 +151,10 @@ include_directories(${COMMON_BIN_PATH})
 # need to generate config.hpp by ourselfs
 add_definitions(-DPION_CMAKE_BUILD)
 
+if(NOT BUILD_SHARED_LIBS)
+    add_definitions(-DPION_STATIC_LINKING)
+endif()
+
 #-------------------------------------------------
 # enable TDD
 #-------------------------------------------------
@@ -174,3 +171,4 @@ add_subdirectory(utils)
 
 install(DIRECTORY ${PION_SRC_ROOT}/include/ DESTINATION include FILES_MATCHING PATTERN "*.hpp")
 install(FILES ${COMMON_BIN_PATH}/pion/config.hpp DESTINATION include/pion/)
+
