@@ -414,6 +414,45 @@ BOOST_AUTO_TEST_CASE(testParseSetCookieHeader)
     BOOST_CHECK_EQUAL(cookie_it->second, "FedEx");
 }
 
+BOOST_AUTO_TEST_CASE(testCookieAttributesMatchCaseInsensitively)
+{
+    ihash_multimap cookies;
+    std::string cookie_header = "Shipping=\"FedEx\"; VeRsIoN=\"1\"; pAtH=\"/acme\"";
+    BOOST_REQUIRE(http::parser::parse_cookie_header(cookies, cookie_header, true));
+    BOOST_CHECK_EQUAL(cookies.size(), 1UL);
+}
+
+// Multiple cookies are not allowed in RFC 6265, but were in RFC 2109.
+BOOST_AUTO_TEST_CASE(testParseSetCookieHeaderWithMultipleCookies)
+{
+    std::string cookie_header;
+    ihash_multimap cookies;
+    ihash_multimap::const_iterator cookie_it;
+
+    cookie_header = "Shipping=\"FedEx\"; Version=\"1\"; Path=\"/acme\", Customer=\"WILE_E_COYOTE\"; Path=\"/acme\"";
+    BOOST_REQUIRE(http::parser::parse_cookie_header(cookies, cookie_header, true));
+    BOOST_CHECK_EQUAL(cookies.size(), 2UL);
+    cookie_it = cookies.find("Shipping");
+    BOOST_REQUIRE(cookie_it != cookies.end());
+    BOOST_CHECK_EQUAL(cookie_it->second, "FedEx");
+    cookie_it = cookies.find("Customer");
+    BOOST_REQUIRE(cookie_it != cookies.end());
+    BOOST_CHECK_EQUAL(cookie_it->second, "WILE_E_COYOTE");
+}
+
+BOOST_AUTO_TEST_CASE(testSetCookieHeaderWithCookieAttributesWithCommas)
+{
+    ihash_multimap cookies;
+    std::string cookie_header = "GoogleAccountsLocale_session=; expires=Mon, 01-Jan-1990 00:00:00 GMT; path=/; domain=.www.google.com";
+    BOOST_REQUIRE(http::parser::parse_cookie_header(cookies, cookie_header, true));
+    BOOST_CHECK_EQUAL(cookies.size(), 2UL);
+    BOOST_CHECK(cookies.find("GoogleAccountsLocale_session") != cookies.end());
+
+    // Note: this behavior is obviously not ideal.  However, we have to live with this for backward compatibility,
+    // since Set-Cookie headers with comma separated cookies may still exist, despite RFC 6265.
+    BOOST_CHECK(cookies.find("01-Jan-199000:00:00GMT") != cookies.end());
+}
+
 BOOST_AUTO_TEST_CASE(testHTTPParserSimpleRequest)
 {
     http::parser request_parser(true);

@@ -722,8 +722,23 @@ inline bool parser::is_hex_digit(int c)
 inline bool parser::is_cookie_attribute(const std::string& name, bool set_cookie_header)
 {
     return (name.empty() || name[0] == '$' || (set_cookie_header &&
-        (name=="Comment" || name=="Domain" || name=="Max-Age" || name=="Path" || name=="Secure" || name=="Version" || name=="Expires")
-        ) );
+        (
+            // This is needed because of a very lenient determination in parse_cookie_header() of what
+            // qualifies as a cookie-pair in a Set-Cookie header.
+            // According to RFC 6265, everything after the first semicolon is a cookie attribute, but RFC 2109,
+            // which is obsolete, allowed multiple comma separated cookies.
+            // parse_cookie_header() is very conservatively assuming that any <name>=<value> pair in a
+            // Set-Cookie header is a cookie-pair unless <name> is a known cookie attribute.
+               boost::algorithm::iequals(name, "Comment")
+            || boost::algorithm::iequals(name, "Domain")
+            || boost::algorithm::iequals(name, "Max-Age")
+            || boost::algorithm::iequals(name, "Path")
+            || boost::algorithm::iequals(name, "Secure")
+            || boost::algorithm::iequals(name, "Version")
+            || boost::algorithm::iequals(name, "Expires")
+            || boost::algorithm::iequals(name, "HttpOnly")
+        )
+    ));
 }
 
 }   // end namespace http
