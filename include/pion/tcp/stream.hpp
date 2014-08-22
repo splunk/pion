@@ -339,10 +339,7 @@ public:
      * @param conn_ptr pointer to the TCP connection to use for reading & writing
      */
     explicit stream(tcp::connection_ptr& conn_ptr)
-        : m_tcp_buf(conn_ptr)
-#ifdef _MSC_VER
-        , std::basic_iostream<char, std::char_traits<char> >(NULL)
-#endif
+        : std::basic_iostream<char, std::char_traits<char> >(NULL), m_tcp_buf(conn_ptr)
     {
         // initialize basic_iostream with pointer to the stream buffer
         std::basic_ios<char,std::char_traits<char> >::init(&m_tcp_buf);
@@ -356,10 +353,7 @@ public:
      */
     explicit stream(boost::asio::io_service& io_service,
                        const bool ssl_flag = false)
-        : m_tcp_buf(io_service, ssl_flag)
-#ifdef _MSC_VER
-        , std::basic_iostream<char, std::char_traits<char> >(NULL)
-#endif
+        : std::basic_iostream<char, std::char_traits<char> >(NULL), m_tcp_buf(io_service, ssl_flag)
     {
         // initialize basic_iostream with pointer to the stream buffer
         std::basic_ios<char,std::char_traits<char> >::init(&m_tcp_buf);
@@ -373,10 +367,7 @@ public:
      */
     stream(boost::asio::io_service& io_service,
               connection::ssl_context_type& ssl_context)
-        : m_tcp_buf(io_service, ssl_context)
-#ifdef _MSC_VER
-        , std::basic_iostream<char, std::char_traits<char> >(NULL)
-#endif
+        : std::basic_iostream<char, std::char_traits<char> >(NULL), m_tcp_buf(io_service, ssl_context)
     {
         // initialize basic_iostream with pointer to the stream buffer
         std::basic_ios<char,std::char_traits<char> >::init(&m_tcp_buf);

@@ -1245,7 +1245,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0510;
 			};
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "pion" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1580,7 +1580,6 @@
 		1DEB923608733DC60010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				BOOST_VERSION = 1.51.0;
 				DEP_PATH = "/Users/$(USER)/.cloudmeter";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -1595,6 +1594,7 @@
 				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)";
 				LOG4CPLUS_VERSION = 1.0.4.1;
 				OBJROOT = "$(PROJECT_DIR)/bin/tmp";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fkeep-inline-functions",
 					"-isystem",
@@ -1611,7 +1611,7 @@
 					"-lz",
 					"-lbz2",
 				);
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				SSL_VERSION = 1.0.1h;
 				SYMROOT = "$(PROJECT_DIR)/bin";
 				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/include";
@@ -1621,7 +1621,6 @@
 		1DEB923708733DC60010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				BOOST_VERSION = 1.51.0;
 				DEP_PATH = "/Users/$(USER)/.cloudmeter";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -1652,7 +1651,7 @@
 					"-lz",
 					"-lbz2",
 				);
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				SSL_VERSION = 1.0.1h;
 				SYMROOT = "$(PROJECT_DIR)/bin";
 				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/include";
