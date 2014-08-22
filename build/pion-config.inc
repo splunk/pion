@@ -80,7 +80,7 @@ fi
 if test "$unordered_map_type" = "unordered_map"; then
 	AC_DEFINE([PION_HAVE_UNORDERED_MAP],[1],[Define to 1 if you have the <unordered_map> header file.])
 elif test "$unordered_map_type" = "tr1_unordered_map"; then
-	AC_DEFINE([PION_HAVE_UNORDERED_MAP],[1],[Define to 1 if you have the <unordered_map> header file.])
+	AC_DEFINE([PION_HAVE_TR1_UNORDERED_MAP],[1],[Define to 1 if you have the <tr1/unordered_map> header file.])
 elif test "$unordered_map_type" = "ext_hash_map"; then
 	AC_DEFINE([PION_HAVE_EXT_HASH_MAP],[1],[Define to 1 if you have the <ext/hash_map> header file.])
 elif test "$unordered_map_type" = "hash_map"; then
