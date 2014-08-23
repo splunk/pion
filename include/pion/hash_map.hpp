@@ -16,10 +16,9 @@
 #include <boost/functional/hash.hpp>
 #include <pion/config.hpp>
 
-#if defined(PION_HAVE_UNORDERED_MAP) && defined(PION_CMAKE_BUILD)
-    // cmake will search for unordered_map without tr1
+#if defined(PION_HAVE_UNORDERED_MAP)
     #include <unordered_map>
-#elif defined(PION_HAVE_UNORDERED_MAP)
+#elif defined(PION_HAVE_TR1_UNORDERED_MAP)
     #include <tr1/unordered_map>
 #elif defined(PION_HAVE_EXT_HASH_MAP)
     #include <ext/hash_map>
@@ -30,12 +29,12 @@
 
 namespace pion {    // begin namespace pion
 
-#if defined(PION_HAVE_UNORDERED_MAP) && defined(PION_CMAKE_BUILD)
+#if defined(PION_HAVE_UNORDERED_MAP)
     #define PION_HASH_MAP std::unordered_map
     #define PION_HASH_MULTIMAP std::unordered_multimap
     #define PION_HASH_STRING boost::hash<std::string>
     #define PION_HASH(TYPE) boost::hash<TYPE>
-#elif defined(PION_HAVE_UNORDERED_MAP)
+#elif defined(PION_HAVE_TR1_UNORDERED_MAP)
     #define PION_HASH_MAP std::tr1::unordered_map
     #define PION_HASH_MULTIMAP std::tr1::unordered_multimap
     #define PION_HASH_STRING boost::hash<std::string>

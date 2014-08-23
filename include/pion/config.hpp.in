@@ -35,6 +35,9 @@
 /* Define to 1 if you have the <hash_map> header file. */
 #undef PION_HAVE_HASH_MAP
 
+/* Define to 1 if you have the <tr1/unordered_map> header file. */
+#undef PION_HAVE_TR1_UNORDERED_MAP
+
 /* Define to 1 if you have the <unordered_map> header file. */
 #undef PION_HAVE_UNORDERED_MAP
 

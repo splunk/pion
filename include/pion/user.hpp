@@ -43,18 +43,18 @@ public:
 
     /// construct a new user object
     user(std::string const &username) :
-#ifdef PION_HAVE_SSL
-        m_password_hash_type(EMPTY),
-#endif
         m_username(username)
+#ifdef PION_HAVE_SSL
+        , m_password_hash_type(EMPTY)
+#endif
     {}
 
     /// construct a new user object
     user(std::string const &username, std::string const &password) :
-#ifdef PION_HAVE_SSL
-        m_password_hash_type(EMPTY),
-#endif
         m_username(username)
+#ifdef PION_HAVE_SSL
+        , m_password_hash_type(EMPTY)
+#endif
     {
         set_password(password);
     }
