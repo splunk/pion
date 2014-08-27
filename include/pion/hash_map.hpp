@@ -97,7 +97,7 @@ namespace pion {    // begin namespace pion
         }
     };
     
-#ifdef _MSC_VER
+#if defined( _MSC_VER ) && ( _MSC_VER < 1800 )
     /// Case-insensitive "less than" predicate
     template<class _Ty> struct is_iless : public std::binary_function<_Ty, _Ty, bool>
     {
