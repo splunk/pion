@@ -1581,6 +1581,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BOOST_VERSION = 1.51.0;
+				CLANG_CXX_LIBRARY = "libstdc++";
 				DEP_PATH = "/Users/$(USER)/.cloudmeter";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
@@ -1622,6 +1623,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BOOST_VERSION = 1.51.0;
+				CLANG_CXX_LIBRARY = "libstdc++";
 				DEP_PATH = "/Users/$(USER)/.cloudmeter";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;

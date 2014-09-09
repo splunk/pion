@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include <boost/version.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/test/unit_test.hpp>
@@ -268,15 +269,12 @@ namespace test {    // begin namespace test
             return false;
 
         // read data from file
-        static const unsigned int BUF_SIZE = 4096;
-        char *ptr, buf[BUF_SIZE+1];
-        buf[BUF_SIZE] = '\0';
         lines.clear();
-
-        while (a_file.getline(buf, BUF_SIZE)) {
-            ptr = trim(buf);
-            if (*ptr != '\0' && *ptr != '#')
-                lines.push_back(ptr);
+        std::string one_line;
+        while (std::getline(a_file, one_line)) {
+            boost::trim(one_line);
+            if (!one_line.empty() && one_line[0] != '#')
+                lines.push_back(one_line);
         }
 
         // close file

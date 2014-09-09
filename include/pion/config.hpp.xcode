@@ -31,16 +31,16 @@
 // At least one of the following options should be defined.
 
 /* Define to 1 if you have the <ext/hash_map> header file. */
-/* #define PION_HAVE_EXT_HASH_MAP 1 */
+/* #undef PION_HAVE_EXT_HASH_MAP 1 */
 
 /* Define to 1 if you have the <hash_map> header file. */
 /* #undef PION_HAVE_HASH_MAP */
 
 /* Define to 1 if you have the <tr1/unordered_map> header file. */
-/* #undef PION_HAVE_TR1_UNORDERED_MAP */
+#define PION_HAVE_TR1_UNORDERED_MAP
 
 /* Define to 1 if you have the <unordered_map> header file. */
-#define PION_HAVE_UNORDERED_MAP
+/* #undef PION_HAVE_UNORDERED_MAP */
 
 // -----------------------------------------------------------------------
 // Logging Options
