@@ -48,7 +48,7 @@ class LogServiceAppender
 public:
     // default constructor and destructor
     LogServiceAppender(void);
-    virtual ~LogServiceAppender() {}
+    virtual ~LogServiceAppender();
     
     /// sets the maximum number of log events cached in memory
     inline void setMaxEvents(unsigned int n) { m_max_events = n; }

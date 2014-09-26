@@ -46,6 +46,13 @@ LogServiceAppender::LogServiceAppender(void)
     {}
 #endif
 
+LogServiceAppender::~LogServiceAppender()
+{
+#if defined(PION_USE_LOG4CPLUS)
+	destructorImpl();
+#endif
+}
+
 
 #if defined(PION_USE_LOG4CXX)
 void LogServiceAppender::append(const log4cxx::spi::LoggingEventPtr& event)

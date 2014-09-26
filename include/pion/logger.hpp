@@ -111,7 +111,7 @@
 
             // default constructor and destructor
             circular_buffer_appender(void) : m_log_events(1000) {};
-            virtual ~circular_buffer_appender() {}
+            virtual ~circular_buffer_appender() { destructorImpl(); }
 
             /// returns an iterator to the log events in the buffer
             const LogEventBuffer& getLogIterator() const {
