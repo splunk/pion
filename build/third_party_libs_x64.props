@@ -1,28 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
-    <BOOST_INC>C:\boost\include\boost-1_51</BOOST_INC>
-    <BOOST_LIB>C:\boost\lib\x64</BOOST_LIB>
-    <BZIP2_LIB>C:\bzip2-1.0.6\lib64</BZIP2_LIB>
-    <ICONV_INC>C:\iconv-1.9.2\include</ICONV_INC>
-    <ICONV_LIB>C:\iconv-1.9.2\bin\x64</ICONV_LIB>
-    <ICU_INC>C:\icu4c-49_1_2\icu\include</ICU_INC>
-    <ICU_LIB>C:\icu4c-49_1_2\icu\lib64</ICU_LIB>
-    <LIBXML_INC>C:\libxml2-2.9.0\include</LIBXML_INC>
-    <LIBXML_LIB>C:\libxml2-2.9.0\bin\x64</LIBXML_LIB>
-    <LOG4CPLUS_INC>C:\log4cplus-1.0.4.1\include</LOG4CPLUS_INC>
-    <LOG4CPLUS_LIB>C:\log4cplus-1.0.4.1\bin\x64</LOG4CPLUS_LIB>
-    <OPENSSL_INC>C:\openssl-1.0.1h\inc64</OPENSSL_INC>
-    <OPENSSL_LIB>C:\openssl-1.0.1h\bin\x64</OPENSSL_LIB>
-    <PYTHON_INC>C:\Python26\x64\include</PYTHON_INC>
-    <PYTHON_LIB>C:\Python26\x64\libs</PYTHON_LIB>
-    <YAJL_INC>C:\yajl-2.0.5\include</YAJL_INC>
-    <YAJL_LIB>C:\yajl-2.0.5\lib\Release\x64</YAJL_LIB>
-    <ZLIB_INC>C:\zlib-1.2.7\include</ZLIB_INC>
-    <ZLIB_LIB>C:\zlib-1.2.7\bin\x64</ZLIB_LIB>
-    <PION_PATH>$(BOOST_LIB);$(BZIP2_LIB);$(ICONV_LIB);$(ICU_LIB);$(LIBXML_LIB);$(LOG4CPLUS_LIB);$(OPENSSL_LIB);$(YAJL_LIB);$(ZLIB_LIB);$(PATH)</PION_PATH>
-    <SQLITE_INC>C:\sqlite-3.7.14.1\</SQLITE_INC>
-    <SQLITE_LIB>C:\sqlite-3.7.14.1\lib64\</SQLITE_LIB>
+    <LIB_ROOT>C:\vc12</LIB_ROOT>
+    <BOOST_INC>$(LIB_ROOT)\boost-1.56.0</BOOST_INC>
+    <BOOST_LIB>$(LIB_ROOT)\boost-1.56.0\lib</BOOST_LIB>
+    <BZIP2_LIB>$(LIB_ROOT)\bzip2-1.0.6\lib64</BZIP2_LIB>
+    <ICONV_INC>$(LIB_ROOT)\iconv-1.9.2\include</ICONV_INC>
+    <ICONV_LIB>$(LIB_ROOT)\iconv-1.9.2\bin\x64</ICONV_LIB>
+    <ICU_INC>$(LIB_ROOT)\icu4c-53.1\icu\include</ICU_INC>
+    <ICU_LIB>$(LIB_ROOT)\icu4c-53.1\icu\lib64</ICU_LIB>
+    <ICU_BIN>$(LIB_ROOT)\icu4c-53.1\icu\bin64</ICU_BIN>
+    <LIBXML_INC>$(LIB_ROOT)\libxml2-2.9.0\include</LIBXML_INC>
+    <LIBXML_LIB>$(LIB_ROOT)\libxml2-2.9.0\bin\x64</LIBXML_LIB>
+    <LOG4CPLUS_INC>$(LIB_ROOT)\log4cplus-1.1.3-rc2\include</LOG4CPLUS_INC>
+    <LOG4CPLUS_LIB>$(LIB_ROOT)\log4cplus-1.1.3-rc2\bin\x64</LOG4CPLUS_LIB>
+    <OPENSSL_INC>$(LIB_ROOT)\openssl-1.0.1h\inc64</OPENSSL_INC>
+    <OPENSSL_LIB>$(LIB_ROOT)\openssl-1.0.1h\bin\x64</OPENSSL_LIB>
+    <ZLIB_INC>$(LIB_ROOT)\zlib-1.2.8\include</ZLIB_INC>
+    <ZLIB_LIB>$(LIB_ROOT)\zlib-1.2.8\lib64</ZLIB_LIB>
+    <PION_PATH>$(BOOST_LIB);$(BZIP2_LIB);$(ICONV_LIB);$(ICU_BIN);$(LIBXML_LIB);$(LOG4CPLUS_LIB);$(OPENSSL_LIB);$(ZLIB_LIB);$(PATH)</PION_PATH>
+    <SQLITE_INC>$(LIB_ROOT)\sqlite-3.7.14.1\</SQLITE_INC>
+    <SQLITE_LIB>$(LIB_ROOT)\sqlite-3.7.14.1\lib64-ICU-53</SQLITE_LIB>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
@@ -36,6 +34,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <BuildMacro Include="LIB_ROOT">
+      <Value>$(LIB_ROOT)</Value>
+    </BuildMacro>
     <BuildMacro Include="BOOST_INC">
       <Value>$(BOOST_INC)</Value>
     </BuildMacro>
@@ -57,6 +58,9 @@
     <BuildMacro Include="ICU_LIB">
       <Value>$(ICU_LIB)</Value>
     </BuildMacro>
+    <BuildMacro Include="ICU_BIN">
+      <Value>$(ICU_BIN)</Value>
+    </BuildMacro>
     <BuildMacro Include="LIBXML_INC">
       <Value>$(LIBXML_INC)</Value>
     </BuildMacro>
@@ -74,18 +78,6 @@
     </BuildMacro>
     <BuildMacro Include="OPENSSL_LIB">
       <Value>$(OPENSSL_LIB)</Value>
-    </BuildMacro>
-    <BuildMacro Include="PYTHON_INC">
-      <Value>$(PYTHON_INC)</Value>
-    </BuildMacro>
-    <BuildMacro Include="PYTHON_LIB">
-      <Value>$(PYTHON_LIB)</Value>
-    </BuildMacro>
-    <BuildMacro Include="YAJL_INC">
-      <Value>$(YAJL_INC)</Value>
-    </BuildMacro>
-    <BuildMacro Include="YAJL_LIB">
-      <Value>$(YAJL_LIB)</Value>
     </BuildMacro>
     <BuildMacro Include="ZLIB_INC">
       <Value>$(ZLIB_INC)</Value>
