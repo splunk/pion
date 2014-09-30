@@ -14,8 +14,8 @@
     <LIBXML_LIB>$(LIB_ROOT)\libxml2-2.9.0\bin\x64</LIBXML_LIB>
     <LOG4CPLUS_INC>$(LIB_ROOT)\log4cplus-1.1.3-rc2\include</LOG4CPLUS_INC>
     <LOG4CPLUS_LIB>$(LIB_ROOT)\log4cplus-1.1.3-rc2\bin\x64</LOG4CPLUS_LIB>
-    <OPENSSL_INC>$(LIB_ROOT)\openssl-1.0.1h\inc64</OPENSSL_INC>
-    <OPENSSL_LIB>$(LIB_ROOT)\openssl-1.0.1h\bin\x64</OPENSSL_LIB>
+    <OPENSSL_INC>$(LIB_ROOT)\openssl-1.0.1i\inc64</OPENSSL_INC>
+    <OPENSSL_LIB>$(LIB_ROOT)\openssl-1.0.1i\bin\x64</OPENSSL_LIB>
     <ZLIB_INC>$(LIB_ROOT)\zlib-1.2.8\include</ZLIB_INC>
     <ZLIB_LIB>$(LIB_ROOT)\zlib-1.2.8\lib64</ZLIB_LIB>
     <PION_PATH>$(BOOST_LIB);$(BZIP2_LIB);$(ICONV_LIB);$(ICU_BIN);$(LIBXML_LIB);$(LOG4CPLUS_LIB);$(OPENSSL_LIB);$(ZLIB_LIB);$(PATH)</PION_PATH>
