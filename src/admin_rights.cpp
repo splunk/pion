@@ -41,18 +41,18 @@ admin_rights::admin_rights(bool use_log)
 void admin_rights::release(void)
 {}
 
-long admin_rights::run_as_user(const std::string& user_name)
+long admin_rights::run_as_user(const std::string& /* user_name */)
 {
     return -1;
 }
 
-long admin_rights::run_as_group(const std::string& group_name)
+long admin_rights::run_as_group(const std::string& /* group_name */)
 {
     return -1;
 }
 
-long admin_rights::find_system_id(const std::string& name,
-    const std::string& file)
+long admin_rights::find_system_id(const std::string& /* name */,
+    const std::string& /* file */)
 {
     return -1;
 }

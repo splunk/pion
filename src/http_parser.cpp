@@ -1422,7 +1422,7 @@ boost::tribool parser::parse_chunks(http::message::chunk_cache_t& chunks,
 }
 
 boost::tribool parser::consume_content(http::message& http_msg,
-    boost::system::error_code& ec)
+    boost::system::error_code& /* ec */)
 {
     size_t content_bytes_to_read;
     size_t content_bytes_available = bytes_available();

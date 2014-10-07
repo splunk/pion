@@ -156,6 +156,8 @@ void ChunkedPostRequestSender::send(void)
 void ChunkedPostRequestSender::handle_write(const boost::system::error_code& write_error,
                                            std::size_t bytes_written)
 {
+    (void)bytes_written;
+
     if (write_error) {
         // encountered error sending request data
         m_writer->get_connection()->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE); // make sure it will get closed
@@ -1070,7 +1072,7 @@ public:
     
     /// checks the validity of the HTTP response
     void checkResponse(http::response_ptr& http_response_ptr,
-        tcp::connection_ptr& conn_ptr, const boost::system::error_code& ec)
+        tcp::connection_ptr& /* conn_ptr */, const boost::system::error_code& /* ec */)
     {
         checkResponse(*http_response_ptr);
         boost::mutex::scoped_lock async_lock(m_mutex);

@@ -139,6 +139,8 @@ protected:
     virtual void handle_write(const boost::system::error_code& write_error,
                              std::size_t bytes_written)
     {
+        (void)bytes_written;
+
         logger log_ptr(get_logger());
         if (! write_error) {
             // request sent OK

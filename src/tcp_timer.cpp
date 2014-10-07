@@ -40,7 +40,7 @@ void timer::cancel(void)
         m_timer.cancel();
 }
 
-void timer::timer_callback(const boost::system::error_code& ec)
+void timer::timer_callback(const boost::system::error_code& /* ec */)
 {
     boost::mutex::scoped_lock timer_lock(m_mutex);
     m_timer_active = false;
