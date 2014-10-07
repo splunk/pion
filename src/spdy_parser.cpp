@@ -352,7 +352,6 @@ void parser::parse_header_payload(boost::system::error_code &ec,
                                   boost::uint32_t current_stream_count)
 {
     boost::uint32_t stream_id = 0;
-    boost::uint32_t associated_stream_id;
     boost::uint32_t header_block_length = frame.length;
     
     // Get the 31 bit stream id
@@ -368,11 +367,7 @@ void parser::parse_header_payload(boost::system::error_code &ec,
     
     if (frame.type == SPDY_SYN_STREAM) {
         
-        // Get associated stream ID.
-        
-        boost::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
-        associated_stream_id = four_bytes & 0x7FFFFFFF;
-        
+        // Ignore associated stream ID.
         m_read_ptr += 4;
         
         // The next bits are priority, unused, and slot.
@@ -477,7 +472,6 @@ void parser::parse_spdy_data(boost::system::error_code &ec,
 void parser::parse_spdy_rst_stream(boost::system::error_code &ec,
                                    const spdy_control_frame_info& frame)
 {
-    boost::uint32_t stream_id = 0;
     boost::uint32_t status_code = 0;
     
     // First complete the check for size and flag
@@ -486,11 +480,7 @@ void parser::parse_spdy_rst_stream(boost::system::error_code &ec,
         return;
     }
 
-    // Get the 31 bit stream id
-    
-    boost::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
-    stream_id = four_bytes & 0x7FFFFFFF;
-    
+    // Ignore the 31 bit stream id
     m_read_ptr += 4;
     
     // Get the status code
@@ -540,14 +530,9 @@ void parser::parse_spdy_goaway_frame(boost::system::error_code &ec,
         return;
     }
     
-    boost::uint32_t last_good_stream_id = 0;
     boost::uint32_t status_code = 0;
     
-    // Get the 31 bit stream id
-    
-    boost::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
-    last_good_stream_id = four_bytes & 0x7FFFFFFF;
-    
+    // Ignore the 31 bit stream id
     m_read_ptr += 4;
     
     // Get the status code
