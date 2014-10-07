@@ -440,7 +440,7 @@ public:
 protected:
 
     /// Called after we have finished parsing the HTTP message headers
-    virtual void finished_parsing_headers(const boost::system::error_code& ec) {}
+    virtual void finished_parsing_headers(const boost::system::error_code& /* ec */) {}
     
     /**
      * parses an HTTP message up to the end of the headers using bytes 

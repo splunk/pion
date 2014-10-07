@@ -219,7 +219,7 @@ void process::daemonize(void)
 
 #else   // NOT #ifdef _MSC_VER
 
-void handle_signal(int sig)
+void handle_signal(int /* sig */)
 {
     process::shutdown();
 }

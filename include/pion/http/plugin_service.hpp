@@ -51,7 +51,7 @@ public:
      * @param name the name of the option to change
      * @param value the value of the option
      */
-    virtual void set_option(const std::string& name, const std::string& value) {
+    virtual void set_option(const std::string& name, const std::string& /* value */) {
         BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
     }
     

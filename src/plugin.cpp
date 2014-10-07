@@ -53,6 +53,9 @@ void plugin::check_cygwin_path(boost::filesystem::path& final_path,
     if (! final_path.is_complete() && final_path.has_root_directory()) {
         final_path = boost::filesystem::path(std::string(PION_CYGWIN_DIRECTORY) + start_path);
     }
+#else
+    (void)final_path;
+    (void)start_path;
 #endif
 }
 
