@@ -201,7 +201,7 @@ class PION_API multi_thread_scheduler :
 {
 public:
     
-    /// constructs a new single_service_scheduler
+    /// constructs a new multi_thread_scheduler
     multi_thread_scheduler(void) {}
     
     /// virtual destructor
