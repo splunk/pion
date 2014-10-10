@@ -75,6 +75,14 @@ case "$build_os" in
 	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
 	PION_EXTERNAL_LIBS="-lws2_32 -lmswsock"
 	;;
+*mingw32*)
+	# MingW32 GCC compiler (Windows)
+	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT -DPION_WIN32 -D__USE_W32_SOCKETS"
+	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
+	PION_OPT_FLAGS="-O1 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
+	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
+	PION_EXTERNAL_LIBS="-lws2_32 -lmswsock"
+	;;
 *freebsd*)
 	# FreeBSD: GCC compiler
 	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT"
