@@ -18,7 +18,7 @@
 #include <pion/config.hpp>
 
 // Dump file generation support on Windows
-#ifdef _MSC_VER
+#ifdef PION_WIN32
 #include <windows.h>
 #include <tchar.h>
 #include <DbgHelp.h>
@@ -57,7 +57,7 @@ public:
     /// fork process and run as a background daemon
     static void daemonize(void);
 
-#ifdef _MSC_VER
+#ifdef PION_WIN32
 
     class dumpfile_init_exception : public std::exception
     {
@@ -89,7 +89,7 @@ protected:
     /// data type for static/global process configuration information
     struct config_type {
         /// constructor just initializes native types
-#ifdef _MSC_VER
+#ifdef PION_WIN32
         config_type() : shutdown_now(false), h_dbghelp(NULL), p_dump_proc(NULL) {}
 #else
         config_type() : shutdown_now(false) {}
@@ -105,7 +105,7 @@ protected:
         boost::mutex            shutdown_mutex;
 
 // Dump file generation support on Windows
-#ifdef _MSC_VER
+#ifdef PION_WIN32
         /// mini-dump file location
         std::string             dumpfile_dir;
         

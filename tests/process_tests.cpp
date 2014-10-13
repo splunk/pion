@@ -21,7 +21,7 @@ public:
 
 BOOST_FIXTURE_TEST_SUITE(ProcessTest_S, ProcessTest_F)
 
-#ifdef _MSC_VER
+#ifdef PION_WIN32
 BOOST_AUTO_TEST_CASE(checkSetDumpfileDirectory)
 {
     // check that invalid input results in an exception

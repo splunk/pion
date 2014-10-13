@@ -9,7 +9,7 @@
 
 #include <pion/admin_rights.hpp>
 
-#ifndef _MSC_VER
+#ifndef PION_WIN32
     #include <sys/types.h>
     #include <unistd.h>
     #include <sys/types.h>
@@ -31,7 +31,7 @@ boost::mutex            admin_rights::m_mutex;
 
 // admin_rights member functions
 
-#ifdef _MSC_VER
+#ifdef PION_WIN32
 
 admin_rights::admin_rights(bool use_log)
     : m_logger(PION_GET_LOGGER("pion.admin_rights")),
@@ -57,7 +57,7 @@ long admin_rights::find_system_id(const std::string& /* name */,
     return -1;
 }
 
-#else   // NOT #ifdef _MSC_VER
+#else   // NOT #ifdef PION_WIN32
 
 admin_rights::admin_rights(bool use_log)
     : m_logger(PION_GET_LOGGER("pion.admin_rights")),
@@ -154,7 +154,7 @@ long admin_rights::find_system_id(const std::string& name,
     return system_id;
 }
 
-#endif  // #ifdef _MSC_VER
+#endif  // #ifdef PION_WIN32
     
 }   // end namespace pion
 
