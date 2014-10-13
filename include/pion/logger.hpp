@@ -206,10 +206,10 @@
     }
 
     #undef PION_HAS_LOG_APPENDER
-    #define PION_LOG_CONFIG_BASIC   {}
+    #define PION_LOG_CONFIG_BASIC   (void)0
     #define PION_LOG_CONFIG(FILE)   {}
     #define PION_GET_LOGGER(NAME)   0
-    #define PION_SHUTDOWN_LOGGER    0
+    #define PION_SHUTDOWN_LOGGER    (void)0
 
     // use LOG to avoid warnings about LOG not being used
     #define PION_LOG_SETLEVEL_DEBUG(LOG)    { if (LOG) {} }
