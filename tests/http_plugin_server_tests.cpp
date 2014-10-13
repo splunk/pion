@@ -7,6 +7,7 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+
 #include <pion/config.hpp>
 #include <boost/asio.hpp>
 #include <boost/shared_ptr.hpp>
@@ -719,6 +720,54 @@ BOOST_AUTO_TEST_CASE(checkLogServiceResponseContent) {
                                   boost::regex(".*Using\\sostream\\slogging.*"));
 #endif
 }
+
+#if defined(PION_USE_LOG4CPLUS)
+BOOST_AUTO_TEST_CASE(checkCircularBufferAppender) {
+	// Create a circular buffer appender and add it:
+	pion::log_appender_ptr appender(new pion::circular_buffer_appender);
+	appender->setName("CircularBufferAppender");
+	pion::logger::getRoot().addAppender(appender);
+
+	// Log an error so we can check if it gets appended:
+	pion::logger log_ptr = PION_GET_LOGGER("pion");
+	PION_LOG_ERROR(log_ptr, "X happened");
+
+	// Get a reference to the log event buffer.
+	pion::log_appender_ptr cba_ptr = pion::logger::getRoot().getAppender("CircularBufferAppender");
+	const pion::circular_buffer_appender& cba = dynamic_cast<const pion::circular_buffer_appender&>(*cba_ptr.get());
+	const pion::circular_buffer_appender::LogEventBuffer& events = cba.getLogIterator();
+	pion::circular_buffer_appender::LogEventBuffer::const_iterator it;
+
+	// Check that the log event buffer has exactly one event, with the expected message:
+	it = events.begin();
+	BOOST_REQUIRE(it != events.end());
+	BOOST_CHECK_EQUAL(it->getMessage(), "X happened");
+	BOOST_CHECK(++it == events.end());
+
+	// Log a second error:
+	PION_LOG_ERROR(log_ptr, "Y happened");
+
+	// Check that the log event buffer has exactly two events, with the expected messages:
+	it = events.begin();
+	BOOST_REQUIRE(it != events.end());
+	BOOST_CHECK_EQUAL(it->getMessage(), "X happened");
+	BOOST_REQUIRE((++it) != events.end());
+	BOOST_CHECK_EQUAL(it->getMessage(), "Y happened");
+	BOOST_CHECK(++it == events.end());
+
+	// Now remove the appender and log a third error:
+	pion::logger::getRoot().removeAppender(appender);
+	PION_LOG_ERROR(log_ptr, "Z happened");
+
+	// Check that the log event buffer still has only the same two events:
+	it = events.begin();
+	BOOST_REQUIRE(it != events.end());
+	BOOST_CHECK_EQUAL(it->getMessage(), "X happened");
+	BOOST_REQUIRE((++it) != events.end());
+	BOOST_CHECK_EQUAL(it->getMessage(), "Y happened");
+	BOOST_CHECK(++it == events.end());
+}
+#endif
 
 #ifndef PION_STATIC_LINKING
 BOOST_AUTO_TEST_CASE(checkAllowNothingServiceResponseContent) {
