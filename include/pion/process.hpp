@@ -64,7 +64,7 @@ public:
     public:
         dumpfile_init_exception(const std::string& cause) : m_cause(cause) {}
 
-        virtual const char* what() const { return m_cause.c_str(); }
+        virtual const char* what() const throw() { return m_cause.c_str(); }
     protected:
         std::string m_cause;
     };
