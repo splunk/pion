@@ -182,7 +182,7 @@ LONG WINAPI process::unhandled_exception_filter(struct _EXCEPTION_POINTERS *pExc
 
         ExInfo.ThreadId = ::GetCurrentThreadId();
         ExInfo.ExceptionPointers = pExceptionInfo;
-        ExInfo.ClientPointers = NULL;
+        ExInfo.ClientPointers = 0;
 
         // write the dump
         BOOL bOK = cfg.p_dump_proc(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL );
