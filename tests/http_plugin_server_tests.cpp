@@ -242,7 +242,7 @@ public:
             if (boost::regex_match(rsp_line, rx_matches, regex_response_end))
                 break;
             // check validity of response header
-            BOOST_REQUIRE(boost::regex_match(rsp_line, rx_matches, regex_response_header));
+            BOOST_REQUIRE(boost::regex_match(rsp_line, regex_response_header));
             // check for content-length response header
             if (boost::regex_match(rsp_line, rx_matches, regex_content_length_header)) {
                 if (rx_matches.size() == 2)
