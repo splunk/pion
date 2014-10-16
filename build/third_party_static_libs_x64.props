@@ -16,8 +16,8 @@
     <LOG4CPLUS_LIB>$(LIB_ROOT)\log4cplus-1.1.3-rc2\bin\x64</LOG4CPLUS_LIB>
     <LOG4CXX_INC>$(LIB_ROOT)\apache\apache-log4cxx-0.10.0\src\main\include</LOG4CXX_INC>
     <LOG4CXX_LIB>$(LIB_ROOT)\apache\apache-log4cxx-0.10.0\bin</LOG4CXX_LIB>
-    <OPENSSL_INC>$(LIB_ROOT)\openssl-1.0.1i\inc64</OPENSSL_INC>
-    <OPENSSL_LIB>$(LIB_ROOT)\openssl-1.0.1i\lib\x64</OPENSSL_LIB>
+    <OPENSSL_INC>$(LIB_ROOT)\openssl-1.0.1j\inc64</OPENSSL_INC>
+    <OPENSSL_LIB>$(LIB_ROOT)\openssl-1.0.1j\lib\x64</OPENSSL_LIB>
     <ZLIB_INC>$(LIB_ROOT)\zlib-1.2.8\include</ZLIB_INC>
     <ZLIB_LIB>$(LIB_ROOT)\zlib-1.2.8\lib64</ZLIB_LIB>
   </PropertyGroup>
