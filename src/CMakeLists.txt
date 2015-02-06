@@ -140,3 +140,17 @@ install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION lib
     )
 
+include(CMakePackageConfigHelpers)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/lib${PROJECT_NAME}-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}-config.cmake
+    @ONLY)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}-config-version.cmake
+    VERSION ${PION_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}-config-version.cmake
+    DESTINATION lib/cmake/lib${PROJECT_NAME}-${PION_VERSION})
