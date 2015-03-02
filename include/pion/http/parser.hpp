@@ -131,6 +131,7 @@ public:
         m_read_ptr(NULL), m_read_end_ptr(NULL), m_message_parse_state(PARSE_START),
         m_headers_parse_state(is_request ? PARSE_METHOD_START : PARSE_HTTP_VERSION_H),
         m_chunked_content_parse_state(PARSE_CHUNK_SIZE_START), m_status_code(0),
+        m_size_of_current_chunk(0), m_bytes_read_in_current_chunk(0),
         m_bytes_content_remaining(0), m_bytes_content_read(0),
         m_bytes_last_read(0), m_bytes_total_read(0),
         m_max_content_length(max_content_length),
