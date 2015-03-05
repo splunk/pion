@@ -54,7 +54,7 @@ public:
      * @param conn_ptr pointer to the TCP connection to use for reading & writing
      */
     explicit stream_buffer(tcp::connection_ptr& conn_ptr)
-        : m_conn_ptr(conn_ptr), m_read_buf(m_conn_ptr->get_read_buffer().c_array())
+        : m_conn_ptr(conn_ptr), m_bytes_transferred(0), m_read_buf(m_conn_ptr->get_read_buffer().c_array())
     {
         setup_buffers();
     }
