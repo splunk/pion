@@ -372,7 +372,8 @@ void parser::parse_header_payload(boost::system::error_code &ec,
         
         boost::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
         associated_stream_id = four_bytes & 0x7FFFFFFF;
-        
+
+        (void)associated_stream_id; // avoid build warning
         m_read_ptr += 4;
         
         // The next bits are priority, unused, and slot.
@@ -490,7 +491,8 @@ void parser::parse_spdy_rst_stream(boost::system::error_code &ec,
     
     boost::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
     stream_id = four_bytes & 0x7FFFFFFF;
-    
+
+    (void)stream_id; // avoid build warning
     m_read_ptr += 4;
     
     // Get the status code
@@ -519,7 +521,8 @@ void parser::parse_spdy_ping_frame(boost::system::error_code &ec,
     // Get the 32 bit ping id
     
     ping_id = algorithm::to_uint32(m_read_ptr);
-    
+
+    (void)ping_id; // avoid build warning
     m_read_ptr += 4;
     
     PION_LOG_INFO(m_logger, "SPDY " << "Ping ID is : " << ping_id);
@@ -547,7 +550,8 @@ void parser::parse_spdy_goaway_frame(boost::system::error_code &ec,
     
     boost::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
     last_good_stream_id = four_bytes & 0x7FFFFFFF;
-    
+
+    (void)last_good_stream_id; // avoid build warning
     m_read_ptr += 4;
     
     // Get the status code
