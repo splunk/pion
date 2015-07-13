@@ -20,7 +20,7 @@ namespace plugins {     // begin namespace plugins
 // CookieService member functions
 
 /// handles requests for CookieService
-void CookieService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+void CookieService::operator()(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     static const std::string HEADER_HTML = "<html>\n<head>\n<title>Cookie Service</title>\n"
         "</head>\n<body>\n\n<h1>Cookie Service</h1>\n";

@@ -26,7 +26,7 @@ const unsigned int          server::MAX_REDIRECTS = 10;
 
 // server member functions
 
-void server::handle_connection(tcp::connection_ptr& tcp_conn)
+void server::handle_connection(const tcp::connection_ptr& tcp_conn)
 {
     request_reader_ptr my_reader_ptr;
     my_reader_ptr = request_reader::create(tcp_conn, boost::bind(&server::handle_request,
@@ -35,8 +35,8 @@ void server::handle_connection(tcp::connection_ptr& tcp_conn)
     my_reader_ptr->receive();
 }
 
-void server::handle_request(http::request_ptr& http_request_ptr,
-    tcp::connection_ptr& tcp_conn, const boost::system::error_code& ec)
+void server::handle_request(const http::request_ptr& http_request_ptr,
+    const tcp::connection_ptr& tcp_conn, const boost::system::error_code& ec)
 {
     if (ec || ! http_request_ptr->is_valid()) {
         tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE); // make sure it will get closed
@@ -184,8 +184,8 @@ void server::add_redirect(const std::string& requested_resource,
     PION_LOG_INFO(m_logger, "Added redirection for HTTP resource " << clean_requested_resource << " to resource " << clean_new_resource);
 }
 
-void server::handle_bad_request(http::request_ptr& http_request_ptr,
-                                  tcp::connection_ptr& tcp_conn)
+void server::handle_bad_request(const http::request_ptr& http_request_ptr,
+                                  const tcp::connection_ptr& tcp_conn)
 {
     static const std::string BAD_REQUEST_HTML =
         "<html><head>\n"
@@ -202,8 +202,8 @@ void server::handle_bad_request(http::request_ptr& http_request_ptr,
     writer->send();
 }
 
-void server::handle_not_found_request(http::request_ptr& http_request_ptr,
-                                       tcp::connection_ptr& tcp_conn)
+void server::handle_not_found_request(const http::request_ptr& http_request_ptr,
+                                       const tcp::connection_ptr& tcp_conn)
 {
     static const std::string NOT_FOUND_HTML_START =
         "<html><head>\n"
@@ -224,8 +224,8 @@ void server::handle_not_found_request(http::request_ptr& http_request_ptr,
     writer->send();
 }
 
-void server::handle_server_error(http::request_ptr& http_request_ptr,
-                                   tcp::connection_ptr& tcp_conn,
+void server::handle_server_error(const http::request_ptr& http_request_ptr,
+                                   const tcp::connection_ptr& tcp_conn,
                                    const std::string& error_msg)
 {
     static const std::string SERVER_ERROR_HTML_START =
@@ -247,8 +247,8 @@ void server::handle_server_error(http::request_ptr& http_request_ptr,
     writer->send();
 }
 
-void server::handle_forbidden_request(http::request_ptr& http_request_ptr,
-                                        tcp::connection_ptr& tcp_conn,
+void server::handle_forbidden_request(const http::request_ptr& http_request_ptr,
+                                        const tcp::connection_ptr& tcp_conn,
                                         const std::string& error_msg)
 {
     static const std::string FORBIDDEN_HTML_START =
@@ -274,8 +274,8 @@ void server::handle_forbidden_request(http::request_ptr& http_request_ptr,
     writer->send();
 }
 
-void server::handle_method_not_allowed(http::request_ptr& http_request_ptr,
-                                        tcp::connection_ptr& tcp_conn,
+void server::handle_method_not_allowed(const http::request_ptr& http_request_ptr,
+                                        const tcp::connection_ptr& tcp_conn,
                                         const std::string& allowed_methods)
 {
     static const std::string NOT_ALLOWED_HTML_START =

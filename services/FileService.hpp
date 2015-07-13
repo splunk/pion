@@ -145,8 +145,8 @@ public:
      */
     static inline boost::shared_ptr<DiskFileSender>
         create(DiskFile& file,
-               pion::http::request_ptr& http_request_ptr,
-               pion::tcp::connection_ptr& tcp_conn,
+               const pion::http::request_ptr& http_request_ptr,
+               const pion::tcp::connection_ptr& tcp_conn,
                unsigned long max_chunk_size = 0) 
     {
         return boost::shared_ptr<DiskFileSender>(new DiskFileSender(file, http_request_ptr,
@@ -179,8 +179,8 @@ protected:
      * @param max_chunk_size sets the maximum chunk size
      */
     DiskFileSender(DiskFile& file,
-                   pion::http::request_ptr& http_request_ptr,
-                   pion::tcp::connection_ptr& tcp_conn,
+                   const pion::http::request_ptr& http_request_ptr,
+                   const pion::tcp::connection_ptr& tcp_conn,
                    unsigned long max_chunk_size);
 
     /**
@@ -254,8 +254,8 @@ public:
     virtual void set_option(const std::string& name, const std::string& value);
 
     /// handles requests for FileService
-    virtual void operator()(pion::http::request_ptr& http_request_ptr,
-                            pion::tcp::connection_ptr& tcp_conn);
+    virtual void operator()(const pion::http::request_ptr& http_request_ptr,
+                            const pion::tcp::connection_ptr& tcp_conn);
 
     /// called when the web service's server is starting
     virtual void start(void);
@@ -308,8 +308,8 @@ protected:
      */
     static std::string findMIMEType(const std::string& file_name);
 
-    void sendNotFoundResponse(pion::http::request_ptr& http_request_ptr,
-                              pion::tcp::connection_ptr& tcp_conn);
+    void sendNotFoundResponse(const pion::http::request_ptr& http_request_ptr,
+                              const pion::tcp::connection_ptr& tcp_conn);
 
     /// primary logging interface used by this class
     logger                  m_logger;

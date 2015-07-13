@@ -45,7 +45,7 @@ public:
      * @return boost::shared_ptr<request_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<request_writer> create(tcp::connection_ptr& tcp_conn,
+    static inline boost::shared_ptr<request_writer> create(const tcp::connection_ptr& tcp_conn,
                                                               finished_handler_t handler = finished_handler_t())
     {
         return boost::shared_ptr<request_writer>(new request_writer(tcp_conn, handler));
@@ -61,8 +61,8 @@ public:
      * @return boost::shared_ptr<request_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<request_writer> create(tcp::connection_ptr& tcp_conn,
-                                                              http::request_ptr& http_request_ptr,
+    static inline boost::shared_ptr<request_writer> create(const tcp::connection_ptr& tcp_conn,
+                                                              const http::request_ptr& http_request_ptr,
                                                               finished_handler_t handler = finished_handler_t())
     {
         return boost::shared_ptr<request_writer>(new request_writer(tcp_conn, http_request_ptr, handler));
@@ -80,7 +80,7 @@ protected:
      * @param tcp_conn TCP connection used to send the request
      * @param handler function called after the request has been sent
      */
-    request_writer(tcp::connection_ptr& tcp_conn, finished_handler_t handler)
+    request_writer(const tcp::connection_ptr& tcp_conn, finished_handler_t handler)
         : http::writer(tcp_conn, handler), m_http_request(new http::request)
     {
         set_logger(PION_GET_LOGGER("pion.http.request_writer"));
@@ -93,7 +93,7 @@ protected:
      * @param http_request_ptr pointer to the request that will be sent
      * @param handler function called after the request has been sent
      */
-    request_writer(tcp::connection_ptr& tcp_conn, http::request_ptr& http_request_ptr,
+    request_writer(const tcp::connection_ptr& tcp_conn, const http::request_ptr& http_request_ptr,
                       finished_handler_t handler)
         : http::writer(tcp_conn, handler), m_http_request(http_request_ptr)
     {

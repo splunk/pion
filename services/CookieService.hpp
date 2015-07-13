@@ -25,8 +25,8 @@ class CookieService :
 public:
     CookieService(void) {}
     virtual ~CookieService() {}
-    virtual void operator()(pion::http::request_ptr& http_request_ptr,
-                            pion::tcp::connection_ptr& tcp_conn);
+    virtual void operator()(const pion::http::request_ptr& http_request_ptr,
+                            const pion::tcp::connection_ptr& tcp_conn);
 };
 
 }   // end namespace plugins

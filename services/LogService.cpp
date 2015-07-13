@@ -151,7 +151,7 @@ LogService::~LogService()
 }
 
 /// handles requests for LogService
-void LogService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+void LogService::operator()(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     // Set Content-type to "text/plain" (plain ascii text)
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,

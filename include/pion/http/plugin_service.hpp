@@ -43,7 +43,7 @@ public:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    virtual void operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn) = 0;
+    virtual void operator()(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn) = 0;
     
     /**
      * sets a configuration option

@@ -32,7 +32,7 @@ basic_auth::basic_auth(user_manager_ptr userManager, const std::string& realm)
     set_logger(PION_GET_LOGGER("pion.http.basic_auth"));
 }
     
-bool basic_auth::handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+bool basic_auth::handle_request(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     if (!need_authentication(http_request_ptr)) {
         return true; // this request does not require authentication
@@ -130,8 +130,8 @@ bool basic_auth::parse_credentials(const std::string &credentials,
     return true;
 }
     
-void basic_auth::handle_unauthorized(http::request_ptr& http_request_ptr,
-    tcp::connection_ptr& tcp_conn)
+void basic_auth::handle_unauthorized(const http::request_ptr& http_request_ptr,
+    const tcp::connection_ptr& tcp_conn)
 {
     // authentication failed, send 401.....
     static const std::string CONTENT =

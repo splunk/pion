@@ -196,7 +196,7 @@ void server::listen(void)
     }
 }
 
-void server::handle_accept(tcp::connection_ptr& tcp_conn,
+void server::handle_accept(const tcp::connection_ptr& tcp_conn,
                              const boost::system::error_code& accept_error)
 {
     if (accept_error) {
@@ -229,7 +229,7 @@ void server::handle_accept(tcp::connection_ptr& tcp_conn,
     }
 }
 
-void server::handle_ssl_handshake(tcp::connection_ptr& tcp_conn,
+void server::handle_ssl_handshake(const tcp::connection_ptr& tcp_conn,
                                    const boost::system::error_code& handshake_error)
 {
     if (handshake_error) {
@@ -244,7 +244,7 @@ void server::handle_ssl_handshake(tcp::connection_ptr& tcp_conn,
     }
 }
 
-void server::finish_connection(tcp::connection_ptr& tcp_conn)
+void server::finish_connection(const tcp::connection_ptr& tcp_conn)
 {
     boost::mutex::scoped_lock server_lock(m_mutex);
     if (m_is_listening && tcp_conn->get_keep_alive()) {

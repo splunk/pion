@@ -19,7 +19,7 @@ namespace plugins {     // begin namespace plugins
 // HelloService member functions
 
 /// handles requests for HelloService
-void HelloService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+void HelloService::operator()(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     static const std::string HELLO_HTML = "<html><body>Hello World!</body></html>";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
