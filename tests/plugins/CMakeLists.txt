@@ -21,7 +21,12 @@ file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
 foreach(_file ${SRC_FILES})
     get_filename_component(_prj_name ${_file} NAME_WE)
     set(_hdr_file "${PROJECT_SOURCE_DIR}/${_prj_name}.hpp")
-    add_library(${_prj_name} MODULE ${_file} ${_hdr_file})
+    source_group("Source" FILES ${_file} ${_hdr_file})
+    if(UNIX AND BUILD_SHARED_LIBS)
+        add_library(${_prj_name} MODULE ${_file} ${_hdr_file})
+    else()
+        add_library(${_prj_name} ${_file} ${_hdr_file})
+    endif()
     target_link_libraries(${_prj_name} pion)
     install(TARGETS ${_prj_name}
         RUNTIME DESTINATION tests

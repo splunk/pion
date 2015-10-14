@@ -17,6 +17,28 @@ if (BUILD_PIOND)
     set(PIOND_SRC_FILES piond.cpp)
     add_executable(piond ${PIOND_SRC_FILES})
     target_link_libraries(piond pion ${CMAKE_THREAD_LIBS_INIT})
+
+    if(NOT BUILD_SHARED_LIBS)
+        if(BUILD_ALLOWNOTHINGSERVICE)
+            target_link_libraries(piond AllowNothingService)
+        endif()
+        if(BUILD_COOKIESERVICE)
+            target_link_libraries(piond CookieService)
+        endif()
+        if(BUILD_ECHOSERVICE)
+            target_link_libraries(piond EchoService)
+        endif()
+        if(BUILD_FILESERVICE)
+            target_link_libraries(piond FileService)
+        endif()
+        if(BUILD_HELLOSERVICE)
+            target_link_libraries(piond HelloService)
+        endif()
+        if(BUILD_LOGSERVICE)
+            target_link_libraries(piond LogService)
+        endif()
+    endif()
+
     install(TARGETS piond
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib

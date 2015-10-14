@@ -34,11 +34,38 @@ include_directories(${PROJECT_SOURCE_DIR})
 # get all *.cpp files from src to build target
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
 
+if (NOT BUILD_SPDY)
+    list(REMOVE_ITEM SRC_FILES ${PROJECT_SOURCE_DIR}/spdy_parser_tests.cpp)
+endif()
+
+
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 # build target
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} pion ${CMAKE_THREAD_LIBS_INIT})
+if(NOT BUILD_SHARED_LIBS)
+    if(BUILD_ALLOWNOTHINGSERVICE)
+        target_link_libraries(${PROJECT_NAME} AllowNothingService)
+    endif()
+    if(BUILD_COOKIESERVICE)
+        target_link_libraries(${PROJECT_NAME} CookieService)
+    endif()
+    if(BUILD_ECHOSERVICE)
+        target_link_libraries(${PROJECT_NAME} EchoService)
+    endif()
+    if(BUILD_FILESERVICE)
+        target_link_libraries(${PROJECT_NAME} FileService)
+    endif()
+    if(BUILD_HELLOSERVICE)
+        target_link_libraries(${PROJECT_NAME} HelloService)
+    endif()
+    if(BUILD_LOGSERVICE)
+        target_link_libraries(${PROJECT_NAME} LogService)
+    endif()
+endif()
+
+
 add_dependencies(${PROJECT_NAME} prepare_path)
 
 add_test(NAME pion_test WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH} COMMAND ${PROJECT_NAME})
