@@ -47,9 +47,9 @@ public:
      * @return boost::shared_ptr<response_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<response_writer> create(tcp::connection_ptr& tcp_conn,
-                                                               http::response_ptr& http_response_ptr,
-                                                               finished_handler_t handler = finished_handler_t())
+    static inline boost::shared_ptr<response_writer> create(const tcp::connection_ptr& tcp_conn,
+                                                            http::response_ptr http_response_ptr,
+                                                            finished_handler_t handler = finished_handler_t())
     {
         return boost::shared_ptr<response_writer>(new response_writer(tcp_conn, http_response_ptr, handler));
     }
@@ -64,9 +64,9 @@ public:
      * @return boost::shared_ptr<response_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<response_writer> create(tcp::connection_ptr& tcp_conn,
-                                                               const http::request& http_request,
-                                                               finished_handler_t handler = finished_handler_t())
+    static inline boost::shared_ptr<response_writer> create(const tcp::connection_ptr& tcp_conn,
+                                                            const http::request& http_request,
+                                                            finished_handler_t handler = finished_handler_t())
     {
         return boost::shared_ptr<response_writer>(new response_writer(tcp_conn, http_request, handler));
     }
@@ -84,7 +84,7 @@ protected:
      * @param http_response pointer to the response that will be sent
      * @param handler function called after the request has been sent
      */
-    response_writer(tcp::connection_ptr& tcp_conn, http::response_ptr& http_response_ptr,
+    response_writer(const tcp::connection_ptr& tcp_conn, http::response_ptr http_response_ptr,
                        finished_handler_t handler)
         : http::writer(tcp_conn, handler), m_http_response(http_response_ptr)
     {
@@ -108,7 +108,7 @@ protected:
      * @param http_request the request we are responding to
      * @param handler function called after the request has been sent
      */
-    response_writer(tcp::connection_ptr& tcp_conn, const http::request& http_request,
+    response_writer(const tcp::connection_ptr& tcp_conn, const http::request& http_request,
                        finished_handler_t handler)
         : http::writer(tcp_conn, handler), m_http_response(new http::response(http_request))
     {
