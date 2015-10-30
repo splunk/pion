@@ -24,6 +24,8 @@
     #include <ext/hash_map>
 #elif defined(PION_HAVE_HASH_MAP)
     #include <hash_map>
+#else
+    #include <boost/unordered_map.hpp>
 #endif
 
 
@@ -61,6 +63,11 @@ namespace pion {    // begin namespace pion
         #define PION_HASH_STRING boost::hash<std::string>
         #define PION_HASH(TYPE) boost::hash<TYPE>
     #endif
+#else
+    #define PION_HASH_MAP boost::unordered_map
+    #define PION_HASH_MULTIMAP boost::unordered_multimap
+    #define PION_HASH_STRING boost::hash<std::string>
+    #define PION_HASH(TYPE) boost::hash<TYPE>
 #endif
 
     /// case insensitive string equality predicate
@@ -97,7 +104,7 @@ namespace pion {    // begin namespace pion
         }
     };
     
-#if defined(_MSC_VER) && !defined(PION_HAVE_UNORDERED_MAP)
+#if defined(_MSC_VER) && defined(PION_HAVE_EXT_HASH_MAP)
     /// Case-insensitive "less than" predicate
     template<class _Ty> struct is_iless : public std::binary_function<_Ty, _Ty, bool>
     {

@@ -174,7 +174,7 @@ LONG WINAPI process::unhandled_exception_filter(struct _EXCEPTION_POINTERS *pExc
     LONG rc = EXCEPTION_CONTINUE_SEARCH;
 
     // create the dump file and, if successful, write it
-    HANDLE hFile = ::CreateFile(dumpfile_path.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
+    HANDLE hFile = ::CreateFileA(dumpfile_path.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
         FILE_ATTRIBUTE_NORMAL, NULL);
 
     if (hFile!=INVALID_HANDLE_VALUE) {
