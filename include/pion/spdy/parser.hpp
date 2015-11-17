@@ -21,7 +21,11 @@
 #include <pion/spdy/decompressor.hpp>
 
 #ifndef BOOST_SYSTEM_NOEXCEPT
-    #define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
+    #ifndef BOOST_NOEXCEPT
+        #define BOOST_SYSTEM_NOEXCEPT
+    #else
+        #define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
+    #endif
 #endif
 
 
