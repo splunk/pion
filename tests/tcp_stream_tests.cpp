@@ -9,7 +9,9 @@
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <boost/thread.hpp>
+#pragma GCC diagnostic warning "-Wunused-parameter"
 #include <boost/function.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/config.hpp>

@@ -134,12 +134,17 @@ if test "x$enable_tests" == "xno"; then
 	# Display notice if unit tests are disabled
 	AC_MSG_NOTICE([Unit tests are disabled])
 else
-	# check if static version of lib is available
 	BOOST_TRY_LIB=unit_test_framework
-	BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
-	PION_TESTS_CPPFLAGS="-DBOOST_TEST_DYN_LINK"
+	BOOST_TRY_LINK="$BOOST_HOME_DIR/lib/libboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
+	# check if static version of lib is available
+	if (test -r "$BOOST_TRY_LINK.so" || test -r "$BOOST_TRY_LINK.dylib"); then
+	    BOOST_TRY_LINK="-lboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
+	    PION_TESTS_CPPFLAGS="-DBOOST_TEST_DYN_LINK"
+	else
+	    BOOST_TRY_LINK="${BOOST_TRY_LINK}.a"
+	fi
 	LIBS_SAVED="$LIBS"
-	LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+	LIBS="$LIBS_SAVED ${BOOST_TRY_LINK}"
 	CPPFLAGS_SAVED="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS ${PION_TESTS_CPPFLAGS}"
 	AC_MSG_CHECKING([for boost::test library])
@@ -149,7 +154,7 @@ else
 		{ return BOOST_TEST_SUITE("Master test suite"); }],
 		[],
 		[ AC_MSG_RESULT(ok)
-		  BOOST_TEST_LIB="-l${BOOST_TRY_LINK}"
+		  BOOST_TEST_LIB="${BOOST_TRY_LINK}"
 		],
 		[ AC_MSG_RESULT(not found)
 		  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)

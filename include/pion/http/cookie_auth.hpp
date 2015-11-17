@@ -12,7 +12,9 @@
 
 #include <map>
 #include <string>
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <boost/random.hpp>
+#pragma GCC diagnostic warning "-Wunused-parameter"
 #include <pion/config.hpp>
 #include <pion/http/auth.hpp>
 
