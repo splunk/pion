@@ -8,7 +8,7 @@
 //
 
 #include <signal.h>
-#ifndef _MSC_VER
+#ifndef PION_WIN32
     #include <fcntl.h>
     #include <unistd.h>
     #include <sys/stat.h>
@@ -57,7 +57,7 @@ void process::create_config(void)
 
 
 
-#ifdef _MSC_VER
+#ifdef PION_WIN32
 
 BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
 {
@@ -182,7 +182,7 @@ LONG WINAPI process::unhandled_exception_filter(struct _EXCEPTION_POINTERS *pExc
 
         ExInfo.ThreadId = ::GetCurrentThreadId();
         ExInfo.ExceptionPointers = pExceptionInfo;
-        ExInfo.ClientPointers = NULL;
+        ExInfo.ClientPointers = 0;
 
         // write the dump
         BOOL bOK = cfg.p_dump_proc(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL );
@@ -217,9 +217,9 @@ void process::daemonize(void)
     // not supported
 }
 
-#else   // NOT #ifdef _MSC_VER
+#else   // NOT #ifdef PION_WIN32
 
-void handle_signal(int sig)
+void handle_signal(int /* sig */)
 {
     process::shutdown();
 }
@@ -268,6 +268,6 @@ void process::daemonize(void)
     umask(027);
 }
 
-#endif  // #ifdef _MSC_VER
+#endif  // #ifdef PION_WIN32
 
 }   // end namespace pion

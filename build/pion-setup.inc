@@ -30,8 +30,8 @@ case "$build_os" in
 		# Solaris: GCC compiler
 		CPPFLAGS="$CPPFLAGS -pthreads -D_REENTRANT"
 		LDFLAGS="$LDFLAGS -pthreads"
-		PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
-		PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
+		PION_OPT_FLAGS="-O2 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -DNDEBUG"
+		PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -fkeep-inline-functions"
 	fi
 	PION_EXTERNAL_LIBS="-lsocket -lnsl -lposix4"
 	;;
@@ -40,9 +40,9 @@ case "$build_os" in
 	# -pthread is implied (automatically set by compiler)
 	CPPFLAGS="$CPPFLAGS -D_REENTRANT"
 	#LDFLAGS="$LDFLAGS"
-	#PION_OPT_FLAGS="-O3 -ggdb -fomit-frame-pointer -fstrict-aliasing -fno-tree-pre -falign-loops -Wall -Wno-strict-aliasing -DNDEBUG"
-	PION_OPT_FLAGS="-O3 -ggdb -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-strict-aliasing -DNDEBUG"
-	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
+	#PION_OPT_FLAGS="-O3 -ggdb -fomit-frame-pointer -fstrict-aliasing -fno-tree-pre -falign-loops -Wall -Wextra -Werror -Wno-strict-aliasing -DNDEBUG"
+	PION_OPT_FLAGS="-O3 -ggdb -fomit-frame-pointer -fstrict-aliasing -Wall -Wextra -Werror -Wno-strict-aliasing -DNDEBUG"
+	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -fkeep-inline-functions"
 
 	# Check for OSX binary architecture
 	AC_MSG_CHECKING([for OSX binary architectures])
@@ -71,24 +71,32 @@ case "$build_os" in
 	# Cygwin GCC compiler (Windows)
 	CPPFLAGS="$CPPFLAGS -mthreads -D_REENTRANT -DPION_WIN32 -D__USE_W32_SOCKETS"
 	LDFLAGS="$LDFLAGS -mthreads -Wl,-E"
-	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
-	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
+	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -DNDEBUG"
+	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -fkeep-inline-functions"
+	PION_EXTERNAL_LIBS="-lws2_32 -lmswsock"
+	;;
+*mingw32*)
+	# MingW32 GCC compiler (Windows)
+	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT -DPION_WIN32 -D__USE_W32_SOCKETS"
+	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
+	PION_OPT_FLAGS="-O1 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -DNDEBUG"
+	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -fkeep-inline-functions"
 	PION_EXTERNAL_LIBS="-lws2_32 -lmswsock"
 	;;
 *freebsd*)
 	# FreeBSD: GCC compiler
 	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT"
 	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
-	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
-	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
+	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -DNDEBUG"
+	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -fkeep-inline-functions"
 	;;
 *)
 	# Other (Linux): GCC compiler
 	CPPFLAGS="$CPPFLAGS -pthread -D_REENTRANT"
 	LDFLAGS="$LDFLAGS -pthread -Wl,-E"
 	LIBS="-lrt -ldl"
-	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wno-strict-aliasing -DNDEBUG"
-	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wno-strict-aliasing -fkeep-inline-functions"
+	PION_OPT_FLAGS="-O2 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -DNDEBUG"
+	PION_DEBUG_FLAGS="-O0 -ggdb -Wall -Wextra -Werror -Wno-strict-aliasing -fkeep-inline-functions"
 	;;
 esac
 

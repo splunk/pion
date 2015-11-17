@@ -55,7 +55,7 @@ namespace test {    // begin namespace test
     
         /// wrapper to flush output for xml_log_formatter::log_start
         virtual void log_start(std::ostream& ostr,
-                               boost::unit_test::counter_t test_cases_amount )
+                               boost::unit_test::counter_t /* test_cases_amount */)
         {
             ostr << "<TestLog>" << std::endl;
         }
