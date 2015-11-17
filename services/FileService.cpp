@@ -937,7 +937,7 @@ void DiskFileSender::send(void)
 }
 
 void DiskFileSender::handle_write(const boost::system::error_code& write_error,
-                                 std::size_t bytes_written)
+                                 std::size_t /* bytes_written */)
 {
     bool finished_sending = true;
 

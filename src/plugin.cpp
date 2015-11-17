@@ -53,6 +53,9 @@ void plugin::check_cygwin_path(boost::filesystem::path& final_path,
     if (! final_path.is_complete() && final_path.has_root_directory()) {
         final_path = boost::filesystem::path(std::string(PION_CYGWIN_DIRECTORY) + start_path);
     }
+#else
+    (void)final_path;
+    (void)start_path;
 #endif
 }
 
@@ -372,6 +375,7 @@ void plugin::close_dynamic_library(void *lib_handle)
     // So, please don't call FreeLibrary here unless you've been able to 
     // reproduce and fix the crashing of the unit tests.
 
+    (void)lib_handle;
     //FreeLibrary((HINSTANCE) lib_handle);
 #else
     dlclose(lib_handle);

@@ -20,7 +20,9 @@
 #include <boost/exception/error_info.hpp>
 #include <boost/exception/get_error_info.hpp>
 #if BOOST_VERSION >= 104700
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <boost/units/io.hpp>
+#pragma GCC diagnostic warning "-Wunused-parameter"
 #endif
 #include <pion/config.hpp>
 

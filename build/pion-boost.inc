@@ -135,11 +135,13 @@ if test "x$enable_tests" == "xno"; then
 	AC_MSG_NOTICE([Unit tests are disabled])
 else
 	BOOST_TRY_LIB=unit_test_framework
-	BOOST_TRY_LINK="$BOOST_HOME_DIR/lib/libboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}.a"
+	BOOST_TRY_LINK="$BOOST_HOME_DIR/lib/libboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 	# check if static version of lib is available
-	if !(test -r "$BOOST_TRY_LINK"); then
+	if (test -r "$BOOST_TRY_LINK.so" || test -r "$BOOST_TRY_LINK.dylib"); then
 	    BOOST_TRY_LINK="-lboost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
 	    PION_TESTS_CPPFLAGS="-DBOOST_TEST_DYN_LINK"
+	else
+	    BOOST_TRY_LINK="${BOOST_TRY_LINK}.a"
 	fi
 	LIBS_SAVED="$LIBS"
 	LIBS="$LIBS_SAVED ${BOOST_TRY_LINK}"
@@ -148,7 +150,7 @@ else
 	AC_MSG_CHECKING([for boost::test library])
 	AC_TRY_LINK([#include <boost/test/unit_test.hpp>
 		using namespace boost::unit_test;
-		test_suite* init_unit_test_suite( int argc, char* argv[] )
+		test_suite* init_unit_test_suite( int, char** )
 		{ return BOOST_TEST_SUITE("Master test suite"); }],
 		[],
 		[ AC_MSG_RESULT(ok)
