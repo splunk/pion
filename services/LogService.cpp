@@ -101,7 +101,7 @@ void LogServiceAppender::addLogString(const std::string& log_string)
     }
 }
 
-void LogServiceAppender::writeLogEvents(pion::http::response_writer_ptr& writer)
+void LogServiceAppender::writeLogEvents(const pion::http::response_writer_ptr& writer)
 {
 #if defined(PION_USE_LOG4CXX) || defined(PION_USE_LOG4CPLUS) || defined(PION_USE_LOG4CPP)
     boost::mutex::scoped_lock log_lock(m_log_mutex);
