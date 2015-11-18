@@ -1,34 +1,45 @@
+sudo: false
+
+addons:
+  apt:
+    sources:
+    - kalakris-cmake
+    - kubuntu-backports
+    - boost-latest
+    packages:
+    - cmake
+    - libboost1.55-all-dev
+
 language: cpp
+
+os:
+  - linux
+  - osx
 
 compiler:
   - gcc
-#  - clang
+  - clang
+
+env:
+  - BUILD_CONFIG=Release
+  - BUILD_CONFIG=Debug
+
+matrix:
+  allow_failures:
+    - compiler: clang
 
 before_install:
- - sudo apt-get update -qq
- - wget http://www.cmake.org/files/v2.8/cmake-2.8.12.2.tar.gz
- - tar xf cmake-2.8.12.2.tar.gz
- - cd cmake-2.8.12.2
 
 install:
- - sudo apt-get install -qq libboost-all-dev libcurl3-dev
- - ./bootstrap --system-curl
- - make
- - sudo make install
- - cd ..
 
 before_script:
   - mkdir build.ci
   - cd build.ci
-  - cmake .. -DBUILD_UT=ON
+  - cmake .. -DBUILD_UT=ON -DCMAKE_BUILD_TYPE=$BUILD_CONFIG
 
 script:
-  - make
+  - cmake --build .
   - ctest -VV
-
-branches:
-  only:
-    - develop
 
 notifications:
   recipients:
