@@ -43,7 +43,7 @@ public:
      * 
      * @param tcp_conn the new TCP connection to handle
      */
-    virtual void handle_connection(pion::tcp::connection_ptr& tcp_conn) {
+    virtual void handle_connection(const pion::tcp::connection_ptr& tcp_conn) {
         static const std::string HELLO_MESSAGE("Hello there!\n");
         tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);  // make sure it will get closed
         tcp_conn->async_write(boost::asio::buffer(HELLO_MESSAGE),
@@ -60,7 +60,7 @@ private:
      * @param tcp_conn the TCP connection to the server
      * @param write_error message that explains what went wrong (if anything)
      */
-    void handle_write(pion::tcp::connection_ptr& tcp_conn,
+    void handle_write(const pion::tcp::connection_ptr& tcp_conn,
                      const boost::system::error_code& write_error)
     {
         if (write_error) {
@@ -79,7 +79,7 @@ private:
      * @param read_error message that explains what went wrong (if anything)
      * @param bytes_read number of bytes read from the client
      */
-    void handleRead(pion::tcp::connection_ptr& tcp_conn,
+    void handleRead(const pion::tcp::connection_ptr& tcp_conn,
                     const boost::system::error_code& read_error,
                     std::size_t bytes_read)
     {
@@ -253,7 +253,7 @@ public:
      * 
      * @param tcp_conn the new TCP connection to handle
      */
-    virtual void handle_connection(pion::tcp::connection_ptr& tcp_conn) {
+    virtual void handle_connection(const pion::tcp::connection_ptr& tcp_conn) {
         // wait until an HTTP request is received or an error occurs
         boost::system::error_code error_code;
         http::request http_request;

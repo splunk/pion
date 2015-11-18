@@ -68,7 +68,7 @@ public:
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    virtual bool handle_request(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn);
     
     /**
      * sets a configuration option
@@ -96,7 +96,7 @@ protected:
      *
      * @return true if it was a login/logout request and no future processing required.
      */
-    bool process_login(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    bool process_login(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn);
 
     /**
      * used to send responses when access to resource is not authorized
@@ -104,7 +104,7 @@ protected:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handle_unauthorized(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    void handle_unauthorized(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn);
     
     /**
      * used to send redirection responses 
@@ -112,7 +112,7 @@ protected:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handle_redirection(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn,
+    void handle_redirection(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn,
         const std::string &redirection_url, const std::string &new_cookie="", bool delete_cookie=false);
 
     /**
@@ -121,7 +121,7 @@ protected:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handle_ok(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn,
+    void handle_ok(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn,
         const std::string &new_cookie="", bool delete_cookie=false);
 
     /**

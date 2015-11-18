@@ -101,7 +101,7 @@ void LogServiceAppender::addLogString(const std::string& log_string)
     }
 }
 
-void LogServiceAppender::writeLogEvents(pion::http::response_writer_ptr& writer)
+void LogServiceAppender::writeLogEvents(const pion::http::response_writer_ptr& writer)
 {
 #if defined(PION_USE_LOG4CXX) || defined(PION_USE_LOG4CPLUS) || defined(PION_USE_LOG4CPP)
     boost::mutex::scoped_lock log_lock(m_log_mutex);
@@ -151,7 +151,7 @@ LogService::~LogService()
 }
 
 /// handles requests for LogService
-void LogService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+void LogService::operator()(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     // Set Content-type to "text/plain" (plain ascii text)
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,

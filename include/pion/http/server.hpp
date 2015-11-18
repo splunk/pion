@@ -40,10 +40,10 @@ class PION_API server :
 public:
 
     /// type of function that is used to handle requests
-    typedef boost::function2<void, http::request_ptr&, tcp::connection_ptr&>  request_handler_t;
+    typedef boost::function2<void, const http::request_ptr&, const tcp::connection_ptr&>  request_handler_t;
 
     /// handler for requests that result in "500 Server Error"
-    typedef boost::function3<void, http::request_ptr&, tcp::connection_ptr&,
+    typedef boost::function3<void, const http::request_ptr&, const tcp::connection_ptr&,
         const std::string&> error_handler_t;
 
 
@@ -170,8 +170,8 @@ public:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    static void handle_bad_request(http::request_ptr& http_request_ptr,
-                                 tcp::connection_ptr& tcp_conn);
+    static void handle_bad_request(const http::request_ptr& http_request_ptr,
+                                 const tcp::connection_ptr& tcp_conn);
 
     /**
      * used to send responses when no web services can handle the request
@@ -179,8 +179,8 @@ public:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    static void handle_not_found_request(http::request_ptr& http_request_ptr,
-                                      tcp::connection_ptr& tcp_conn);
+    static void handle_not_found_request(const http::request_ptr& http_request_ptr,
+                                      const tcp::connection_ptr& tcp_conn);
 
     /**
      * used to send responses when a server error occurs
@@ -189,8 +189,8 @@ public:
      * @param tcp_conn the TCP connection that has the new request
      * @param error_msg message that explains what went wrong
      */
-    static void handle_server_error(http::request_ptr& http_request_ptr,
-                                  tcp::connection_ptr& tcp_conn,
+    static void handle_server_error(const http::request_ptr& http_request_ptr,
+                                  const tcp::connection_ptr& tcp_conn,
                                   const std::string& error_msg);
 
     /**
@@ -200,8 +200,8 @@ public:
      * @param tcp_conn the TCP connection that has the new request
      * @param error_msg message that explains what went wrong
      */
-    static void handle_forbidden_request(http::request_ptr& http_request_ptr,
-                                       tcp::connection_ptr& tcp_conn,
+    static void handle_forbidden_request(const http::request_ptr& http_request_ptr,
+                                       const tcp::connection_ptr& tcp_conn,
                                        const std::string& error_msg);
 
     /**
@@ -211,8 +211,8 @@ public:
      * @param tcp_conn the TCP connection that has the new request
      * @param allowed_methods optional comma separated list of allowed methods
      */
-    static void handle_method_not_allowed(http::request_ptr& http_request_ptr,
-                                       tcp::connection_ptr& tcp_conn,
+    static void handle_method_not_allowed(const http::request_ptr& http_request_ptr,
+                                       const tcp::connection_ptr& tcp_conn,
                                        const std::string& allowed_methods = "");
 
     /**
@@ -230,7 +230,7 @@ protected:
      * 
      * @param tcp_conn the new TCP connection to handle
      */
-    virtual void handle_connection(tcp::connection_ptr& tcp_conn);
+    virtual void handle_connection(const tcp::connection_ptr& tcp_conn);
 
     /**
      * handles a new HTTP request
@@ -239,8 +239,8 @@ protected:
      * @param tcp_conn TCP connection containing a new request
      * @param ec error_code contains additional information for parsing errors
      */
-    virtual void handle_request(http::request_ptr& http_request_ptr,
-                                tcp::connection_ptr& tcp_conn, const boost::system::error_code& ec);
+    virtual void handle_request(const http::request_ptr& http_request_ptr,
+                                const tcp::connection_ptr& tcp_conn, const boost::system::error_code& ec);
 
     /**
      * searches for the appropriate request handler to use for a given resource

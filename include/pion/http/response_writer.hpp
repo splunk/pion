@@ -48,7 +48,7 @@ public:
      *         the new writer object that was created
      */
     static inline boost::shared_ptr<response_writer> create(const tcp::connection_ptr& tcp_conn,
-                                                            http::response_ptr http_response_ptr,
+                                                            const http::response_ptr& http_response_ptr,
                                                             finished_handler_t handler = finished_handler_t())
     {
         return boost::shared_ptr<response_writer>(new response_writer(tcp_conn, http_response_ptr, handler));
@@ -84,8 +84,8 @@ protected:
      * @param http_response pointer to the response that will be sent
      * @param handler function called after the request has been sent
      */
-    response_writer(const tcp::connection_ptr& tcp_conn, http::response_ptr http_response_ptr,
-                       finished_handler_t handler)
+    response_writer(const tcp::connection_ptr& tcp_conn, const http::response_ptr& http_response_ptr,
+                    finished_handler_t handler)
         : http::writer(tcp_conn, handler), m_http_response(http_response_ptr)
     {
         set_logger(PION_GET_LOGGER("pion.http.response_writer"));

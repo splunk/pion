@@ -33,7 +33,7 @@ void writeDictionaryTerm(http::response_writer_ptr& writer,
 // EchoService member functions
 
 /// handles requests for EchoService
-void EchoService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+void EchoService::operator()(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     // this web service uses static text to test the mixture of "copied" with
     // "static" (no-copy) text

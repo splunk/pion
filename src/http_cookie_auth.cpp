@@ -50,7 +50,7 @@ cookie_auth::cookie_auth(user_manager_ptr userManager,
         m_random_die();
 }
     
-bool cookie_auth::handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+bool cookie_auth::handle_request(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     if (process_login(http_request_ptr,tcp_conn)) {
         return false; // we processed login/logout request, no future processing for this request permitted
@@ -102,7 +102,7 @@ void cookie_auth::set_option(const std::string& name, const std::string& value)
         BOOST_THROW_EXCEPTION( error::bad_arg() << error::errinfo_arg_name(name) );
 }
 
-bool cookie_auth::process_login(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+bool cookie_auth::process_login(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     // strip off trailing slash if the request has one
     std::string resource(http::server::strip_trailing_slash(http_request_ptr->get_resource()));
@@ -168,8 +168,8 @@ bool cookie_auth::process_login(http::request_ptr& http_request_ptr, tcp::connec
     return true;
 }
 
-void cookie_auth::handle_unauthorized(http::request_ptr& http_request_ptr,
-    tcp::connection_ptr& tcp_conn)
+void cookie_auth::handle_unauthorized(const http::request_ptr& http_request_ptr,
+    const tcp::connection_ptr& tcp_conn)
 {
     // if redirection option is used, send redirect
     if (!m_redirect.empty()) {
@@ -196,8 +196,8 @@ void cookie_auth::handle_unauthorized(http::request_ptr& http_request_ptr,
     writer->send();
 }
 
-void cookie_auth::handle_redirection(http::request_ptr& http_request_ptr,
-                                        tcp::connection_ptr& tcp_conn,
+void cookie_auth::handle_redirection(const http::request_ptr& http_request_ptr,
+                                        const tcp::connection_ptr& tcp_conn,
                                         const std::string &redirection_url,
                                         const std::string &new_cookie,
                                         bool delete_cookie
@@ -234,8 +234,8 @@ void cookie_auth::handle_redirection(http::request_ptr& http_request_ptr,
     writer->send();
 }
 
-void cookie_auth::handle_ok(http::request_ptr& http_request_ptr,
-                              tcp::connection_ptr& tcp_conn,
+void cookie_auth::handle_ok(const http::request_ptr& http_request_ptr,
+                              const tcp::connection_ptr& tcp_conn,
                               const std::string &new_cookie,
                               bool delete_cookie
                               )

@@ -57,7 +57,7 @@ public:
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn) = 0;
+    virtual bool handle_request(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn) = 0;
     
     /**
      * sets a configuration option

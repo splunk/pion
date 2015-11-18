@@ -36,7 +36,7 @@ public:
      *
      * @param conn_ptr pointer to TCP connection to monitor
      */
-    timer(tcp::connection_ptr& conn_ptr);
+    timer(const tcp::connection_ptr& conn_ptr);
 
     /**
      * starts a timer for closing a TCP connection

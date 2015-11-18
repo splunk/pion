@@ -50,7 +50,7 @@ public:
      * @param handler function called after the message has been parsed
      */
     static inline boost::shared_ptr<request_reader>
-        create(tcp::connection_ptr& tcp_conn, finished_handler_t handler)
+        create(const tcp::connection_ptr& tcp_conn, finished_handler_t handler)
     {
         return boost::shared_ptr<request_reader>
             (new request_reader(tcp_conn, handler));
@@ -68,7 +68,7 @@ protected:
      * @param tcp_conn TCP connection containing a new message to parse
      * @param handler function called after the message has been parsed
      */
-    request_reader(tcp::connection_ptr& tcp_conn, finished_handler_t handler)
+    request_reader(const tcp::connection_ptr& tcp_conn, finished_handler_t handler)
         : http::reader(true, tcp_conn), m_http_msg(new http::request),
         m_finished(handler)
     {

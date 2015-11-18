@@ -67,7 +67,7 @@ public:
      * @param resource
      */
     static inline boost::shared_ptr<ChunkedPostRequestSender>
-        create(pion::tcp::connection_ptr& tcp_conn, const std::string& resource) 
+        create(const pion::tcp::connection_ptr& tcp_conn, const std::string& resource)
     {
         return boost::shared_ptr<ChunkedPostRequestSender>(new ChunkedPostRequestSender(tcp_conn, resource));
     }
@@ -89,7 +89,7 @@ public:
 
 protected:
 
-    ChunkedPostRequestSender(pion::tcp::connection_ptr& tcp_conn,
+    ChunkedPostRequestSender(const pion::tcp::connection_ptr& tcp_conn,
                              const std::string& resource);
     
     /**
@@ -117,7 +117,7 @@ private:
     pion::http::request_writer_ptr         m_writer;
 };
 
-ChunkedPostRequestSender::ChunkedPostRequestSender(pion::tcp::connection_ptr& tcp_conn,
+ChunkedPostRequestSender::ChunkedPostRequestSender(const pion::tcp::connection_ptr& tcp_conn,
                                                    const std::string& resource)
     : m_logger(PION_GET_LOGGER("pion.ChunkedPostRequestSender")),
     m_writer(pion::http::request_writer::create(tcp_conn))
@@ -1077,8 +1077,8 @@ public:
      * @param http_request_ptr the HTTP request to respond to
      * @param tcp_conn the TCP connection to send the response over
      */
-    void sendResponseWithContentButNoLength(http::request_ptr& http_request_ptr,
-                                            tcp::connection_ptr& tcp_conn)
+    void sendResponseWithContentButNoLength(const http::request_ptr& http_request_ptr,
+                                            const tcp::connection_ptr& tcp_conn)
     {
         // make sure it will get closed when finished
         tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
@@ -1101,7 +1101,7 @@ public:
     }
     
     /// reads in a HTTP response asynchronously
-    void readAsyncResponse(tcp::connection_ptr& tcp_conn)
+    void readAsyncResponse(const tcp::connection_ptr& tcp_conn)
     {
         http::request http_request("GET");
 		http::response_reader_ptr my_reader_ptr(http::response_reader::create(tcp_conn, http_request,

@@ -114,7 +114,7 @@ void FileService::set_option(const std::string& name, const std::string& value)
     }
 }
 
-void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+void FileService::operator()(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     // get the relative resource path for the request
     const std::string relative_path(get_relative_resource(http_request_ptr->get_resource()));
@@ -565,8 +565,8 @@ void FileService::operator()(http::request_ptr& http_request_ptr, tcp::connectio
     }
 }
 
-void FileService::sendNotFoundResponse(http::request_ptr& http_request_ptr,
-                                       tcp::connection_ptr& tcp_conn)
+void FileService::sendNotFoundResponse(const http::request_ptr& http_request_ptr,
+                                       const tcp::connection_ptr& tcp_conn)
 {
     static const std::string NOT_FOUND_HTML_START =
         "<html><head>\n"
@@ -810,8 +810,8 @@ bool DiskFile::checkUpdated(void)
 
 // DiskFileSender member functions
 
-DiskFileSender::DiskFileSender(DiskFile& file, pion::http::request_ptr& http_request_ptr,
-                               pion::tcp::connection_ptr& tcp_conn,
+DiskFileSender::DiskFileSender(DiskFile& file, const pion::http::request_ptr& http_request_ptr,
+                               const pion::tcp::connection_ptr& tcp_conn,
                                unsigned long max_chunk_size)
     : m_logger(PION_GET_LOGGER("pion.FileService.DiskFileSender")), m_disk_file(file),
     m_writer(pion::http::response_writer::create(tcp_conn, *http_request_ptr, boost::bind(&tcp::connection::finish, tcp_conn))),
