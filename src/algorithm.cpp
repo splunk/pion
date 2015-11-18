@@ -20,6 +20,7 @@
 
 namespace pion {        // begin namespace pion
 
+const char * const algorithm::UTF8_REPLACEMENT_CHAR = "\xEF\xBF\xBD";
 
 bool algorithm::base64_decode(const std::string &input, std::string &output)
 {
@@ -272,9 +273,7 @@ std::string algorithm::xml_encode(const std::string& str)
                 result += *(++ptr);
             } else {
                 // insert replacement char
-                result += 0xef;
-                result += 0xbf;
-                result += 0xbd;
+                result += UTF8_REPLACEMENT_CHAR;
             }
         } else if (*ptr >= 0xE0 && *ptr <= 0xEF) {
             // three-byte sequence
@@ -285,9 +284,7 @@ std::string algorithm::xml_encode(const std::string& str)
                 result += *(++ptr);
             } else {
                 // insert replacement char
-                result += 0xef;
-                result += 0xbf;
-                result += 0xbd;
+                result += UTF8_REPLACEMENT_CHAR;
             }
         } else if (*ptr >= 0xF0 && *ptr <= 0xF4) {
             // four-byte sequence
@@ -300,15 +297,11 @@ std::string algorithm::xml_encode(const std::string& str)
                 result += *(++ptr);
             } else {
                 // insert replacement char
-                result += 0xef;
-                result += 0xbf;
-                result += 0xbd;
+                result += UTF8_REPLACEMENT_CHAR;
             }
         } else {
             // insert replacement char
-            result += 0xef;
-            result += 0xbf;
-            result += 0xbd;
+            result += UTF8_REPLACEMENT_CHAR;
         }
         ++ptr;
     }

@@ -18,6 +18,9 @@ namespace pion {    // begin namespace pion
 
 struct PION_API algorithm {
 
+    /// 3-byte character sequence representing the UTF-8 replacement character
+    static const char * const UTF8_REPLACEMENT_CHAR;
+
     /** base64 decoding
      *
      * @param input - base64 encoded string
