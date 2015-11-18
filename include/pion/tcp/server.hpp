@@ -141,7 +141,7 @@ protected:
      * 
      * @param tcp_conn the new TCP connection to handle
      */
-    virtual void handle_connection(tcp::connection_ptr& tcp_conn) {
+    virtual void handle_connection(const tcp::connection_ptr& tcp_conn) {
         tcp_conn->set_lifecycle(connection::LIFECYCLE_CLOSE); // make sure it will get closed
         tcp_conn->finish();
     }
@@ -174,7 +174,7 @@ private:
      * @param tcp_conn the new TCP connection (if no error occurred)
      * @param accept_error true if an error occurred while accepting connections
      */
-    void handle_accept(tcp::connection_ptr& tcp_conn,
+    void handle_accept(const tcp::connection_ptr& tcp_conn,
                       const boost::system::error_code& accept_error);
 
     /**
@@ -183,14 +183,14 @@ private:
      * @param tcp_conn the new TCP connection (if no error occurred)
      * @param handshake_error true if an error occurred during the SSL handshake
      */
-    void handle_ssl_handshake(tcp::connection_ptr& tcp_conn,
+    void handle_ssl_handshake(const tcp::connection_ptr& tcp_conn,
                             const boost::system::error_code& handshake_error);
     
     /// This will be called by connection::finish() after a server has
     /// finished handling a connection.  If the keep_alive flag is true,
     /// it will call handle_connection(); otherwise, it will close the
     /// connection and remove it from the server's management pool
-    void finish_connection(tcp::connection_ptr& tcp_conn);
+    void finish_connection(const tcp::connection_ptr& tcp_conn);
     
     /// prunes orphaned connections that did not close cleanly
     /// and returns the remaining number of connections in the pool

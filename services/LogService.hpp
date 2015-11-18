@@ -57,7 +57,7 @@ public:
     void addLogString(const std::string& log_string);
 
     /// writes the events cached in memory to a response stream
-    void writeLogEvents(pion::http::response_writer_ptr& writer);
+    void writeLogEvents(const pion::http::response_writer_ptr& writer);
 
 private:
     /// default maximum number of events cached in memory
@@ -127,8 +127,8 @@ public:
     virtual ~LogService();
     
     /// handles a new HTTP request
-    virtual void operator()(pion::http::request_ptr& http_request_ptr,
-                            pion::tcp::connection_ptr& tcp_conn);
+    virtual void operator()(const pion::http::request_ptr& http_request_ptr,
+                            const pion::tcp::connection_ptr& tcp_conn);
 
     /// returns the log appender used by LogService
     inline LogServiceAppender& getLogAppender(void) {

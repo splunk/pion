@@ -89,7 +89,7 @@ public:
      */
     boost::tribool parse(http_protocol_info& http_headers,
                          boost::system::error_code& ec,
-                         decompressor_ptr& decompressor,
+                         const decompressor_ptr& decompressor,
                          const char *packet_ptr,
                          boost::uint32_t& length_packet,
                          boost::uint32_t current_stream_count);
@@ -159,7 +159,7 @@ protected:
      *
      */
     void parse_header_payload(boost::system::error_code& ec,
-                              decompressor_ptr& decompressor,
+                              const decompressor_ptr& decompressor,
                               const spdy_control_frame_info& frame,
                               http_protocol_info& http_headers,
                               boost::uint32_t current_stream_count);
@@ -217,7 +217,7 @@ protected:
      *                        indeterminate = not yet finished parsing SPDY frame
      */
     boost::tribool parse_spdy_frame(boost::system::error_code& ec,
-                                    decompressor_ptr& decompressor,
+                                    const decompressor_ptr& decompressor,
                                     http_protocol_info& http_headers,
                                     boost::uint32_t& length_packet,
                                     boost::uint32_t current_stream_count);

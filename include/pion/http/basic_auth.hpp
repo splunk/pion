@@ -46,7 +46,7 @@ public:
      *
      * @return true if request valid and user identity inserted into request 
      */
-    virtual bool handle_request(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    virtual bool handle_request(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn);
     
     /**
      * sets a configuration option
@@ -67,7 +67,7 @@ protected:
      * @param http_request_ptr the new HTTP request to handle
      * @param tcp_conn the TCP connection that has the new request
      */
-    void handle_unauthorized(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn);
+    void handle_unauthorized(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn);
     
     /**
      * extracts base64 user credentials from authorization string

@@ -17,7 +17,7 @@ namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
 
     
-void AllowNothingService::operator()(http::request_ptr& http_request_ptr, tcp::connection_ptr& tcp_conn)
+void AllowNothingService::operator()(const http::request_ptr& http_request_ptr, const tcp::connection_ptr& tcp_conn)
 {
     static const std::string DENY_HTML = "<html><body>No, you can't.</body></html>";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
