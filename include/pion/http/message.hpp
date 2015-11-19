@@ -114,6 +114,7 @@ public:
         m_content_buf(http_msg.m_content_buf),
         m_chunk_cache(http_msg.m_chunk_cache),
         m_headers(http_msg.m_headers),
+        m_cookie_params(http_msg.m_cookie_params),
         m_status(http_msg.m_status),
         m_has_missing_packets(http_msg.m_has_missing_packets),
         m_has_data_after_missing(http_msg.m_has_data_after_missing)
@@ -133,6 +134,7 @@ public:
         m_content_buf = http_msg.m_content_buf;
         m_chunk_cache = http_msg.m_chunk_cache;
         m_headers = http_msg.m_headers;
+        m_cookie_params = http_msg.m_cookie_params;
         m_status = http_msg.m_status;
         m_has_missing_packets = http_msg.m_has_missing_packets;
         m_has_data_after_missing = http_msg.m_has_data_after_missing;

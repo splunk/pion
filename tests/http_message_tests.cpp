@@ -25,24 +25,30 @@ using namespace pion;
 
 BOOST_AUTO_TEST_CASE(checkHTTPRequestCopyConstructor) {
     http::request req1;
-    req1.add_header("Test", "HTTPMessage");
     req1.set_method("GET");
+    req1.add_header("Test", "HTTPMessage");
+    req1.add_cookie("a", "value");
     http::request req2(req1);
     BOOST_CHECK_EQUAL(req1.get_method(), "GET");
     BOOST_CHECK_EQUAL(req1.get_method(), req2.get_method());
     BOOST_CHECK_EQUAL(req1.get_header("Test"), "HTTPMessage");
     BOOST_CHECK_EQUAL(req1.get_header("Test"), req2.get_header("Test"));
+    BOOST_CHECK_EQUAL(req1.get_cookie("a"), "value");
+    BOOST_CHECK_EQUAL(req1.get_cookie("a"), req2.get_cookie("a"));
 }
 
 BOOST_AUTO_TEST_CASE(checkHTTPRequestAssignmentOperator) {
     http::request req1, req2;
     req1.set_method("GET");
     req1.add_header("Test", "HTTPMessage");
+    req1.add_cookie("a", "value");
     req2 = req1;
     BOOST_CHECK_EQUAL(req1.get_method(), "GET");
     BOOST_CHECK_EQUAL(req1.get_method(), req2.get_method());
     BOOST_CHECK_EQUAL(req1.get_header("Test"), "HTTPMessage");
     BOOST_CHECK_EQUAL(req1.get_header("Test"), req2.get_header("Test"));
+    BOOST_CHECK_EQUAL(req1.get_cookie("a"), "value");
+    BOOST_CHECK_EQUAL(req1.get_cookie("a"), req2.get_cookie("a"));
 }
 
 BOOST_AUTO_TEST_CASE(checkHTTPResponseCopyConstructor) {
