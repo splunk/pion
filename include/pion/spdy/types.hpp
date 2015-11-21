@@ -12,6 +12,7 @@
 
 #include <map>
 #include <pion/config.hpp>
+#include <pion/stdx/cstdint.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -47,10 +48,10 @@ namespace spdy {    // begin namespace spdy
 /// This structure will be tied to each SPDY frame
 typedef struct spdy_control_frame_info{
     bool control_bit;
-    boost::uint16_t  version;
-    boost::uint16_t  type;
-    boost::uint8_t   flags;
-    boost::uint32_t  length;  // Actually only 24 bits.
+    stdx::uint16_t  version;
+    stdx::uint16_t  type;
+    stdx::uint8_t   flags;
+    stdx::uint32_t  length;  // Actually only 24 bits.
 } spdy_control_frame_info;
 
     
@@ -58,20 +59,20 @@ typedef struct spdy_control_frame_info{
 /// Only applies to frames containing headers: SYN_STREAM, SYN_REPLY, HEADERS
 /// Note that there may be multiple SPDY frames in one packet.
 typedef struct _spdy_header_info{
-    boost::uint32_t stream_id;
-    boost::uint8_t *header_block;
-    boost::uint8_t  header_block_len;
-    boost::uint16_t frame_type;
+    stdx::uint32_t stream_id;
+    stdx::uint8_t *header_block;
+    stdx::uint8_t  header_block_len;
+    stdx::uint16_t frame_type;
 } spdy_header_info;
 
 
 /// This structure contains the HTTP Protocol information
 typedef struct _http_protocol_info_t{
     std::map<std::string, std::string> http_headers;
-    boost::uint32_t     http_type;
-    boost::uint32_t     stream_id;
-    boost::uint32_t     data_offset;
-    boost::uint32_t     data_size;
+    stdx::uint32_t     http_type;
+    stdx::uint32_t     stream_id;
+    stdx::uint32_t     data_offset;
+    stdx::uint32_t     data_size;
     bool                last_chunk;
     
     _http_protocol_info_t()

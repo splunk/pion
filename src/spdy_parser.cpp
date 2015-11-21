@@ -21,7 +21,7 @@ namespace pion {    // begin namespace pion
 namespace spdy {    // begin namespace spdy
 
 /// RST stream status string from code, return NULL for unknown status code
-static char const* rst_stream_status(boost::uint32_t rst_stream_status_code)
+static char const* rst_stream_status(stdx::uint32_t rst_stream_status_code)
 {
     switch (rst_stream_status_code)
     {
@@ -58,8 +58,8 @@ boost::tribool parser::parse(http_protocol_info& http_info,
                              boost::system::error_code& ec,
                              const decompressor_ptr& decompressor,
                              const char *packet_ptr,
-                             boost::uint32_t& length_packet,
-                             boost::uint32_t current_stream_count)
+                             stdx::uint32_t& length_packet,
+                             stdx::uint32_t current_stream_count)
 {
     // initialize read position
     set_read_ptr(packet_ptr);
@@ -73,9 +73,9 @@ bool parser::is_spdy_control_frame(const char *ptr)
     // Parse further for higher accuracy
     
     // Get the control bit
-    boost::uint8_t control_bit;
-    boost::uint16_t version, type;
-    boost::uint16_t byte_value = algorithm::to_uint16(ptr);
+    stdx::uint8_t control_bit;
+    stdx::uint16_t version, type;
+    stdx::uint16_t byte_value = algorithm::to_uint16(ptr);
     control_bit = byte_value >> (sizeof(short) * CHAR_BIT - 1);
 
     if (!control_bit) return false;
@@ -83,7 +83,7 @@ bool parser::is_spdy_control_frame(const char *ptr)
     // Control bit is set; This is a control frame
     
     // Get the version number
-    boost::uint16_t two_bytes = algorithm::to_uint16(ptr);
+    stdx::uint16_t two_bytes = algorithm::to_uint16(ptr);
     version = two_bytes & 0x7FFF;
     
     if(version < 1 || version > 3){
@@ -119,7 +119,7 @@ spdy_frame_type parser::get_spdy_frame_type(const char *ptr)
      */
     
     spdy_frame_type spdy_frame;
-    boost::uint8_t first_byte = *((unsigned char *)ptr);
+    stdx::uint8_t first_byte = *((unsigned char *)ptr);
     if(first_byte == 0x80){
         spdy_frame = spdy_control_frame;
     }else if(first_byte == 0x0){
@@ -130,27 +130,27 @@ spdy_frame_type parser::get_spdy_frame_type(const char *ptr)
     return spdy_frame;
 }
     
-boost::uint32_t parser::get_control_frame_stream_id(const char *ptr)
+stdx::uint32_t parser::get_control_frame_stream_id(const char *ptr)
 {
     // The stream ID for control frames is at a 8 bit offser from start
     ptr += 8;
 
-    boost::uint32_t four_bytes = algorithm::to_uint32(ptr);
+    stdx::uint32_t four_bytes = algorithm::to_uint32(ptr);
     return four_bytes & 0x7FFFFFFF;
 }
     
 boost::tribool parser::parse_spdy_frame(boost::system::error_code& ec,
                                         const decompressor_ptr& decompressor,
                                         http_protocol_info& http_info,
-                                        boost::uint32_t& length_packet,
-                                        boost::uint32_t current_stream_count)
+                                        stdx::uint32_t& length_packet,
+                                        stdx::uint32_t current_stream_count)
 {
     boost::tribool rc = true;
     
     // Verify that this is a spdy frame
     
     BOOST_ASSERT(m_read_ptr);
-    boost::uint8_t first_byte = (boost::uint8_t)*m_read_ptr;
+    stdx::uint8_t first_byte = (stdx::uint8_t)*m_read_ptr;
     if (first_byte != 0x80 && first_byte != 0x0) {
         // This is not a SPDY frame, throw an error
         PION_LOG_ERROR(m_logger, "Invalid SPDY Frame");
@@ -158,9 +158,9 @@ boost::tribool parser::parse_spdy_frame(boost::system::error_code& ec,
         return false;
     }
     
-    boost::uint8_t              control_bit;
+    stdx::uint8_t              control_bit;
     spdy_control_frame_info     frame;
-    boost::uint32_t             stream_id = 0;
+    stdx::uint32_t             stream_id = 0;
     
     ec.clear();
 
@@ -174,7 +174,7 @@ boost::tribool parser::parse_spdy_frame(boost::system::error_code& ec,
     
     BOOST_ASSERT(stream_id != 0);
     
-    control_bit = (boost::uint8_t)frame.control_bit;
+    control_bit = (stdx::uint8_t)frame.control_bit;
     
     // There is a possibility that there are more than one SPDY frames in one TCP frame
     if(length_packet > frame.length){
@@ -263,13 +263,13 @@ void parser::create_error_category(void)
 
 bool parser::populate_frame(boost::system::error_code& ec,
                             spdy_control_frame_info& frame,
-                            boost::uint32_t& length_packet,
-                            boost::uint32_t& stream_id,
+                            stdx::uint32_t& length_packet,
+                            stdx::uint32_t& stream_id,
                             http_protocol_info& http_info)
 {
     // Get the control bit
-    boost::uint8_t control_bit;
-    boost::uint16_t byte_value = algorithm::to_uint16(m_read_ptr);
+    stdx::uint8_t control_bit;
+    stdx::uint16_t byte_value = algorithm::to_uint16(m_read_ptr);
     control_bit = byte_value >> (sizeof(short) * CHAR_BIT - 1);
     
     frame.control_bit = (control_bit != 0);
@@ -279,7 +279,7 @@ bool parser::populate_frame(boost::system::error_code& ec,
         // Control bit is set; This is a control frame
         
         // Get the version number
-        boost::uint16_t two_bytes = algorithm::to_uint16(m_read_ptr);
+        stdx::uint16_t two_bytes = algorithm::to_uint16(m_read_ptr);
         frame.version = two_bytes & 0x7FFF;
         
         // Increment the read pointer
@@ -305,7 +305,7 @@ bool parser::populate_frame(boost::system::error_code& ec,
         frame.type = SPDY_DATA;
         frame.version = 0; /* Version doesn't apply to DATA. */
         // Get the stream id
-        boost::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
+        stdx::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
         stream_id = four_bytes & 0x7FFFFFFF;
         
         http_info.stream_id = stream_id;
@@ -322,12 +322,12 @@ bool parser::populate_frame(boost::system::error_code& ec,
     http_info.data_offset +=2;
     
     // Get the flags
-    frame.flags = (boost::uint8_t)*m_read_ptr;
+    frame.flags = (stdx::uint8_t)*m_read_ptr;
     
     // Increment the read pointer
     
     // Get the length
-    boost::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
+    stdx::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
     frame.length = four_bytes & 0xFFFFFF;
     
     // Increment the read pointer
@@ -349,14 +349,14 @@ void parser::parse_header_payload(boost::system::error_code &ec,
                                   const decompressor_ptr& decompressor,
                                   const spdy_control_frame_info& frame,
                                   http_protocol_info& http_info,
-                                  boost::uint32_t /* current_stream_count */)
+                                  stdx::uint32_t /* current_stream_count */)
 {
-    boost::uint32_t stream_id = 0;
-    boost::uint32_t header_block_length = frame.length;
+    stdx::uint32_t stream_id = 0;
+    stdx::uint32_t header_block_length = frame.length;
     
     // Get the 31 bit stream id
     
-    boost::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
+    stdx::uint32_t four_bytes = algorithm::to_uint32(m_read_ptr);
     stream_id = four_bytes & 0x7FFFFFFF;
     
     m_read_ptr += 4;
@@ -417,37 +417,37 @@ void parser::parse_header_payload(boost::system::error_code &ec,
     // and it is 32 bit in SPDYv3
     
     // TBD : Add support for SPDYv3
-    boost::uint16_t num_name_val_pairs = algorithm::to_uint16(m_uncompressed_ptr);
+    stdx::uint16_t num_name_val_pairs = algorithm::to_uint16(m_uncompressed_ptr);
     
     m_uncompressed_ptr += 2;
     
     std::string content_type = "";
     std::string content_encoding = "";
     
-    for(boost::uint16_t count = 0; count < num_name_val_pairs; ++count){
+    for(stdx::uint16_t count = 0; count < num_name_val_pairs; ++count){
         
         
         // Get the length of the name
-        boost::uint16_t length_name = algorithm::to_uint16(m_uncompressed_ptr);
+        stdx::uint16_t length_name = algorithm::to_uint16(m_uncompressed_ptr);
         std::string name = "";
         
         m_uncompressed_ptr += 2;
         
         {
-            for(boost::uint16_t count = 0; count < length_name; ++count){
+            for(stdx::uint16_t count = 0; count < length_name; ++count){
                 name.push_back(*(m_uncompressed_ptr+count));
             }
             m_uncompressed_ptr += length_name;
         }
         
         // Get the length of the value
-        boost::uint16_t length_value = algorithm::to_uint16(m_uncompressed_ptr);
+        stdx::uint16_t length_value = algorithm::to_uint16(m_uncompressed_ptr);
         std::string value = "";
         
         m_uncompressed_ptr += 2;
         
         {
-            for(boost::uint16_t count = 0; count < length_value; ++count){
+            for(stdx::uint16_t count = 0; count < length_value; ++count){
                 value.push_back(*(m_uncompressed_ptr+count));
             }
             m_uncompressed_ptr += length_value;
@@ -460,7 +460,7 @@ void parser::parse_header_payload(boost::system::error_code &ec,
 
 void parser::parse_spdy_data(boost::system::error_code& /* ec */,
                              const spdy_control_frame_info& frame,
-                             boost::uint32_t /* stream_id */,
+                             stdx::uint32_t /* stream_id */,
                              http_protocol_info& http_info)
 {
     // This marks the finish flag
@@ -472,7 +472,7 @@ void parser::parse_spdy_data(boost::system::error_code& /* ec */,
 void parser::parse_spdy_rst_stream(boost::system::error_code& /* ec */,
                                    const spdy_control_frame_info& frame)
 {
-    boost::uint32_t status_code = 0;
+    stdx::uint32_t status_code = 0;
     
     // First complete the check for size and flag
     // The flag for RST frame should be 0, The length should be 8
@@ -504,7 +504,7 @@ void parser::parse_spdy_ping_frame(boost::system::error_code& /* ec */,
         return;
     }
   
-    boost::uint32_t ping_id = 0;
+    stdx::uint32_t ping_id = 0;
     
     // Get the 32 bit ping id
     
@@ -531,7 +531,7 @@ void parser::parse_spdy_goaway_frame(boost::system::error_code &ec,
         return;
     }
     
-    boost::uint32_t status_code = 0;
+    stdx::uint32_t status_code = 0;
     
     // Ignore the 31 bit stream id
     m_read_ptr += 4;

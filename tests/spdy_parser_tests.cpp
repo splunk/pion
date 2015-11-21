@@ -36,7 +36,7 @@ BOOST_FIXTURE_TEST_SUITE(parser_S, parser_F)
 BOOST_AUTO_TEST_CASE(test_is_spdy_frame_methods)
 {
     // Try with a invalid SPDY frame
-    boost::uint16_t sample_frame = 0xFF;
+    stdx::uint16_t sample_frame = 0xFF;
     boost::system::error_code ec;
     
     BOOST_CHECK_EQUAL(parser::get_spdy_frame_type((const char *)&(sample_frame)), spdy_invalid_frame);
@@ -95,10 +95,10 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_syn_reply_frame)
     http_protocol_info http_info;
     
     // The length is known for this packet
-    boost::uint32_t length_packet = 1460;
+    stdx::uint32_t length_packet = 1460;
     
     spdy_control_frame_info frame;
-    boost::uint32_t                stream_id = 0;
+    stdx::uint32_t                stream_id = 0;
     
     this->set_read_ptr((const char*)spdy_syn_reply_frame);
     
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_rst_frame)
     
     // Check for interleaved spdy frames
     // The length is known for this packet
-    boost::uint32_t length_packet = 30;
+    stdx::uint32_t length_packet = 30;
     
     boost::tribool result = false;
     
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_goaway_frame)
     
     // Check for interleaved spdy frames
     // The length is known for this packet
-    boost::uint32_t length_packet = 30;
+    stdx::uint32_t length_packet = 30;
     
     boost::tribool result = false;
     
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_frames)
     
     // Check for interleaved spdy frames
     // The length is known for this packet
-    boost::uint32_t length_packet = 30;
+    stdx::uint32_t length_packet = 30;
     
     boost::tribool result = false;
     
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_ping_frame)
     
     // Check for interleaved spdy frames
     // The length is known for this packet
-    boost::uint32_t length_packet = 30;
+    stdx::uint32_t length_packet = 30;
     
     boost::tribool result = false;
     
@@ -288,10 +288,10 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_syn_stream_frame)
     http_protocol_info http_info;
     
     // The length is known for this packet
-    boost::uint32_t length_packet = 294;
+    stdx::uint32_t length_packet = 294;
     
     spdy_control_frame_info frame;
-    boost::uint32_t                stream_id = 0;
+    stdx::uint32_t                stream_id = 0;
     
     this->set_read_ptr((const char*)spdy_syn_stream_frame);
     
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_interleaved_frame)
     
     // Check for interleaved spdy frames
     // The length is known for this packet
-    boost::uint32_t length_packet = 1460;
+    stdx::uint32_t length_packet = 1460;
     
     boost::tribool result = false;
     
@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE(test_spdy_parse_header)
     
     // Check for interleaved spdy frames
     // The length is known for this packet
-    boost::uint32_t length_packet = 1460;
+    stdx::uint32_t length_packet = 1460;
     
     decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
     
@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE(test_populate_http_info_syn_stream_frame)
     
     // Check for interleaved spdy frames
     // The length is known for this packet
-    boost::uint32_t length_packet = 294;
+    stdx::uint32_t length_packet = 294;
     
     decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
     
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE(test_populate_http_info_datastream_frame)
     decompressor_ptr decompressor = (decompressor_ptr)new pion::spdy::decompressor();
 
     http_protocol_info   http_info;
-    boost::uint32_t length_packet = 1460;
+    stdx::uint32_t length_packet = 1460;
 
     boost::tribool result = false;
     

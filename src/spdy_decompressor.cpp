@@ -87,9 +87,9 @@ decompressor::~decompressor()
 }
 
 char* decompressor::decompress(const char *compressed_data_ptr,
-                               boost::uint32_t stream_id,
+                               stdx::uint32_t stream_id,
                                const spdy_control_frame_info& frame,
-                               boost::uint32_t header_block_length)
+                               stdx::uint32_t header_block_length)
 {
     /// Get our decompressor.
     z_streamp decomp = NULL;
@@ -113,7 +113,7 @@ char* decompressor::decompress(const char *compressed_data_ptr,
     BOOST_ASSERT(decomp);
     
     // Decompress the data
-    boost::uint32_t uncomp_length = 0;
+    stdx::uint32_t uncomp_length = 0;
     
     // Catch decompression failures.
     if (!spdy_decompress_header(compressed_data_ptr, decomp,
@@ -130,10 +130,10 @@ char* decompressor::decompress(const char *compressed_data_ptr,
 
 bool decompressor::spdy_decompress_header(const char *compressed_data_ptr,
                                           z_streamp decomp,
-                                          boost::uint32_t length,
-                                          boost::uint32_t& uncomp_length) {
+                                          stdx::uint32_t length,
+                                          stdx::uint32_t& uncomp_length) {
     int retcode;
-    const boost::uint8_t *hptr = (boost::uint8_t *)compressed_data_ptr;
+    const stdx::uint8_t *hptr = (stdx::uint8_t *)compressed_data_ptr;
     
     decomp->next_in = (Bytef *)hptr;
     decomp->avail_in = length;

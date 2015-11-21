@@ -40,7 +40,7 @@ public:
     inline tcp::connection_ptr& get_connection(void) { return m_tcp_conn; }
     
     /// sets the maximum number of seconds for read operations
-    inline void set_timeout(boost::uint32_t seconds) { m_read_timeout = seconds; }
+    inline void set_timeout(stdx::uint32_t seconds) { m_read_timeout = seconds; }
 
     
 protected:
@@ -93,7 +93,7 @@ private:
 
 
     /// default maximum number of seconds for read operations
-    static const boost::uint32_t            DEFAULT_READ_TIMEOUT;
+    static const stdx::uint32_t            DEFAULT_READ_TIMEOUT;
 
 
     /// The HTTP connection that has a new HTTP message to parse
@@ -103,7 +103,7 @@ private:
     tcp::timer_ptr                             m_timer_ptr;
 
     /// maximum number of seconds for read operations
-    boost::uint32_t                         m_read_timeout;
+    stdx::uint32_t                         m_read_timeout;
 };
 
 

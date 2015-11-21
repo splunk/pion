@@ -23,7 +23,7 @@ timer::timer(const tcp::connection_ptr& conn_ptr)
 {
 }
 
-void timer::start(const boost::uint32_t seconds)
+void timer::start(const stdx::uint32_t seconds)
 {
     boost::mutex::scoped_lock timer_lock(m_mutex);
     m_timer_active = true;

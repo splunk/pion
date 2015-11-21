@@ -91,8 +91,8 @@ public:
                          boost::system::error_code& ec,
                          const decompressor_ptr& decompressor,
                          const char *packet_ptr,
-                         boost::uint32_t& length_packet,
-                         boost::uint32_t current_stream_count);
+                         stdx::uint32_t& length_packet,
+                         stdx::uint32_t current_stream_count);
     
     /// Get the pointer to the first character to the spdy data contect 
     const char * get_spdy_data_content( ) { return m_last_data_chunk_ptr; }
@@ -119,7 +119,7 @@ public:
      *
      * @return true if it is a control frame else returns false
      */
-    static boost::uint32_t get_control_frame_stream_id(const char *ptr);
+    static stdx::uint32_t get_control_frame_stream_id(const char *ptr);
     
     
 protected:
@@ -131,8 +131,8 @@ protected:
     /// Returns false if there was an error else returns true
     bool populate_frame(boost::system::error_code& ec,
                         spdy_control_frame_info& frame,
-                        boost::uint32_t& length_packet,
-                        boost::uint32_t& stream_id,
+                        stdx::uint32_t& length_packet,
+                        stdx::uint32_t& stream_id,
                         http_protocol_info& http_headers);
     
     /// creates the unique parser error_category_t
@@ -162,7 +162,7 @@ protected:
                               const decompressor_ptr& decompressor,
                               const spdy_control_frame_info& frame,
                               http_protocol_info& http_headers,
-                              boost::uint32_t current_stream_count);
+                              stdx::uint32_t current_stream_count);
     
     /**
      * parses the data for SPDY
@@ -170,7 +170,7 @@ protected:
      */
     void parse_spdy_data(boost::system::error_code& ec,
                          const spdy_control_frame_info& frame,
-                         boost::uint32_t stream_id,
+                         stdx::uint32_t stream_id,
                          http_protocol_info& http_info);
     
     /**
@@ -219,8 +219,8 @@ protected:
     boost::tribool parse_spdy_frame(boost::system::error_code& ec,
                                     const decompressor_ptr& decompressor,
                                     http_protocol_info& http_headers,
-                                    boost::uint32_t& length_packet,
-                                    boost::uint32_t current_stream_count);
+                                    stdx::uint32_t& length_packet,
+                                    stdx::uint32_t current_stream_count);
     
 private:
     

@@ -17,7 +17,7 @@
 #include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/connection.hpp>
-
+#include <pion/stdx/cstdint.hpp>
 
 namespace pion {    // begin namespace pion
 namespace tcp {     // begin namespace tcp
@@ -43,7 +43,7 @@ public:
      *
      * @param seconds number of seconds before the timeout triggers
      */
-    void start(const boost::uint32_t seconds);
+    void start(const stdx::uint32_t seconds);
 
     /// cancel the timer (operation completed)
     void cancel(void);

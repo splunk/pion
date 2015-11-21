@@ -13,13 +13,13 @@
 #include <iosfwd>
 #include <vector>
 #include <cstring>
-#include <boost/cstdint.hpp>
 #include <boost/asio.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/regex.hpp>
 #include <pion/config.hpp>
+#include <pion/stdx/cstdint.hpp>
 #include <pion/http/types.hpp>
 
 #ifndef BOOST_SYSTEM_NOEXCEPT
@@ -176,10 +176,10 @@ public:
     }
 
     /// returns the major HTTP version number
-    inline boost::uint16_t get_version_major(void) const { return m_version_major; }
+    inline stdx::uint16_t get_version_major(void) const { return m_version_major; }
 
     /// returns the minor HTTP version number
-    inline boost::uint16_t get_version_minor(void) const { return m_version_minor; }
+    inline stdx::uint16_t get_version_minor(void) const { return m_version_minor; }
 
     /// returns a string representation of the HTTP version (i.e. "HTTP/1.1")
     inline std::string get_version_string(void) const {
@@ -289,13 +289,13 @@ public:
     inline void set_remote_ip(const boost::asio::ip::address& ip) { m_remote_ip = ip; }
 
     /// sets the major HTTP version number
-    inline void set_version_major(const boost::uint16_t n) {
+    inline void set_version_major(const stdx::uint16_t n) {
         m_version_major = n;
         clear_first_line();
     }
 
     /// sets the minor HTTP version number
-    inline void set_version_minor(const boost::uint16_t n) {
+    inline void set_version_minor(const stdx::uint16_t n) {
         m_version_minor = n;
         clear_first_line();
     }
@@ -701,10 +701,10 @@ private:
     boost::asio::ip::address        m_remote_ip;
 
     /// HTTP major version number
-    boost::uint16_t                 m_version_major;
+    stdx::uint16_t                 m_version_major;
 
     /// HTTP major version number
-    boost::uint16_t                 m_version_minor;
+    stdx::uint16_t                 m_version_minor;
 
     /// the length of the payload content (in bytes)
     size_t                          m_content_length;

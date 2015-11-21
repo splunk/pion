@@ -311,7 +311,7 @@ public:
      * @return true if the URI was successfully parsed, false if there was an error
      */
     static bool parse_uri(const std::string& uri, std::string& proto, 
-                         std::string& host, boost::uint16_t& port, std::string& path,
+                         std::string& host, stdx::uint16_t& port, std::string& path,
                          std::string& query);
 
     /**
@@ -532,34 +532,34 @@ protected:
 
 
     /// maximum length for response status message
-    static const boost::uint32_t        STATUS_MESSAGE_MAX;
+    static const stdx::uint32_t        STATUS_MESSAGE_MAX;
 
     /// maximum length for the request method
-    static const boost::uint32_t        METHOD_MAX;
+    static const stdx::uint32_t        METHOD_MAX;
 
     /// maximum length for the resource requested
-    static const boost::uint32_t        RESOURCE_MAX;
+    static const stdx::uint32_t        RESOURCE_MAX;
 
     /// maximum length for the query string
-    static const boost::uint32_t        QUERY_STRING_MAX;
+    static const stdx::uint32_t        QUERY_STRING_MAX;
 
     /// maximum length for an HTTP header name
-    static const boost::uint32_t        HEADER_NAME_MAX;
+    static const stdx::uint32_t        HEADER_NAME_MAX;
 
     /// maximum length for an HTTP header value
-    static const boost::uint32_t        HEADER_VALUE_MAX;
+    static const stdx::uint32_t        HEADER_VALUE_MAX;
 
     /// maximum length for the name of a query string variable
-    static const boost::uint32_t        QUERY_NAME_MAX;
+    static const stdx::uint32_t        QUERY_NAME_MAX;
 
     /// maximum length for the value of a query string variable
-    static const boost::uint32_t        QUERY_VALUE_MAX;
+    static const stdx::uint32_t        QUERY_VALUE_MAX;
 
     /// maximum length for the name of a cookie name
-    static const boost::uint32_t        COOKIE_NAME_MAX;
+    static const stdx::uint32_t        COOKIE_NAME_MAX;
 
     /// maximum length for the value of a cookie; also used for path and domain
-    static const boost::uint32_t        COOKIE_VALUE_MAX;
+    static const stdx::uint32_t        COOKIE_VALUE_MAX;
 
 
     /// primary logging interface used by this class
@@ -624,7 +624,7 @@ private:
     payload_handler_t                   m_payload_handler;
 
     /// Used for parsing the HTTP response status code
-    boost::uint16_t                     m_status_code;
+    stdx::uint16_t                     m_status_code;
 
     /// Used for parsing the HTTP response status message
     std::string                         m_status_message;

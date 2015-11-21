@@ -26,16 +26,16 @@ namespace http {    // begin namespace http
 
 // static members of parser
 
-const boost::uint32_t   parser::STATUS_MESSAGE_MAX = 1024;  // 1 KB
-const boost::uint32_t   parser::METHOD_MAX = 1024;  // 1 KB
-const boost::uint32_t   parser::RESOURCE_MAX = 256 * 1024;  // 256 KB
-const boost::uint32_t   parser::QUERY_STRING_MAX = 1024 * 1024; // 1 MB
-const boost::uint32_t   parser::HEADER_NAME_MAX = 1024; // 1 KB
-const boost::uint32_t   parser::HEADER_VALUE_MAX = 1024 * 1024; // 1 MB
-const boost::uint32_t   parser::QUERY_NAME_MAX = 1024;  // 1 KB
-const boost::uint32_t   parser::QUERY_VALUE_MAX = 1024 * 1024;  // 1 MB
-const boost::uint32_t   parser::COOKIE_NAME_MAX = 1024; // 1 KB
-const boost::uint32_t   parser::COOKIE_VALUE_MAX = 1024 * 1024; // 1 MB
+const stdx::uint32_t   parser::STATUS_MESSAGE_MAX = 1024;  // 1 KB
+const stdx::uint32_t   parser::METHOD_MAX = 1024;  // 1 KB
+const stdx::uint32_t   parser::RESOURCE_MAX = 256 * 1024;  // 256 KB
+const stdx::uint32_t   parser::QUERY_STRING_MAX = 1024 * 1024; // 1 MB
+const stdx::uint32_t   parser::HEADER_NAME_MAX = 1024; // 1 KB
+const stdx::uint32_t   parser::HEADER_VALUE_MAX = 1024 * 1024; // 1 MB
+const stdx::uint32_t   parser::QUERY_NAME_MAX = 1024;  // 1 KB
+const stdx::uint32_t   parser::QUERY_VALUE_MAX = 1024 * 1024;  // 1 MB
+const stdx::uint32_t   parser::COOKIE_NAME_MAX = 1024; // 1 KB
+const stdx::uint32_t   parser::COOKIE_VALUE_MAX = 1024 * 1024; // 1 MB
 const std::size_t       parser::DEFAULT_CONTENT_MAX = 1024 * 1024;  // 1 MB
 parser::error_category_t * parser::m_error_category_ptr = NULL;
 boost::once_flag            parser::m_instance_flag = BOOST_ONCE_INIT;
@@ -828,7 +828,7 @@ boost::tribool parser::finish_header_parsing(http::message& http_msg,
 }
     
 bool parser::parse_uri(const std::string& uri, std::string& proto, 
-                      std::string& host, boost::uint16_t& port,
+                      std::string& host, stdx::uint16_t& port,
                       std::string& path, std::string& query)
 {
     size_t proto_end = uri.find("://");

@@ -12,7 +12,7 @@
 
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
-#include <boost/cstdint.hpp>
+#include <pion/stdx/cstdint.hpp>
 #include <boost/thread/mutex.hpp>
 
 
@@ -54,13 +54,13 @@ private:
      * @param name descriptive name to lookup (user or group name, may be id)
      * @param file system credentials file to look within
      *
-     * @return boost::int32_t identifier found, or -1 if none found
+     * @return stdx::int32_t identifier found, or -1 if none found
      */
     static long find_system_id(const std::string& name, const std::string& file);
 
 
     /// adminisitrator or root user identifier
-    static const boost::int16_t         ADMIN_USER_ID;
+    static const stdx::int16_t         ADMIN_USER_ID;
 
     /// mutex used to prevent multiple threads from corrupting user id
     static boost::mutex                 m_mutex;
@@ -72,7 +72,7 @@ private:
     boost::unique_lock<boost::mutex>    m_lock;
 
     /// saved user identifier before upgrading to administrator
-    boost::int16_t                      m_user_id;
+    stdx::int16_t                      m_user_id;
 
     /// true if the class currently holds administrative rights
     bool                                m_has_rights;

@@ -15,7 +15,6 @@
 #include <boost/assert.hpp>
 #include <boost/bind.hpp>
 #include <boost/function/function0.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/thread.hpp>
@@ -24,7 +23,7 @@
 #include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
-
+#include <pion/stdx/cstdint.hpp>
 
 namespace pion {    // begin namespace pion
 
@@ -66,10 +65,10 @@ public:
     inline bool is_running(void) const { return m_is_running; }
     
     /// sets the number of threads to be used (these are shared by all servers)
-    inline void set_num_threads(const boost::uint32_t n) { m_num_threads = n; }
+    inline void set_num_threads(const stdx::uint32_t n) { m_num_threads = n; }
     
     /// returns the number of threads currently in use
-    inline boost::uint32_t get_num_threads(void) const { return m_num_threads; }
+    inline stdx::uint32_t get_num_threads(void) const { return m_num_threads; }
 
     /// sets the logger to be used
     inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
@@ -104,7 +103,7 @@ public:
      * @param sleep_sec number of entire seconds to sleep for
      * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
      */
-    inline static void sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec) {
+    inline static void sleep(stdx::uint32_t sleep_sec, stdx::uint32_t sleep_nsec) {
         boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
         boost::thread::sleep(wakeup_time);
     }
@@ -120,7 +119,7 @@ public:
      */
     template <typename ConditionType, typename LockType>
     inline static void sleep(ConditionType& wakeup_condition, LockType& wakeup_lock,
-                             boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
+                             stdx::uint32_t sleep_sec, stdx::uint32_t sleep_nsec)
     {
         boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
         wakeup_condition.timed_wait(wakeup_lock, wakeup_time);
@@ -141,8 +140,8 @@ protected:
      *
      * @return boost::system_time time to wake up from sleep
      */
-    static boost::system_time get_wakeup_time(boost::uint32_t sleep_sec,
-        boost::uint32_t sleep_nsec);
+    static boost::system_time get_wakeup_time(stdx::uint32_t sleep_sec,
+        stdx::uint32_t sleep_nsec);
 
     /// stops all services used to schedule work
     virtual void stop_services(void) {}
@@ -158,16 +157,16 @@ protected:
     
     
     /// default number of worker threads in the thread pool
-    static const boost::uint32_t    DEFAULT_NUM_THREADS;
+    static const stdx::uint32_t    DEFAULT_NUM_THREADS;
 
     /// number of nanoseconds in one full second (10 ^ 9)
-    static const boost::uint32_t    NSEC_IN_SECOND;
+    static const stdx::uint32_t    NSEC_IN_SECOND;
 
     /// number of microseconds in one full second (10 ^ 6)
-    static const boost::uint32_t    MICROSEC_IN_SECOND;
+    static const stdx::uint32_t    MICROSEC_IN_SECOND;
     
     /// number of seconds a timer should wait for to keep the IO services running
-    static const boost::uint32_t    KEEP_RUNNING_TIMER_SECONDS;
+    static const stdx::uint32_t    KEEP_RUNNING_TIMER_SECONDS;
 
 
     /// mutex to make class thread-safe
@@ -183,10 +182,10 @@ protected:
     boost::condition                m_scheduler_has_stopped;
 
     /// total number of worker threads in the pool
-    boost::uint32_t                 m_num_threads;
+    stdx::uint32_t                 m_num_threads;
 
     /// the scheduler will not shutdown until there are no more active users
-    boost::uint32_t                 m_active_users;
+    stdx::uint32_t                 m_active_users;
 
     /// true if the thread scheduler is running
     bool                            m_is_running;
@@ -315,7 +314,7 @@ public:
      *
      * @param n integer number representing the service object
      */
-    virtual boost::asio::io_service& get_io_service(boost::uint32_t n) {
+    virtual boost::asio::io_service& get_io_service(stdx::uint32_t n) {
         BOOST_ASSERT(n < m_num_threads);
         BOOST_ASSERT(n < m_service_pool.size());
         return m_service_pool[n]->first;
@@ -353,7 +352,7 @@ protected:
     service_pool_type   m_service_pool;
 
     /// the next service to use for scheduling work
-    boost::uint32_t     m_next_service;
+    stdx::uint32_t     m_next_service;
 };
     
     

@@ -15,6 +15,7 @@
 #include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/spdy/types.hpp>
+#include <pion/stdx/cstdint.hpp>
 #include <zlib.h>
 
 
@@ -48,9 +49,9 @@ public:
      * @return the uncompressed string, or null on failure
      */
     char* decompress(const char *compressed_data_ptr,
-                     boost::uint32_t stream_id,
+                     stdx::uint32_t stream_id,
                      const spdy_control_frame_info& frame,
-                     boost::uint32_t header_block_length);
+                     stdx::uint32_t header_block_length);
 
     
 protected:
@@ -62,8 +63,8 @@ protected:
      */
     bool spdy_decompress_header(const char *compressed_data_ptr,
                                 z_streamp decomp,
-                                boost::uint32_t length,
-                                boost::uint32_t& uncomp_length);
+                                stdx::uint32_t length,
+                                stdx::uint32_t& uncomp_length);
 
 
 private:
@@ -75,10 +76,10 @@ private:
     z_streamp                           m_response_zstream;
     
     /// dictionary identifier
-    boost::uint32_t                     m_dictionary_id;
+    stdx::uint32_t                     m_dictionary_id;
     
     /// Used for decompressing spdy headers
-    boost::uint8_t                      m_uncompressed_header[MAX_UNCOMPRESSED_DATA_BUF_SIZE];
+    stdx::uint8_t                      m_uncompressed_header[MAX_UNCOMPRESSED_DATA_BUF_SIZE];
 
     // SPDY Dictionary used for zlib decompression
     static const char                   SPDY_ZLIB_DICTIONARY[];
