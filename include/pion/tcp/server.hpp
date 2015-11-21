@@ -13,13 +13,13 @@
 #include <set>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/scheduler.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/stdx/asio.hpp>
+#include <pion/stdx/mutex.hpp>
+#include <pion/stdx/condition_variable.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -214,10 +214,10 @@ private:
     connection::ssl_context_type            m_ssl_context;
         
     /// condition triggered when the server has stopped listening for connections
-    boost::condition                        m_server_has_stopped;
+    stdx::condition_variable                        m_server_has_stopped;
 
     /// condition triggered when the connection pool is empty
-    boost::condition                        m_no_more_connections;
+    stdx::condition_variable                        m_no_more_connections;
 
     /// pool of active connections associated with this server 
     ConnectionPool                          m_conn_pool;
@@ -232,7 +232,7 @@ private:
     bool                                    m_is_listening;
 
     /// mutex to make class thread-safe
-    mutable boost::mutex                    m_mutex;
+    mutable stdx::mutex                    m_mutex;
 };
 
 

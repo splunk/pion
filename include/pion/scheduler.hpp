@@ -16,14 +16,14 @@
 #include <boost/function/function0.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/thread/xtime.hpp>
-#include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/stdx/cstdint.hpp>
 #include <pion/stdx/asio.hpp>
+#include <pion/stdx/mutex.hpp>
+#include <pion/stdx/condition_variable.hpp>
+#include <pion/stdx/thread.hpp>
 
 namespace pion {    // begin namespace pion
 
@@ -104,8 +104,14 @@ public:
      * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
      */
     inline static void sleep(stdx::uint32_t sleep_sec, stdx::uint32_t sleep_nsec) {
+#if defined(PION_HAVE_CXX11)
+        auto duration = std::chrono::nanoseconds(sleep_nsec);
+        duration += std::chrono::seconds(sleep_sec);
+        stdx::this_thread::sleep_for(duration);
+#else
         boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
         boost::thread::sleep(wakeup_time);
+#endif
     }
 
     /**
@@ -121,8 +127,14 @@ public:
     inline static void sleep(ConditionType& wakeup_condition, LockType& wakeup_lock,
                              stdx::uint32_t sleep_sec, stdx::uint32_t sleep_nsec)
     {
+#if defined(PION_HAVE_CXX11)
+        auto duration = std::chrono::nanoseconds(sleep_nsec);
+        duration += std::chrono::seconds(sleep_sec);
+        wakeup_condition.wait_for(wakeup_lock, duration);
+#else
         boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
         wakeup_condition.timed_wait(wakeup_lock, wakeup_time);
+#endif
     }
     
     
@@ -170,16 +182,16 @@ protected:
 
 
     /// mutex to make class thread-safe
-    boost::mutex                    m_mutex;
+    stdx::mutex                    m_mutex;
     
     /// primary logging interface used by this class
     logger                          m_logger;
 
     /// condition triggered when there are no more active users
-    boost::condition                m_no_more_active_users;
+    stdx::condition_variable                m_no_more_active_users;
 
     /// condition triggered when the scheduler has stopped
-    boost::condition                m_scheduler_has_stopped;
+    stdx::condition_variable                m_scheduler_has_stopped;
 
     /// total number of worker threads in the pool
     stdx::uint32_t                 m_num_threads;
@@ -215,13 +227,19 @@ protected:
             PION_LOG_DEBUG(m_logger, "Waiting for threads to shutdown");
             
             // wait until all threads in the pool have stopped
-            boost::thread current_thread;
+#if !defined(PION_HAVE_CXX11)
+            stdx::thread current_thread;
+#endif
             for (ThreadPool::iterator i = m_thread_pool.begin();
                  i != m_thread_pool.end(); ++i)
             {
                 // make sure we do not call join() for the current thread,
                 // since this may yield "undefined behavior"
+#if defined(PION_HAVE_CXX11)
+                if ((*i)->get_id() != stdx::this_thread::get_id()) (*i)->join();
+#else
                 if (**i != current_thread) (*i)->join();
+#endif
             }
         }
     }
@@ -231,7 +249,7 @@ protected:
 
     
     /// typedef for a pool of worker threads
-    typedef std::vector<boost::shared_ptr<boost::thread> >  ThreadPool;
+    typedef std::vector<boost::shared_ptr<stdx::thread> >  ThreadPool;
     
     
     /// pool of threads used to perform work
@@ -297,7 +315,7 @@ public:
     
     /// returns an async I/O service used to schedule work
     virtual stdx::asio::io_service& get_io_service(void) {
-        boost::mutex::scoped_lock scheduler_lock(m_mutex);
+        stdx::lock_guard<stdx::mutex> scheduler_lock(m_mutex);
         while (m_service_pool.size() < m_num_threads) {
             boost::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
             m_service_pool.push_back(service_ptr);

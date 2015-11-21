@@ -16,10 +16,10 @@
 #include <cstring>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
+#include <pion/stdx/mutex.hpp>
 
 #ifdef PION_HAVE_SSL
     #if defined(__APPLE__)
@@ -177,7 +177,7 @@ public:
 
     /// returns true if no users are defined
     inline bool empty(void) const {
-        boost::mutex::scoped_lock lock(m_mutex);
+        stdx::lock_guard<stdx::mutex> lock(m_mutex);
         return m_users.empty();
     }
 
@@ -192,7 +192,7 @@ public:
     virtual bool add_user(const std::string &username,
         const std::string &password)
     {
-        boost::mutex::scoped_lock lock(m_mutex);
+        stdx::lock_guard<stdx::mutex> lock(m_mutex);
         user_map_t::iterator i = m_users.find(username);
         if (i!=m_users.end())
             return false;
@@ -212,7 +212,7 @@ public:
     virtual bool update_user(const std::string &username,
         const std::string &password)
     {
-        boost::mutex::scoped_lock lock(m_mutex);
+        stdx::lock_guard<stdx::mutex> lock(m_mutex);
         user_map_t::iterator i = m_users.find(username);
         if (i==m_users.end())
             return false;
@@ -232,7 +232,7 @@ public:
     virtual bool add_user_hash(const std::string &username,
         const std::string &password_hash)
     {
-        boost::mutex::scoped_lock lock(m_mutex);
+        stdx::lock_guard<stdx::mutex> lock(m_mutex);
         user_map_t::iterator i = m_users.find(username);
         if (i!=m_users.end())
             return false;
@@ -253,7 +253,7 @@ public:
     virtual bool update_user_hash(const std::string &username,
         const std::string &password_hash)
     {
-        boost::mutex::scoped_lock lock(m_mutex);
+        stdx::lock_guard<stdx::mutex> lock(m_mutex);
         user_map_t::iterator i = m_users.find(username);
         if (i==m_users.end())
             return false;
@@ -268,7 +268,7 @@ public:
      * @return false if no user with such username
      */
     virtual bool remove_user(const std::string &username) {
-        boost::mutex::scoped_lock lock(m_mutex);
+        stdx::lock_guard<stdx::mutex> lock(m_mutex);
         user_map_t::iterator i = m_users.find(username);
         if (i==m_users.end())
             return false;
@@ -280,7 +280,7 @@ public:
      * Used to locate user object by username
      */
     virtual user_ptr get_user(const std::string &username) {
-        boost::mutex::scoped_lock lock(m_mutex);
+        stdx::lock_guard<stdx::mutex> lock(m_mutex);
         user_map_t::const_iterator i = m_users.find(username);
         if (i==m_users.end())
             return user_ptr();
@@ -292,7 +292,7 @@ public:
      * Used to locate user object by username and password
      */
     virtual user_ptr get_user(const std::string& username, const std::string& password) {
-        boost::mutex::scoped_lock lock(m_mutex);
+        stdx::lock_guard<stdx::mutex> lock(m_mutex);
         user_map_t::const_iterator i = m_users.find(username);
         if (i==m_users.end() || !i->second->match_password(password))
             return user_ptr();
@@ -308,7 +308,7 @@ protected:
 
 
     /// mutex used to protect access to the user list
-    mutable boost::mutex    m_mutex;
+    mutable stdx::mutex    m_mutex;
 
     /// user records container
     user_map_t              m_users;

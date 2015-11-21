@@ -25,7 +25,7 @@ timer::timer(const tcp::connection_ptr& conn_ptr)
 
 void timer::start(const stdx::uint32_t seconds)
 {
-    boost::mutex::scoped_lock timer_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> timer_lock(m_mutex);
     m_timer_active = true;
     m_timer.expires_from_now(boost::posix_time::seconds(seconds));
     m_timer.async_wait(boost::bind(&timer::timer_callback,
@@ -34,7 +34,7 @@ void timer::start(const stdx::uint32_t seconds)
 
 void timer::cancel(void)
 {
-    boost::mutex::scoped_lock timer_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> timer_lock(m_mutex);
     m_was_cancelled = true;
     if (m_timer_active)
         m_timer.cancel();
@@ -42,7 +42,7 @@ void timer::cancel(void)
 
 void timer::timer_callback(const boost::system::error_code& /* ec */)
 {
-    boost::mutex::scoped_lock timer_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> timer_lock(m_mutex);
     m_timer_active = false;
     if (! m_was_cancelled)
         m_conn_ptr->cancel();

@@ -11,6 +11,7 @@
 #define __PION_LOGGER_HEADER__
 
 #include <pion/config.hpp>
+#include <pion/stdx/mutex.hpp>
 
 
 #if defined(PION_USE_LOG4CXX)
@@ -78,8 +79,7 @@
     #include <log4cplus/loggingmacros.h>
 
     #include <boost/circular_buffer.hpp>
-    #include <boost/thread/mutex.hpp>
-
+    
     #if defined(_MSC_VER) && !defined(PION_CMAKE_BUILD)
         #if defined _DEBUG
             #if defined PION_STATIC_LINKING
@@ -123,7 +123,7 @@
             virtual void close() {}
         protected:
             virtual void append(const log4cplus::spi::InternalLoggingEvent& event) {
-                boost::mutex::scoped_lock log_lock(m_log_mutex);
+                stdx::lock_guard<stdx::mutex> log_lock(m_log_mutex);
                 m_log_events.push_back(*event.clone());
             }
 
@@ -132,7 +132,7 @@
             LogEventBuffer  m_log_events;
 
             /// mutex to make class thread-safe
-            boost::mutex    m_log_mutex;
+            stdx::mutex    m_log_mutex;
         };
     }
 

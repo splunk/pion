@@ -14,10 +14,10 @@
 #include <istream>
 #include <streambuf>
 #include <boost/bind.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/connection.hpp>
+#include <pion/stdx/mutex.hpp>
+#include <pion/stdx/condition_variable.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -116,7 +116,7 @@ protected:
         const std::streamsize bytes_to_send = std::streamsize(pptr() - pbase());
         int_type bytes_sent = 0;
         if (bytes_to_send > 0) {
-            boost::mutex::scoped_lock async_lock(m_async_mutex);
+            stdx::lock_guard<stdx::mutex> async_lock(m_async_mutex);
             m_bytes_transferred = 0;
             m_conn_ptr->async_write(stdx::asio::buffer(pbase(), bytes_to_send),
                                     boost::bind(&stream_buffer::operation_finished, this,
@@ -153,7 +153,7 @@ protected:
         // read data from the TCP connection
         // note that this has to be an ansynchronous call; otherwise, it cannot
         // be cancelled by other threads and will block forever (such as during shutdown)
-        boost::mutex::scoped_lock async_lock(m_async_mutex);
+        stdx::lock_guard<stdx::mutex> async_lock(m_async_mutex);
         m_bytes_transferred = 0;
         m_conn_ptr->async_read_some(stdx::asio::buffer(m_read_buf+PUT_BACK_MAX,
                                                         connection::READ_BUFFER_SIZE-PUT_BACK_MAX),
@@ -221,7 +221,7 @@ protected:
             if ((n-bytes_available) >= (WRITE_BUFFER_SIZE-1)) {
                 // the remaining data to send is larger than the buffer available
                 // send it all now rather than buffering
-                boost::mutex::scoped_lock async_lock(m_async_mutex);
+                stdx::lock_guard<stdx::mutex> async_lock(m_async_mutex);
                 m_bytes_transferred = 0;
                 m_conn_ptr->async_write(stdx::asio::buffer(s+bytes_available,
                                                             n-bytes_available),
@@ -287,7 +287,7 @@ private:
     inline void operation_finished(const boost::system::error_code& error_code,
                                   std::size_t bytes_transferred)
     {
-        boost::mutex::scoped_lock async_lock(m_async_mutex);
+        stdx::lock_guard<stdx::mutex> async_lock(m_async_mutex);
         m_async_error = error_code;
         m_bytes_transferred = bytes_transferred;
         m_async_done.notify_one();
@@ -298,10 +298,10 @@ private:
     tcp::connection_ptr         m_conn_ptr;
     
     /// condition signaled whenever an asynchronous operation has completed
-    boost::mutex                m_async_mutex;
+    stdx::mutex                m_async_mutex;
     
     /// condition signaled whenever an asynchronous operation has completed
-    boost::condition            m_async_done;
+    stdx::condition_variable            m_async_done;
     
     /// used to keep track of the result from the last asynchronous operation
     boost::system::error_code   m_async_error;

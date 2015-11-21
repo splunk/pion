@@ -16,7 +16,6 @@
 #include <boost/function/function2.hpp>
 #include <boost/function/function3.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/server.hpp>
 #include <pion/tcp/connection.hpp>
@@ -24,6 +23,7 @@
 #include <pion/http/auth.hpp>
 #include <pion/http/parser.hpp>
 #include <pion/stdx/asio.hpp>
+#include <pion/stdx/mutex.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -147,7 +147,7 @@ public:
     /// clears the collection of resources recognized by the HTTP server
     virtual void clear(void) {
         if (is_listening()) stop();
-        boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+        stdx::lock_guard<stdx::mutex> resource_lock(m_resource_mutex);
         m_resources.clear();
     }
 
@@ -280,7 +280,7 @@ private:
     error_handler_t             m_server_error_handler;
 
     /// mutex used to protect access to the resources
-    mutable boost::mutex        m_resource_mutex;
+    mutable stdx::mutex        m_resource_mutex;
 
     /// pointer to authentication handler object
     http::auth_ptr              m_auth_ptr;

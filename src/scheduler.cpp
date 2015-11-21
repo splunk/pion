@@ -27,7 +27,7 @@ const stdx::uint32_t   scheduler::KEEP_RUNNING_TIMER_SECONDS = 5;
 void scheduler::shutdown(void)
 {
     // lock mutex for thread safety
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    stdx::unique_lock<stdx::mutex> scheduler_lock(m_mutex);
     
     if (m_is_running) {
         
@@ -67,7 +67,7 @@ void scheduler::shutdown(void)
 
 void scheduler::join(void)
 {
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    stdx::unique_lock<stdx::mutex> scheduler_lock(m_mutex);
     while (m_is_running) {
         // sleep until scheduler_has_stopped condition is signaled
         m_scheduler_has_stopped.wait(scheduler_lock);
@@ -88,13 +88,13 @@ void scheduler::keep_running(stdx::asio::io_service& my_service,
 void scheduler::add_active_user(void)
 {
     if (!m_is_running) startup();
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> scheduler_lock(m_mutex);
     ++m_active_users;
 }
 
 void scheduler::remove_active_user(void)
 {
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> scheduler_lock(m_mutex);
     if (--m_active_users == 0)
         m_no_more_active_users.notify_all();
 }
@@ -123,7 +123,7 @@ void scheduler::process_service_work(stdx::asio::io_service& service) {
 void single_service_scheduler::startup(void)
 {
     // lock mutex for thread safety
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> scheduler_lock(m_mutex);
     
     if (! m_is_running) {
         PION_LOG_INFO(m_logger, "Starting thread scheduler");
@@ -135,7 +135,7 @@ void single_service_scheduler::startup(void)
         
         // start multiple threads to handle async tasks
         for (stdx::uint32_t n = 0; n < m_num_threads; ++n) {
-            boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&scheduler::process_service_work,
+            boost::shared_ptr<stdx::thread> new_thread(new stdx::thread( boost::bind(&scheduler::process_service_work,
                                                                                        this, boost::ref(m_service)) ));
             m_thread_pool.push_back(new_thread);
         }
@@ -148,7 +148,7 @@ void single_service_scheduler::startup(void)
 void one_to_one_scheduler::startup(void)
 {
     // lock mutex for thread safety
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> scheduler_lock(m_mutex);
     
     if (! m_is_running) {
         PION_LOG_INFO(m_logger, "Starting thread scheduler");
@@ -167,7 +167,7 @@ void one_to_one_scheduler::startup(void)
         
         // start multiple threads to handle async tasks
         for (stdx::uint32_t n = 0; n < m_num_threads; ++n) {
-            boost::shared_ptr<boost::thread> new_thread(new boost::thread( boost::bind(&scheduler::process_service_work,
+            boost::shared_ptr<stdx::thread> new_thread(new stdx::thread( boost::bind(&scheduler::process_service_work,
                                                                                        this, boost::ref(m_service_pool[n]->first)) ));
             m_thread_pool.push_back(new_thread);
         }

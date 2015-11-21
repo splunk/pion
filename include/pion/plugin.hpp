@@ -16,10 +16,10 @@
 #include <list>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/once.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/filesystem/path.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
+#include <pion/stdx/mutex.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -210,7 +210,7 @@ private:
         map_type                    m_plugin_map;
         
         /// mutex to make class thread-safe
-        boost::mutex                m_plugin_mutex;
+        stdx::mutex                m_plugin_mutex;
     };
 
     

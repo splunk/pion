@@ -12,11 +12,11 @@
 #include <pion/tcp/server.hpp>
 #include <boost/bind.hpp>
 #include <boost/function/function1.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/response.hpp>
 #include <pion/stdx/asio.hpp>
+#include <pion/stdx/thread.hpp>
 
 using namespace std;
 using namespace pion;

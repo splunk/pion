@@ -56,7 +56,7 @@ public:
         // notify test thread that we are ready to accept a connection
         {
             // wait for test thread to be waiting on the signal
-            boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
+            stdx::unique_lock<stdx::mutex> accept_lock(m_accept_mutex);
             // trigger signal to wake test thread
             m_port = tcp_acceptor.local_endpoint().port();
             m_accept_ready.notify_one();
@@ -85,10 +85,10 @@ public:
     single_service_scheduler      m_scheduler;
 
     /// used to notify test thread when acceptConnection() is ready
-    boost::condition                m_accept_ready;
+    stdx::condition_variable                m_accept_ready;
     
     /// used to sync test thread with acceptConnection()
-    boost::mutex                    m_accept_mutex;
+    stdx::mutex                    m_accept_mutex;
 };
 
 
@@ -97,11 +97,11 @@ public:
 BOOST_FIXTURE_TEST_SUITE(tcp_stream_tests_S, tcp_stream_tests_F)
 
 BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
-    boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
+    stdx::unique_lock<stdx::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
     connection_handler conn_handler(boost::bind(&tcp_stream_tests_F::sendHello, _1));
-    boost::thread listener_thread(boost::bind(&tcp_stream_tests_F::acceptConnection,
+    stdx::thread listener_thread(boost::bind(&tcp_stream_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);
@@ -156,11 +156,11 @@ public:
 BOOST_FIXTURE_TEST_SUITE(tcp_stream_buffer_tests_S, tcp_stream_buffer_tests_F)
 
 BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
-    boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
+    stdx::unique_lock<stdx::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
     connection_handler conn_handler(boost::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, _1));
-    boost::thread listener_thread(boost::bind(&tcp_stream_buffer_tests_F::acceptConnection,
+    stdx::thread listener_thread(boost::bind(&tcp_stream_buffer_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);

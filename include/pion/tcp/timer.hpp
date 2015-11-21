@@ -13,11 +13,11 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/stdx/cstdint.hpp>
 #include <pion/stdx/asio.hpp>
+#include <pion/stdx/mutex.hpp>
 
 namespace pion {    // begin namespace pion
 namespace tcp {     // begin namespace tcp
@@ -65,7 +65,7 @@ private:
     stdx::asio::deadline_timer             m_timer;
     
     /// mutex used to synchronize the TCP connection timer
-    boost::mutex                            m_mutex;
+    stdx::mutex                            m_mutex;
 
     /// true if the deadline timer is active
     bool                                    m_timer_active; 

@@ -14,7 +14,6 @@
 #include <boost/functional/hash.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/thread/once.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/shared_array.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
@@ -23,6 +22,7 @@
 #include <pion/http/request.hpp>
 #include <pion/http/response_writer.hpp>
 #include <pion/http/server.hpp>
+#include <pion/stdx/mutex.hpp>
 #include <string>
 #include <map>
 
@@ -353,7 +353,7 @@ private:
     CacheMap                    m_cache_map;
 
     /// mutex used to make the file cache thread-safe
-    boost::mutex                m_cache_mutex;
+    stdx::mutex                m_cache_mutex;
 
     /**
      * cache configuration setting:

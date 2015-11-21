@@ -166,7 +166,7 @@ private:
     user_cache_type             m_user_cache;
     
     /// mutex used to protect access to the user cache
-    mutable boost::mutex        m_cache_mutex;
+    mutable stdx::mutex        m_cache_mutex;
 };
 
     

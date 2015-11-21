@@ -73,7 +73,7 @@ bool cookie_auth::handle_request(const http::request_ptr& http_request_ptr, cons
     const std::string auth_cookie(http_request_ptr->get_cookie(AUTH_COOKIE_NAME));
     if (! auth_cookie.empty()) {
         // check if this cookie is in user cache
-        boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+        stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
         user_cache_type::iterator user_cache_itr=m_user_cache.find(auth_cookie);
         if (user_cache_itr != m_user_cache.end()) {
             // we find those credential in our cache...
@@ -139,14 +139,14 @@ bool cookie_auth::process_login(const http::request_ptr& http_request_ptr, const
 
         // add new session to cache
         boost::posix_time::ptime time_now(boost::posix_time::second_clock::universal_time());
-        boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+        stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
         m_user_cache.insert(std::make_pair(new_cookie,std::make_pair(time_now,user)));
     } else {
         // process logout sequence
         // if auth cookie presented - clean cache out
         const std::string auth_cookie(http_request_ptr->get_cookie(AUTH_COOKIE_NAME));
         if (! auth_cookie.empty()) {
-            boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+            stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
             user_cache_type::iterator user_cache_itr=m_user_cache.find(auth_cookie);
             if (user_cache_itr!=m_user_cache.end()) {
                 m_user_cache.erase(user_cache_itr);
@@ -262,7 +262,7 @@ void cookie_auth::expire_cache(const boost::posix_time::ptime &time_now)
 {
     if (time_now > m_cache_cleanup_time + boost::posix_time::seconds(CACHE_EXPIRATION)) {
         // expire cache
-        boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+        stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
         user_cache_type::iterator i;
         user_cache_type::iterator next=m_user_cache.begin();
         while (next!=m_user_cache.end()) {

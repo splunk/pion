@@ -92,7 +92,7 @@ void LogServiceAppender::_append(const log4cpp::LoggingEvent& event)
 
 void LogServiceAppender::addLogString(const std::string& log_string)
 {
-    boost::mutex::scoped_lock log_lock(m_log_mutex);
+    stdx::lock_guard<stdx::mutex> log_lock(m_log_mutex);
     m_log_events.push_back(log_string);
     ++m_num_events;
     while (m_num_events > m_max_events) {
@@ -104,7 +104,7 @@ void LogServiceAppender::addLogString(const std::string& log_string)
 void LogServiceAppender::writeLogEvents(const pion::http::response_writer_ptr& writer)
 {
 #if defined(PION_USE_LOG4CXX) || defined(PION_USE_LOG4CPLUS) || defined(PION_USE_LOG4CPP)
-    boost::mutex::scoped_lock log_lock(m_log_mutex);
+    stdx::lock_guard<stdx::mutex> log_lock(m_log_mutex);
     for (std::list<std::string>::const_iterator i = m_log_events.begin();
          i != m_log_events.end(); ++i)
     {

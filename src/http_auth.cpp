@@ -20,7 +20,7 @@ namespace http {    // begin namespace http
 
 void auth::add_restrict(const std::string& resource)
 {
-    boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+    stdx::lock_guard<stdx::mutex> resource_lock(m_resource_mutex);
     const std::string clean_resource(http::server::strip_trailing_slash(resource));
     m_restrict_list.insert(clean_resource);
     PION_LOG_INFO(m_logger, "Set authentication restrictions for HTTP resource: " << clean_resource);
@@ -28,7 +28,7 @@ void auth::add_restrict(const std::string& resource)
 
 void auth::add_permit(const std::string& resource)
 {
-    boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+    stdx::lock_guard<stdx::mutex> resource_lock(m_resource_mutex);
     const std::string clean_resource(http::server::strip_trailing_slash(resource));
     m_white_list.insert(clean_resource);
     PION_LOG_INFO(m_logger, "Set authentication permission for HTTP resource: " << clean_resource);
@@ -43,7 +43,7 @@ bool auth::need_authentication(const http::request_ptr& http_request_ptr) const
     // strip off trailing slash if the request has one
     std::string resource(http::server::strip_trailing_slash(http_request_ptr->get_resource()));
     
-    boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+    stdx::lock_guard<stdx::mutex> resource_lock(m_resource_mutex);
     
     // just return false if restricted list is empty
     if (m_restrict_list.empty())
