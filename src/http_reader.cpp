@@ -7,10 +7,10 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/asio.hpp>
 #include <boost/logic/tribool.hpp>
 #include <pion/http/reader.hpp>
 #include <pion/http/request.hpp>
+#include <pion/stdx/asio.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -145,7 +145,7 @@ void reader::handle_read_error(const boost::system::error_code& read_error)
     
     // only log errors if the parsing has already begun
     if (get_total_bytes_read() > 0) {
-        if (read_error == boost::asio::error::operation_aborted) {
+        if (read_error == stdx::asio::error::operation_aborted) {
             // if the operation was aborted, the acceptor was stopped,
             // which means another thread is shutting-down the server
             PION_LOG_INFO(m_logger, "HTTP " << (is_parsing_request() ? "request" : "response")

@@ -13,12 +13,12 @@
 #include <iosfwd>
 #include <vector>
 #include <cstring>
-#include <boost/asio.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/regex.hpp>
 #include <pion/config.hpp>
+#include <pion/stdx/asio.hpp>
 #include <pion/stdx/cstdint.hpp>
 #include <pion/http/types.hpp>
 
@@ -58,7 +58,7 @@ class PION_API message
 public:
 
     /// data type for I/O write buffers (these wrap existing data to be sent)
-    typedef std::vector<boost::asio::const_buffer>  write_buffers_t;
+    typedef std::vector<stdx::asio::const_buffer>  write_buffers_t;
 
     /// used to cache chunked data
     typedef std::vector<char>   chunk_cache_t;
@@ -149,7 +149,7 @@ public:
         clear_first_line();
         m_is_valid = m_is_chunked = m_chunks_supported
             = m_do_not_send_content_length = false;
-        m_remote_ip = boost::asio::ip::address_v4(0);
+        m_remote_ip = stdx::asio::ip::address_v4(0);
         m_version_major = m_version_minor = 1;
         m_content_length = 0;
         m_content_buf.clear();
@@ -171,7 +171,7 @@ public:
     inline bool get_chunks_supported(void) const { return m_chunks_supported; }
 
     /// returns IP address of the remote endpoint
-    inline boost::asio::ip::address& get_remote_ip(void) {
+    inline stdx::asio::ip::address& get_remote_ip(void) {
         return m_remote_ip;
     }
 
@@ -286,7 +286,7 @@ public:
     inline void set_chunks_supported(bool b) { m_chunks_supported = b; }
 
     /// sets IP address of the remote endpoint
-    inline void set_remote_ip(const boost::asio::ip::address& ip) { m_remote_ip = ip; }
+    inline void set_remote_ip(const stdx::asio::ip::address& ip) { m_remote_ip = ip; }
 
     /// sets the major HTTP version number
     inline void set_version_major(const stdx::uint16_t n) {
@@ -397,8 +397,8 @@ public:
         // update message headers
         prepare_headers_for_send(keep_alive, using_chunks);
         // add first message line
-        write_buffers.push_back(boost::asio::buffer(get_first_line()));
-        write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
+        write_buffers.push_back(stdx::asio::buffer(get_first_line()));
+        write_buffers.push_back(stdx::asio::buffer(STRING_CRLF));
         // append cookie headers (if any)
         append_cookie_headers();
         // append HTTP headers
@@ -587,13 +587,13 @@ protected:
     inline void append_headers(write_buffers_t& write_buffers) {
         // add HTTP headers
         for (ihash_multimap::const_iterator i = m_headers.begin(); i != m_headers.end(); ++i) {
-            write_buffers.push_back(boost::asio::buffer(i->first));
-            write_buffers.push_back(boost::asio::buffer(HEADER_NAME_VALUE_DELIMITER));
-            write_buffers.push_back(boost::asio::buffer(i->second));
-            write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
+            write_buffers.push_back(stdx::asio::buffer(i->first));
+            write_buffers.push_back(stdx::asio::buffer(HEADER_NAME_VALUE_DELIMITER));
+            write_buffers.push_back(stdx::asio::buffer(i->second));
+            write_buffers.push_back(stdx::asio::buffer(STRING_CRLF));
         }
         // add an extra CRLF to end HTTP headers
-        write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
+        write_buffers.push_back(stdx::asio::buffer(STRING_CRLF));
     }
 
     /// appends HTTP headers for any cookies defined by the http::message
@@ -698,7 +698,7 @@ private:
     bool                            m_do_not_send_content_length;
 
     /// IP address of the remote endpoint
-    boost::asio::ip::address        m_remote_ip;
+    stdx::asio::ip::address        m_remote_ip;
 
     /// HTTP major version number
     stdx::uint16_t                 m_version_major;

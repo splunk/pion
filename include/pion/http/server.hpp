@@ -12,7 +12,6 @@
 
 #include <map>
 #include <string>
-#include <boost/asio.hpp>
 #include <boost/function.hpp>
 #include <boost/function/function2.hpp>
 #include <boost/function/function3.hpp>
@@ -24,6 +23,7 @@
 #include <pion/http/request.hpp>
 #include <pion/http/auth.hpp>
 #include <pion/http/parser.hpp>
+#include <pion/stdx/asio.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -70,7 +70,7 @@ public:
      * 
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    explicit server(const boost::asio::ip::tcp::endpoint& endpoint)
+    explicit server(const stdx::asio::ip::tcp::endpoint& endpoint)
         : tcp::server(endpoint),
         m_bad_request_handler(server::handle_bad_request),
         m_not_found_handler(server::handle_not_found_request),
@@ -102,7 +102,7 @@ public:
      * @param sched the scheduler that will be used to manage worker threads
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint)
+    server(scheduler& sched, const stdx::asio::ip::tcp::endpoint& endpoint)
         : tcp::server(sched, endpoint),
         m_bad_request_handler(server::handle_bad_request),
         m_not_found_handler(server::handle_not_found_request),

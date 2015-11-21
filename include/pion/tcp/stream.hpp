@@ -65,7 +65,7 @@ public:
      * @param io_service asio service associated with the connection
      * @param ssl_flag if true then the connection will be encrypted using SSL 
      */
-    explicit stream_buffer(boost::asio::io_service& io_service,
+    explicit stream_buffer(stdx::asio::io_service& io_service,
                              const bool ssl_flag = false)
         : m_conn_ptr(new connection(io_service, ssl_flag)),
         m_read_buf(m_conn_ptr->get_read_buffer().c_array())
@@ -79,7 +79,7 @@ public:
      * @param io_service asio service associated with the connection
      * @param ssl_context asio ssl context associated with the connection
      */
-    stream_buffer(boost::asio::io_service& io_service,
+    stream_buffer(stdx::asio::io_service& io_service,
                     connection::ssl_context_type& ssl_context)
         : m_conn_ptr(new connection(io_service, ssl_context)),
         m_read_buf(m_conn_ptr->get_read_buffer().c_array())
@@ -118,10 +118,10 @@ protected:
         if (bytes_to_send > 0) {
             boost::mutex::scoped_lock async_lock(m_async_mutex);
             m_bytes_transferred = 0;
-            m_conn_ptr->async_write(boost::asio::buffer(pbase(), bytes_to_send),
+            m_conn_ptr->async_write(stdx::asio::buffer(pbase(), bytes_to_send),
                                     boost::bind(&stream_buffer::operation_finished, this,
-                                                boost::asio::placeholders::error,
-                                                boost::asio::placeholders::bytes_transferred));
+                                                stdx::asio::placeholders::error,
+                                                stdx::asio::placeholders::bytes_transferred));
             m_async_done.wait(async_lock);
             bytes_sent = m_bytes_transferred;
             pbump(-bytes_sent);
@@ -155,11 +155,11 @@ protected:
         // be cancelled by other threads and will block forever (such as during shutdown)
         boost::mutex::scoped_lock async_lock(m_async_mutex);
         m_bytes_transferred = 0;
-        m_conn_ptr->async_read_some(boost::asio::buffer(m_read_buf+PUT_BACK_MAX,
+        m_conn_ptr->async_read_some(stdx::asio::buffer(m_read_buf+PUT_BACK_MAX,
                                                         connection::READ_BUFFER_SIZE-PUT_BACK_MAX),
                                     boost::bind(&stream_buffer::operation_finished, this,
-                                                boost::asio::placeholders::error,
-                                                boost::asio::placeholders::bytes_transferred));
+                                                stdx::asio::placeholders::error,
+                                                stdx::asio::placeholders::bytes_transferred));
         m_async_done.wait(async_lock);
         if (m_async_error)
             return traits_type::eof();
@@ -223,11 +223,11 @@ protected:
                 // send it all now rather than buffering
                 boost::mutex::scoped_lock async_lock(m_async_mutex);
                 m_bytes_transferred = 0;
-                m_conn_ptr->async_write(boost::asio::buffer(s+bytes_available,
+                m_conn_ptr->async_write(stdx::asio::buffer(s+bytes_available,
                                                             n-bytes_available),
                                         boost::bind(&stream_buffer::operation_finished, this,
-                                                    boost::asio::placeholders::error,
-                                                    boost::asio::placeholders::bytes_transferred));
+                                                    stdx::asio::placeholders::error,
+                                                    stdx::asio::placeholders::bytes_transferred));
                 m_async_done.wait(async_lock);
                 bytes_sent = bytes_available + m_bytes_transferred;
             } else {
@@ -351,7 +351,7 @@ public:
      * @param io_service asio service associated with the connection
      * @param ssl_flag if true then the connection will be encrypted using SSL 
      */
-    explicit stream(boost::asio::io_service& io_service,
+    explicit stream(stdx::asio::io_service& io_service,
                        const bool ssl_flag = false)
         : std::basic_iostream<char, std::char_traits<char> >(NULL), m_tcp_buf(io_service, ssl_flag)
     {
@@ -365,7 +365,7 @@ public:
      * @param io_service asio service associated with the connection
      * @param ssl_context asio ssl context associated with the connection
      */
-    stream(boost::asio::io_service& io_service,
+    stream(stdx::asio::io_service& io_service,
               connection::ssl_context_type& ssl_context)
         : std::basic_iostream<char, std::char_traits<char> >(NULL), m_tcp_buf(io_service, ssl_context)
     {
@@ -379,9 +379,9 @@ public:
      * @param tcp_acceptor object used to accept new connections
      * @return boost::system::error_code contains error code if the connection fails
      *
-     * @see boost::asio::basic_socket_acceptor::accept()
+     * @see stdx::asio::basic_socket_acceptor::accept()
      */
-    inline boost::system::error_code accept(boost::asio::ip::tcp::acceptor& tcp_acceptor)
+    inline boost::system::error_code accept(stdx::asio::ip::tcp::acceptor& tcp_acceptor)
     {
         boost::system::error_code ec = m_tcp_buf.get_connection().accept(tcp_acceptor);
         if (! ec && get_ssl_flag()) ec = m_tcp_buf.get_connection().handshake_server();
@@ -394,9 +394,9 @@ public:
      * @param tcp_endpoint remote endpoint to connect to
      * @return boost::system::error_code contains error code if the connection fails
      *
-     * @see boost::asio::basic_socket_acceptor::connect()
+     * @see stdx::asio::basic_socket_acceptor::connect()
      */
-    inline boost::system::error_code connect(boost::asio::ip::tcp::endpoint& tcp_endpoint)
+    inline boost::system::error_code connect(stdx::asio::ip::tcp::endpoint& tcp_endpoint)
     {
         boost::system::error_code ec = m_tcp_buf.get_connection().connect(tcp_endpoint);
         if (! ec && get_ssl_flag()) ec = m_tcp_buf.get_connection().handshake_client();
@@ -410,12 +410,12 @@ public:
      * @param remote_port remote port number to connect to
      * @return boost::system::error_code contains error code if the connection fails
      *
-     * @see boost::asio::basic_socket_acceptor::connect()
+     * @see stdx::asio::basic_socket_acceptor::connect()
      */
-    inline boost::system::error_code connect(const boost::asio::ip::address& remote_addr,
+    inline boost::system::error_code connect(const stdx::asio::ip::address& remote_addr,
                                              const unsigned int remote_port)
     {
-        boost::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
+        stdx::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
         boost::system::error_code ec = m_tcp_buf.get_connection().connect(tcp_endpoint);
         if (! ec && get_ssl_flag()) ec = m_tcp_buf.get_connection().handshake_client();
         return ec;
@@ -438,7 +438,7 @@ public:
     inline bool get_ssl_flag(void) const { return m_tcp_buf.get_connection().get_ssl_flag(); }
 
     /// returns the client's IP address
-    inline boost::asio::ip::address get_remote_ip(void) const {
+    inline stdx::asio::ip::address get_remote_ip(void) const {
         return m_tcp_buf.get_connection().get_remote_ip();
     }
     

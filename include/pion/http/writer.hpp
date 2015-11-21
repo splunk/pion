@@ -16,12 +16,12 @@
 #include <boost/function.hpp>
 #include <boost/function/function0.hpp>
 #include <boost/function/function2.hpp>
-#include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/http/message.hpp>
+#include <pion/stdx/asio.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -137,7 +137,7 @@ public:
     inline void write_no_copy(const std::string& data) {
         if (! data.empty()) {
             flush_content_stream();
-            m_content_buffers.push_back(boost::asio::buffer(data));
+            m_content_buffers.push_back(stdx::asio::buffer(data));
             m_content_length += data.size();
         }
     }
@@ -152,7 +152,7 @@ public:
     inline void write_no_copy(void *data, size_t length) {
         if (length > 0) {
             flush_content_stream();
-            m_content_buffers.push_back(boost::asio::buffer(data, length));
+            m_content_buffers.push_back(stdx::asio::buffer(data, length));
             m_content_length += length;
         }
     }
@@ -276,7 +276,7 @@ private:
             // send data in the write buffers
             m_tcp_conn->async_write(write_buffers, send_handler);
         } else {
-            finished_writing(boost::asio::error::connection_reset);
+            finished_writing(stdx::asio::error::connection_reset);
         }
     }
     
@@ -297,7 +297,7 @@ private:
                 m_content_stream.str("");
                 m_content_length += string_to_add.size();
                 m_text_cache.push_back(string_to_add);
-                m_content_buffers.push_back(boost::asio::buffer(m_text_cache.back()));
+                m_content_buffers.push_back(stdx::asio::buffer(m_text_cache.back()));
             }
             m_stream_is_empty = true;
         }
@@ -312,11 +312,11 @@ private:
                 delete[] i->first;
             }
         }
-        inline boost::asio::const_buffer add(const void *ptr, const size_t size) {
+        inline stdx::asio::const_buffer add(const void *ptr, const size_t size) {
             char *data_ptr = new char[size];
             memcpy(data_ptr, ptr, size);
             push_back( std::make_pair(data_ptr, size) );
-            return boost::asio::buffer(data_ptr, size);
+            return stdx::asio::buffer(data_ptr, size);
         }
     };
     

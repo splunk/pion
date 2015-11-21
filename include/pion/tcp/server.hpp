@@ -11,7 +11,6 @@
 #define __PION_TCP_SERVER_HEADER__
 
 #include <set>
-#include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
@@ -20,6 +19,7 @@
 #include <pion/logger.hpp>
 #include <pion/scheduler.hpp>
 #include <pion/tcp/connection.hpp>
+#include <pion/stdx/asio.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -67,16 +67,16 @@ public:
     inline void set_port(unsigned int p) { m_endpoint.port(p); }
     
     /// returns IP address that the server listens for connections on
-    inline boost::asio::ip::address get_address(void) const { return m_endpoint.address(); }
+    inline stdx::asio::ip::address get_address(void) const { return m_endpoint.address(); }
     
     /// sets IP address that the server listens for connections on
-    inline void set_address(const boost::asio::ip::address& addr) { m_endpoint.address(addr); }
+    inline void set_address(const stdx::asio::ip::address& addr) { m_endpoint.address(addr); }
     
     /// returns tcp endpoint that the server listens for connections on
-    inline const boost::asio::ip::tcp::endpoint& get_endpoint(void) const { return m_endpoint; }
+    inline const stdx::asio::ip::tcp::endpoint& get_endpoint(void) const { return m_endpoint; }
     
     /// sets tcp endpoint that the server listens for connections on
-    inline void set_endpoint(const boost::asio::ip::tcp::endpoint& ep) { m_endpoint = ep; }
+    inline void set_endpoint(const stdx::asio::ip::tcp::endpoint& ep) { m_endpoint = ep; }
 
     /// returns true if the server uses SSL to encrypt connections
     inline bool get_ssl_flag(void) const { return m_ssl_flag; }
@@ -97,10 +97,10 @@ public:
     inline logger get_logger(void) { return m_logger; }
     
     /// returns mutable reference to the TCP connection acceptor
-    inline boost::asio::ip::tcp::acceptor& get_acceptor(void) { return m_tcp_acceptor; }
+    inline stdx::asio::ip::tcp::acceptor& get_acceptor(void) { return m_tcp_acceptor; }
 
     /// returns const reference to the TCP connection acceptor
-    inline const boost::asio::ip::tcp::acceptor& get_acceptor(void) const { return m_tcp_acceptor; }
+    inline const stdx::asio::ip::tcp::acceptor& get_acceptor(void) const { return m_tcp_acceptor; }
 
     
 protected:
@@ -117,7 +117,7 @@ protected:
      * 
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    explicit server(const boost::asio::ip::tcp::endpoint& endpoint);
+    explicit server(const stdx::asio::ip::tcp::endpoint& endpoint);
 
     /**
      * protected constructor so that only derived objects may be created
@@ -133,7 +133,7 @@ protected:
      * @param sched the scheduler that will be used to manage worker threads
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint);
+    server(scheduler& sched, const stdx::asio::ip::tcp::endpoint& endpoint);
     
     /**
      * handles a new TCP connection; derived classes SHOULD override this
@@ -153,7 +153,7 @@ protected:
     virtual void after_stopping(void) {}
     
     /// returns an async I/O service used to schedule work
-    inline boost::asio::io_service& get_io_service(void) { return m_active_scheduler.get_io_service(); }
+    inline stdx::asio::io_service& get_io_service(void) { return m_active_scheduler.get_io_service(); }
     
     
     /// primary logging interface used by this class
@@ -208,7 +208,7 @@ private:
     scheduler &                             m_active_scheduler;
     
     /// manages async TCP connections
-    boost::asio::ip::tcp::acceptor          m_tcp_acceptor;
+    stdx::asio::ip::tcp::acceptor          m_tcp_acceptor;
 
     /// context used for SSL configuration
     connection::ssl_context_type            m_ssl_context;
@@ -223,7 +223,7 @@ private:
     ConnectionPool                          m_conn_pool;
 
     /// tcp endpoint used to listen for new connections
-    boost::asio::ip::tcp::endpoint          m_endpoint;
+    stdx::asio::ip::tcp::endpoint          m_endpoint;
 
     /// true if the server uses SSL to encrypt connections
     bool                                    m_ssl_flag;

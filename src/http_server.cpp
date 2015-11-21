@@ -47,7 +47,7 @@ void server::handle_request(const http::request_ptr& http_request_ptr,
         } else {
             static const boost::system::error_condition
                     ERRCOND_CANCELED(boost::system::errc::operation_canceled, boost::system::system_category()),
-                    ERRCOND_EOF(boost::asio::error::eof, boost::asio::error::misc_category);
+                    ERRCOND_EOF(stdx::asio::error::eof, stdx::asio::error::misc_category);
 
             if (ec == ERRCOND_CANCELED || ec == ERRCOND_EOF) {
                 // don't spam the log with common (non-)errors that happen during normal operation

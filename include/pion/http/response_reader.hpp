@@ -10,7 +10,6 @@
 #ifndef __PION_HTTP_RESPONSE_READER_HEADER__
 #define __PION_HTTP_RESPONSE_READER_HEADER__
 
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/function/function2.hpp>
@@ -19,6 +18,7 @@
 #include <pion/config.hpp>
 #include <pion/http/response.hpp>
 #include <pion/http/reader.hpp>
+#include <pion/stdx/asio.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -84,8 +84,8 @@ protected:
     virtual void read_bytes(void) {
         get_connection()->async_read_some(boost::bind(&response_reader::consume_bytes,
                                                         shared_from_this(),
-                                                        boost::asio::placeholders::error,
-                                                        boost::asio::placeholders::bytes_transferred));
+                                                        stdx::asio::placeholders::error,
+                                                        stdx::asio::placeholders::bytes_transferred));
     }
 
     /// Called after we have finished parsing the HTTP message headers

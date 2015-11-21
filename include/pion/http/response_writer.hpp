@@ -10,7 +10,6 @@
 #ifndef __PION_HTTP_RESPONSE_WRITER_HEADER__
 #define __PION_HTTP_RESPONSE_WRITER_HEADER__
 
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
@@ -19,6 +18,7 @@
 #include <pion/http/writer.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/response.hpp>
+#include <pion/stdx/asio.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -134,8 +134,8 @@ protected:
     /// returns a function bound to http::writer::handle_write()
     virtual write_handler_t bind_to_write_handler(void) {
         return boost::bind(&response_writer::handle_write, shared_from_this(),
-                           boost::asio::placeholders::error,
-                           boost::asio::placeholders::bytes_transferred);
+                           stdx::asio::placeholders::error,
+                           stdx::asio::placeholders::bytes_transferred);
     }
 
     /**

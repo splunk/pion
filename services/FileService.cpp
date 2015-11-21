@@ -7,7 +7,6 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/assert.hpp>
 #include <boost/lexical_cast.hpp>
@@ -21,6 +20,7 @@
 #include <pion/plugin.hpp>
 #include <pion/algorithm.hpp>
 #include <pion/http/response_writer.hpp>
+#include <pion/stdx/asio.hpp>
 
 using namespace pion;
 
@@ -918,21 +918,21 @@ void DiskFileSender::send(void)
             // send last chunk in a series
             m_writer->send_final_chunk(boost::bind(&DiskFileSender::handle_write,
                                                  shared_from_this(),
-                                                 boost::asio::placeholders::error,
-                                                 boost::asio::placeholders::bytes_transferred));
+                                                 stdx::asio::placeholders::error,
+                                                 stdx::asio::placeholders::bytes_transferred));
         } else {
             // sending entire file at once
             m_writer->send(boost::bind(&DiskFileSender::handle_write,
                                        shared_from_this(),
-                                       boost::asio::placeholders::error,
-                                       boost::asio::placeholders::bytes_transferred));
+                                       stdx::asio::placeholders::error,
+                                       stdx::asio::placeholders::bytes_transferred));
         }
     } else {
         // there will be more data -> send a chunk
         m_writer->send_chunk(boost::bind(&DiskFileSender::handle_write,
                                         shared_from_this(),
-                                        boost::asio::placeholders::error,
-                                        boost::asio::placeholders::bytes_transferred));
+                                        stdx::asio::placeholders::error,
+                                        stdx::asio::placeholders::bytes_transferred));
     }
 }
 

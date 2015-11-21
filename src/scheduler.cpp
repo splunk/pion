@@ -74,8 +74,8 @@ void scheduler::join(void)
     }
 }
     
-void scheduler::keep_running(boost::asio::io_service& my_service,
-                                boost::asio::deadline_timer& my_timer)
+void scheduler::keep_running(stdx::asio::io_service& my_service,
+                                stdx::asio::deadline_timer& my_timer)
 {
     if (m_is_running) {
         // schedule this again to make sure the service doesn't complete
@@ -105,7 +105,7 @@ boost::system_time scheduler::get_wakeup_time(stdx::uint32_t sleep_sec,
     return boost::get_system_time() + boost::posix_time::seconds(sleep_sec) + boost::posix_time::microseconds(sleep_nsec / 1000);
 }
                      
-void scheduler::process_service_work(boost::asio::io_service& service) {
+void scheduler::process_service_work(stdx::asio::io_service& service) {
     while (m_is_running) {
         try {
             service.run();

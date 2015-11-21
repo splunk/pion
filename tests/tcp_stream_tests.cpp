@@ -7,7 +7,6 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <boost/thread.hpp>
@@ -17,6 +16,7 @@
 #include <pion/config.hpp>
 #include <pion/scheduler.hpp>
 #include <pion/tcp/stream.hpp>
+#include <pion/stdx/asio.hpp>
 
 using namespace std;
 using namespace pion;
@@ -44,12 +44,12 @@ public:
      */
     void acceptConnection(connection_handler conn_handler) {
         // configure the acceptor service
-        boost::asio::ip::tcp::acceptor   tcp_acceptor(m_scheduler.get_io_service());
-        boost::asio::ip::tcp::endpoint   tcp_endpoint(boost::asio::ip::tcp::v4(), 0);
+        stdx::asio::ip::tcp::acceptor   tcp_acceptor(m_scheduler.get_io_service());
+        stdx::asio::ip::tcp::endpoint   tcp_endpoint(stdx::asio::ip::tcp::v4(), 0);
         tcp_acceptor.open(tcp_endpoint.protocol());
 
         // allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
-        tcp_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+        tcp_acceptor.set_option(stdx::asio::ip::tcp::acceptor::reuse_address(true));
         tcp_acceptor.bind(tcp_endpoint);
         tcp_acceptor.listen();
 
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
     // connect to the listener
     tcp::stream client_str(m_scheduler.get_io_service());
     boost::system::error_code ec;
-    ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
+    ec = client_str.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);
     
     // get the hello message
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
     // connect to the listener
     tcp::stream client_str(m_scheduler.get_io_service());
     boost::system::error_code ec;
-    ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
+    ec = client_str.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);
     
     // read the big buffer contents

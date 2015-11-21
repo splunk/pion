@@ -10,7 +10,6 @@
 #ifndef __PION_TCP_TIMER_HEADER__
 #define __PION_TCP_TIMER_HEADER__
 
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -18,6 +17,7 @@
 #include <pion/config.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/stdx/cstdint.hpp>
+#include <pion/stdx/asio.hpp>
 
 namespace pion {    // begin namespace pion
 namespace tcp {     // begin namespace tcp
@@ -62,7 +62,7 @@ private:
     tcp::connection_ptr                     m_conn_ptr;
 
     /// deadline timer used to timeout TCP operations
-    boost::asio::deadline_timer             m_timer;
+    stdx::asio::deadline_timer             m_timer;
     
     /// mutex used to synchronize the TCP connection timer
     boost::mutex                            m_mutex;

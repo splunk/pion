@@ -10,7 +10,6 @@
 #include <cstdlib>
 #include <boost/regex.hpp>
 #include <boost/logic/tribool.hpp>
-#include <boost/asio/detail/socket_ops.hpp>
 #include <pion/algorithm.hpp>
 #include <pion/spdy/parser.hpp>
 #include <pion/spdy/decompressor.hpp>

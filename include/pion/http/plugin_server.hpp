@@ -11,7 +11,6 @@
 #define __PION_PLUGIN_SERVER_HEADER__
 
 #include <string>
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
@@ -19,6 +18,7 @@
 #include <pion/plugin_manager.hpp>
 #include <pion/http/server.hpp>
 #include <pion/http/plugin_service.hpp>
+#include <pion/stdx/asio.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -53,7 +53,7 @@ public:
      * 
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    explicit plugin_server(const boost::asio::ip::tcp::endpoint& endpoint)
+    explicit plugin_server(const stdx::asio::ip::tcp::endpoint& endpoint)
         : http::server(endpoint)
     { 
         set_logger(PION_GET_LOGGER("pion.http.plugin_server"));
@@ -77,7 +77,7 @@ public:
      * @param sched the scheduler that will be used to manage worker threads
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    plugin_server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint)
+    plugin_server(scheduler& sched, const stdx::asio::ip::tcp::endpoint& endpoint)
         : http::server(sched, endpoint)
     { 
         set_logger(PION_GET_LOGGER("pion.http.plugin_server"));

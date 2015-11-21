@@ -7,11 +7,11 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/admin_rights.hpp>
 #include <pion/tcp/server.hpp>
+#include <pion/stdx/asio.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -25,19 +25,19 @@ server::server(scheduler& sched, const unsigned int tcp_port)
     m_active_scheduler(sched),
     m_tcp_acceptor(m_active_scheduler.get_io_service()),
 #ifdef PION_HAVE_SSL
-    m_ssl_context(m_active_scheduler.get_io_service(), boost::asio::ssl::context::sslv23),
+    m_ssl_context(m_active_scheduler.get_io_service(), stdx::asio::ssl::context::sslv23),
 #else
     m_ssl_context(0),
 #endif
-    m_endpoint(boost::asio::ip::tcp::v4(), tcp_port), m_ssl_flag(false), m_is_listening(false)
+    m_endpoint(stdx::asio::ip::tcp::v4(), tcp_port), m_ssl_flag(false), m_is_listening(false)
 {}
     
-server::server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint)
+server::server(scheduler& sched, const stdx::asio::ip::tcp::endpoint& endpoint)
     : m_logger(PION_GET_LOGGER("pion.tcp.server")),
     m_active_scheduler(sched),
     m_tcp_acceptor(m_active_scheduler.get_io_service()),
 #ifdef PION_HAVE_SSL
-    m_ssl_context(m_active_scheduler.get_io_service(), boost::asio::ssl::context::sslv23),
+    m_ssl_context(m_active_scheduler.get_io_service(), stdx::asio::ssl::context::sslv23),
 #else
     m_ssl_context(0),
 #endif
@@ -49,19 +49,19 @@ server::server(const unsigned int tcp_port)
     m_default_scheduler(), m_active_scheduler(m_default_scheduler),
     m_tcp_acceptor(m_active_scheduler.get_io_service()),
 #ifdef PION_HAVE_SSL
-    m_ssl_context(m_active_scheduler.get_io_service(), boost::asio::ssl::context::sslv23),
+    m_ssl_context(m_active_scheduler.get_io_service(), stdx::asio::ssl::context::sslv23),
 #else
     m_ssl_context(0),
 #endif
-    m_endpoint(boost::asio::ip::tcp::v4(), tcp_port), m_ssl_flag(false), m_is_listening(false)
+    m_endpoint(stdx::asio::ip::tcp::v4(), tcp_port), m_ssl_flag(false), m_is_listening(false)
 {}
 
-server::server(const boost::asio::ip::tcp::endpoint& endpoint)
+server::server(const stdx::asio::ip::tcp::endpoint& endpoint)
     : m_logger(PION_GET_LOGGER("pion.tcp.server")),
     m_default_scheduler(), m_active_scheduler(m_default_scheduler),
     m_tcp_acceptor(m_active_scheduler.get_io_service()),
 #ifdef PION_HAVE_SSL
-    m_ssl_context(m_active_scheduler.get_io_service(), boost::asio::ssl::context::sslv23),
+    m_ssl_context(m_active_scheduler.get_io_service(), stdx::asio::ssl::context::sslv23),
 #else
     m_ssl_context(0),
 #endif
@@ -86,7 +86,7 @@ void server::start(void)
             // allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
             // ...except when running not on Windows - see http://msdn.microsoft.com/en-us/library/ms740621%28VS.85%29.aspx
 #ifndef PION_WIN32
-            m_tcp_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+            m_tcp_acceptor.set_option(stdx::asio::ip::tcp::acceptor::reuse_address(true));
 #endif
             m_tcp_acceptor.bind(m_endpoint);
             if (m_endpoint.port() == 0) {
@@ -162,11 +162,11 @@ void server::set_ssl_key_file(const std::string& pem_key_file)
     // configure server for SSL
     set_ssl_flag(true);
 #ifdef PION_HAVE_SSL
-    m_ssl_context.set_options(boost::asio::ssl::context::default_workarounds
-                              | boost::asio::ssl::context::no_sslv2
-                              | boost::asio::ssl::context::single_dh_use);
-    m_ssl_context.use_certificate_file(pem_key_file, boost::asio::ssl::context::pem);
-    m_ssl_context.use_private_key_file(pem_key_file, boost::asio::ssl::context::pem);
+    m_ssl_context.set_options(stdx::asio::ssl::context::default_workarounds
+                              | stdx::asio::ssl::context::no_sslv2
+                              | stdx::asio::ssl::context::single_dh_use);
+    m_ssl_context.use_certificate_file(pem_key_file, stdx::asio::ssl::context::pem);
+    m_ssl_context.use_private_key_file(pem_key_file, stdx::asio::ssl::context::pem);
 #endif
 }
 
@@ -192,7 +192,7 @@ void server::listen(void)
         new_connection->async_accept(m_tcp_acceptor,
                                      boost::bind(&server::handle_accept,
                                                  this, new_connection,
-                                                 boost::asio::placeholders::error));
+                                                 stdx::asio::placeholders::error));
     }
 }
 
@@ -221,7 +221,7 @@ void server::handle_accept(const tcp::connection_ptr& tcp_conn,
         if (tcp_conn->get_ssl_flag()) {
             tcp_conn->async_handshake_server(boost::bind(&server::handle_ssl_handshake,
                                                          this, tcp_conn,
-                                                         boost::asio::placeholders::error));
+                                                         stdx::asio::placeholders::error));
         } else
 #endif
             // not SSL -> call the handler immediately

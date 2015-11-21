@@ -11,7 +11,6 @@
 #include <zlib.h>
 #include <iostream>
 #include <fstream>
-#include <boost/asio/detail/socket_ops.hpp>
 #include <pion/spdy/decompressor.hpp>
 
 

@@ -11,7 +11,6 @@
 #define __PION_SCHEDULER_HEADER__
 
 #include <vector>
-#include <boost/asio.hpp>
 #include <boost/assert.hpp>
 #include <boost/bind.hpp>
 #include <boost/function/function0.hpp>
@@ -24,6 +23,7 @@
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/stdx/cstdint.hpp>
+#include <pion/stdx/asio.hpp>
 
 namespace pion {    // begin namespace pion
 
@@ -77,7 +77,7 @@ public:
     inline logger get_logger(void) { return m_logger; }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& get_io_service(void) = 0;
+    virtual stdx::asio::io_service& get_io_service(void) = 0;
     
     /**
      * schedules work to be performed by one of the pooled threads
@@ -94,8 +94,8 @@ public:
      * @param my_service IO service used to re-schedule keep_running()
      * @param my_timer deadline timer used to keep the IO service active while running
      */
-    void keep_running(boost::asio::io_service& my_service,
-                     boost::asio::deadline_timer& my_timer);
+    void keep_running(stdx::asio::io_service& my_service,
+                     stdx::asio::deadline_timer& my_timer);
     
     /**
      * puts the current thread to sleep for a specific period of time
@@ -127,7 +127,7 @@ public:
     
     
     /// processes work passed to the asio service & handles uncaught exceptions
-    void process_service_work(boost::asio::io_service& service);
+    void process_service_work(stdx::asio::io_service& service);
 
 
 protected:
@@ -256,7 +256,7 @@ public:
     virtual ~single_service_scheduler() { shutdown(); }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& get_io_service(void) { return m_service; }
+    virtual stdx::asio::io_service& get_io_service(void) { return m_service; }
     
     /// Starts the thread scheduler (this is called automatically when necessary)
     virtual void startup(void);
@@ -272,10 +272,10 @@ protected:
 
     
     /// service used to manage async I/O events
-    boost::asio::io_service         m_service;
+    stdx::asio::io_service         m_service;
     
     /// timer used to periodically check for shutdown
-    boost::asio::deadline_timer     m_timer;
+    stdx::asio::deadline_timer     m_timer;
 };
     
 
@@ -296,7 +296,7 @@ public:
     virtual ~one_to_one_scheduler() { shutdown(); }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& get_io_service(void) {
+    virtual stdx::asio::io_service& get_io_service(void) {
         boost::mutex::scoped_lock scheduler_lock(m_mutex);
         while (m_service_pool.size() < m_num_threads) {
             boost::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
@@ -314,7 +314,7 @@ public:
      *
      * @param n integer number representing the service object
      */
-    virtual boost::asio::io_service& get_io_service(stdx::uint32_t n) {
+    virtual stdx::asio::io_service& get_io_service(stdx::uint32_t n) {
         BOOST_ASSERT(n < m_num_threads);
         BOOST_ASSERT(n < m_service_pool.size());
         return m_service_pool[n]->first;
@@ -340,8 +340,8 @@ protected:
     /// typedef for a pair object where first is an IO service and second is a deadline timer
     struct service_pair_type {
         service_pair_type(void) : first(), second(first) {}
-        boost::asio::io_service         first;
-        boost::asio::deadline_timer     second;
+        stdx::asio::io_service         first;
+        stdx::asio::deadline_timer     second;
     };
     
     /// typedef for a pool of IO services
