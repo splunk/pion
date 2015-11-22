@@ -10,15 +10,13 @@
 #ifndef __PION_HTTP_RESPONSE_READER_HEADER__
 #define __PION_HTTP_RESPONSE_READER_HEADER__
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/function/function2.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <pion/config.hpp>
 #include <pion/http/response.hpp>
 #include <pion/http/reader.hpp>
 #include <pion/stdx/asio.hpp>
+#include <pion/stdx/functional.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -36,8 +34,8 @@ class response_reader :
 public:
 
     /// function called after the HTTP message has been parsed
-    typedef boost::function3<void, http::response_ptr, tcp::connection_ptr,
-        const boost::system::error_code&>   finished_handler_t;
+    typedef stdx::function<void(http::response_ptr, tcp::connection_ptr,
+        const boost::system::error_code&)>   finished_handler_t;
 
     
     // default destructor
@@ -82,7 +80,7 @@ protected:
         
     /// Reads more bytes from the TCP connection
     virtual void read_bytes(void) {
-        get_connection()->async_read_some(boost::bind(&response_reader::consume_bytes,
+        get_connection()->async_read_some(stdx::bind(&response_reader::consume_bytes,
                                                         shared_from_this(),
                                                         stdx::asio::placeholders::error,
                                                         stdx::asio::placeholders::bytes_transferred));

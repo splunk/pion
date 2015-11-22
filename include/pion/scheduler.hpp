@@ -12,8 +12,6 @@
 
 #include <vector>
 #include <boost/assert.hpp>
-#include <boost/bind.hpp>
-#include <boost/function/function0.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/xtime.hpp>
@@ -24,6 +22,7 @@
 #include <pion/stdx/mutex.hpp>
 #include <pion/stdx/condition_variable.hpp>
 #include <pion/stdx/thread.hpp>
+#include <pion/stdx/functional.hpp>
 
 namespace pion {    // begin namespace pion
 
@@ -84,7 +83,7 @@ public:
      *
      * @param work_func work function to be executed
      */
-    virtual void post(boost::function0<void> work_func) {
+     virtual void post(stdx::function<void()> work_func) {
         get_io_service().post(work_func);
     }
     

@@ -12,9 +12,6 @@
 
 #include <map>
 #include <string>
-#include <boost/function.hpp>
-#include <boost/function/function2.hpp>
-#include <boost/function/function3.hpp>
 #include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/server.hpp>
@@ -24,7 +21,7 @@
 #include <pion/http/parser.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/mutex.hpp>
-
+#include <pion/stdx/functional.hpp>
 
 namespace pion {    // begin namespace pion
 namespace http {    // begin namespace http
@@ -40,11 +37,11 @@ class PION_API server :
 public:
 
     /// type of function that is used to handle requests
-    typedef boost::function2<void, const http::request_ptr&, const tcp::connection_ptr&>  request_handler_t;
+    typedef stdx::function<void(const http::request_ptr&, const tcp::connection_ptr&)>  request_handler_t;
 
     /// handler for requests that result in "500 Server Error"
-    typedef boost::function3<void, const http::request_ptr&, const tcp::connection_ptr&,
-        const std::string&> error_handler_t;
+    typedef stdx::function<void(const http::request_ptr&, const tcp::connection_ptr&,
+        const std::string&)> error_handler_t;
 
 
     /// default destructor

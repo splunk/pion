@@ -10,7 +10,6 @@
 #ifndef __PION_TCP_TIMER_HEADER__
 #define __PION_TCP_TIMER_HEADER__
 
-#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <pion/config.hpp>
@@ -18,6 +17,7 @@
 #include <pion/stdx/cstdint.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/mutex.hpp>
+#include <pion/stdx/functional.hpp>
 
 namespace pion {    // begin namespace pion
 namespace tcp {     // begin namespace tcp

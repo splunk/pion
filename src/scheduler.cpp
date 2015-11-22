@@ -80,8 +80,8 @@ void scheduler::keep_running(stdx::asio::io_service& my_service,
     if (m_is_running) {
         // schedule this again to make sure the service doesn't complete
         my_timer.expires_from_now(boost::posix_time::seconds(KEEP_RUNNING_TIMER_SECONDS));
-        my_timer.async_wait(boost::bind(&scheduler::keep_running, this,
-                                        boost::ref(my_service), boost::ref(my_timer)));
+        my_timer.async_wait(stdx::bind(&scheduler::keep_running, this,
+                                        stdx::ref(my_service), stdx::ref(my_timer)));
     }
 }
 
@@ -135,8 +135,8 @@ void single_service_scheduler::startup(void)
         
         // start multiple threads to handle async tasks
         for (stdx::uint32_t n = 0; n < m_num_threads; ++n) {
-            boost::shared_ptr<stdx::thread> new_thread(new stdx::thread( boost::bind(&scheduler::process_service_work,
-                                                                                       this, boost::ref(m_service)) ));
+            boost::shared_ptr<stdx::thread> new_thread(new stdx::thread( stdx::bind(&scheduler::process_service_work,
+                                                                                       this, stdx::ref(m_service)) ));
             m_thread_pool.push_back(new_thread);
         }
     }
@@ -167,8 +167,8 @@ void one_to_one_scheduler::startup(void)
         
         // start multiple threads to handle async tasks
         for (stdx::uint32_t n = 0; n < m_num_threads; ++n) {
-            boost::shared_ptr<stdx::thread> new_thread(new stdx::thread( boost::bind(&scheduler::process_service_work,
-                                                                                       this, boost::ref(m_service_pool[n]->first)) ));
+            boost::shared_ptr<stdx::thread> new_thread(new stdx::thread( stdx::bind(&scheduler::process_service_work,
+                                                                                       this, stdx::ref(m_service_pool[n]->first)) ));
             m_thread_pool.push_back(new_thread);
         }
     }

@@ -13,11 +13,11 @@
 #include <cstring>
 #include <istream>
 #include <streambuf>
-#include <boost/bind.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/stdx/mutex.hpp>
 #include <pion/stdx/condition_variable.hpp>
+#include <pion/stdx/functional.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -119,7 +119,7 @@ protected:
             stdx::lock_guard<stdx::mutex> async_lock(m_async_mutex);
             m_bytes_transferred = 0;
             m_conn_ptr->async_write(stdx::asio::buffer(pbase(), bytes_to_send),
-                                    boost::bind(&stream_buffer::operation_finished, this,
+                                    stdx::bind(&stream_buffer::operation_finished, this,
                                                 stdx::asio::placeholders::error,
                                                 stdx::asio::placeholders::bytes_transferred));
             m_async_done.wait(async_lock);
@@ -157,7 +157,7 @@ protected:
         m_bytes_transferred = 0;
         m_conn_ptr->async_read_some(stdx::asio::buffer(m_read_buf+PUT_BACK_MAX,
                                                         connection::READ_BUFFER_SIZE-PUT_BACK_MAX),
-                                    boost::bind(&stream_buffer::operation_finished, this,
+                                    stdx::bind(&stream_buffer::operation_finished, this,
                                                 stdx::asio::placeholders::error,
                                                 stdx::asio::placeholders::bytes_transferred));
         m_async_done.wait(async_lock);
@@ -225,7 +225,7 @@ protected:
                 m_bytes_transferred = 0;
                 m_conn_ptr->async_write(stdx::asio::buffer(s+bytes_available,
                                                             n-bytes_available),
-                                        boost::bind(&stream_buffer::operation_finished, this,
+                                        stdx::bind(&stream_buffer::operation_finished, this,
                                                     stdx::asio::placeholders::error,
                                                     stdx::asio::placeholders::bytes_transferred));
                 m_async_done.wait(async_lock);

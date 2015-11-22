@@ -7,7 +7,6 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
@@ -24,6 +23,7 @@
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/plugin_server.hpp>
 #include <pion/stdx/asio.hpp>
+#include <pion/stdx/functional.hpp>
 
 using namespace pion;
 

@@ -8,7 +8,7 @@
 //
 
 #include <pion/tcp/timer.hpp>
-#include <boost/bind.hpp>
+#include <pion/stdx/functional.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -28,8 +28,8 @@ void timer::start(const stdx::uint32_t seconds)
     stdx::lock_guard<stdx::mutex> timer_lock(m_mutex);
     m_timer_active = true;
     m_timer.expires_from_now(boost::posix_time::seconds(seconds));
-    m_timer.async_wait(boost::bind(&timer::timer_callback,
-        shared_from_this(), _1));
+    m_timer.async_wait(stdx::bind(&timer::timer_callback,
+                       shared_from_this(), stdx::placeholders::_1));
 }
 
 void timer::cancel(void)

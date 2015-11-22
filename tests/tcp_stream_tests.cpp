@@ -7,16 +7,15 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/bind.hpp>
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <boost/thread.hpp>
 #pragma GCC diagnostic warning "-Wunused-parameter"
-#include <boost/function.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/config.hpp>
 #include <pion/scheduler.hpp>
 #include <pion/tcp/stream.hpp>
 #include <pion/stdx/asio.hpp>
+#include <pion/stdx/functional.hpp>
 
 using namespace std;
 using namespace pion;
@@ -29,7 +28,7 @@ class tcp_stream_tests_F {
 public:
     
     /// data type for a function that handles tcp::stream connections
-    typedef boost::function1<void,tcp::stream&>   connection_handler;
+    typedef stdx::function<void(tcp::stream&)>   connection_handler;
     
     
     // default constructor and destructor
@@ -100,8 +99,8 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
     stdx::unique_lock<stdx::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
-    connection_handler conn_handler(boost::bind(&tcp_stream_tests_F::sendHello, _1));
-    stdx::thread listener_thread(boost::bind(&tcp_stream_tests_F::acceptConnection,
+    connection_handler conn_handler(stdx::bind(&tcp_stream_tests_F::sendHello, stdx::placeholders::_1));
+    stdx::thread listener_thread(stdx::bind(&tcp_stream_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);
@@ -159,8 +158,8 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
     stdx::unique_lock<stdx::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
-    connection_handler conn_handler(boost::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, _1));
-    stdx::thread listener_thread(boost::bind(&tcp_stream_buffer_tests_F::acceptConnection,
+    connection_handler conn_handler(stdx::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, stdx::placeholders::_1));
+    stdx::thread listener_thread(stdx::bind(&tcp_stream_buffer_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);

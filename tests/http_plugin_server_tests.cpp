@@ -10,7 +10,6 @@
 
 #include <pion/config.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
@@ -29,6 +28,7 @@
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/mutex.hpp>
 #include <pion/stdx/condition_variable.hpp>
+#include <pion/stdx/functional.hpp>
 
 
 using namespace std;
@@ -131,7 +131,7 @@ ChunkedPostRequestSender::ChunkedPostRequestSender(const pion::tcp::connection_p
 void ChunkedPostRequestSender::send(void)
 {
     if (m_chunk_iterator == m_chunks.end()) {
-        m_writer->send_final_chunk(boost::bind(&ChunkedPostRequestSender::handle_write,
+        m_writer->send_final_chunk(stdx::bind(&ChunkedPostRequestSender::handle_write,
                                              shared_from_this(),
                                              stdx::asio::placeholders::error,
                                              stdx::asio::placeholders::bytes_transferred));
@@ -142,12 +142,12 @@ void ChunkedPostRequestSender::send(void)
     m_writer->write_no_copy(m_chunk_iterator->second, m_chunk_iterator->first);
     
     if (++m_chunk_iterator == m_chunks.end()) {
-        m_writer->send_final_chunk(boost::bind(&ChunkedPostRequestSender::handle_write,
+        m_writer->send_final_chunk(stdx::bind(&ChunkedPostRequestSender::handle_write,
                                              shared_from_this(),
                                              stdx::asio::placeholders::error,
                                              stdx::asio::placeholders::bytes_transferred));
     } else {
-        m_writer->send_chunk(boost::bind(&ChunkedPostRequestSender::handle_write,
+        m_writer->send_chunk(stdx::bind(&ChunkedPostRequestSender::handle_write,
                                         shared_from_this(),
                                         stdx::asio::placeholders::error,
                                         stdx::asio::placeholders::bytes_transferred));
@@ -1105,8 +1105,8 @@ public:
     {
         http::request http_request("GET");
 		http::response_reader_ptr my_reader_ptr(http::response_reader::create(tcp_conn, http_request,
-                                                                    boost::bind(&ContentResponseWithoutLengthTests_F::checkResponse,
-                                                                    this, _1, _2, _3)));
+                                                                    stdx::bind(&ContentResponseWithoutLengthTests_F::checkResponse,
+                                                                    this, stdx::placeholders::_1, stdx::placeholders::_2, stdx::placeholders::_3)));
         my_reader_ptr->receive();
     }
 
@@ -1145,8 +1145,8 @@ BOOST_FIXTURE_TEST_SUITE(ContentResponseWithoutLengthTests_S, ContentResponseWit
 
 BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveSyncResponse) {
     // startup the server 
-    m_server.add_resource("/big", boost::bind(&ContentResponseWithoutLengthTests_F::sendResponseWithContentButNoLength,
-                                             this, _1, _2));
+    m_server.add_resource("/big", stdx::bind(&ContentResponseWithoutLengthTests_F::sendResponseWithContentButNoLength,
+                                             this, stdx::placeholders::_1, stdx::placeholders::_2));
     m_server.start();
     
     // open a connection
@@ -1171,8 +1171,8 @@ BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveSyncResponse) {
 
 BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveAsyncResponse) {
     // startup the server 
-    m_server.add_resource("/big", boost::bind(&ContentResponseWithoutLengthTests_F::sendResponseWithContentButNoLength,
-                                             this, _1, _2));
+    m_server.add_resource("/big", stdx::bind(&ContentResponseWithoutLengthTests_F::sendResponseWithContentButNoLength,
+                                             this, stdx::placeholders::_1, stdx::placeholders::_2));
     m_server.start();
     
     // open a connection
@@ -1184,7 +1184,7 @@ BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveAsyncResponse) {
     // send an HTTP request
     stdx::lock_guard<stdx::mutex> async_lock(m_mutex);
     pion::http::request_writer_ptr writer_ptr(pion::http::request_writer::create(tcp_conn,
-                                     boost::bind(&ContentResponseWithoutLengthTests_F::readAsyncResponse,
+                                     stdx::bind(&ContentResponseWithoutLengthTests_F::readAsyncResponse,
                                                  this, tcp_conn)));
     writer_ptr->get_request().set_resource("/big");
     writer_ptr->send();

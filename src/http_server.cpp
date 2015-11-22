@@ -29,8 +29,8 @@ const unsigned int          server::MAX_REDIRECTS = 10;
 void server::handle_connection(const tcp::connection_ptr& tcp_conn)
 {
     request_reader_ptr my_reader_ptr;
-    my_reader_ptr = request_reader::create(tcp_conn, boost::bind(&server::handle_request,
-                                           this, _1, _2, _3));
+    my_reader_ptr = request_reader::create(tcp_conn, stdx::bind(&server::handle_request,
+                                           this, stdx::placeholders::_1, stdx::placeholders::_2, stdx::placeholders::_3));
     my_reader_ptr->set_max_content_length(m_max_content_length);
     my_reader_ptr->receive();
 }
@@ -195,7 +195,7 @@ void server::handle_bad_request(const http::request_ptr& http_request_ptr,
         "<p>Your browser sent a request that this server could not understand.</p>\n"
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
+                                                            stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_BAD_REQUEST);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_BAD_REQUEST);
     writer->write_no_copy(BAD_REQUEST_HTML);
@@ -215,7 +215,7 @@ void server::handle_not_found_request(const http::request_ptr& http_request_ptr,
         " was not found on this server.</p>\n"
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
+                                                            stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_NOT_FOUND);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NOT_FOUND);
     writer->write_no_copy(NOT_FOUND_HTML_START);
@@ -238,7 +238,7 @@ void server::handle_server_error(const http::request_ptr& http_request_ptr,
         "</strong></p>\n"
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
+                                                            stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_SERVER_ERROR);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_SERVER_ERROR);
     writer->write_no_copy(SERVER_ERROR_HTML_START);
@@ -263,7 +263,7 @@ void server::handle_forbidden_request(const http::request_ptr& http_request_ptr,
         "</strong></p>\n"
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
+                                                            stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_FORBIDDEN);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_FORBIDDEN);
     writer->write_no_copy(FORBIDDEN_HTML_START);
@@ -288,7 +288,7 @@ void server::handle_method_not_allowed(const http::request_ptr& http_request_ptr
         " is not allowed on this server.</p>\n"
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
+                                                            stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
     if (! allowed_methods.empty())

@@ -13,16 +13,13 @@
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
-#include <boost/function/function0.hpp>
-#include <boost/function/function2.hpp>
 #include <boost/noncopyable.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/http/message.hpp>
 #include <pion/stdx/asio.hpp>
-
+#include <pion/stdx/functional.hpp>
 
 namespace pion {    // begin namespace pion
 namespace http {    // begin namespace http
@@ -37,10 +34,10 @@ class PION_API writer :
 protected:
     
     /// function called after the HTTP message has been sent
-    typedef boost::function1<void,const boost::system::error_code&> finished_handler_t;
+    typedef stdx::function<void(const boost::system::error_code&)> finished_handler_t;
 
     /// data type for a function that handles write operations
-    typedef boost::function2<void,const boost::system::error_code&,std::size_t> write_handler_t;
+    typedef stdx::function<void(const boost::system::error_code&,std::size_t)> write_handler_t;
     
     
     /**

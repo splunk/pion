@@ -15,10 +15,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/array.hpp>
-#include <boost/function.hpp>
-#include <boost/function/function1.hpp>
 #include <pion/config.hpp>
 #include <pion/stdx/asio.hpp>
+#include <pion/stdx/functional.hpp>
 #include <string>
 
 
@@ -44,7 +43,7 @@ public:
     enum { READ_BUFFER_SIZE = 8192 };
     
     /// data type for a function that handles TCP connection objects
-    typedef boost::function1<void, boost::shared_ptr<connection> >   connection_handler;
+    typedef stdx::function<void(boost::shared_ptr<connection>)>   connection_handler;
     
     /// data type for an I/O read buffer
     typedef boost::array<char, READ_BUFFER_SIZE>    read_buffer_type;

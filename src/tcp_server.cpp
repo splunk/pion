@@ -7,11 +7,11 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/bind.hpp>
 #include <pion/admin_rights.hpp>
 #include <pion/tcp/server.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/mutex.hpp>
+#include <pion/stdx/functional.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -126,7 +126,7 @@ void server::stop(bool wait_until_finished)
         if (! wait_until_finished) {
             // this terminates any other open connections
             std::for_each(m_conn_pool.begin(), m_conn_pool.end(),
-                          boost::bind(&connection::close, _1));
+                          stdx::bind(&connection::close, stdx::placeholders::_1));
         }
     
         // wait for all pending connections to complete
@@ -179,8 +179,8 @@ void server::listen(void)
         // create a new TCP connection object
         tcp::connection_ptr new_connection(connection::create(get_io_service(),
                                                               m_ssl_context, m_ssl_flag,
-                                                              boost::bind(&server::finish_connection,
-                                                                          this, _1)));
+                                                              stdx::bind(&server::finish_connection,
+                                                                         this, stdx::placeholders::_1)));
         
         // prune connections that finished uncleanly
         prune_connections();
@@ -190,7 +190,7 @@ void server::listen(void)
         
         // use the object to accept a new connection
         new_connection->async_accept(m_tcp_acceptor,
-                                     boost::bind(&server::handle_accept,
+                                     stdx::bind(&server::handle_accept,
                                                  this, new_connection,
                                                  stdx::asio::placeholders::error));
     }
@@ -219,7 +219,7 @@ void server::handle_accept(const tcp::connection_ptr& tcp_conn,
         // handle the new connection
 #ifdef PION_HAVE_SSL
         if (tcp_conn->get_ssl_flag()) {
-            tcp_conn->async_handshake_server(boost::bind(&server::handle_ssl_handshake,
+            tcp_conn->async_handshake_server(stdx::bind(&server::handle_ssl_handshake,
                                                          this, tcp_conn,
                                                          stdx::asio::placeholders::error));
         } else

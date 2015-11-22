@@ -12,13 +12,13 @@
 
 #include <string>
 #include <boost/noncopyable.hpp>
-#include <boost/function/function2.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/thread/once.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/http/message.hpp>
+#include <pion/stdx/functional.hpp>
 
 #ifndef BOOST_SYSTEM_NOEXCEPT
     #define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
@@ -46,7 +46,7 @@ public:
     static const std::size_t        DEFAULT_CONTENT_MAX;
 
     /// callback type used to consume payload content
-    typedef boost::function2<void, const char *, std::size_t>   payload_handler_t;
+    typedef stdx::function<void(const char *, std::size_t)>   payload_handler_t;
     
     /// class-specific error code values
     enum error_value_t {

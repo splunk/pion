@@ -189,7 +189,7 @@ void cookie_auth::handle_unauthorized(const http::request_ptr& http_request_ptr,
         "<BODY><H1>401 Unauthorized.</H1></BODY>"
         "</HTML> ";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-    boost::bind(&tcp::connection::finish, tcp_conn)));
+    stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_UNAUTHORIZED);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_UNAUTHORIZED);
     writer->write_no_copy(CONTENT);
@@ -215,7 +215,7 @@ void cookie_auth::handle_redirection(const http::request_ptr& http_request_ptr,
         "<BODY><H1>302 Found.</H1></BODY>"
         "</HTML> ";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-        boost::bind(&tcp::connection::finish, tcp_conn)));
+        stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_FOUND);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_FOUND);
     writer->get_response().add_header(http::types::HEADER_LOCATION, redirection_url);
@@ -242,7 +242,7 @@ void cookie_auth::handle_ok(const http::request_ptr& http_request_ptr,
 {
     // send 204 (No Content) response
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-        boost::bind(&tcp::connection::finish, tcp_conn)));
+        stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_NO_CONTENT);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NO_CONTENT);
     // Note: use empty pass "" while setting cookies to workaround IE/FF difference

@@ -10,13 +10,12 @@
 #include <pion/config.hpp>
 #include <pion/scheduler.hpp>
 #include <pion/tcp/server.hpp>
-#include <boost/bind.hpp>
-#include <boost/function/function1.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/response.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/thread.hpp>
+#include <pion/stdx/functional.hpp>
 
 using namespace std;
 using namespace pion;
@@ -47,7 +46,7 @@ public:
         static const std::string HELLO_MESSAGE("Hello there!\n");
         tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);  // make sure it will get closed
         tcp_conn->async_write(stdx::asio::buffer(HELLO_MESSAGE),
-                              boost::bind(&HelloServer::handle_write, this, tcp_conn,
+                              stdx::bind(&HelloServer::handle_write, this, tcp_conn,
                                           stdx::asio::placeholders::error));
     }
 
@@ -66,7 +65,7 @@ private:
         if (write_error) {
             tcp_conn->finish();
         } else {
-            tcp_conn->async_read_some(boost::bind(&HelloServer::handleRead, this, tcp_conn,
+            tcp_conn->async_read_some(stdx::bind(&HelloServer::handleRead, this, tcp_conn,
                                                   stdx::asio::placeholders::error,
                                                   stdx::asio::placeholders::bytes_transferred));
         }
@@ -90,7 +89,7 @@ private:
             throw int(1);
         } else {
             tcp_conn->async_write(stdx::asio::buffer(GOODBYE_MESSAGE),
-                                  boost::bind(&pion::tcp::connection::finish, tcp_conn));
+                                  stdx::bind(&pion::tcp::connection::finish, tcp_conn));
         }
     }
 };
@@ -280,7 +279,7 @@ public:
 
     void setExpectations(const std::map<std::string, std::string>& expectedHeaders, 
                          const std::string& expectedContent,
-                         boost::function1<bool, http::request&> additional_request_test = NULL)
+                         stdx::function<bool(http::request&)> additional_request_test = NULL)
     {
         m_expectedHeaders = expectedHeaders;
         m_expectedContent = expectedContent;
@@ -290,7 +289,7 @@ public:
 private:
     std::map<std::string, std::string> m_expectedHeaders;
     std::string m_expectedContent;
-    boost::function1<bool, http::request&> m_additional_request_test;
+    stdx::function<bool(http::request&)> m_additional_request_test;
 };
 
 

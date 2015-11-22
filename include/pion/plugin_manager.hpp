@@ -13,13 +13,12 @@
 #include <map>
 #include <string>
 #include <boost/assert.hpp>
-#include <boost/function.hpp>
-#include <boost/function/function1.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
 #include <pion/plugin.hpp>
 #include <pion/stdx/cstdint.hpp>
 #include <pion/stdx/mutex.hpp>
+#include <pion/stdx/functional.hpp>
 
 namespace pion {    // begin namespace pion
 
@@ -32,10 +31,10 @@ class plugin_manager
 public:
 
     /// data type for a function that may be called by the run() method
-    typedef boost::function1<void, PluginType*>    PluginRunFunction;
+    typedef stdx::function<void(PluginType*)>    PluginRunFunction;
 
     /// data type for a function that may be called by the getStat() method
-    typedef boost::function1<stdx::uint64_t, const PluginType*>   PluginStatFunction;
+    typedef stdx::function<stdx::uint64_t(const PluginType*)>   PluginStatFunction;
 
     
     /// default constructor

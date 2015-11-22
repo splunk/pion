@@ -155,7 +155,7 @@ void LogService::operator()(const http::request_ptr& http_request_ptr, const tcp
 {
     // Set Content-type to "text/plain" (plain ascii text)
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                                                   boost::bind(&tcp::connection::finish, tcp_conn)));
+                                                                   stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_content_type(http::types::CONTENT_TYPE_TEXT);
     getLogAppender().writeLogEvents(writer);
     writer->send();

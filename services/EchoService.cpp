@@ -8,10 +8,10 @@
 //
 
 #include "EchoService.hpp"
-#include <boost/bind.hpp>
 #include <pion/algorithm.hpp>
 #include <pion/http/response_writer.hpp>
 #include <pion/user.hpp>
+#include <pion/stdx/functional.hpp>
 
 using namespace pion;
 
@@ -46,7 +46,7 @@ void EchoService::operator()(const http::request_ptr& http_request_ptr, const tc
     
     // Set Content-type to "text/plain" (plain ascii text)
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
+                                                            stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_content_type(http::types::CONTENT_TYPE_TEXT);
     
     // write request information
@@ -79,7 +79,7 @@ void EchoService::operator()(const http::request_ptr& http_request_ptr, const tc
     writer->write_no_copy(http::types::STRING_CRLF);
     writer->write_no_copy(http::types::STRING_CRLF);
     std::for_each(http_request_ptr->get_headers().begin(), http_request_ptr->get_headers().end(),
-                  boost::bind(&writeDictionaryTerm, writer, _1));
+                  stdx::bind(&writeDictionaryTerm, writer, stdx::placeholders::_1));
     writer->write_no_copy(http::types::STRING_CRLF);
 
     // write query parameters
@@ -87,7 +87,7 @@ void EchoService::operator()(const http::request_ptr& http_request_ptr, const tc
     writer->write_no_copy(http::types::STRING_CRLF);
     writer->write_no_copy(http::types::STRING_CRLF);
     std::for_each(http_request_ptr->get_queries().begin(), http_request_ptr->get_queries().end(),
-                  boost::bind(&writeDictionaryTerm, writer, _1));
+                  stdx::bind(&writeDictionaryTerm, writer, stdx::placeholders::_1));
     writer->write_no_copy(http::types::STRING_CRLF);
     
     // write cookie parameters
@@ -95,7 +95,7 @@ void EchoService::operator()(const http::request_ptr& http_request_ptr, const tc
     writer->write_no_copy(http::types::STRING_CRLF);
     writer->write_no_copy(http::types::STRING_CRLF);
     std::for_each(http_request_ptr->get_cookies().begin(), http_request_ptr->get_cookies().end(),
-                  boost::bind(&writeDictionaryTerm, writer, _1));
+                  stdx::bind(&writeDictionaryTerm, writer, stdx::placeholders::_1));
     writer->write_no_copy(http::types::STRING_CRLF);
     
     // write POST content
