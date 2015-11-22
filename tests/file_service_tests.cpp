@@ -668,7 +668,7 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
 BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
     // open (another) connection
     pion::tcp::connection tcp_conn(get_io_service());
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 

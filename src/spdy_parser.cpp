@@ -54,7 +54,7 @@ parser::parser()
 {}
 
 boost::tribool parser::parse(http_protocol_info& http_info,
-                             boost::system::error_code& ec,
+                             stdx::error_code& ec,
                              const decompressor_ptr& decompressor,
                              const char *packet_ptr,
                              stdx::uint32_t& length_packet,
@@ -138,7 +138,7 @@ stdx::uint32_t parser::get_control_frame_stream_id(const char *ptr)
     return four_bytes & 0x7FFFFFFF;
 }
     
-boost::tribool parser::parse_spdy_frame(boost::system::error_code& ec,
+boost::tribool parser::parse_spdy_frame(stdx::error_code& ec,
                                         const decompressor_ptr& decompressor,
                                         http_protocol_info& http_info,
                                         stdx::uint32_t& length_packet,
@@ -260,7 +260,7 @@ void parser::create_error_category(void)
     m_error_category_ptr = &UNIQUE_ERROR_CATEGORY;
 }
 
-bool parser::populate_frame(boost::system::error_code& ec,
+bool parser::populate_frame(stdx::error_code& ec,
                             spdy_control_frame_info& frame,
                             stdx::uint32_t& length_packet,
                             stdx::uint32_t& stream_id,
@@ -344,7 +344,7 @@ bool parser::populate_frame(boost::system::error_code& ec,
     return true;
 }
 
-void parser::parse_header_payload(boost::system::error_code &ec,
+void parser::parse_header_payload(stdx::error_code &ec,
                                   const decompressor_ptr& decompressor,
                                   const spdy_control_frame_info& frame,
                                   http_protocol_info& http_info,
@@ -457,7 +457,7 @@ void parser::parse_header_payload(boost::system::error_code &ec,
     }
 }
 
-void parser::parse_spdy_data(boost::system::error_code& /* ec */,
+void parser::parse_spdy_data(stdx::error_code& /* ec */,
                              const spdy_control_frame_info& frame,
                              stdx::uint32_t /* stream_id */,
                              http_protocol_info& http_info)
@@ -468,7 +468,7 @@ void parser::parse_spdy_data(boost::system::error_code& /* ec */,
     }
 }
 
-void parser::parse_spdy_rst_stream(boost::system::error_code& /* ec */,
+void parser::parse_spdy_rst_stream(stdx::error_code& /* ec */,
                                    const spdy_control_frame_info& frame)
 {
     stdx::uint32_t status_code = 0;
@@ -494,7 +494,7 @@ void parser::parse_spdy_rst_stream(boost::system::error_code& /* ec */,
     }
 }
 
-void parser::parse_spdy_ping_frame(boost::system::error_code& /* ec */,
+void parser::parse_spdy_ping_frame(stdx::error_code& /* ec */,
                                    const spdy_control_frame_info& frame)
 {
     // First complete the check for size 
@@ -515,13 +515,13 @@ void parser::parse_spdy_ping_frame(boost::system::error_code& /* ec */,
     PION_LOG_INFO(m_logger, "SPDY " << "Ping ID is : " << ping_id);
 }
 
-void parser::parse_spdy_settings_frame(boost::system::error_code& /* ec */,
+void parser::parse_spdy_settings_frame(stdx::error_code& /* ec */,
                                        const spdy_control_frame_info& /* frame */)
 {
     // Can ignore this frame for our purposes
 }
 
-void parser::parse_spdy_goaway_frame(boost::system::error_code &ec,
+void parser::parse_spdy_goaway_frame(stdx::error_code &ec,
                                      const spdy_control_frame_info& frame)
 {
     // First complete the check for size
@@ -556,7 +556,7 @@ void parser::parse_spdy_goaway_frame(boost::system::error_code &ec,
     
 }
 
-void parser::parse_spdy_window_update_frame(boost::system::error_code& /* ec */,
+void parser::parse_spdy_window_update_frame(stdx::error_code& /* ec */,
                                             const spdy_control_frame_info& /* frame */)
 {
     // TBD : Do we really need this for our purpose

@@ -31,7 +31,7 @@ const boost::regex  message::REGEX_ICASE_CHUNKED(".*chunked.*", boost::regex::ic
 // message member functions
 
 std::size_t message::send(tcp::connection& tcp_conn,
-                          boost::system::error_code& ec, bool headers_only)
+                          stdx::error_code& ec, bool headers_only)
 {
     // initialize write buffers for send operation using HTTP headers
     write_buffers_t write_buffers;
@@ -46,7 +46,7 @@ std::size_t message::send(tcp::connection& tcp_conn,
 }
 
 std::size_t message::receive(tcp::connection& tcp_conn,
-                             boost::system::error_code& ec,
+                             stdx::error_code& ec,
                              parser& http_parser)
 {
     std::size_t last_bytes_read = 0;
@@ -83,7 +83,7 @@ std::size_t message::receive(tcp::connection& tcp_conn,
             if (http_parser.check_premature_eof(*this)) {
                 // premature EOF encountered
                 if (! ec)
-                    ec = make_error_code(boost::system::errc::io_error);
+                    ec = make_error_code(stdx::errc::io_error);
                 return http_parser.get_total_bytes_read();
             } else {
                 // EOF reached when content length unknown
@@ -141,7 +141,7 @@ std::size_t message::receive(tcp::connection& tcp_conn,
 }
 
 std::size_t message::receive(tcp::connection& tcp_conn,
-                             boost::system::error_code& ec,
+                             stdx::error_code& ec,
                              bool headers_only,
                              std::size_t max_content_length)
 {
@@ -152,7 +152,7 @@ std::size_t message::receive(tcp::connection& tcp_conn,
 }
 
 std::size_t message::write(std::ostream& out,
-    boost::system::error_code& ec, bool headers_only)
+    stdx::error_code& ec, bool headers_only)
 {
     // reset error_code
     ec.clear();
@@ -172,7 +172,7 @@ std::size_t message::write(std::ostream& out,
         size_t len = stdx::asio::buffer_size(*i);
         out.write(ptr, len);
         if (!out) {
-          ec = make_error_code(boost::system::errc::io_error);
+          ec = make_error_code(stdx::errc::io_error);
           break;
         }
         bytes_out += len;
@@ -182,7 +182,7 @@ std::size_t message::write(std::ostream& out,
 }
 
 std::size_t message::read(std::istream& in,
-                          boost::system::error_code& ec,
+                          stdx::error_code& ec,
                           parser& http_parser)
 {
     // make sure that we start out with an empty message & clear error_code
@@ -195,7 +195,7 @@ std::size_t message::read(std::istream& in,
     while (in) {
         in.read(&c, 1);
         if ( ! in ) {
-            ec = make_error_code(boost::system::errc::io_error);
+            ec = make_error_code(stdx::errc::io_error);
             break;
         }
         http_parser.set_read_buffer(&c, 1);
@@ -207,7 +207,7 @@ std::size_t message::read(std::istream& in,
         if (http_parser.check_premature_eof(*this)) {
             // premature EOF encountered
             if (! ec)
-                ec = make_error_code(boost::system::errc::io_error);
+                ec = make_error_code(stdx::errc::io_error);
         } else {
             // EOF reached when content length unknown
             // assume it is the correct end of content
@@ -221,7 +221,7 @@ std::size_t message::read(std::istream& in,
 }
 
 std::size_t message::read(std::istream& in,
-                          boost::system::error_code& ec,
+                          stdx::error_code& ec,
                           bool headers_only,
                           std::size_t max_content_length)
 {

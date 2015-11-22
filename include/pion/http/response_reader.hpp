@@ -35,7 +35,7 @@ public:
 
     /// function called after the HTTP message has been parsed
     typedef stdx::function<void(http::response_ptr, tcp::connection_ptr,
-        const boost::system::error_code&)>   finished_handler_t;
+        const stdx::error_code&)>   finished_handler_t;
 
     
     // default destructor
@@ -87,13 +87,13 @@ protected:
     }
 
     /// Called after we have finished parsing the HTTP message headers
-    virtual void finished_parsing_headers(const boost::system::error_code& ec) {
+    virtual void finished_parsing_headers(const stdx::error_code& ec) {
         // call the finished headers handler with the HTTP message
         if (m_parsed_headers) m_parsed_headers(m_http_msg, get_connection(), ec);
     }
     
     /// Called after we have finished reading/parsing the HTTP message
-    virtual void finished_reading(const boost::system::error_code& ec) {
+    virtual void finished_reading(const stdx::error_code& ec) {
         // call the finished handler with the finished HTTP message
         if (m_finished) m_finished(m_http_msg, get_connection(), ec);
     }

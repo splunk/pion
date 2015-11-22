@@ -60,7 +60,7 @@ private:
      * @param write_error message that explains what went wrong (if anything)
      */
     void handle_write(const pion::tcp::connection_ptr& tcp_conn,
-                     const boost::system::error_code& write_error)
+                     const stdx::error_code& write_error)
     {
         if (write_error) {
             tcp_conn->finish();
@@ -79,7 +79,7 @@ private:
      * @param bytes_read number of bytes read from the client
      */
     void handleRead(const pion::tcp::connection_ptr& tcp_conn,
-                    const boost::system::error_code& read_error,
+                    const stdx::error_code& read_error,
                     std::size_t bytes_read)
     {
         static const std::string GOODBYE_MESSAGE("Goodbye!\n");
@@ -254,7 +254,7 @@ public:
      */
     virtual void handle_connection(const pion::tcp::connection_ptr& tcp_conn) {
         // wait until an HTTP request is received or an error occurs
-        boost::system::error_code error_code;
+        stdx::error_code error_code;
         http::request http_request;
         http_request.receive(*tcp_conn, error_code);
         BOOST_REQUIRE(!error_code);
@@ -421,7 +421,7 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingExtraWhiteSpaceAroundChunkSizes) {
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
     // open a connection
     pion::tcp::connection tcp_conn(get_io_service());
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn.connect(stdx::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
     BOOST_REQUIRE(!error_code);
 

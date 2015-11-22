@@ -144,7 +144,7 @@ protected:
      * @param write_error error status from the last write operation
      * @param bytes_written number of bytes sent by the last write operation
      */
-    virtual void handle_write(const boost::system::error_code& write_error,
+    virtual void handle_write(const stdx::error_code& write_error,
                              std::size_t bytes_written)
     {
         (void)bytes_written;

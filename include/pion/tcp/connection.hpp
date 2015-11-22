@@ -18,6 +18,7 @@
 #include <pion/config.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/functional.hpp>
+#include <pion/stdx/system_error.hpp>
 #include <string>
 
 
@@ -154,7 +155,7 @@ public:
             } catch (...) {}    // ignore exceptions
             
             // close the underlying socket (ignore errors)
-            boost::system::error_code ec;
+            stdx::error_code ec;
             m_ssl_socket.next_layer().close(ec);
         }
     }
@@ -166,7 +167,7 @@ public:
     /// and the suggested #define statements cause WAY too much trouble and heartache
     inline void cancel(void) {
 #if !defined(_MSC_VER) || (_WIN32_WINNT >= 0x0600)
-        boost::system::error_code ec;
+        stdx::error_code ec;
         m_ssl_socket.next_layer().cancel(ec);
 #endif
     }
@@ -193,13 +194,13 @@ public:
      * accepts a new tcp connection (blocks until established)
      *
      * @param tcp_acceptor object used to accept new connections
-     * @return boost::system::error_code contains error code if the connection fails
+     * @return stdx::error_code contains error code if the connection fails
      *
      * @see stdx::asio::basic_socket_acceptor::accept()
      */
-    inline boost::system::error_code accept(stdx::asio::ip::tcp::acceptor& tcp_acceptor)
+    inline stdx::error_code accept(stdx::asio::ip::tcp::acceptor& tcp_acceptor)
     {
-        boost::system::error_code ec;
+        stdx::error_code ec;
         tcp_acceptor.accept(m_ssl_socket.lowest_layer(), ec);
         return ec;
     }
@@ -241,13 +242,13 @@ public:
      * connects to a remote endpoint (blocks until established)
      *
      * @param tcp_endpoint remote endpoint to connect to
-     * @return boost::system::error_code contains error code if the connection fails
+     * @return stdx::error_code contains error code if the connection fails
      *
      * @see stdx::asio::basic_socket_acceptor::connect()
      */
-    inline boost::system::error_code connect(stdx::asio::ip::tcp::endpoint& tcp_endpoint)
+    inline stdx::error_code connect(stdx::asio::ip::tcp::endpoint& tcp_endpoint)
     {
-        boost::system::error_code ec;
+        stdx::error_code ec;
         m_ssl_socket.lowest_layer().connect(tcp_endpoint, ec);
         return ec;
     }
@@ -257,11 +258,11 @@ public:
      *
      * @param remote_addr remote IP address (v4) to connect to
      * @param remote_port remote port number to connect to
-     * @return boost::system::error_code contains error code if the connection fails
+     * @return stdx::error_code contains error code if the connection fails
      *
      * @see stdx::asio::basic_socket_acceptor::connect()
      */
-    inline boost::system::error_code connect(const stdx::asio::ip::address& remote_addr,
+    inline stdx::error_code connect(const stdx::asio::ip::address& remote_addr,
                                              const unsigned int remote_port)
     {
         stdx::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
@@ -273,15 +274,15 @@ public:
      *
      * @param remote_server hostname of the remote server to connect to
      * @param remote_port remote port number to connect to
-     * @return boost::system::error_code contains error code if the connection fails
+     * @return stdx::error_code contains error code if the connection fails
      *
      * @see stdx::asio::basic_socket_acceptor::connect()
      */
-    inline boost::system::error_code connect(const std::string& remote_server,
+    inline stdx::error_code connect(const std::string& remote_server,
                                              const unsigned int remote_port)
     {
         // query a list of matching endpoints
-        boost::system::error_code ec;
+        stdx::error_code ec;
         stdx::asio::ip::tcp::resolver resolver(m_ssl_socket.lowest_layer().get_io_service());
         stdx::asio::ip::tcp::resolver::query query(remote_server,
             boost::lexical_cast<std::string>(remote_port),
@@ -337,12 +338,12 @@ public:
     /**
      * performs client-side SSL handshake for a new connection (blocks until finished)
      *
-     * @return boost::system::error_code contains error code if the connection fails
+     * @return stdx::error_code contains error code if the connection fails
      *
      * @see stdx::asio::ssl::stream::handshake()
      */
-    inline boost::system::error_code handshake_client(void) {
-        boost::system::error_code ec;
+    inline stdx::error_code handshake_client(void) {
+        stdx::error_code ec;
 #ifdef PION_HAVE_SSL
         m_ssl_socket.handshake(stdx::asio::ssl::stream_base::client, ec);
         m_ssl_flag = true;
@@ -353,12 +354,12 @@ public:
     /**
      * performs server-side SSL handshake for a new connection (blocks until finished)
      *
-     * @return boost::system::error_code contains error code if the connection fails
+     * @return stdx::error_code contains error code if the connection fails
      *
      * @see stdx::asio::ssl::stream::handshake()
      */
-    inline boost::system::error_code handshake_server(void) {
-        boost::system::error_code ec;
+    inline stdx::error_code handshake_server(void) {
+        stdx::error_code ec;
 #ifdef PION_HAVE_SSL
         m_ssl_socket.handshake(stdx::asio::ssl::stream_base::server, ec);
         m_ssl_flag = true;
@@ -412,7 +413,7 @@ public:
      *
      * @see stdx::asio::basic_stream_socket::read_some()
      */
-    inline std::size_t read_some(boost::system::error_code& ec) {
+    inline std::size_t read_some(stdx::error_code& ec) {
 #ifdef PION_HAVE_SSL
         if (get_ssl_flag())
             return m_ssl_socket.read_some(stdx::asio::buffer(m_read_buffer), ec);
@@ -432,7 +433,7 @@ public:
      */
     template <typename ReadBufferType>
     inline std::size_t read_some(ReadBufferType read_buffer,
-                                 boost::system::error_code& ec)
+                                 stdx::error_code& ec)
     {
 #ifdef PION_HAVE_SSL
         if (get_ssl_flag())
@@ -502,7 +503,7 @@ public:
      */
     template <typename CompletionCondition>
     inline std::size_t read(CompletionCondition completion_condition,
-                            boost::system::error_code& ec)
+                            stdx::error_code& ec)
     {
 #ifdef PION_HAVE_SSL
         if (get_ssl_flag())
@@ -528,7 +529,7 @@ public:
     template <typename MutableBufferSequence, typename CompletionCondition>
     inline std::size_t read(const MutableBufferSequence& buffers,
                             CompletionCondition completion_condition,
-                            boost::system::error_code& ec)
+                            stdx::error_code& ec)
     {
 #ifdef PION_HAVE_SSL
         if (get_ssl_flag())
@@ -569,7 +570,7 @@ public:
      */
     template <typename ConstBufferSequence>
     inline std::size_t write(const ConstBufferSequence& buffers,
-                             boost::system::error_code& ec)
+                             stdx::error_code& ec)
     {
 #ifdef PION_HAVE_SSL
         if (get_ssl_flag())
@@ -632,7 +633,7 @@ public:
         try {
             // const_cast is required since lowest_layer() is only defined non-const in asio
             remote_endpoint = const_cast<ssl_socket_type&>(m_ssl_socket).lowest_layer().remote_endpoint();
-        } catch (boost::system::system_error& /* e */) {
+        } catch (stdx::system_error& /* e */) {
             // do nothing
         }
         return remote_endpoint;

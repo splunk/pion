@@ -34,10 +34,10 @@ class PION_API writer :
 protected:
     
     /// function called after the HTTP message has been sent
-    typedef stdx::function<void(const boost::system::error_code&)> finished_handler_t;
+    typedef stdx::function<void(const stdx::error_code&)> finished_handler_t;
 
     /// data type for a function that handles write operations
-    typedef stdx::function<void(const boost::system::error_code&,std::size_t)> write_handler_t;
+    typedef stdx::function<void(const stdx::error_code&,std::size_t)> write_handler_t;
     
     
     /**
@@ -59,7 +59,7 @@ protected:
      * @param write_error error status from the last write operation
      * @param bytes_written number of bytes sent by the last write operation
      */
-    virtual void handle_write(const boost::system::error_code& write_error,
+    virtual void handle_write(const stdx::error_code& write_error,
                               std::size_t bytes_written) = 0;
 
     
@@ -74,7 +74,7 @@ protected:
     virtual write_handler_t bind_to_write_handler(void) = 0;
     
     /// called after we have finished sending the HTTP message
-    inline void finished_writing(const boost::system::error_code& ec) {
+    inline void finished_writing(const stdx::error_code& ec) {
         if (m_finished) m_finished(ec);
     }
     

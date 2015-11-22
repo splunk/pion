@@ -20,6 +20,7 @@
 #include <pion/config.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/cstdint.hpp>
+#include <pion/stdx/system_error.hpp>
 #include <pion/http/types.hpp>
 
 #ifndef BOOST_SYSTEM_NOEXCEPT
@@ -65,7 +66,7 @@ public:
 
     /// data type for library errors returned during receive() operations
     struct receive_error_t
-        : public boost::system::error_category
+        : public stdx::error_category
     {
         virtual ~receive_error_t() {}
         virtual inline const char *name() const BOOST_SYSTEM_NOEXCEPT { return "receive_error_t"; }
@@ -416,7 +417,7 @@ public:
      * @return std::size_t number of bytes written to the connection
      */
     std::size_t send(tcp::connection& tcp_conn,
-                     boost::system::error_code& ec,
+                     stdx::error_code& ec,
                      bool headers_only = false);
 
     /**
@@ -429,7 +430,7 @@ public:
      * @return std::size_t number of bytes read from the connection
      */
     std::size_t receive(tcp::connection& tcp_conn,
-                        boost::system::error_code& ec,
+                        stdx::error_code& ec,
                         parser& http_parser);
     
     /**
@@ -443,7 +444,7 @@ public:
      * @return std::size_t number of bytes read from the connection
      */
     std::size_t receive(tcp::connection& tcp_conn,
-                        boost::system::error_code& ec,
+                        stdx::error_code& ec,
                         bool headers_only = false,
                         std::size_t max_content_length = static_cast<size_t>(-1));
 
@@ -457,7 +458,7 @@ public:
      * @return std::size_t number of bytes written to the connection
      */
     std::size_t write(std::ostream& out,
-                      boost::system::error_code& ec,
+                      stdx::error_code& ec,
                       bool headers_only = false);
 
     /**
@@ -470,7 +471,7 @@ public:
      * @return std::size_t number of bytes read from the connection
      */
     std::size_t read(std::istream& in,
-                     boost::system::error_code& ec,
+                     stdx::error_code& ec,
                      parser& http_parser);
     
     /**
@@ -484,7 +485,7 @@ public:
      * @return std::size_t number of bytes read from the connection
      */
     std::size_t read(std::istream& in,
-                     boost::system::error_code& ec,
+                     stdx::error_code& ec,
                      bool headers_only = false,
                      std::size_t max_content_length = static_cast<size_t>(-1));
 

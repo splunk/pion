@@ -38,7 +38,7 @@ void reader::receive(void)
     }
 }
 
-void reader::consume_bytes(const boost::system::error_code& read_error,
+void reader::consume_bytes(const stdx::error_code& read_error,
                               std::size_t bytes_read)
 {
     // cancel read timer if operation didn't time-out
@@ -73,7 +73,7 @@ void reader::consume_bytes(void)
     // true: finished successfully parsing the message
     // indeterminate: parsed bytes, but the message is not yet finished
     //
-    boost::system::error_code ec;
+    stdx::error_code ec;
     boost::tribool result = parse(get_message(), ec);
     
     if (gcount() > 0) {
@@ -131,14 +131,14 @@ void reader::read_bytes_with_timeout(void)
     read_bytes();
 }
 
-void reader::handle_read_error(const boost::system::error_code& read_error)
+void reader::handle_read_error(const stdx::error_code& read_error)
 {
     // close the connection, forcing the client to establish a new one
     m_tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE);   // make sure it will get closed
 
     // check if this is just a message with unknown content length
     if (! check_premature_eof(get_message())) {
-        boost::system::error_code ec;   // clear error code
+        stdx::error_code ec;   // clear error code
         finished_reading(ec);
         return;
     }

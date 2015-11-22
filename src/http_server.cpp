@@ -18,6 +18,12 @@
 namespace pion {    // begin namespace pion
 namespace http {    // begin namespace http
 
+namespace {
+
+const stdx::error_condition ERRCOND_CANCELED(int(stdx::errc::operation_canceled), stdx::system_category());
+const stdx::error_condition ERRCOND_EOF(stdx::asio::error::eof, stdx::asio::error::misc_category);
+
+}    // end namespace
 
 // static members of server
 
@@ -36,7 +42,7 @@ void server::handle_connection(const tcp::connection_ptr& tcp_conn)
 }
 
 void server::handle_request(const http::request_ptr& http_request_ptr,
-    const tcp::connection_ptr& tcp_conn, const boost::system::error_code& ec)
+    const tcp::connection_ptr& tcp_conn, const stdx::error_code& ec)
 {
     if (ec || ! http_request_ptr->is_valid()) {
         tcp_conn->set_lifecycle(tcp::connection::LIFECYCLE_CLOSE); // make sure it will get closed
@@ -45,9 +51,6 @@ void server::handle_request(const http::request_ptr& http_request_ptr,
             PION_LOG_INFO(m_logger, "Invalid HTTP request (" << ec.message() << ")");
             m_bad_request_handler(http_request_ptr, tcp_conn);
         } else {
-            static const boost::system::error_condition
-                    ERRCOND_CANCELED(boost::system::errc::operation_canceled, boost::system::system_category()),
-                    ERRCOND_EOF(stdx::asio::error::eof, stdx::asio::error::misc_category);
 
             if (ec == ERRCOND_CANCELED || ec == ERRCOND_EOF) {
                 // don't spam the log with common (non-)errors that happen during normal operation

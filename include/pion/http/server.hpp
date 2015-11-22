@@ -237,7 +237,7 @@ protected:
      * @param ec error_code contains additional information for parsing errors
      */
     virtual void handle_request(const http::request_ptr& http_request_ptr,
-                                const tcp::connection_ptr& tcp_conn, const boost::system::error_code& ec);
+                                const tcp::connection_ptr& tcp_conn, const stdx::error_code& ec);
 
     /**
      * searches for the appropriate request handler to use for a given resource

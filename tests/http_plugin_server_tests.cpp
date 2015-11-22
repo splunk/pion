@@ -98,7 +98,7 @@ protected:
      * @param write_error error status from the last write operation
      * @param bytes_written number of bytes sent by the last write operation
      */
-    void handle_write(const boost::system::error_code& write_error,
+    void handle_write(const stdx::error_code& write_error,
                      std::size_t bytes_written);
 
 private:
@@ -154,7 +154,7 @@ void ChunkedPostRequestSender::send(void)
     }
 }
 
-void ChunkedPostRequestSender::handle_write(const boost::system::error_code& write_error,
+void ChunkedPostRequestSender::handle_write(const stdx::error_code& write_error,
                                            std::size_t bytes_written)
 {
     (void)bytes_written;
@@ -342,7 +342,7 @@ public:
     inline void checkSendAndReceiveMessages(pion::tcp::connection& tcp_conn) {
         // send valid request to the server
         http::request http_request("/hello");
-        boost::system::error_code error_code;
+        stdx::error_code error_code;
         http_request.send(tcp_conn, error_code);
         BOOST_REQUIRE(! error_code);
 
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponses) {
     // open a connection
     pion::tcp::connection tcp_conn(get_io_service());
     tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(! error_code);
     
@@ -412,7 +412,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponseLeftoverConnection) {
     // open a connection
     pion::tcp::connection tcp_conn(get_io_service());
     tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(! error_code);
     
@@ -444,7 +444,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
     // open a connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
     tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
@@ -548,7 +548,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
     // open a connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
     tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
     // open a connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
     tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
@@ -612,7 +612,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
     // open a connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
     tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
@@ -643,7 +643,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponsesUsingSSL) {
     // open a connection
     pion::tcp::connection tcp_conn(get_io_service(), true);
     tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(! error_code);
     error_code = tcp_conn.handshake_client();
@@ -661,7 +661,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponseLeftoverConnectionUsingS
     // open a connection
     pion::tcp::connection tcp_conn(get_io_service(), true);
     tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(! error_code);
     error_code = tcp_conn.handshake_client();
@@ -885,7 +885,7 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceFailure) {
     // open a connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
     tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
     
@@ -922,7 +922,7 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceLogin) {
     // open a connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
     tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
     
@@ -961,7 +961,7 @@ BOOST_AUTO_TEST_CASE(checkCookieAuthServiceFailure) {
     // open a connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
     tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
@@ -998,7 +998,7 @@ BOOST_AUTO_TEST_CASE(checkCookieAuthServiceLogin) {
     // open a login connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
     tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
@@ -1088,7 +1088,7 @@ public:
         http_response.set_do_not_send_content_length();
         
         // send the response headers
-        boost::system::error_code error_code;
+        stdx::error_code error_code;
         http_response.send(*tcp_conn, error_code);
         BOOST_REQUIRE(! error_code);
         
@@ -1121,7 +1121,7 @@ public:
     
     /// checks the validity of the HTTP response
     void checkResponse(http::response_ptr& http_response_ptr,
-        tcp::connection_ptr& /* conn_ptr */, const boost::system::error_code& /* ec */)
+        tcp::connection_ptr& /* conn_ptr */, const stdx::error_code& /* ec */)
     {
         checkResponse(*http_response_ptr);
         stdx::lock_guard<stdx::mutex> async_lock(m_mutex);
@@ -1151,7 +1151,7 @@ BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveSyncResponse) {
     
     // open a connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
@@ -1177,7 +1177,7 @@ BOOST_AUTO_TEST_CASE(checkSendContentWithoutLengthAndReceiveAsyncResponse) {
     
     // open a connection
     tcp::connection_ptr tcp_conn(new pion::tcp::connection(get_io_service()));
-    boost::system::error_code error_code;
+    stdx::error_code error_code;
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
     

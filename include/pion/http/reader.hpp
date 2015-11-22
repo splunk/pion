@@ -63,7 +63,7 @@ protected:
      * @param read_error error status from the last read operation
      * @param bytes_read number of bytes consumed by the last read operation
      */
-    void consume_bytes(const boost::system::error_code& read_error,
+    void consume_bytes(const stdx::error_code& read_error,
                       std::size_t bytes_read);
 
     /// Consumes bytes that have been read using an HTTP parser
@@ -73,7 +73,7 @@ protected:
     virtual void read_bytes(void) = 0;
 
     /// Called after we have finished reading/parsing the HTTP message
-    virtual void finished_reading(const boost::system::error_code& ec) = 0;
+    virtual void finished_reading(const stdx::error_code& ec) = 0;
 
     /// Returns a reference to the HTTP message being parsed
     virtual http::message& get_message(void) = 0;
@@ -89,7 +89,7 @@ private:
      *
      * @param read_error error status from the last read operation
      */
-    void handle_read_error(const boost::system::error_code& read_error);
+    void handle_read_error(const stdx::error_code& read_error);
 
 
     /// default maximum number of seconds for read operations

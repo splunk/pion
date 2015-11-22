@@ -56,7 +56,7 @@ private:
      *
      * @param ec deadline timer error status code
      */
-    void timer_callback(const boost::system::error_code& ec);
+    void timer_callback(const stdx::error_code& ec);
 
     /// pointer to the TCP connection that is being monitored
     tcp::connection_ptr                     m_conn_ptr;

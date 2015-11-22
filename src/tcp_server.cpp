@@ -197,7 +197,7 @@ void server::listen(void)
 }
 
 void server::handle_accept(const tcp::connection_ptr& tcp_conn,
-                             const boost::system::error_code& accept_error)
+                             const stdx::error_code& accept_error)
 {
     if (accept_error) {
         // an error occured while trying to a accept a new connection
@@ -230,7 +230,7 @@ void server::handle_accept(const tcp::connection_ptr& tcp_conn,
 }
 
 void server::handle_ssl_handshake(const tcp::connection_ptr& tcp_conn,
-                                   const boost::system::error_code& handshake_error)
+                                   const stdx::error_code& handshake_error)
 {
     if (handshake_error) {
         // an error occured while trying to establish the SSL connection

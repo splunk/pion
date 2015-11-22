@@ -284,7 +284,7 @@ protected:
 private:
     
     /// function called after an asynchronous operation has completed
-    inline void operation_finished(const boost::system::error_code& error_code,
+    inline void operation_finished(const stdx::error_code& error_code,
                                   std::size_t bytes_transferred)
     {
         stdx::lock_guard<stdx::mutex> async_lock(m_async_mutex);
@@ -304,7 +304,7 @@ private:
     stdx::condition_variable            m_async_done;
     
     /// used to keep track of the result from the last asynchronous operation
-    boost::system::error_code   m_async_error;
+    stdx::error_code   m_async_error;
     
     /// the number of bytes transferred by the last asynchronous operation
     std::size_t                 m_bytes_transferred;
@@ -377,13 +377,13 @@ public:
      * accepts a new tcp connection and performs SSL handshake if necessary
      *
      * @param tcp_acceptor object used to accept new connections
-     * @return boost::system::error_code contains error code if the connection fails
+     * @return stdx::error_code contains error code if the connection fails
      *
      * @see stdx::asio::basic_socket_acceptor::accept()
      */
-    inline boost::system::error_code accept(stdx::asio::ip::tcp::acceptor& tcp_acceptor)
+    inline stdx::error_code accept(stdx::asio::ip::tcp::acceptor& tcp_acceptor)
     {
-        boost::system::error_code ec = m_tcp_buf.get_connection().accept(tcp_acceptor);
+        stdx::error_code ec = m_tcp_buf.get_connection().accept(tcp_acceptor);
         if (! ec && get_ssl_flag()) ec = m_tcp_buf.get_connection().handshake_server();
         return ec;
     }
@@ -392,13 +392,13 @@ public:
      * connects to a remote endpoint and performs SSL handshake if necessary
      *
      * @param tcp_endpoint remote endpoint to connect to
-     * @return boost::system::error_code contains error code if the connection fails
+     * @return stdx::error_code contains error code if the connection fails
      *
      * @see stdx::asio::basic_socket_acceptor::connect()
      */
-    inline boost::system::error_code connect(stdx::asio::ip::tcp::endpoint& tcp_endpoint)
+    inline stdx::error_code connect(stdx::asio::ip::tcp::endpoint& tcp_endpoint)
     {
-        boost::system::error_code ec = m_tcp_buf.get_connection().connect(tcp_endpoint);
+        stdx::error_code ec = m_tcp_buf.get_connection().connect(tcp_endpoint);
         if (! ec && get_ssl_flag()) ec = m_tcp_buf.get_connection().handshake_client();
         return ec;
     }
@@ -408,15 +408,15 @@ public:
      *
      * @param remote_addr remote IP address (v4) to connect to
      * @param remote_port remote port number to connect to
-     * @return boost::system::error_code contains error code if the connection fails
+     * @return stdx::error_code contains error code if the connection fails
      *
      * @see stdx::asio::basic_socket_acceptor::connect()
      */
-    inline boost::system::error_code connect(const stdx::asio::ip::address& remote_addr,
+    inline stdx::error_code connect(const stdx::asio::ip::address& remote_addr,
                                              const unsigned int remote_port)
     {
         stdx::asio::ip::tcp::endpoint tcp_endpoint(remote_addr, remote_port);
-        boost::system::error_code ec = m_tcp_buf.get_connection().connect(tcp_endpoint);
+        stdx::error_code ec = m_tcp_buf.get_connection().connect(tcp_endpoint);
         if (! ec && get_ssl_flag()) ec = m_tcp_buf.get_connection().handshake_client();
         return ec;
     }

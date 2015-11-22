@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleRequest)
     request_parser.set_read_buffer((const char*)request_data_1, sizeof(request_data_1));
 
     http::request http_request;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
     BOOST_CHECK(!ec);
 
@@ -474,7 +474,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
     response_parser.set_read_buffer((const char*)response_data_1, sizeof(response_data_1));
 
     http::response http_response;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     BOOST_CHECK(response_parser.parse(http_response, ec));
     BOOST_CHECK(!ec);
 
@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserBadRequest)
     request_parser.set_read_buffer((const char*)request_data_bad, sizeof(request_data_bad));
 
     http::request http_request;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     BOOST_CHECK(!request_parser.parse(http_request, ec));
     BOOST_CHECK_EQUAL(ec.value(), http::parser::ERROR_VERSION_CHAR);
     BOOST_CHECK_EQUAL(ec.message(), "invalid version character");
@@ -505,7 +505,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithSmallerMaxSize)
     response_parser.set_max_content_length(4);
 
     http::response http_response;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     BOOST_CHECK(response_parser.parse(http_response, ec));
     BOOST_CHECK(!ec);
 
@@ -524,7 +524,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithZeroMaxSize)
     response_parser.set_max_content_length(0);
 
     http::response http_response;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     BOOST_CHECK(response_parser.parse(http_response, ec));
     BOOST_CHECK(!ec);
 
@@ -547,7 +547,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
 
     http::parser response_parser(false);
     http::response http_response;
-    boost::system::error_code ec;
+    stdx::error_code ec;
 
     stdx::uint64_t total_bytes = 0;
     for (int i=0; i <  frame_cnt - 1; i++ ) {
@@ -577,7 +577,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserWithSemicolons)
                                    sizeof(chunked_request_with_semicolon));
     
     http::request http_request;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
     BOOST_CHECK(!ec);
     
@@ -596,7 +596,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserWithFooters)
                                    sizeof(chunked_request_with_footers));
     
     http::request http_request;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
     BOOST_CHECK(!ec);
     
@@ -617,7 +617,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserWithErrorInFooters)
                                    sizeof(chunked_request_with_error_in_footers));
     
     http::request http_request;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     
     // The HTTP Packet does not contain any footer value associated with the footer key
     // This will lead to any error within the parse_headers() method
@@ -642,7 +642,7 @@ BOOST_AUTO_TEST_CASE(testHTTP_0_9_RequestParser)
     request_parser.set_read_buffer(request_str.c_str(), request_str.length());
     
     http::request http_request;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
 
     BOOST_CHECK(!ec);
@@ -659,7 +659,7 @@ BOOST_AUTO_TEST_CASE(testHTTP_0_9_ResponseParser)
     request_parser.set_read_buffer(request_str.c_str(), request_str.length());
     
     http::request http_request;
-    boost::system::error_code ec;
+    stdx::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
     BOOST_CHECK(!ec);
 

@@ -63,7 +63,7 @@ public:
 
         // schedule another thread to listen for a TCP connection
         tcp::stream listener_stream(m_scheduler.get_io_service());
-        boost::system::error_code ec = listener_stream.accept(tcp_acceptor);
+        stdx::error_code ec = listener_stream.accept(tcp_acceptor);
         tcp_acceptor.close();
         BOOST_REQUIRE(! ec);
         
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
 
     // connect to the listener
     tcp::stream client_str(m_scheduler.get_io_service());
-    boost::system::error_code ec;
+    stdx::error_code ec;
     ec = client_str.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);
     
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
 
     // connect to the listener
     tcp::stream client_str(m_scheduler.get_io_service());
-    boost::system::error_code ec;
+    stdx::error_code ec;
     ec = client_str.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);
     
