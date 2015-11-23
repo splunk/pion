@@ -60,6 +60,12 @@
    or uncomment the following line. */
 #cmakedefine PION_DISABLE_LOGGING ${PION_DISABLE_LOGGING}
 
+/* Define to 1 to use C++11 types rather than boost types */
+#cmakedefine PION_HAVE_CXX11 ${PION_HAVE_CXX11}
+
+/* Define to 1 to use the standalone ASIO library */
+#cmakedefine PION_HAVE_STANDALONE_ASIO ${PION_HAVE_STANDALONE_ASIO}
+
 // -----------------------------------------------------------------------
 
 /* Define to 1 if you have the `zlib' library. */
