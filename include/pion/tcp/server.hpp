@@ -12,7 +12,6 @@
 
 #include <set>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/scheduler.hpp>
@@ -20,6 +19,7 @@
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/mutex.hpp>
 #include <pion/stdx/condition_variable.hpp>
+#include <pion/stdx/memory.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -237,7 +237,7 @@ private:
 
 
 /// data type for a server pointer
-typedef boost::shared_ptr<server>    server_ptr;
+typedef stdx::shared_ptr<server>    server_ptr;
 
 
 }   // end namespace tcp

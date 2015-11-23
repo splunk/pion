@@ -9,7 +9,6 @@
 
 
 #include <pion/config.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
@@ -29,6 +28,7 @@
 #include <pion/stdx/mutex.hpp>
 #include <pion/stdx/condition_variable.hpp>
 #include <pion/stdx/functional.hpp>
+#include <pion/stdx/memory.hpp>
 
 
 using namespace std;
@@ -56,7 +56,7 @@ PION_DECLARE_PLUGIN(CookieService)
 
 /// generates chunked POST requests for testing purposes
 class ChunkedPostRequestSender : 
-    public boost::enable_shared_from_this<ChunkedPostRequestSender>,
+    public stdx::enable_shared_from_this<ChunkedPostRequestSender>,
     private boost::noncopyable
 {
 public:
@@ -66,10 +66,10 @@ public:
      * @param tcp_conn TCP connection used to send the file
      * @param resource
      */
-    static inline boost::shared_ptr<ChunkedPostRequestSender>
+    static inline stdx::shared_ptr<ChunkedPostRequestSender>
         create(const pion::tcp::connection_ptr& tcp_conn, const std::string& resource)
     {
-        return boost::shared_ptr<ChunkedPostRequestSender>(new ChunkedPostRequestSender(tcp_conn, resource));
+        return stdx::shared_ptr<ChunkedPostRequestSender>(new ChunkedPostRequestSender(tcp_conn, resource));
     }
     
     ~ChunkedPostRequestSender() {
@@ -552,7 +552,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
-    boost::shared_ptr<ChunkedPostRequestSender> sender = ChunkedPostRequestSender::create(tcp_conn, "/echo");
+    stdx::shared_ptr<ChunkedPostRequestSender> sender = ChunkedPostRequestSender::create(tcp_conn, "/echo");
     sender->addChunk(5, "klmno");
     sender->addChunk(4, "1234");
     sender->addChunk(10, "abcdefghij");
@@ -587,7 +587,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
-    boost::shared_ptr<ChunkedPostRequestSender> sender = ChunkedPostRequestSender::create(tcp_conn, "/echo");
+    stdx::shared_ptr<ChunkedPostRequestSender> sender = ChunkedPostRequestSender::create(tcp_conn, "/echo");
     sender->addChunk(10, "abcdefghij");
     sender->send();
 
@@ -616,7 +616,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
     error_code = tcp_conn->connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
-    boost::shared_ptr<ChunkedPostRequestSender> sender = ChunkedPostRequestSender::create(tcp_conn, "/echo");
+    stdx::shared_ptr<ChunkedPostRequestSender> sender = ChunkedPostRequestSender::create(tcp_conn, "/echo");
     sender->send();
 
     // receive the response from the server

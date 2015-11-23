@@ -12,10 +12,10 @@
 
 
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/spdy/types.hpp>
 #include <pion/stdx/cstdint.hpp>
+#include <pion/stdx/memory.hpp>
 #include <zlib.h>
 
 
@@ -86,7 +86,7 @@ private:
 };
     
 /// data type for a spdy reader pointer
-typedef boost::shared_ptr<decompressor>       decompressor_ptr;
+typedef stdx::shared_ptr<decompressor>       decompressor_ptr;
     
 }   // end namespace spdy
 }   // end namespace pion

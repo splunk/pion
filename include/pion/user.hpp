@@ -14,12 +14,12 @@
 #include <string>
 #include <cstdio>
 #include <cstring>
-#include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
 #include <pion/stdx/mutex.hpp>
+#include <pion/stdx/memory.hpp>
 
 #ifdef PION_HAVE_SSL
     #if defined(__APPLE__)
@@ -158,7 +158,7 @@ protected:
 };
 
 /// data type for a user  pointer
-typedef boost::shared_ptr<user> user_ptr;
+typedef stdx::shared_ptr<user> user_ptr;
 
 
 ///
@@ -315,7 +315,7 @@ protected:
 };
 
 /// data type for a user_manager pointer
-typedef boost::shared_ptr<user_manager>  user_manager_ptr;
+typedef stdx::shared_ptr<user_manager>  user_manager_ptr;
 
 
 }   // end namespace pion

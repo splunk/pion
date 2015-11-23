@@ -13,7 +13,6 @@
 #include <set>
 #include <map>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
 #include <pion/logger.hpp>
@@ -21,6 +20,7 @@
 #include <pion/tcp/connection.hpp>
 #include <pion/user.hpp>
 #include <pion/http/request.hpp>
+#include <pion/stdx/memory.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>    // order important, otherwise compiling error under win32
 
 
@@ -166,7 +166,7 @@ protected:
 };
 
 /// data type for a auth pointer
-typedef boost::shared_ptr<auth> auth_ptr;
+typedef stdx::shared_ptr<auth> auth_ptr;
 
 
 }   // end namespace http

@@ -11,6 +11,7 @@
 #include <zlib.h>
 #include <iostream>
 #include <fstream>
+#include <boost/assert.hpp>
 #include <pion/spdy/decompressor.hpp>
 
 

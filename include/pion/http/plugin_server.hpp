@@ -11,7 +11,6 @@
 #define __PION_PLUGIN_SERVER_HEADER__
 
 #include <string>
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/plugin.hpp>
 #include <pion/plugin_manager.hpp>
@@ -19,6 +18,7 @@
 #include <pion/http/plugin_service.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/functional.hpp>
+#include <pion/stdx/memory.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -159,7 +159,7 @@ private:
 
 
 /// data type for a web server pointer
-typedef boost::shared_ptr<plugin_server>        plugin_server_ptr;
+typedef stdx::shared_ptr<plugin_server>        plugin_server_ptr;
 
 
 }   // end namespace http

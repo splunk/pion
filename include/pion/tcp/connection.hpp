@@ -11,14 +11,13 @@
 #define __PION_TCP_CONNECTION_HEADER__
 
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/array.hpp>
 #include <pion/config.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/functional.hpp>
 #include <pion/stdx/system_error.hpp>
+#include <pion/stdx/memory.hpp>
 #include <string>
 
 
@@ -30,7 +29,7 @@ namespace tcp {     // begin namespace tcp
 /// connection: represents a single tcp connection
 /// 
 class connection :
-    public boost::enable_shared_from_this<connection>,
+    public stdx::enable_shared_from_this<connection>,
     private boost::noncopyable
 {
 public:
@@ -44,7 +43,7 @@ public:
     enum { READ_BUFFER_SIZE = 8192 };
     
     /// data type for a function that handles TCP connection objects
-    typedef stdx::function<void(boost::shared_ptr<connection>)>   connection_handler;
+    typedef stdx::function<void(stdx::shared_ptr<connection>)>   connection_handler;
     
     /// data type for an I/O read buffer
     typedef boost::array<char, READ_BUFFER_SIZE>    read_buffer_type;
@@ -83,12 +82,12 @@ public:
      * @param finished_handler function called when a server has finished
      *                         handling the connection
      */
-    static inline boost::shared_ptr<connection> create(stdx::asio::io_service& io_service,
+    static inline stdx::shared_ptr<connection> create(stdx::asio::io_service& io_service,
                                                           ssl_context_type& ssl_context,
                                                           const bool ssl_flag,
                                                           connection_handler finished_handler)
     {
-        return boost::shared_ptr<connection>(new connection(io_service, ssl_context,
+        return stdx::shared_ptr<connection>(new connection(io_service, ssl_context,
                                                                   ssl_flag, finished_handler));
     }
     
@@ -727,7 +726,7 @@ private:
 
 
 /// data type for a connection pointer
-typedef boost::shared_ptr<connection>    connection_ptr;
+typedef stdx::shared_ptr<connection>    connection_ptr;
 
 
 }   // end namespace tcp

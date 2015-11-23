@@ -12,7 +12,6 @@
 
 #include <vector>
 #include <boost/assert.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/xtime.hpp>
 #include <pion/config.hpp>
@@ -23,6 +22,7 @@
 #include <pion/stdx/condition_variable.hpp>
 #include <pion/stdx/thread.hpp>
 #include <pion/stdx/functional.hpp>
+#include <pion/stdx/memory.hpp>
 
 namespace pion {    // begin namespace pion
 
@@ -248,7 +248,7 @@ protected:
 
     
     /// typedef for a pool of worker threads
-    typedef std::vector<boost::shared_ptr<stdx::thread> >  ThreadPool;
+    typedef std::vector<stdx::shared_ptr<stdx::thread> >  ThreadPool;
     
     
     /// pool of threads used to perform work
@@ -316,7 +316,7 @@ public:
     virtual stdx::asio::io_service& get_io_service(void) {
         stdx::lock_guard<stdx::mutex> scheduler_lock(m_mutex);
         while (m_service_pool.size() < m_num_threads) {
-            boost::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
+            stdx::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
             m_service_pool.push_back(service_ptr);
         }
         if (++m_next_service >= m_num_threads)
@@ -362,7 +362,7 @@ protected:
     };
     
     /// typedef for a pool of IO services
-    typedef std::vector<boost::shared_ptr<service_pair_type> >        service_pool_type;
+    typedef std::vector<stdx::shared_ptr<service_pair_type> >        service_pool_type;
 
     
     /// pool of IO services used to schedule work

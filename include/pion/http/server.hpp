@@ -12,7 +12,6 @@
 
 #include <map>
 #include <string>
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/server.hpp>
 #include <pion/tcp/connection.hpp>
@@ -22,6 +21,7 @@
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/mutex.hpp>
 #include <pion/stdx/functional.hpp>
+#include <pion/stdx/memory.hpp>
 
 namespace pion {    // begin namespace pion
 namespace http {    // begin namespace http
@@ -288,7 +288,7 @@ private:
 
 
 /// data type for a HTTP server pointer
-typedef boost::shared_ptr<server>	server_ptr;
+typedef stdx::shared_ptr<server>	server_ptr;
 
 
 }   // end namespace http

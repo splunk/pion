@@ -135,7 +135,7 @@ void single_service_scheduler::startup(void)
         
         // start multiple threads to handle async tasks
         for (stdx::uint32_t n = 0; n < m_num_threads; ++n) {
-            boost::shared_ptr<stdx::thread> new_thread(new stdx::thread( stdx::bind(&scheduler::process_service_work,
+            stdx::shared_ptr<stdx::thread> new_thread(new stdx::thread( stdx::bind(&scheduler::process_service_work,
                                                                                        this, stdx::ref(m_service)) ));
             m_thread_pool.push_back(new_thread);
         }
@@ -156,7 +156,7 @@ void one_to_one_scheduler::startup(void)
         
         // make sure there are enough services initialized
         while (m_service_pool.size() < m_num_threads) {
-            boost::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
+            stdx::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
             m_service_pool.push_back(service_ptr);
         }
 
@@ -167,7 +167,7 @@ void one_to_one_scheduler::startup(void)
         
         // start multiple threads to handle async tasks
         for (stdx::uint32_t n = 0; n < m_num_threads; ++n) {
-            boost::shared_ptr<stdx::thread> new_thread(new stdx::thread( stdx::bind(&scheduler::process_service_work,
+            stdx::shared_ptr<stdx::thread> new_thread(new stdx::thread( stdx::bind(&scheduler::process_service_work,
                                                                                        this, stdx::ref(m_service_pool[n]->first)) ));
             m_thread_pool.push_back(new_thread);
         }

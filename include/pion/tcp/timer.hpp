@@ -10,14 +10,13 @@
 #ifndef __PION_TCP_TIMER_HEADER__
 #define __PION_TCP_TIMER_HEADER__
 
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/stdx/cstdint.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/mutex.hpp>
 #include <pion/stdx/functional.hpp>
+#include <pion/stdx/memory.hpp>
 
 namespace pion {    // begin namespace pion
 namespace tcp {     // begin namespace tcp
@@ -27,7 +26,7 @@ namespace tcp {     // begin namespace tcp
 /// timer: helper class used to time-out TCP connections
 ///
 class PION_API timer
-    : public boost::enable_shared_from_this<timer>
+    : public stdx::enable_shared_from_this<timer>
 {
 public:
 
@@ -76,7 +75,7 @@ private:
 
 
 /// shared pointer to a timer object
-typedef boost::shared_ptr<timer>     timer_ptr;
+typedef stdx::shared_ptr<timer>     timer_ptr;
 
 
 }   // end namespace tcp

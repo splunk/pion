@@ -10,13 +10,12 @@
 #ifndef __PION_HTTP_RESPONSE_READER_HEADER__
 #define __PION_HTTP_RESPONSE_READER_HEADER__
 
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <pion/config.hpp>
 #include <pion/http/response.hpp>
 #include <pion/http/reader.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/functional.hpp>
+#include <pion/stdx/memory.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -28,7 +27,7 @@ namespace http {    // begin namespace http
 ///
 class response_reader :
     public http::reader,
-    public boost::enable_shared_from_this<response_reader>
+    public stdx::enable_shared_from_this<response_reader>
 {
 
 public:
@@ -48,11 +47,11 @@ public:
      * @param http_request the request we are responding to
      * @param handler function called after the message has been parsed
      */
-    static inline boost::shared_ptr<response_reader>
+    static inline stdx::shared_ptr<response_reader>
         create(const tcp::connection_ptr& tcp_conn, const http::request& http_request,
                finished_handler_t handler)
     {
-        return boost::shared_ptr<response_reader>
+        return stdx::shared_ptr<response_reader>
             (new response_reader(tcp_conn, http_request, handler));
     }
 
@@ -114,7 +113,7 @@ protected:
 
 
 /// data type for a response_reader pointer
-typedef boost::shared_ptr<response_reader>   response_reader_ptr;
+typedef stdx::shared_ptr<response_reader>   response_reader_ptr;
 
 
 }   // end namespace http

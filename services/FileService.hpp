@@ -10,7 +10,6 @@
 #ifndef __PION_FILESERVICE_HEADER__
 #define __PION_FILESERVICE_HEADER__
 
-#include <boost/shared_ptr.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/thread/once.hpp>
@@ -23,6 +22,7 @@
 #include <pion/http/response_writer.hpp>
 #include <pion/http/server.hpp>
 #include <pion/stdx/mutex.hpp>
+#include <pion/stdx/memory.hpp>
 #include <string>
 #include <map>
 
@@ -131,7 +131,7 @@ protected:
 /// DiskFileSender: class used to send files to clients using HTTP responses
 /// 
 class DiskFileSender : 
-    public boost::enable_shared_from_this<DiskFileSender>,
+    public stdx::enable_shared_from_this<DiskFileSender>,
     private boost::noncopyable
 {
 public:
@@ -143,13 +143,13 @@ public:
      * @param tcp_conn TCP connection used to send the file
      * @param max_chunk_size sets the maximum chunk size (default=0, unlimited)
      */
-    static inline boost::shared_ptr<DiskFileSender>
+    static inline stdx::shared_ptr<DiskFileSender>
         create(DiskFile& file,
                const pion::http::request_ptr& http_request_ptr,
                const pion::tcp::connection_ptr& tcp_conn,
                unsigned long max_chunk_size = 0) 
     {
-        return boost::shared_ptr<DiskFileSender>(new DiskFileSender(file, http_request_ptr,
+        return stdx::shared_ptr<DiskFileSender>(new DiskFileSender(file, http_request_ptr,
                                                                     tcp_conn, max_chunk_size));
     }
 
@@ -226,7 +226,7 @@ private:
 };
 
 /// data type for a DiskFileSender pointer
-typedef boost::shared_ptr<DiskFileSender>       DiskFileSenderPtr;
+typedef stdx::shared_ptr<DiskFileSender>       DiskFileSenderPtr;
 
 
 ///

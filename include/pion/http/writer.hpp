@@ -12,7 +12,6 @@
 
 #include <vector>
 #include <string>
-#include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
@@ -20,6 +19,7 @@
 #include <pion/http/message.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/functional.hpp>
+#include <pion/stdx/memory.hpp>
 
 namespace pion {    // begin namespace pion
 namespace http {    // begin namespace http
@@ -360,7 +360,7 @@ private:
 
 
 /// data type for a writer pointer
-typedef boost::shared_ptr<writer>   writer_ptr;
+typedef stdx::shared_ptr<writer>   writer_ptr;
 
 
 /// override operator<< for convenience

@@ -306,12 +306,12 @@ public:
     ~MockSyncServerTests_F() {
         m_sync_server_ptr->stop();
     }
-    inline boost::shared_ptr<MockSyncServer>& getServerPtr(void) { return m_sync_server_ptr; }
+    inline stdx::shared_ptr<MockSyncServer>& getServerPtr(void) { return m_sync_server_ptr; }
     inline stdx::asio::io_service& get_io_service(void) { return m_scheduler.get_io_service(); }
 
 private:
     single_service_scheduler          m_scheduler;
-    boost::shared_ptr<MockSyncServer>   m_sync_server_ptr;
+    stdx::shared_ptr<MockSyncServer>   m_sync_server_ptr;
 };
 
 

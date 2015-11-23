@@ -11,7 +11,6 @@
 #define __PION_SPDYPARSER_HEADER__
 
 
-#include <boost/shared_ptr.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/thread/once.hpp>
 #include <pion/config.hpp>
@@ -19,6 +18,7 @@
 #include <pion/spdy/types.hpp>
 #include <pion/spdy/decompressor.hpp>
 #include <pion/stdx/system_error.hpp>
+#include <pion/stdx/memory.hpp>
 
 #ifndef BOOST_SYSTEM_NOEXCEPT
     #ifndef BOOST_NOEXCEPT
@@ -247,7 +247,7 @@ private:
 };
 
 /// data type for a spdy reader pointer
-typedef boost::shared_ptr<parser>       parser_ptr;
+typedef stdx::shared_ptr<parser>       parser_ptr;
         
         
 }   // end namespace spdy

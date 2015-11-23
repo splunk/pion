@@ -11,14 +11,13 @@
 #define __PION_HTTP_RESPONSE_WRITER_HEADER__
 
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <pion/config.hpp>
 #include <pion/http/writer.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/response.hpp>
 #include <pion/stdx/asio.hpp>
 #include <pion/stdx/functional.hpp>
+#include <pion/stdx/memory.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -30,7 +29,7 @@ namespace http {    // begin namespace http
 /// 
 class PION_API response_writer :
     public http::writer,
-    public boost::enable_shared_from_this<response_writer>
+    public stdx::enable_shared_from_this<response_writer>
 {
 public:
     
@@ -44,14 +43,14 @@ public:
      * @param http_response pointer to the response that will be sent
      * @param handler function called after the response has been sent
      * 
-     * @return boost::shared_ptr<response_writer> shared pointer to
+     * @return stdx::shared_ptr<response_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<response_writer> create(const tcp::connection_ptr& tcp_conn,
+    static inline stdx::shared_ptr<response_writer> create(const tcp::connection_ptr& tcp_conn,
                                                             const http::response_ptr& http_response_ptr,
                                                             finished_handler_t handler = finished_handler_t())
     {
-        return boost::shared_ptr<response_writer>(new response_writer(tcp_conn, http_response_ptr, handler));
+        return stdx::shared_ptr<response_writer>(new response_writer(tcp_conn, http_response_ptr, handler));
     }
 
     /**
@@ -61,14 +60,14 @@ public:
      * @param http_request the request we are responding to
      * @param handler function called after the request has been sent
      * 
-     * @return boost::shared_ptr<response_writer> shared pointer to
+     * @return stdx::shared_ptr<response_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<response_writer> create(const tcp::connection_ptr& tcp_conn,
+    static inline stdx::shared_ptr<response_writer> create(const tcp::connection_ptr& tcp_conn,
                                                             const http::request& http_request,
                                                             finished_handler_t handler = finished_handler_t())
     {
-        return boost::shared_ptr<response_writer>(new response_writer(tcp_conn, http_request, handler));
+        return stdx::shared_ptr<response_writer>(new response_writer(tcp_conn, http_request, handler));
     }
     
     /// returns a non-const reference to the response that will be sent
@@ -174,7 +173,7 @@ private:
 
 
 /// data type for a response_writer pointer
-typedef boost::shared_ptr<response_writer>   response_writer_ptr;
+typedef stdx::shared_ptr<response_writer>   response_writer_ptr;
 
 
 /// override operator<< for convenience
