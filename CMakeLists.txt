@@ -60,6 +60,9 @@ option(USE_LOG4CXX "Use log4cxx" OFF)
 option(USE_LOG4CPP "Use log4cpp" OFF)
 option(DISABLE_LOGGING "Disable logging" ON)
 
+# ASIO
+option(USE_STANDALONE_ASIO "Use ASIO in standalone mode" OFF)
+
 #----------------------------------------------------------
 
 # cleanup prefix lib for Unix-like OSes
@@ -136,6 +139,11 @@ endif()
 
 if (DISABLE_LOGGING)
     set(PION_DISABLE_LOGGING 1)
+endif()
+
+if (USE_STANDALONE_ASIO)
+    set(PION_HAVE_CXX11 1)
+    set(PION_HAVE_STANDALONE_ASIO 1)
 endif()
 
 find_package(Doxygen)

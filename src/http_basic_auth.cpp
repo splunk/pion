@@ -41,7 +41,7 @@ bool basic_auth::handle_request(const http::request_ptr& http_request_ptr, const
     boost::posix_time::ptime time_now(boost::posix_time::second_clock::universal_time());
     if (time_now > m_cache_cleanup_time + boost::posix_time::seconds(CACHE_EXPIRATION)) {
         // expire cache
-        boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+        stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
         user_cache_type::iterator i;
         user_cache_type::iterator next=m_user_cache.begin();
         while (next!=m_user_cache.end()) {
@@ -61,7 +61,7 @@ bool basic_auth::handle_request(const http::request_ptr& http_request_ptr, const
         std::string credentials;
         if (parse_authorization(authorization, credentials)) {
             // to do - use fast cache to match with active credentials
-            boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+            stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
             user_cache_type::iterator user_cache_ptr=m_user_cache.find(credentials);
             if (user_cache_ptr!=m_user_cache.end()) {
                 // we found the credentials in our cache...
@@ -145,7 +145,7 @@ void basic_auth::handle_unauthorized(const http::request_ptr& http_request_ptr,
         "<BODY><H1>401 Unauthorized.</H1></BODY>"
         "</HTML> ";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                                                   boost::bind(&tcp::connection::finish, tcp_conn)));
+                                                                   stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_UNAUTHORIZED);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_UNAUTHORIZED);
     writer->get_response().add_header("WWW-Authenticate", "Basic realm=\"" + m_realm + "\"");

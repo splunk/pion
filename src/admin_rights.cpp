@@ -25,8 +25,8 @@ namespace pion {    // begin namespace pion
 
 // static members of admin_rights
 
-const boost::int16_t    admin_rights::ADMIN_USER_ID = 0;
-boost::mutex            admin_rights::m_mutex;
+const stdx::int16_t    admin_rights::ADMIN_USER_ID = 0;
+stdx::mutex            admin_rights::m_mutex;
 
 
 // admin_rights member functions
@@ -121,7 +121,7 @@ long admin_rights::find_system_id(const std::string& name,
     // check if name is the system id
     const boost::regex just_numbers("\\d+");
     if (boost::regex_match(name, just_numbers)) {
-        return boost::lexical_cast<boost::int32_t>(name);
+        return boost::lexical_cast<stdx::int32_t>(name);
     }
 
     // open system file
@@ -134,7 +134,7 @@ long admin_rights::find_system_id(const std::string& name,
     typedef boost::tokenizer<boost::char_separator<char> > Tok;
     boost::char_separator<char> sep(":");
     std::string line;
-    boost::int32_t system_id = -1;
+    stdx::int32_t system_id = -1;
 
     while (std::getline(system_file, line, '\n')) {
         Tok tokens(line, sep);
@@ -145,7 +145,7 @@ long admin_rights::find_system_id(const std::string& name,
                 && boost::regex_match(*token_it, just_numbers))
             {
                 // found id as third parameter
-                system_id = boost::lexical_cast<boost::int32_t>(*token_it);
+                system_id = boost::lexical_cast<stdx::int32_t>(*token_it);
             }
             break;
         }

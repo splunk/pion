@@ -9,10 +9,10 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
 #include <pion/plugin.hpp>
+#include <pion/stdx/mutex.hpp>
 
 #ifdef PION_WIN32
     #include <windows.h>
@@ -66,7 +66,7 @@ void plugin::add_plugin_directory(const std::string& dir)
     if (! boost::filesystem::exists(plugin_path) )
         BOOST_THROW_EXCEPTION( error::directory_not_found() << error::errinfo_dir_name(dir) );
     config_type& cfg = get_plugin_config();
-    boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
+    stdx::lock_guard<stdx::mutex> plugin_lock(cfg.m_plugin_mutex);
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
     cfg.m_plugin_dirs.push_back(plugin_path.string());
 #else
@@ -78,7 +78,7 @@ void plugin::add_plugin_directory(const std::string& dir)
 void plugin::reset_plugin_directories(void)
 {
     config_type& cfg = get_plugin_config();
-    boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
+    stdx::lock_guard<stdx::mutex> plugin_lock(cfg.m_plugin_mutex);
     cfg.m_plugin_dirs.clear();
 }
 
@@ -87,7 +87,7 @@ void plugin::open(const std::string& plugin_name)
     // check first if name matches an existing plugin name
     {
         config_type& cfg = get_plugin_config();
-        boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
+        stdx::lock_guard<stdx::mutex> plugin_lock(cfg.m_plugin_mutex);
         map_type::iterator itr = cfg.m_plugin_map.find(plugin_name);
         if (itr != cfg.m_plugin_map.end()) {
             release_data();  // make sure we're not already pointing to something
@@ -115,7 +115,7 @@ void plugin::open_file(const std::string& plugin_file)
     
     // check to see if we already have a matching shared library
     config_type& cfg = get_plugin_config();
-    boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
+    stdx::lock_guard<stdx::mutex> plugin_lock(cfg.m_plugin_mutex);
     map_type::iterator itr = cfg.m_plugin_map.find(plugin_data.m_plugin_name);
     if (itr == cfg.m_plugin_map.end()) {
         // no plug-ins found with the same name
@@ -140,7 +140,7 @@ void plugin::release_data(void)
 {
     if (m_plugin_data != NULL) {
         config_type& cfg = get_plugin_config();
-        boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
+        stdx::lock_guard<stdx::mutex> plugin_lock(cfg.m_plugin_mutex);
         // double-check after locking mutex
         if (m_plugin_data != NULL && --m_plugin_data->m_references == 0) {
             // no more references to the plug-in library
@@ -169,7 +169,7 @@ void plugin::grab_data(const plugin& p)
 {
     release_data();  // make sure we're not already pointing to something
     config_type& cfg = get_plugin_config();
-    boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
+    stdx::lock_guard<stdx::mutex> plugin_lock(cfg.m_plugin_mutex);
     m_plugin_data = const_cast<data_type*>(p.m_plugin_data);
     if (m_plugin_data != NULL) {
         ++ m_plugin_data->m_references;
@@ -185,7 +185,7 @@ bool plugin::find_file(std::string& path_to_file, const std::string& name,
 
     // nope, check search paths
     config_type& cfg = get_plugin_config();
-    boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
+    stdx::lock_guard<stdx::mutex> plugin_lock(cfg.m_plugin_mutex);
     for (std::vector<std::string>::iterator i = cfg.m_plugin_dirs.begin();
          i != cfg.m_plugin_dirs.end(); ++i)
     {
@@ -310,7 +310,7 @@ void plugin::get_all_plugin_names(std::vector<std::string>& plugin_names)
     // Iterate through all the Plugin directories.
     std::vector<std::string>::iterator it;
     config_type& cfg = get_plugin_config();
-    boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
+    stdx::lock_guard<stdx::mutex> plugin_lock(cfg.m_plugin_mutex);
     for (it = cfg.m_plugin_dirs.begin(); it != cfg.m_plugin_dirs.end(); ++it) {
         // Find all shared libraries in the directory and add them to the list of Plugin names.
         boost::filesystem::directory_iterator end;
@@ -397,7 +397,7 @@ void plugin::add_static_entry_point(const std::string& plugin_name,
 {
     // check for duplicate
     config_type& cfg = get_plugin_config();
-    boost::mutex::scoped_lock plugin_lock(cfg.m_plugin_mutex);
+    stdx::lock_guard<stdx::mutex> plugin_lock(cfg.m_plugin_mutex);
     map_type::iterator itr = cfg.m_plugin_map.find(plugin_name);
     if (itr == cfg.m_plugin_map.end()) {
         // no plug-ins found with the same name

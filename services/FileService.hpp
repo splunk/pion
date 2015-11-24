@@ -10,11 +10,9 @@
 #ifndef __PION_FILESERVICE_HEADER__
 #define __PION_FILESERVICE_HEADER__
 
-#include <boost/shared_ptr.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/thread/once.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/shared_array.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
@@ -23,6 +21,8 @@
 #include <pion/http/request.hpp>
 #include <pion/http/response_writer.hpp>
 #include <pion/http/server.hpp>
+#include <pion/stdx/mutex.hpp>
+#include <pion/stdx/memory.hpp>
 #include <string>
 #include <map>
 
@@ -131,7 +131,7 @@ protected:
 /// DiskFileSender: class used to send files to clients using HTTP responses
 /// 
 class DiskFileSender : 
-    public boost::enable_shared_from_this<DiskFileSender>,
+    public stdx::enable_shared_from_this<DiskFileSender>,
     private boost::noncopyable
 {
 public:
@@ -143,13 +143,13 @@ public:
      * @param tcp_conn TCP connection used to send the file
      * @param max_chunk_size sets the maximum chunk size (default=0, unlimited)
      */
-    static inline boost::shared_ptr<DiskFileSender>
+    static inline stdx::shared_ptr<DiskFileSender>
         create(DiskFile& file,
                const pion::http::request_ptr& http_request_ptr,
                const pion::tcp::connection_ptr& tcp_conn,
                unsigned long max_chunk_size = 0) 
     {
-        return boost::shared_ptr<DiskFileSender>(new DiskFileSender(file, http_request_ptr,
+        return stdx::shared_ptr<DiskFileSender>(new DiskFileSender(file, http_request_ptr,
                                                                     tcp_conn, max_chunk_size));
     }
 
@@ -189,7 +189,7 @@ protected:
      * @param write_error error status from the last write operation
      * @param bytes_written number of bytes sent by the last write operation
      */
-    void handle_write(const boost::system::error_code& write_error,
+    void handle_write(const stdx::error_code& write_error,
                      std::size_t bytes_written);
 
 
@@ -226,7 +226,7 @@ private:
 };
 
 /// data type for a DiskFileSender pointer
-typedef boost::shared_ptr<DiskFileSender>       DiskFileSenderPtr;
+typedef stdx::shared_ptr<DiskFileSender>       DiskFileSenderPtr;
 
 
 ///
@@ -353,7 +353,7 @@ private:
     CacheMap                    m_cache_map;
 
     /// mutex used to make the file cache thread-safe
-    boost::mutex                m_cache_mutex;
+    stdx::mutex                m_cache_mutex;
 
     /**
      * cache configuration setting:

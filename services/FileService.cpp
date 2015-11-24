@@ -7,8 +7,6 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
 #include <boost/assert.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -21,6 +19,8 @@
 #include <pion/plugin.hpp>
 #include <pion/algorithm.hpp>
 #include <pion/http/response_writer.hpp>
+#include <pion/stdx/asio.hpp>
+#include <pion/stdx/functional.hpp>
 
 using namespace pion;
 
@@ -168,7 +168,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
             " is not in the configured directory.</p>\n"
             "</body></html>\n";
         http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                     boost::bind(&tcp::connection::finish, tcp_conn)));
+                                     stdx::bind(&tcp::connection::finish, tcp_conn)));
         writer->get_response().set_status_code(http::types::RESPONSE_CODE_FORBIDDEN);
         writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_FORBIDDEN);
         if (http_request_ptr->get_method() != http::types::REQUEST_METHOD_HEAD) {
@@ -194,7 +194,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
             " is a directory.</p>\n"
             "</body></html>\n";
         http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                     boost::bind(&tcp::connection::finish, tcp_conn)));
+                                     stdx::bind(&tcp::connection::finish, tcp_conn)));
         writer->get_response().set_status_code(http::types::RESPONSE_CODE_FORBIDDEN);
         writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_FORBIDDEN);
         if (http_request_ptr->get_method() != http::types::REQUEST_METHOD_HEAD) {
@@ -229,7 +229,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
         if (m_cache_setting > 0 || m_scan_setting > 0) {
 
             // search for a matching cache entry
-            boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+            stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
             CacheMap::iterator cache_itr = m_cache_map.find(relative_path);
 
             if (cache_itr == m_cache_map.end()) {
@@ -366,7 +366,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
                     // add new entry to the cache
                     PION_LOG_DEBUG(m_logger, "Adding cache entry for request ("
                                    << get_resource() << "): " << relative_path);
-                    boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+                    stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
                     m_cache_map.insert( std::make_pair(relative_path, response_file) );
                 }
             }
@@ -385,7 +385,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
 
             // prepare a response and set the Content-Type
             http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                         boost::bind(&tcp::connection::finish, tcp_conn)));
+                                         stdx::bind(&tcp::connection::finish, tcp_conn)));
             writer->get_response().set_content_type(response_file.getMimeType());
 
             // set Last-Modified header to enable client-side caching
@@ -430,7 +430,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
                 " is not allowed on this server.</p>\n"
                 "</body></html>\n";
             http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                         boost::bind(&tcp::connection::finish, tcp_conn)));
+                                         stdx::bind(&tcp::connection::finish, tcp_conn)));
             writer->get_response().set_status_code(http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
             writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
             writer->write_no_copy(NOT_ALLOWED_HTML_START);
@@ -440,7 +440,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
             writer->send();
         } else {
             http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                         boost::bind(&tcp::connection::finish, tcp_conn)));
+                                         stdx::bind(&tcp::connection::finish, tcp_conn)));
             if (http_request_ptr->get_method() == http::types::REQUEST_METHOD_POST
                 || http_request_ptr->get_method() == http::types::REQUEST_METHOD_PUT)
             {
@@ -555,7 +555,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
             " is not implemented on this server.</p>\n"
             "</body></html>\n";
         http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                     boost::bind(&tcp::connection::finish, tcp_conn)));
+                                     stdx::bind(&tcp::connection::finish, tcp_conn)));
         writer->get_response().set_status_code(http::types::RESPONSE_CODE_NOT_IMPLEMENTED);
         writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NOT_IMPLEMENTED);
         writer->write_no_copy(NOT_IMPLEMENTED_HTML_START);
@@ -578,7 +578,7 @@ void FileService::sendNotFoundResponse(const http::request_ptr& http_request_ptr
         " was not found on this server.</p>\n"
         "</body></html>\n";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                 boost::bind(&tcp::connection::finish, tcp_conn)));
+                                 stdx::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_NOT_FOUND);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_NOT_FOUND);
     if (http_request_ptr->get_method() != http::types::REQUEST_METHOD_HEAD) {
@@ -599,7 +599,7 @@ void FileService::start(void)
         if (m_cache_setting == 0 && m_scan_setting > 1)
             m_cache_setting = 1;
 
-        boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+        stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
 
         // add entry for file if one is defined
         if (! m_file.empty()) {
@@ -618,7 +618,7 @@ void FileService::stop(void)
 {
     PION_LOG_DEBUG(m_logger, "Shutting down resource (" << get_resource() << ')');
     // clear cached files (if started again, it will re-scan)
-    boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+    stdx::lock_guard<stdx::mutex> cache_lock(m_cache_mutex);
     m_cache_map.clear();
 }
 
@@ -814,7 +814,7 @@ DiskFileSender::DiskFileSender(DiskFile& file, const pion::http::request_ptr& ht
                                const pion::tcp::connection_ptr& tcp_conn,
                                unsigned long max_chunk_size)
     : m_logger(PION_GET_LOGGER("pion.FileService.DiskFileSender")), m_disk_file(file),
-    m_writer(pion::http::response_writer::create(tcp_conn, *http_request_ptr, boost::bind(&tcp::connection::finish, tcp_conn))),
+    m_writer(pion::http::response_writer::create(tcp_conn, *http_request_ptr, stdx::bind(&tcp::connection::finish, tcp_conn))),
     m_max_chunk_size(max_chunk_size), m_file_bytes_to_send(0), m_bytes_sent(0)
 {
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
@@ -916,27 +916,27 @@ void DiskFileSender::send(void)
         // this is the last piece of data to send
         if (m_bytes_sent > 0) {
             // send last chunk in a series
-            m_writer->send_final_chunk(boost::bind(&DiskFileSender::handle_write,
+            m_writer->send_final_chunk(stdx::bind(&DiskFileSender::handle_write,
                                                  shared_from_this(),
-                                                 boost::asio::placeholders::error,
-                                                 boost::asio::placeholders::bytes_transferred));
+                                                 stdx::asio::placeholders::error,
+                                                 stdx::asio::placeholders::bytes_transferred));
         } else {
             // sending entire file at once
-            m_writer->send(boost::bind(&DiskFileSender::handle_write,
+            m_writer->send(stdx::bind(&DiskFileSender::handle_write,
                                        shared_from_this(),
-                                       boost::asio::placeholders::error,
-                                       boost::asio::placeholders::bytes_transferred));
+                                       stdx::asio::placeholders::error,
+                                       stdx::asio::placeholders::bytes_transferred));
         }
     } else {
         // there will be more data -> send a chunk
-        m_writer->send_chunk(boost::bind(&DiskFileSender::handle_write,
+        m_writer->send_chunk(stdx::bind(&DiskFileSender::handle_write,
                                         shared_from_this(),
-                                        boost::asio::placeholders::error,
-                                        boost::asio::placeholders::bytes_transferred));
+                                        stdx::asio::placeholders::error,
+                                        stdx::asio::placeholders::bytes_transferred));
     }
 }
 
-void DiskFileSender::handle_write(const boost::system::error_code& write_error,
+void DiskFileSender::handle_write(const stdx::error_code& write_error,
                                  std::size_t /* bytes_written */)
 {
     bool finished_sending = true;

@@ -11,14 +11,14 @@
 #define __PION_PLUGIN_SERVER_HEADER__
 
 #include <string>
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/plugin.hpp>
 #include <pion/plugin_manager.hpp>
 #include <pion/http/server.hpp>
 #include <pion/http/plugin_service.hpp>
+#include <pion/stdx/asio.hpp>
+#include <pion/stdx/functional.hpp>
+#include <pion/stdx/memory.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -53,7 +53,7 @@ public:
      * 
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    explicit plugin_server(const boost::asio::ip::tcp::endpoint& endpoint)
+    explicit plugin_server(const stdx::asio::ip::tcp::endpoint& endpoint)
         : http::server(endpoint)
     { 
         set_logger(PION_GET_LOGGER("pion.http.plugin_server"));
@@ -77,7 +77,7 @@ public:
      * @param sched the scheduler that will be used to manage worker threads
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    plugin_server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint)
+    plugin_server(scheduler& sched, const stdx::asio::ip::tcp::endpoint& endpoint)
         : http::server(sched, endpoint)
     { 
         set_logger(PION_GET_LOGGER("pion.http.plugin_server"));
@@ -137,13 +137,13 @@ protected:
     /// called before the TCP server starts listening for new connections
     virtual void before_starting(void) {
         // call the start() method for each web service associated with this server
-        m_services.run(boost::bind(&http::plugin_service::start, _1));
+        m_services.run(stdx::bind(&http::plugin_service::start, stdx::placeholders::_1));
     }
     
     /// called after the TCP server has stopped listening for new connections
     virtual void after_stopping(void) {
         // call the stop() method for each web service associated with this server
-        m_services.run(boost::bind(&http::plugin_service::stop, _1));
+        m_services.run(stdx::bind(&http::plugin_service::stop, stdx::placeholders::_1));
     }
 
     
@@ -159,7 +159,7 @@ private:
 
 
 /// data type for a web server pointer
-typedef boost::shared_ptr<plugin_server>        plugin_server_ptr;
+typedef stdx::shared_ptr<plugin_server>        plugin_server_ptr;
 
 
 }   // end namespace http

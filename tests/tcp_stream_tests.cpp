@@ -7,16 +7,15 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <boost/thread.hpp>
 #pragma GCC diagnostic warning "-Wunused-parameter"
-#include <boost/function.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/config.hpp>
 #include <pion/scheduler.hpp>
 #include <pion/tcp/stream.hpp>
+#include <pion/stdx/asio.hpp>
+#include <pion/stdx/functional.hpp>
 
 using namespace std;
 using namespace pion;
@@ -29,7 +28,7 @@ class tcp_stream_tests_F {
 public:
     
     /// data type for a function that handles tcp::stream connections
-    typedef boost::function1<void,tcp::stream&>   connection_handler;
+    typedef stdx::function<void(tcp::stream&)>   connection_handler;
     
     
     // default constructor and destructor
@@ -44,19 +43,19 @@ public:
      */
     void acceptConnection(connection_handler conn_handler) {
         // configure the acceptor service
-        boost::asio::ip::tcp::acceptor   tcp_acceptor(m_scheduler.get_io_service());
-        boost::asio::ip::tcp::endpoint   tcp_endpoint(boost::asio::ip::tcp::v4(), 0);
+        stdx::asio::ip::tcp::acceptor   tcp_acceptor(m_scheduler.get_io_service());
+        stdx::asio::ip::tcp::endpoint   tcp_endpoint(stdx::asio::ip::tcp::v4(), 0);
         tcp_acceptor.open(tcp_endpoint.protocol());
 
         // allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
-        tcp_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+        tcp_acceptor.set_option(stdx::asio::ip::tcp::acceptor::reuse_address(true));
         tcp_acceptor.bind(tcp_endpoint);
         tcp_acceptor.listen();
 
         // notify test thread that we are ready to accept a connection
         {
             // wait for test thread to be waiting on the signal
-            boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
+            stdx::unique_lock<stdx::mutex> accept_lock(m_accept_mutex);
             // trigger signal to wake test thread
             m_port = tcp_acceptor.local_endpoint().port();
             m_accept_ready.notify_one();
@@ -64,7 +63,7 @@ public:
 
         // schedule another thread to listen for a TCP connection
         tcp::stream listener_stream(m_scheduler.get_io_service());
-        boost::system::error_code ec = listener_stream.accept(tcp_acceptor);
+        stdx::error_code ec = listener_stream.accept(tcp_acceptor);
         tcp_acceptor.close();
         BOOST_REQUIRE(! ec);
         
@@ -85,10 +84,10 @@ public:
     single_service_scheduler      m_scheduler;
 
     /// used to notify test thread when acceptConnection() is ready
-    boost::condition                m_accept_ready;
+    stdx::condition_variable                m_accept_ready;
     
     /// used to sync test thread with acceptConnection()
-    boost::mutex                    m_accept_mutex;
+    stdx::mutex                    m_accept_mutex;
 };
 
 
@@ -97,19 +96,19 @@ public:
 BOOST_FIXTURE_TEST_SUITE(tcp_stream_tests_S, tcp_stream_tests_F)
 
 BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
-    boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
+    stdx::unique_lock<stdx::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
-    connection_handler conn_handler(boost::bind(&tcp_stream_tests_F::sendHello, _1));
-    boost::thread listener_thread(boost::bind(&tcp_stream_tests_F::acceptConnection,
+    connection_handler conn_handler(stdx::bind(&tcp_stream_tests_F::sendHello, stdx::placeholders::_1));
+    stdx::thread listener_thread(stdx::bind(&tcp_stream_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);
 
     // connect to the listener
     tcp::stream client_str(m_scheduler.get_io_service());
-    boost::system::error_code ec;
-    ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
+    stdx::error_code ec;
+    ec = client_str.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);
     
     // get the hello message
@@ -156,19 +155,19 @@ public:
 BOOST_FIXTURE_TEST_SUITE(tcp_stream_buffer_tests_S, tcp_stream_buffer_tests_F)
 
 BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
-    boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
+    stdx::unique_lock<stdx::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
-    connection_handler conn_handler(boost::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, _1));
-    boost::thread listener_thread(boost::bind(&tcp_stream_buffer_tests_F::acceptConnection,
+    connection_handler conn_handler(stdx::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, stdx::placeholders::_1));
+    stdx::thread listener_thread(stdx::bind(&tcp_stream_buffer_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);
 
     // connect to the listener
     tcp::stream client_str(m_scheduler.get_io_service());
-    boost::system::error_code ec;
-    ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
+    stdx::error_code ec;
+    ec = client_str.connect(stdx::asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);
     
     // read the big buffer contents

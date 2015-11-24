@@ -10,10 +10,10 @@
 #ifndef __PION_HTTP_REQUEST_HEADER__
 #define __PION_HTTP_REQUEST_HEADER__
 
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/http/message.hpp>
 #include <pion/user.hpp>
+#include <pion/stdx/memory.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -214,7 +214,7 @@ private:
 
 
 /// data type for a HTTP request pointer
-typedef boost::shared_ptr<request>      request_ptr;
+typedef stdx::shared_ptr<request>      request_ptr;
 
 
 }   // end namespace http

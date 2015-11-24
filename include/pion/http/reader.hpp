@@ -10,12 +10,12 @@
 #ifndef __PION_HTTP_READER_HEADER__
 #define __PION_HTTP_READER_HEADER__
 
-#include <boost/asio.hpp>
 #include <pion/config.hpp>
 #include <pion/http/parser.hpp>
 #include <pion/http/message.hpp>
 #include <pion/tcp/connection.hpp>
 #include <pion/tcp/timer.hpp>
+#include <pion/stdx/asio.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -40,7 +40,7 @@ public:
     inline tcp::connection_ptr& get_connection(void) { return m_tcp_conn; }
     
     /// sets the maximum number of seconds for read operations
-    inline void set_timeout(boost::uint32_t seconds) { m_read_timeout = seconds; }
+    inline void set_timeout(stdx::uint32_t seconds) { m_read_timeout = seconds; }
 
     
 protected:
@@ -63,7 +63,7 @@ protected:
      * @param read_error error status from the last read operation
      * @param bytes_read number of bytes consumed by the last read operation
      */
-    void consume_bytes(const boost::system::error_code& read_error,
+    void consume_bytes(const stdx::error_code& read_error,
                       std::size_t bytes_read);
 
     /// Consumes bytes that have been read using an HTTP parser
@@ -73,7 +73,7 @@ protected:
     virtual void read_bytes(void) = 0;
 
     /// Called after we have finished reading/parsing the HTTP message
-    virtual void finished_reading(const boost::system::error_code& ec) = 0;
+    virtual void finished_reading(const stdx::error_code& ec) = 0;
 
     /// Returns a reference to the HTTP message being parsed
     virtual http::message& get_message(void) = 0;
@@ -89,11 +89,11 @@ private:
      *
      * @param read_error error status from the last read operation
      */
-    void handle_read_error(const boost::system::error_code& read_error);
+    void handle_read_error(const stdx::error_code& read_error);
 
 
     /// default maximum number of seconds for read operations
-    static const boost::uint32_t            DEFAULT_READ_TIMEOUT;
+    static const stdx::uint32_t            DEFAULT_READ_TIMEOUT;
 
 
     /// The HTTP connection that has a new HTTP message to parse
@@ -103,7 +103,7 @@ private:
     tcp::timer_ptr                             m_timer_ptr;
 
     /// maximum number of seconds for read operations
-    boost::uint32_t                         m_read_timeout;
+    stdx::uint32_t                         m_read_timeout;
 };
 
 

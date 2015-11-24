@@ -8,7 +8,7 @@
 //
 
 #include <pion/tcp/timer.hpp>
-#include <boost/bind.hpp>
+#include <pion/stdx/functional.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -23,26 +23,26 @@ timer::timer(const tcp::connection_ptr& conn_ptr)
 {
 }
 
-void timer::start(const boost::uint32_t seconds)
+void timer::start(const stdx::uint32_t seconds)
 {
-    boost::mutex::scoped_lock timer_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> timer_lock(m_mutex);
     m_timer_active = true;
     m_timer.expires_from_now(boost::posix_time::seconds(seconds));
-    m_timer.async_wait(boost::bind(&timer::timer_callback,
-        shared_from_this(), _1));
+    m_timer.async_wait(stdx::bind(&timer::timer_callback,
+                       shared_from_this(), stdx::placeholders::_1));
 }
 
 void timer::cancel(void)
 {
-    boost::mutex::scoped_lock timer_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> timer_lock(m_mutex);
     m_was_cancelled = true;
     if (m_timer_active)
         m_timer.cancel();
 }
 
-void timer::timer_callback(const boost::system::error_code& /* ec */)
+void timer::timer_callback(const stdx::error_code& /* ec */)
 {
-    boost::mutex::scoped_lock timer_lock(m_mutex);
+    stdx::lock_guard<stdx::mutex> timer_lock(m_mutex);
     m_timer_active = false;
     if (! m_was_cancelled)
         m_conn_ptr->cancel();

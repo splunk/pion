@@ -10,11 +10,11 @@
 #ifndef __PION_HTTP_RESPONSE_HEADER__
 #define __PION_HTTP_RESPONSE_HEADER__
 
-#include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <pion/config.hpp>
 #include <pion/http/message.hpp>
 #include <pion/http/request.hpp>
+#include <pion/stdx/memory.hpp>
 
 
 namespace pion {    // begin namespace pion
@@ -234,7 +234,7 @@ private:
 
 
 /// data type for a HTTP response pointer
-typedef boost::shared_ptr<response>     response_ptr;
+typedef stdx::shared_ptr<response>     response_ptr;
 
 
 }   // end namespace http
