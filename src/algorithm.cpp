@@ -336,7 +336,7 @@ void algorithm::float_from_bytes(long double& value, const unsigned char *ptr, s
     }
     
     // calculate final value
-    exponent -= (::pow((long double)2, (int)(num_exp_bits - 1)) - 1);
+    exponent -= (boost::int16_t)(::pow((long double)2, (int)(num_exp_bits - 1)) - 1);
     value = value_sign * significand * ::pow((long double)2, exponent);
 }
 
@@ -344,7 +344,7 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
 {
     // first initialize output buffer to zeros
     unsigned char *ptr = buf;
-    memset(ptr, 0x00, ::ceil(static_cast<float>(num_exp_bits + num_fraction_bits + 1) / 8));
+    memset(ptr, 0x00, (size_t)(::ceil(static_cast<float>(num_exp_bits + num_fraction_bits + 1) / 8)));
     
     // initialize first byte starting with sign of number
     if (value < 0) {
@@ -393,7 +393,7 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
     
     // normalize exponent.
     // note: we should have a zero exponent if value == 0
-    boost::int32_t high_bit = ::pow((long double)2, (int)(num_exp_bits - 1));
+    boost::int32_t high_bit = (boost::int32_t)(::pow((long double)2, (int)(num_exp_bits - 1)));
     if (got_exponent)
         exponent += (high_bit - 1);
     else

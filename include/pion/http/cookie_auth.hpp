@@ -12,9 +12,14 @@
 
 #include <map>
 #include <string>
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#include <boost/random.hpp>
-#pragma GCC diagnostic warning "-Wunused-parameter"
+// #pragma diagnostic is only supported by GCC >= 4.2.1
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) || (__GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ >= 1)
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
+    #include <boost/random.hpp>
+    #pragma GCC diagnostic warning "-Wunused-parameter"
+#else
+    #include <boost/random.hpp>
+#endif
 #include <pion/config.hpp>
 #include <pion/http/auth.hpp>
 

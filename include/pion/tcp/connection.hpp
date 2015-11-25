@@ -11,9 +11,9 @@
 #define __PION_TCP_CONNECTION_HEADER__
 
 #ifdef PION_HAVE_SSL
-    #ifdef PION_XCODE
-        // ignore openssl warnings if building with XCode
-        #pragma GCC system_header
+    #if defined(__APPLE__)
+        // suppress warnings about OpenSSL being deprecated in OSX
+        #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     #endif
     #include <boost/asio/ssl.hpp>
 #endif

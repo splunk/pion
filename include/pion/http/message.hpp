@@ -102,7 +102,8 @@ public:
 
     /// copy constructor
     message(const message& http_msg)
-        : m_first_line(http_msg.m_first_line),
+        : http::types(),
+        m_first_line(http_msg.m_first_line),
         m_is_valid(http_msg.m_is_valid),
         m_is_chunked(http_msg.m_is_chunked),
         m_chunks_supported(http_msg.m_chunks_supported),

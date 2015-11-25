@@ -9,9 +9,16 @@
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#include <boost/thread.hpp>
-#pragma GCC diagnostic warning "-Wunused-parameter"
+
+// #pragma diagnostic is only supported by GCC >= 4.2.1
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) || (__GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ >= 1)
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
+    #include <boost/thread.hpp>
+    #pragma GCC diagnostic warning "-Wunused-parameter"
+#else
+    #include <boost/thread.hpp>
+#endif
+
 #include <boost/function.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/config.hpp>

@@ -7,6 +7,10 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <pion/config.hpp>
+#include <pion/process.hpp>
+#include <pion/logger.hpp>
+
 #include <signal.h>
 #ifndef PION_WIN32
     #include <fcntl.h>
@@ -16,10 +20,6 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/date_time.hpp>
-
-#include <pion/config.hpp>
-#include <pion/process.hpp>
-#include <pion/logger.hpp>
 
 namespace pion {    // begin namespace pion
     

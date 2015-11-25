@@ -20,10 +20,15 @@
 #include <boost/exception/error_info.hpp>
 #include <boost/exception/get_error_info.hpp>
 #if BOOST_VERSION >= 104700
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#include <boost/units/io.hpp>
-#pragma GCC diagnostic warning "-Wunused-parameter"
-#endif
+    // #pragma diagnostic is only supported by GCC >= 4.2.1
+    #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) || (__GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ >= 1)
+        #pragma GCC diagnostic ignored "-Wunused-parameter"
+        #include <boost/units/io.hpp>
+        #pragma GCC diagnostic warning "-Wunused-parameter"
+    #else
+        #include <boost/units/io.hpp>
+    #endif
+#endif // BOOST_VERSION
 #include <pion/config.hpp>
 
 
