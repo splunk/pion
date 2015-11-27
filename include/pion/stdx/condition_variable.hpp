@@ -25,7 +25,7 @@ using ::std::condition_variable;
 
 #else
 
-using condition_variable = boost::condition;
+typedef boost::condition condition_variable;
 
 #endif
 
