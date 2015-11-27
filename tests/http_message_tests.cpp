@@ -405,7 +405,7 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPRequestNoContent) {
     req.add_header("Test", "Something");
     
     // write to file
-    boost::system::error_code ec;
+    asio::error_code ec;
     req.write(m_file, ec);
     BOOST_REQUIRE(! ec);
     m_file.flush();
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
     rsp.add_header("HeaderA", "a value");
     
     // write to file
-    boost::system::error_code ec;
+    asio::error_code ec;
     rsp.write(m_file, ec);
     BOOST_REQUIRE(! ec);
     m_file.flush();
@@ -489,7 +489,7 @@ BOOST_AUTO_TEST_CASE(checkWriteReadHTTPResponseNoContent) {
 }
 
 BOOST_AUTO_TEST_CASE(checkWriteReadMixedMessages) {
-    boost::system::error_code ec;
+    asio::error_code ec;
     http::request req;
     http::response rsp;
 
@@ -598,7 +598,7 @@ BOOST_AUTO_TEST_CASE(checkWriteHTTPRequestWithCookies) {
     req.add_cookie("a", "value");
     
     // write to file
-    boost::system::error_code ec;
+    asio::error_code ec;
     req.write(m_file, ec);
     BOOST_REQUIRE(! ec);
     m_file.flush();
@@ -616,7 +616,7 @@ BOOST_AUTO_TEST_CASE(checkWriteHTTPResponseWithCookies) {
     rsp.add_cookie("a", "value");
 
     // write to file
-    boost::system::error_code ec;
+    asio::error_code ec;
     rsp.write(m_file, ec);
     BOOST_REQUIRE(! ec);
     m_file.flush();

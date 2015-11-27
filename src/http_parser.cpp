@@ -44,7 +44,7 @@ boost::once_flag            parser::m_instance_flag = BOOST_ONCE_INIT;
 // parser member functions
 
 boost::tribool parser::parse(http::message& http_msg,
-    boost::system::error_code& ec)
+    asio::error_code& ec)
 {
     BOOST_ASSERT(! eof() );
 
@@ -123,7 +123,7 @@ boost::tribool parser::parse(http::message& http_msg,
 }
 
 boost::tribool parser::parse_missing_data(http::message& http_msg,
-    std::size_t len, boost::system::error_code& ec)
+    std::size_t len, asio::error_code& ec)
 {
     static const char MISSING_DATA_CHAR = 'X';
     boost::tribool rc = boost::indeterminate;
@@ -237,7 +237,7 @@ boost::tribool parser::parse_missing_data(http::message& http_msg,
 }
 
 boost::tribool parser::parse_headers(http::message& http_msg,
-    boost::system::error_code& ec)
+    asio::error_code& ec)
 {
     //
     // note that boost::tribool may have one of THREE states:
@@ -741,7 +741,7 @@ void parser::update_message_with_header_data(http::message& http_msg) const
 }
 
 boost::tribool parser::finish_header_parsing(http::message& http_msg,
-    boost::system::error_code& ec)
+    asio::error_code& ec)
 {
     boost::tribool rc = boost::indeterminate;
 
@@ -865,8 +865,8 @@ bool parser::parse_uri(const std::string& uri, std::string& proto,
     // parse the port, if it's not empty
     if(port_pos != std::string::npos) {
         try {
-            port = boost::lexical_cast<int>(t.substr(port_pos+1));
-        } catch (boost::bad_lexical_cast &) {
+            port = std::stoi(t.substr(port_pos+1));
+        } catch (std::invalid_argument &) {
             return false;
         }
     } else if (proto == "http" || proto == "HTTP") {
@@ -1256,7 +1256,7 @@ bool parser::parse_cookie_header(ihash_multimap& dict,
 }
 
 boost::tribool parser::parse_chunks(http::message::chunk_cache_t& chunks,
-    boost::system::error_code& ec)
+    asio::error_code& ec)
 {
     //
     // note that boost::tribool may have one of THREE states:
@@ -1422,7 +1422,7 @@ boost::tribool parser::parse_chunks(http::message::chunk_cache_t& chunks,
 }
 
 boost::tribool parser::consume_content(http::message& http_msg,
-    boost::system::error_code& /* ec */)
+    asio::error_code& /* ec */)
 {
     size_t content_bytes_to_read;
     size_t content_bytes_available = bytes_available();

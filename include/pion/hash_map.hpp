@@ -34,8 +34,8 @@ namespace pion {    // begin namespace pion
 #if defined(PION_HAVE_UNORDERED_MAP)
     #define PION_HASH_MAP std::unordered_map
     #define PION_HASH_MULTIMAP std::unordered_multimap
-    #define PION_HASH_STRING boost::hash<std::string>
-    #define PION_HASH(TYPE) boost::hash<TYPE>
+    #define PION_HASH_STRING std::hash<std::string>
+    #define PION_HASH(TYPE) std::hash<TYPE>
 #elif defined(PION_HAVE_TR1_UNORDERED_MAP)
     #define PION_HASH_MAP std::tr1::unordered_map
     #define PION_HASH_MULTIMAP std::tr1::unordered_multimap

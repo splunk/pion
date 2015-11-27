@@ -12,8 +12,8 @@
 
 #include <set>
 #include <map>
+#include <memory>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
 #include <pion/logger.hpp>
@@ -166,7 +166,7 @@ protected:
 };
 
 /// data type for a auth pointer
-typedef boost::shared_ptr<auth> auth_ptr;
+typedef std::shared_ptr<auth> auth_ptr;
 
 
 }   // end namespace http

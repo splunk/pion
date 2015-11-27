@@ -46,7 +46,7 @@ public:
     static const std::size_t        DEFAULT_CONTENT_MAX;
 
     /// callback type used to consume payload content
-    typedef boost::function2<void, const char *, std::size_t>   payload_handler_t;
+    typedef std::function<void(const char *, std::size_t)>   payload_handler_t;
     
     /// class-specific error code values
     enum error_value_t {
@@ -72,7 +72,7 @@ public:
     
     /// class-specific error category
     class error_category_t
-        : public boost::system::error_category
+        : public asio::error_category
     {
     public:
         const char *name() const BOOST_SYSTEM_NOEXCEPT { return "parser"; }
@@ -152,7 +152,7 @@ public:
      *                        true = finished parsing HTTP message,
      *                        indeterminate = not yet finished parsing HTTP message
      */
-    boost::tribool parse(http::message& http_msg, boost::system::error_code& ec);
+    boost::tribool parse(http::message& http_msg, asio::error_code& ec);
 
     /**
      * attempts to continue parsing despite having missed data (length is known but content is not)
@@ -167,7 +167,7 @@ public:
      *                        indeterminate = not yet finished parsing HTTP message
      */
     boost::tribool parse_missing_data(http::message& http_msg, std::size_t len,
-        boost::system::error_code& ec);
+        asio::error_code& ec);
 
     /**
      * finishes parsing an HTTP response message
@@ -228,7 +228,7 @@ public:
      * @param http_msg the HTTP message object being parsed
      */
     inline void skip_header_parsing(http::message& http_msg) {
-        boost::system::error_code ec;
+        asio::error_code ec;
         finish_header_parsing(http_msg, ec);
     }
     
@@ -418,7 +418,7 @@ public:
      *                        indeterminate = payload content is available to be parsed
      */
     boost::tribool finish_header_parsing(http::message& http_msg,
-                                         boost::system::error_code& ec);
+                                         asio::error_code& ec);
 
     /**
      * parses an X-Forwarded-For HTTP header, and extracts from it an IP
@@ -441,7 +441,7 @@ public:
 protected:
 
     /// Called after we have finished parsing the HTTP message headers
-    virtual void finished_parsing_headers(const boost::system::error_code& /* ec */) {}
+    virtual void finished_parsing_headers(const asio::error_code& /* ec */) {}
     
     /**
      * parses an HTTP message up to the end of the headers using bytes 
@@ -455,7 +455,7 @@ protected:
      *                        true = finished parsing HTTP headers,
      *                        indeterminate = not yet finished parsing HTTP headers
      */
-    boost::tribool parse_headers(http::message& http_msg, boost::system::error_code& ec);
+    boost::tribool parse_headers(http::message& http_msg, asio::error_code& ec);
 
     /**
      * updates an http::message object with data obtained from parsing headers
@@ -476,7 +476,7 @@ protected:
      *                        indeterminate = message is not yet finished
      */
     boost::tribool parse_chunks(http::message::chunk_cache_t& chunk_buffers,
-        boost::system::error_code& ec);
+        asio::error_code& ec);
 
     /**
      * consumes payload content in the parser's read buffer 
@@ -490,7 +490,7 @@ protected:
      *                        indeterminate = message is not yet finished
      */
     boost::tribool consume_content(http::message& http_msg,
-        boost::system::error_code& ec);
+        asio::error_code& ec);
 
     /**
      * consume the bytes available in the read buffer, converting them into
@@ -514,8 +514,8 @@ protected:
      * @param ec error code variable to define
      * @param ev error value to raise
      */
-    static inline void set_error(boost::system::error_code& ec, error_value_t ev) {
-        ec = boost::system::error_code(static_cast<int>(ev), get_error_category());
+    static inline void set_error(asio::error_code& ec, error_value_t ev) {
+        ec = asio::error_code(static_cast<int>(ev), get_error_category());
     }
 
     /// creates the unique parser error_category_t

@@ -40,7 +40,7 @@ message(">>> EXECUTABLE_OUTPUT_PATH = ${EXECUTABLE_OUTPUT_PATH}")
 # general
 option(BUILD_SHARED_LIBS "Build Pion as shared library" ON)
 option(BUILD_SPDY "Enable SPDY" OFF)
-option(BUILD_UT "Enable Unit test" OFF)
+option(BUILD_UT "Enable Unit test" ON)
 
 # utils
 option(BUILD_PIOND "Enable piond" ON)

@@ -7,12 +7,11 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <functional>
 #include <pion/config.hpp>
 #include <pion/scheduler.hpp>
 #include <pion/tcp/server.hpp>
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/function/function1.hpp>
+#include <asio.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/http/request.hpp>
@@ -46,9 +45,9 @@ public:
     virtual void handle_connection(const pion::tcp::connection_ptr& tcp_conn) {
         static const std::string HELLO_MESSAGE("Hello there!\n");
         tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);  // make sure it will get closed
-        tcp_conn->async_write(boost::asio::buffer(HELLO_MESSAGE),
-                              boost::bind(&HelloServer::handle_write, this, tcp_conn,
-                                          boost::asio::placeholders::error));
+        tcp_conn->async_write(asio::buffer(HELLO_MESSAGE),
+                              std::bind(&HelloServer::handle_write, this, tcp_conn,
+                                          std::placeholders::_1));
     }
 
     
@@ -61,14 +60,14 @@ private:
      * @param write_error message that explains what went wrong (if anything)
      */
     void handle_write(const pion::tcp::connection_ptr& tcp_conn,
-                     const boost::system::error_code& write_error)
+                     const asio::error_code& write_error)
     {
         if (write_error) {
             tcp_conn->finish();
         } else {
-            tcp_conn->async_read_some(boost::bind(&HelloServer::handleRead, this, tcp_conn,
-                                                  boost::asio::placeholders::error,
-                                                  boost::asio::placeholders::bytes_transferred));
+            tcp_conn->async_read_some(std::bind(&HelloServer::handleRead, this, tcp_conn,
+                                                  std::placeholders::_1,
+                                                  std::placeholders::_2));
         }
     }
     
@@ -80,7 +79,7 @@ private:
      * @param bytes_read number of bytes read from the client
      */
     void handleRead(const pion::tcp::connection_ptr& tcp_conn,
-                    const boost::system::error_code& read_error,
+                    const asio::error_code& read_error,
                     std::size_t bytes_read)
     {
         static const std::string GOODBYE_MESSAGE("Goodbye!\n");
@@ -89,8 +88,8 @@ private:
         } else if (bytes_read == 5 && memcmp(tcp_conn->get_read_buffer().data(), "throw", 5) == 0) {
             throw int(1);
         } else {
-            tcp_conn->async_write(boost::asio::buffer(GOODBYE_MESSAGE),
-                                  boost::bind(&pion::tcp::connection::finish, tcp_conn));
+            tcp_conn->async_write(asio::buffer(GOODBYE_MESSAGE),
+                                  std::bind(&pion::tcp::connection::finish, tcp_conn));
         }
     }
 };
@@ -147,20 +146,20 @@ BOOST_AUTO_TEST_CASE(checkNumberOfActiveServerConnections) {
     checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(0));
 
     // open a connection
-    boost::asio::ip::tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
-    boost::asio::ip::tcp::iostream tcp_stream_a(localhost);
+    asio::ip::tcp::endpoint localhost(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::ip::tcp::iostream tcp_stream_a(localhost);
     // we need to wait for the server to accept the connection since it happens
     // in another thread.  This should always take less than one second.
     checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(1));
 
     // open a few more connections;
-    boost::asio::ip::tcp::iostream tcp_stream_b(localhost);
+    asio::ip::tcp::iostream tcp_stream_b(localhost);
     checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(2));
 
-    boost::asio::ip::tcp::iostream tcp_stream_c(localhost);
+    asio::ip::tcp::iostream tcp_stream_c(localhost);
     checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(3));
 
-    boost::asio::ip::tcp::iostream tcp_stream_d(localhost);
+    asio::ip::tcp::iostream tcp_stream_d(localhost);
     checkNumConnectionsForUpToOneSecond(static_cast<std::size_t>(4));
     
     // close connections    
@@ -179,8 +178,8 @@ BOOST_AUTO_TEST_CASE(checkNumberOfActiveServerConnections) {
 
 BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
     // open a connection
-    boost::asio::ip::tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
-    boost::asio::ip::tcp::iostream tcp_stream_a(localhost);
+    asio::ip::tcp::endpoint localhost(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::ip::tcp::iostream tcp_stream_a(localhost);
 
     // read greeting from the server
     std::string str;
@@ -188,7 +187,7 @@ BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
     BOOST_CHECK(str == "Hello there!");
 
     // open a second connection & read the greeting
-    boost::asio::ip::tcp::iostream tcp_stream_b(localhost);
+    asio::ip::tcp::iostream tcp_stream_b(localhost);
     std::getline(tcp_stream_b, str);
     BOOST_CHECK(str == "Hello there!");
 
@@ -213,8 +212,8 @@ BOOST_AUTO_TEST_CASE(checkServerConnectionBehavior) {
 
 BOOST_AUTO_TEST_CASE(checkServerExceptionsGetCaught) {
     // open a connection
-    boost::asio::ip::tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
-    boost::asio::ip::tcp::iostream tcp_stream_a(localhost);
+    asio::ip::tcp::endpoint localhost(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::ip::tcp::iostream tcp_stream_a(localhost);
 
     // read greeting from the server
     std::string str;
@@ -255,7 +254,7 @@ public:
      */
     virtual void handle_connection(const pion::tcp::connection_ptr& tcp_conn) {
         // wait until an HTTP request is received or an error occurs
-        boost::system::error_code error_code;
+        asio::error_code error_code;
         http::request http_request;
         http_request.receive(*tcp_conn, error_code);
         BOOST_REQUIRE(!error_code);
@@ -271,7 +270,7 @@ public:
 
         // send a simple response as evidence that this part of the code was reached
         static const std::string GOODBYE_MESSAGE("Goodbye!\n");
-        tcp_conn->write(boost::asio::buffer(GOODBYE_MESSAGE), error_code);
+        tcp_conn->write(asio::buffer(GOODBYE_MESSAGE), error_code);
 
         // wrap up
         tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
@@ -280,7 +279,7 @@ public:
 
     void setExpectations(const std::map<std::string, std::string>& expectedHeaders, 
                          const std::string& expectedContent,
-                         boost::function1<bool, http::request&> additional_request_test = NULL)
+                         std::function<bool(http::request&)> additional_request_test = NULL)
     {
         m_expectedHeaders = expectedHeaders;
         m_expectedContent = expectedContent;
@@ -290,7 +289,7 @@ public:
 private:
     std::map<std::string, std::string> m_expectedHeaders;
     std::string m_expectedContent;
-    boost::function1<bool, http::request&> m_additional_request_test;
+    std::function<bool(http::request&)> m_additional_request_test;
 };
 
 
@@ -307,12 +306,12 @@ public:
     ~MockSyncServerTests_F() {
         m_sync_server_ptr->stop();
     }
-    inline boost::shared_ptr<MockSyncServer>& getServerPtr(void) { return m_sync_server_ptr; }
-    inline boost::asio::io_service& get_io_service(void) { return m_scheduler.get_io_service(); }
+    inline std::shared_ptr<MockSyncServer>& getServerPtr(void) { return m_sync_server_ptr; }
+    inline asio::io_service& get_io_service(void) { return m_scheduler.get_io_service(); }
 
 private:
     single_service_scheduler          m_scheduler;
-    boost::shared_ptr<MockSyncServer>   m_sync_server_ptr;
+    std::shared_ptr<MockSyncServer>   m_sync_server_ptr;
 };
 
 
@@ -326,8 +325,8 @@ BOOST_AUTO_TEST_CASE(checkMockSyncServerIsListening) {
 
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingStream) {
     // open a connection
-    boost::asio::ip::tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
-    boost::asio::ip::tcp::iostream tcp_stream(localhost);
+    asio::ip::tcp::endpoint localhost(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::ip::tcp::iostream tcp_stream(localhost);
 
     // set expectations for received request
     std::map<std::string, std::string> expectedHeaders;
@@ -350,8 +349,8 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingStream) {
 
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingChunkedStream) {
     // open a connection
-    boost::asio::ip::tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
-    boost::asio::ip::tcp::iostream tcp_stream(localhost);
+    asio::ip::tcp::endpoint localhost(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::ip::tcp::iostream tcp_stream(localhost);
 
     // set expectations for received request
     std::map<std::string, std::string> expectedHeaders;
@@ -384,8 +383,8 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingChunkedStream) {
 
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingExtraWhiteSpaceAroundChunkSizes) {
     // open a connection
-    boost::asio::ip::tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
-    boost::asio::ip::tcp::iostream tcp_stream(localhost);
+    asio::ip::tcp::endpoint localhost(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::ip::tcp::iostream tcp_stream(localhost);
 
     // set expectations for received request
     std::map<std::string, std::string> expectedHeaders;
@@ -422,8 +421,8 @@ BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingExtraWhiteSpaceAroundChunkSizes) {
 BOOST_AUTO_TEST_CASE(checkReceivedRequestUsingRequestObject) {
     // open a connection
     pion::tcp::connection tcp_conn(get_io_service());
-    boost::system::error_code error_code;
-    error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::error_code error_code;
+    error_code = tcp_conn.connect(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
     BOOST_REQUIRE(!error_code);
 
     std::map<std::string, std::string> expectedHeaders;
@@ -453,8 +452,8 @@ bool queryKeyXHasValueY(http::request& http_request) {
 
 BOOST_AUTO_TEST_CASE(checkQueryOfReceivedRequestParsed) {
     // open a connection
-    boost::asio::ip::tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
-    boost::asio::ip::tcp::iostream tcp_stream(localhost);
+    asio::ip::tcp::endpoint localhost(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::ip::tcp::iostream tcp_stream(localhost);
 
     // set expectations for received request
     std::map<std::string, std::string> empty_map;
@@ -473,8 +472,8 @@ BOOST_AUTO_TEST_CASE(checkQueryOfReceivedRequestParsed) {
 
 BOOST_AUTO_TEST_CASE(checkUrlEncodedQueryInPostContentParsed) {
     // open a connection
-    boost::asio::ip::tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
-    boost::asio::ip::tcp::iostream tcp_stream(localhost);
+    asio::ip::tcp::endpoint localhost(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::ip::tcp::iostream tcp_stream(localhost);
 
     // set expectations for received request
     std::map<std::string, std::string> expectedHeaders;
@@ -504,8 +503,8 @@ bool charsetIsEcmaCyrillic(http::request& http_request) {
 
 BOOST_AUTO_TEST_CASE(checkCharsetOfReceivedRequest) {
     // open a connection
-    boost::asio::ip::tcp::endpoint localhost(boost::asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
-    boost::asio::ip::tcp::iostream tcp_stream(localhost);
+    asio::ip::tcp::endpoint localhost(asio::ip::address::from_string("127.0.0.1"), getServerPtr()->get_port());
+    asio::ip::tcp::iostream tcp_stream(localhost);
 
     // set expectations for received request
     std::map<std::string, std::string> expectedHeaders;

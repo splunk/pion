@@ -7,7 +7,6 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/lexical_cast.hpp>
 #include <boost/thread/mutex.hpp>
 #include <pion/http/types.hpp>
 #include <pion/algorithm.hpp>
@@ -141,7 +140,7 @@ std::string types::make_set_cookie_header(const std::string& name,
     }
     if (has_max_age) {
         set_cookie_header += "; Max-Age=";
-        set_cookie_header += boost::lexical_cast<std::string>(max_age);
+        set_cookie_header += std::to_string(max_age);
     }
     return set_cookie_header;
 }

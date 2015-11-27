@@ -33,10 +33,10 @@ class plugin_manager
 public:
 
     /// data type for a function that may be called by the run() method
-    typedef boost::function1<void, PluginType*>    PluginRunFunction;
+    typedef std::function<void(PluginType*)>    PluginRunFunction;
 
     /// data type for a function that may be called by the getStat() method
-    typedef boost::function1<boost::uint64_t, const PluginType*>   PluginStatFunction;
+    typedef std::function<boost::uint64_t(const PluginType*)>   PluginStatFunction;
 
     
     /// default constructor

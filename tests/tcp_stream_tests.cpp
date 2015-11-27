@@ -7,8 +7,7 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
+#include <asio.hpp>
 
 // #pragma diagnostic is only supported by GCC >= 4.2.1
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) || (__GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ >= 1)
@@ -36,7 +35,7 @@ class tcp_stream_tests_F {
 public:
     
     /// data type for a function that handles tcp::stream connections
-    typedef boost::function1<void,tcp::stream&>   connection_handler;
+    typedef std::function<void(tcp::stream&)>   connection_handler;
     
     
     // default constructor and destructor
@@ -51,12 +50,12 @@ public:
      */
     void acceptConnection(connection_handler conn_handler) {
         // configure the acceptor service
-        boost::asio::ip::tcp::acceptor   tcp_acceptor(m_scheduler.get_io_service());
-        boost::asio::ip::tcp::endpoint   tcp_endpoint(boost::asio::ip::tcp::v4(), 0);
+        asio::ip::tcp::acceptor   tcp_acceptor(m_scheduler.get_io_service());
+        asio::ip::tcp::endpoint   tcp_endpoint(asio::ip::tcp::v4(), 0);
         tcp_acceptor.open(tcp_endpoint.protocol());
 
         // allow the acceptor to reuse the address (i.e. SO_REUSEADDR)
-        tcp_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+        tcp_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
         tcp_acceptor.bind(tcp_endpoint);
         tcp_acceptor.listen();
 
@@ -71,7 +70,7 @@ public:
 
         // schedule another thread to listen for a TCP connection
         tcp::stream listener_stream(m_scheduler.get_io_service());
-        boost::system::error_code ec = listener_stream.accept(tcp_acceptor);
+        asio::error_code ec = listener_stream.accept(tcp_acceptor);
         tcp_acceptor.close();
         BOOST_REQUIRE(! ec);
         
@@ -107,16 +106,16 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
     boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
-    connection_handler conn_handler(boost::bind(&tcp_stream_tests_F::sendHello, _1));
-    boost::thread listener_thread(boost::bind(&tcp_stream_tests_F::acceptConnection,
+    connection_handler conn_handler(std::bind(&tcp_stream_tests_F::sendHello, std::placeholders::_1));
+    boost::thread listener_thread(std::bind(&tcp_stream_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);
 
     // connect to the listener
     tcp::stream client_str(m_scheduler.get_io_service());
-    boost::system::error_code ec;
-    ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
+    asio::error_code ec;
+    ec = client_str.connect(asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);
     
     // get the hello message
@@ -166,16 +165,16 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
     boost::unique_lock<boost::mutex> accept_lock(m_accept_mutex);
 
     // schedule another thread to listen for a TCP connection
-    connection_handler conn_handler(boost::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, _1));
-    boost::thread listener_thread(boost::bind(&tcp_stream_buffer_tests_F::acceptConnection,
+    connection_handler conn_handler(std::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, std::placeholders::_1));
+    boost::thread listener_thread(std::bind(&tcp_stream_buffer_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);
 
     // connect to the listener
     tcp::stream client_str(m_scheduler.get_io_service());
-    boost::system::error_code ec;
-    ec = client_str.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_port);
+    asio::error_code ec;
+    ec = client_str.connect(asio::ip::address::from_string("127.0.0.1"), m_port);
     BOOST_REQUIRE(! ec);
     
     // read the big buffer contents

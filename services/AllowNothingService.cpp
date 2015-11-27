@@ -21,7 +21,7 @@ void AllowNothingService::operator()(const http::request_ptr& http_request_ptr, 
 {
     static const std::string DENY_HTML = "<html><body>No, you can't.</body></html>";
     http::response_writer_ptr writer(http::response_writer::create(tcp_conn, *http_request_ptr,
-                                                            boost::bind(&tcp::connection::finish, tcp_conn)));
+                                                            std::bind(&tcp::connection::finish, tcp_conn)));
     writer->get_response().set_status_code(http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
     writer->get_response().set_status_message(http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
 

@@ -60,7 +60,7 @@ LIBS_SAVED="$LIBS"
 LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
 AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
 AC_TRY_LINK([#include <boost/system/error_code.hpp>],
-	[ boost::system::error_code error_code; std::string message(error_code.message()); return 0; ],
+	[ asio::error_code error_code; std::string message(error_code.message()); return 0; ],
 	[ AC_MSG_RESULT(ok)
 	  BOOST_SYSTEM_LIB="-l${BOOST_TRY_LINK}"
 	],

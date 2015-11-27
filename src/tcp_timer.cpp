@@ -7,9 +7,8 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <functional>
 #include <pion/tcp/timer.hpp>
-#include <boost/bind.hpp>
-
 
 namespace pion {    // begin namespace pion
 namespace tcp {     // begin namespace tcp
@@ -23,13 +22,12 @@ timer::timer(const tcp::connection_ptr& conn_ptr)
 {
 }
 
-void timer::start(const boost::uint32_t seconds)
+void timer::start(const uint32_t seconds)
 {
     boost::mutex::scoped_lock timer_lock(m_mutex);
     m_timer_active = true;
     m_timer.expires_from_now(boost::posix_time::seconds(seconds));
-    m_timer.async_wait(boost::bind(&timer::timer_callback,
-        shared_from_this(), _1));
+    m_timer.async_wait(std::bind(&timer::timer_callback, shared_from_this(), std::placeholders::_1));
 }
 
 void timer::cancel(void)
@@ -40,7 +38,7 @@ void timer::cancel(void)
         m_timer.cancel();
 }
 
-void timer::timer_callback(const boost::system::error_code& /* ec */)
+void timer::timer_callback(const asio::error_code& /* ec */)
 {
     boost::mutex::scoped_lock timer_lock(m_mutex);
     m_timer_active = false;

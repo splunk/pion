@@ -21,6 +21,7 @@
 #include <boost/test/unit_test_log_formatter.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/test/utils/xml_printer.hpp>
+#include <boost/test/execution_monitor.hpp>
 #include <pion/logger.hpp>
 
 #ifdef _MSC_VER
@@ -44,7 +45,7 @@ namespace test {    // begin namespace test
         : public boost::unit_test::unit_test_log_formatter
     {
     public:
-        
+
         /// default constructor
         safe_xml_log_formatter()
             : m_entry_in_progress(false)
@@ -91,7 +92,7 @@ namespace test {    // begin namespace test
                                       boost::unit_test::test_unit const& tu,
                                       unsigned long elapsed )
         {
-            if ( tu.p_type == boost::unit_test::tut_case )
+            if ( tu.p_type == boost::unit_test::TUT_CASE )
                 ostr << "<TestingTime>" << elapsed << "</TestingTime>";
             ostr << "</" << tu_type_name( tu ) << ">" << std::endl;
         }
@@ -182,7 +183,7 @@ namespace test {    // begin namespace test
         /// output appropriate xml element name
         static boost::unit_test::const_string tu_type_name( boost::unit_test::test_unit const& tu )
         {
-            return tu.p_type == boost::unit_test::tut_case ? "TestCase" : "TestSuite";
+            return tu.p_type == boost::unit_test::TUT_CASE ? "TestCase" : "TestSuite";
         }
         
         /// re-use attr_value data type from xml_printer.hpp
@@ -199,6 +200,22 @@ namespace test {    // begin namespace test
 
         /// current xml tag
         boost::unit_test::const_string  m_curr_tag;
+    public:
+        inline virtual void test_unit_skipped(std::ostream &os, const boost::unit_test::test_unit &tu,
+                                       boost::unit_test::const_string reason) override {};
+
+        inline virtual void log_exception_start(std::ostream &os, const boost::unit_test::log_checkpoint_data &lcd,
+                                         const boost::execution_exception &ex) override {};
+
+        inline virtual void log_exception_finish(std::ostream &os) override {};
+
+        inline virtual void log_entry_value(std::ostream &os, const boost::unit_test::lazy_ostream &value) override {};
+
+        inline virtual void entry_context_start(std::ostream &os, boost::unit_test::log_level l) override {};
+
+        inline virtual void log_entry_context(std::ostream &os, boost::unit_test::const_string value) override {};
+
+        inline virtual void entry_context_finish(std::ostream &os) override {};
     };
     
     
@@ -347,7 +364,6 @@ namespace test {    // begin namespace test
         return true;
     }
 
-
 }   // end namespace test
 }   // end namespace pion
 
@@ -437,8 +453,9 @@ struct BOOST_AUTO_TC_INVOKER( test_name ) {                     \
 BOOST_AUTO_TU_REGISTRAR( test_name )(                           \
     boost::unit_test::ut_detail::template_test_case_gen<        \
         BOOST_AUTO_TC_INVOKER( test_name ),                     \
-        BOOST_AUTO_TEST_CASE_FIXTURE_TYPES >(                   \
-            BOOST_STRINGIZE( test_name ) ) );                   \
+        BOOST_AUTO_TEST_CASE_FIXTURE_TYPES>(                   \
+            BOOST_STRINGIZE( test_name ), __FILE__, __LINE__ ),           \
+    boost::unit_test::decorator::collector::instance() );                   \
                                                                 \
 template<typename F>                                            \
 void test_name<F>::test_method()                                \

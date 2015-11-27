@@ -88,7 +88,7 @@ public:
      *                        indeterminate = not yet finished parsing SPDY frame
      */
     boost::tribool parse(http_protocol_info& http_headers,
-                         boost::system::error_code& ec,
+                         asio::error_code& ec,
                          const decompressor_ptr& decompressor,
                          const char *packet_ptr,
                          boost::uint32_t& length_packet,
@@ -129,7 +129,7 @@ protected:
     
     /// populates the frame for every spdy packet
     /// Returns false if there was an error else returns true
-    bool populate_frame(boost::system::error_code& ec,
+    bool populate_frame(asio::error_code& ec,
                         spdy_control_frame_info& frame,
                         boost::uint32_t& length_packet,
                         boost::uint32_t& stream_id,
@@ -150,15 +150,15 @@ protected:
      * @param ec error code variable to define
      * @param ev error value to raise
      */
-    static inline void set_error(boost::system::error_code& ec, error_value_t ev) {
-        ec = boost::system::error_code(static_cast<int>(ev), get_error_category());
+    static inline void set_error(asio::error_code& ec, error_value_t ev) {
+        ec = asio::error_code(static_cast<int>(ev), get_error_category());
     }
     
     /**
      * parses an the header payload for SPDY
      *
      */
-    void parse_header_payload(boost::system::error_code& ec,
+    void parse_header_payload(asio::error_code& ec,
                               const decompressor_ptr& decompressor,
                               const spdy_control_frame_info& frame,
                               http_protocol_info& http_headers,
@@ -168,7 +168,7 @@ protected:
      * parses the data for SPDY
      *
      */
-    void parse_spdy_data(boost::system::error_code& ec,
+    void parse_spdy_data(asio::error_code& ec,
                          const spdy_control_frame_info& frame,
                          boost::uint32_t stream_id,
                          http_protocol_info& http_info);
@@ -177,35 +177,35 @@ protected:
      * parses an the Settings Frame for SPDY
      *
      */
-    void parse_spdy_settings_frame(boost::system::error_code& ec,
+    void parse_spdy_settings_frame(asio::error_code& ec,
                                    const spdy_control_frame_info& frame);
     
     /**
      * parses an the RST stream for SPDY
      *
      */
-    void parse_spdy_rst_stream(boost::system::error_code& ec,
+    void parse_spdy_rst_stream(asio::error_code& ec,
                                const spdy_control_frame_info& frame);
     
     /**
      * parses an the Ping Frame for SPDY
      *
      */
-    void parse_spdy_ping_frame(boost::system::error_code& ec,
+    void parse_spdy_ping_frame(asio::error_code& ec,
                                const spdy_control_frame_info& frame);
     
     /**
      * parses an the GoAway Frame for SPDY
      *
      */
-    void parse_spdy_goaway_frame(boost::system::error_code& ec,
+    void parse_spdy_goaway_frame(asio::error_code& ec,
                                  const spdy_control_frame_info& frame);
     
     /**
      * parses an the WindowUpdate Frame for SPDY
      *
      */
-    void parse_spdy_window_update_frame(boost::system::error_code& ec,
+    void parse_spdy_window_update_frame(asio::error_code& ec,
                                         const spdy_control_frame_info& frame);
     
     /**
@@ -216,7 +216,7 @@ protected:
      *                        true = finished parsing SPDY frame,
      *                        indeterminate = not yet finished parsing SPDY frame
      */
-    boost::tribool parse_spdy_frame(boost::system::error_code& ec,
+    boost::tribool parse_spdy_frame(asio::error_code& ec,
                                     const decompressor_ptr& decompressor,
                                     http_protocol_info& http_headers,
                                     boost::uint32_t& length_packet,
@@ -247,7 +247,7 @@ private:
 };
 
 /// data type for a spdy reader pointer
-typedef boost::shared_ptr<parser>       parser_ptr;
+typedef std::shared_ptr<parser>       parser_ptr;
         
         
 }   // end namespace spdy

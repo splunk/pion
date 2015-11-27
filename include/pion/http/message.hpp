@@ -13,14 +13,14 @@
 #include <iosfwd>
 #include <vector>
 #include <cstring>
-#include <boost/cstdint.hpp>
-#include <boost/asio.hpp>
+#include <cstdint>
+#include <asio.hpp>
 #include <boost/scoped_array.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/regex.hpp>
 #include <pion/config.hpp>
 #include <pion/http/types.hpp>
+#include <boost/system/error_code.hpp>
 
 #ifndef BOOST_SYSTEM_NOEXCEPT
     // if 'BOOST_NOEXCEPT' is not defined, as with some older versions of
@@ -58,7 +58,7 @@ class PION_API message
 public:
 
     /// data type for I/O write buffers (these wrap existing data to be sent)
-    typedef std::vector<boost::asio::const_buffer>  write_buffers_t;
+    typedef std::vector<asio::const_buffer>  write_buffers_t;
 
     /// used to cache chunked data
     typedef std::vector<char>   chunk_cache_t;
@@ -150,7 +150,7 @@ public:
         clear_first_line();
         m_is_valid = m_is_chunked = m_chunks_supported
             = m_do_not_send_content_length = false;
-        m_remote_ip = boost::asio::ip::address_v4(0);
+        m_remote_ip = asio::ip::address_v4(0);
         m_version_major = m_version_minor = 1;
         m_content_length = 0;
         m_content_buf.clear();
@@ -172,22 +172,22 @@ public:
     inline bool get_chunks_supported(void) const { return m_chunks_supported; }
 
     /// returns IP address of the remote endpoint
-    inline boost::asio::ip::address& get_remote_ip(void) {
+    inline asio::ip::address& get_remote_ip(void) {
         return m_remote_ip;
     }
 
     /// returns the major HTTP version number
-    inline boost::uint16_t get_version_major(void) const { return m_version_major; }
+    inline uint16_t get_version_major(void) const { return m_version_major; }
 
     /// returns the minor HTTP version number
-    inline boost::uint16_t get_version_minor(void) const { return m_version_minor; }
+    inline uint16_t get_version_minor(void) const { return m_version_minor; }
 
     /// returns a string representation of the HTTP version (i.e. "HTTP/1.1")
     inline std::string get_version_string(void) const {
         std::string http_version(STRING_HTTP_VERSION);
-        http_version += boost::lexical_cast<std::string>(get_version_major());
+        http_version += std::to_string(get_version_major());
         http_version += '.';
-        http_version += boost::lexical_cast<std::string>(get_version_minor());
+        http_version += std::to_string(get_version_minor());
         return http_version;
     }
 
@@ -287,7 +287,7 @@ public:
     inline void set_chunks_supported(bool b) { m_chunks_supported = b; }
 
     /// sets IP address of the remote endpoint
-    inline void set_remote_ip(const boost::asio::ip::address& ip) { m_remote_ip = ip; }
+    inline void set_remote_ip(const asio::ip::address& ip) { m_remote_ip = ip; }
 
     /// sets the major HTTP version number
     inline void set_version_major(const boost::uint16_t n) {
@@ -321,7 +321,7 @@ public:
         } else {
             std::string trimmed_length(i->second);
             boost::algorithm::trim(trimmed_length);
-            m_content_length = boost::lexical_cast<size_t>(trimmed_length);
+            m_content_length = std::stoul(trimmed_length);
         }
     }
 
@@ -398,8 +398,8 @@ public:
         // update message headers
         prepare_headers_for_send(keep_alive, using_chunks);
         // add first message line
-        write_buffers.push_back(boost::asio::buffer(get_first_line()));
-        write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
+        write_buffers.push_back(asio::buffer(get_first_line()));
+        write_buffers.push_back(asio::buffer(STRING_CRLF));
         // append cookie headers (if any)
         append_cookie_headers();
         // append HTTP headers
@@ -417,7 +417,7 @@ public:
      * @return std::size_t number of bytes written to the connection
      */
     std::size_t send(tcp::connection& tcp_conn,
-                     boost::system::error_code& ec,
+                     asio::error_code& ec,
                      bool headers_only = false);
 
     /**
@@ -430,7 +430,7 @@ public:
      * @return std::size_t number of bytes read from the connection
      */
     std::size_t receive(tcp::connection& tcp_conn,
-                        boost::system::error_code& ec,
+                        asio::error_code& ec,
                         parser& http_parser);
     
     /**
@@ -444,7 +444,7 @@ public:
      * @return std::size_t number of bytes read from the connection
      */
     std::size_t receive(tcp::connection& tcp_conn,
-                        boost::system::error_code& ec,
+                        asio::error_code& ec,
                         bool headers_only = false,
                         std::size_t max_content_length = static_cast<size_t>(-1));
 
@@ -458,7 +458,7 @@ public:
      * @return std::size_t number of bytes written to the connection
      */
     std::size_t write(std::ostream& out,
-                      boost::system::error_code& ec,
+                      asio::error_code& ec,
                       bool headers_only = false);
 
     /**
@@ -471,7 +471,7 @@ public:
      * @return std::size_t number of bytes read from the connection
      */
     std::size_t read(std::istream& in,
-                     boost::system::error_code& ec,
+                     asio::error_code& ec,
                      parser& http_parser);
     
     /**
@@ -485,7 +485,7 @@ public:
      * @return std::size_t number of bytes read from the connection
      */
     std::size_t read(std::istream& in,
-                     boost::system::error_code& ec,
+                     asio::error_code& ec,
                      bool headers_only = false,
                      std::size_t max_content_length = static_cast<size_t>(-1));
 
@@ -576,7 +576,7 @@ protected:
             if (get_chunks_supported())
                 change_header(HEADER_TRANSFER_ENCODING, "chunked");
         } else if (! m_do_not_send_content_length) {
-            change_header(HEADER_CONTENT_LENGTH, boost::lexical_cast<std::string>(get_content_length()));
+            change_header(HEADER_CONTENT_LENGTH, std::to_string(get_content_length()));
         }
     }
 
@@ -588,13 +588,13 @@ protected:
     inline void append_headers(write_buffers_t& write_buffers) {
         // add HTTP headers
         for (ihash_multimap::const_iterator i = m_headers.begin(); i != m_headers.end(); ++i) {
-            write_buffers.push_back(boost::asio::buffer(i->first));
-            write_buffers.push_back(boost::asio::buffer(HEADER_NAME_VALUE_DELIMITER));
-            write_buffers.push_back(boost::asio::buffer(i->second));
-            write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
+            write_buffers.push_back(asio::buffer(i->first));
+            write_buffers.push_back(asio::buffer(HEADER_NAME_VALUE_DELIMITER));
+            write_buffers.push_back(asio::buffer(i->second));
+            write_buffers.push_back(asio::buffer(STRING_CRLF));
         }
         // add an extra CRLF to end HTTP headers
-        write_buffers.push_back(boost::asio::buffer(STRING_CRLF));
+        write_buffers.push_back(asio::buffer(STRING_CRLF));
     }
 
     /// appends HTTP headers for any cookies defined by the http::message
@@ -699,13 +699,13 @@ private:
     bool                            m_do_not_send_content_length;
 
     /// IP address of the remote endpoint
-    boost::asio::ip::address        m_remote_ip;
+    asio::ip::address        m_remote_ip;
 
     /// HTTP major version number
-    boost::uint16_t                 m_version_major;
+    uint16_t                 m_version_major;
 
     /// HTTP major version number
-    boost::uint16_t                 m_version_minor;
+    uint16_t                 m_version_minor;
 
     /// the length of the payload content (in bytes)
     size_t                          m_content_length;

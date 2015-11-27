@@ -7,10 +7,9 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/scoped_array.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
@@ -109,7 +108,7 @@ public:
         boost::filesystem::remove_all("sandbox");
     }
     
-    inline boost::asio::io_service& get_io_service(void) { return m_scheduler.get_io_service(); }
+    inline asio::io_service& get_io_service(void) { return m_scheduler.get_io_service(); }
     
     single_service_scheduler	m_scheduler;
 	http::plugin_server			m_server;
@@ -170,7 +169,7 @@ public:
         m_server.start();
 
         // open a connection
-        boost::asio::ip::tcp::endpoint http_endpoint(boost::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
+        asio::ip::tcp::endpoint http_endpoint(asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
         m_http_stream.connect(http_endpoint);
     }
     ~RunningFileService_F() {
@@ -215,7 +214,7 @@ public:
         BOOST_REQUIRE(rx_matches.size() == 2);
 
         // extract response status code
-        response_code = boost::lexical_cast<unsigned int>(rx_matches[1]);
+        response_code = std::stoul(rx_matches[1]);
         BOOST_CHECK_EQUAL(response_code, expected_response_code);
 
         // read response headers
@@ -230,7 +229,7 @@ public:
             // check for content-length response header
             if (boost::regex_match(rsp_line, rx_matches, regex_content_length_header)) {
                 if (rx_matches.size() == 2)
-                    m_content_length = boost::lexical_cast<unsigned long>(rx_matches[1]);
+                    m_content_length = std::stoul(rx_matches[1]);
             }
         }
 
@@ -275,7 +274,7 @@ public:
     }
     
     unsigned long m_content_length;
-    boost::asio::ip::tcp::iostream m_http_stream;
+    asio::ip::tcp::iostream m_http_stream;
     std::map<std::string, std::string> m_response_headers;
 };
 
@@ -585,7 +584,7 @@ public:
     enum _size_constants { MAX_CHUNK_SIZE = 10 };
 
     RunningFileServiceWithMaxChunkSizeSet_F() {
-        m_server.set_service_option("/resource1", "max_chunk_size", boost::lexical_cast<std::string>(MAX_CHUNK_SIZE));
+        m_server.set_service_option("/resource1", "max_chunk_size", std::to_string(MAX_CHUNK_SIZE));
 
         // make sure the length of the test data is in the range expected by the tests
         m_file4_len = strlen(g_file4_contents);
@@ -668,8 +667,8 @@ BOOST_AUTO_TEST_CASE(checkResponseToHTTP_1_1_Request) {
 BOOST_AUTO_TEST_CASE(checkHTTPMessageReceive) {
     // open (another) connection
     pion::tcp::connection tcp_conn(get_io_service());
-    boost::system::error_code error_code;
-    error_code = tcp_conn.connect(boost::asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
+    asio::error_code error_code;
+    error_code = tcp_conn.connect(asio::ip::address::from_string("127.0.0.1"), m_server.get_port());
     BOOST_REQUIRE(!error_code);
 
     // send request to the server

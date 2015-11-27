@@ -11,7 +11,8 @@
 #define __PION_SCHEDULER_HEADER__
 
 #include <vector>
-#include <boost/asio.hpp>
+#include <memory>
+#include <asio.hpp>
 #include <boost/assert.hpp>
 #include <boost/bind.hpp>
 #include <boost/function/function0.hpp>
@@ -78,14 +79,14 @@ public:
     inline logger get_logger(void) { return m_logger; }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& get_io_service(void) = 0;
+    virtual asio::io_service& get_io_service(void) = 0;
     
     /**
      * schedules work to be performed by one of the pooled threads
      *
      * @param work_func work function to be executed
      */
-    virtual void post(boost::function0<void> work_func) {
+    virtual void post(std::function<void()> work_func) {
         get_io_service().post(work_func);
     }
     
@@ -95,8 +96,8 @@ public:
      * @param my_service IO service used to re-schedule keep_running()
      * @param my_timer deadline timer used to keep the IO service active while running
      */
-    void keep_running(boost::asio::io_service& my_service,
-                     boost::asio::deadline_timer& my_timer);
+    void keep_running(asio::io_service& my_service,
+                     asio::deadline_timer& my_timer);
     
     /**
      * puts the current thread to sleep for a specific period of time
@@ -128,7 +129,7 @@ public:
     
     
     /// processes work passed to the asio service & handles uncaught exceptions
-    void process_service_work(boost::asio::io_service& service);
+    void process_service_work(asio::io_service& service);
 
 
 protected:
@@ -232,7 +233,7 @@ protected:
 
     
     /// typedef for a pool of worker threads
-    typedef std::vector<boost::shared_ptr<boost::thread> >  ThreadPool;
+    typedef std::vector<std::shared_ptr<boost::thread> >  ThreadPool;
     
     
     /// pool of threads used to perform work
@@ -257,7 +258,7 @@ public:
     virtual ~single_service_scheduler() { shutdown(); }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& get_io_service(void) { return m_service; }
+    virtual asio::io_service& get_io_service(void) { return m_service; }
     
     /// Starts the thread scheduler (this is called automatically when necessary)
     virtual void startup(void);
@@ -273,10 +274,10 @@ protected:
 
     
     /// service used to manage async I/O events
-    boost::asio::io_service         m_service;
+    asio::io_service         m_service;
     
     /// timer used to periodically check for shutdown
-    boost::asio::deadline_timer     m_timer;
+    asio::deadline_timer     m_timer;
 };
     
 
@@ -297,10 +298,10 @@ public:
     virtual ~one_to_one_scheduler() { shutdown(); }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& get_io_service(void) {
+    virtual asio::io_service& get_io_service(void) {
         boost::mutex::scoped_lock scheduler_lock(m_mutex);
         while (m_service_pool.size() < m_num_threads) {
-            boost::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
+            std::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
             m_service_pool.push_back(service_ptr);
         }
         if (++m_next_service >= m_num_threads)
@@ -315,7 +316,7 @@ public:
      *
      * @param n integer number representing the service object
      */
-    virtual boost::asio::io_service& get_io_service(boost::uint32_t n) {
+    virtual asio::io_service& get_io_service(boost::uint32_t n) {
         BOOST_ASSERT(n < m_num_threads);
         BOOST_ASSERT(n < m_service_pool.size());
         return m_service_pool[n]->first;
@@ -341,12 +342,12 @@ protected:
     /// typedef for a pair object where first is an IO service and second is a deadline timer
     struct service_pair_type {
         service_pair_type(void) : first(), second(first) {}
-        boost::asio::io_service         first;
-        boost::asio::deadline_timer     second;
+        asio::io_service         first;
+        asio::deadline_timer     second;
     };
     
     /// typedef for a pool of IO services
-    typedef std::vector<boost::shared_ptr<service_pair_type> >        service_pool_type;
+    typedef std::vector<std::shared_ptr<service_pair_type> >        service_pool_type;
 
     
     /// pool of IO services used to schedule work

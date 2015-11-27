@@ -14,7 +14,7 @@
 #include <string>
 #include <cstdio>
 #include <cstring>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/numeric/conversion/cast.hpp>
@@ -158,7 +158,7 @@ protected:
 };
 
 /// data type for a user  pointer
-typedef boost::shared_ptr<user> user_ptr;
+typedef std::shared_ptr<user> user_ptr;
 
 
 ///
@@ -315,7 +315,7 @@ protected:
 };
 
 /// data type for a user_manager pointer
-typedef boost::shared_ptr<user_manager>  user_manager_ptr;
+typedef std::shared_ptr<user_manager>  user_manager_ptr;
 
 
 }   // end namespace pion

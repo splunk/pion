@@ -15,7 +15,6 @@
     #include <sys/types.h>
     #include <boost/regex.hpp>
     #include <boost/tokenizer.hpp>
-    #include <boost/lexical_cast.hpp>
     #include <fstream>
 #endif
 
@@ -121,7 +120,7 @@ long admin_rights::find_system_id(const std::string& name,
     // check if name is the system id
     const boost::regex just_numbers("\\d+");
     if (boost::regex_match(name, just_numbers)) {
-        return boost::lexical_cast<boost::int32_t>(name);
+        return std::stol(name);
     }
 
     // open system file
@@ -145,7 +144,7 @@ long admin_rights::find_system_id(const std::string& name,
                 && boost::regex_match(*token_it, just_numbers))
             {
                 // found id as third parameter
-                system_id = boost::lexical_cast<boost::int32_t>(*token_it);
+                system_id = std::stoi(*token_it);
             }
             break;
         }

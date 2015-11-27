@@ -85,7 +85,7 @@ private:
 };
     
 /// data type for a spdy reader pointer
-typedef boost::shared_ptr<decompressor>       decompressor_ptr;
+typedef std::shared_ptr<decompressor>       decompressor_ptr;
     
 }   // end namespace spdy
 }   // end namespace pion
