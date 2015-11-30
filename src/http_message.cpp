@@ -195,7 +195,7 @@ std::size_t message::read(std::istream& in,
     while (in) {
         in.read(&c, 1);
         if ( ! in ) {
-//            ec = make_error_code(boost::system::errc::io_error);
+            ec = make_error_code(asio::error::eof);
             break;
         }
         http_parser.set_read_buffer(&c, 1);
@@ -207,7 +207,7 @@ std::size_t message::read(std::istream& in,
         if (http_parser.check_premature_eof(*this)) {
             // premature EOF encountered
             if (! ec)
-                ec = asio::error::eof;//make_error_code(boost::system::errc::io_error);
+                ec = make_error_code(asio::error::eof);//make_error_code(boost::system::errc::io_error);
         } else {
             // EOF reached when content length unknown
             // assume it is the correct end of content
