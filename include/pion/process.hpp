@@ -11,10 +11,10 @@
 #define __PION_PROCESS_HEADER__
 
 #include <string>
+#include <mutex>
+#include <condition_variable>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/once.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 
 // Dump file generation support on Windows
@@ -99,10 +99,10 @@ protected:
         bool                    shutdown_now;
         
         /// triggered when it is time to shutdown
-        boost::condition        shutdown_cond;
+        std::condition_variable        shutdown_cond;
 
         /// used to protect the shutdown condition
-        boost::mutex            shutdown_mutex;
+        std::mutex            shutdown_mutex;
 
 // Dump file generation support on Windows
 #ifdef PION_WIN32

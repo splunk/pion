@@ -71,7 +71,7 @@ server::server(const asio::ip::tcp::endpoint& endpoint)
 void server::start(void)
 {
     // lock mutex for thread safety
-    boost::mutex::scoped_lock server_lock(m_mutex);
+    std::unique_lock<std::mutex> server_lock(m_mutex);
 
     if (! m_is_listening) {
         PION_LOG_INFO(m_logger, "Starting server on port " << get_port());
@@ -113,7 +113,7 @@ void server::start(void)
 void server::stop(bool wait_until_finished)
 {
     // lock mutex for thread safety
-    boost::mutex::scoped_lock server_lock(m_mutex);
+    std::unique_lock<std::mutex> server_lock(m_mutex);
 
     if (m_is_listening) {
         PION_LOG_INFO(m_logger, "Shutting down server on port " << get_port());
@@ -150,7 +150,7 @@ void server::stop(bool wait_until_finished)
 
 void server::join(void)
 {
-    boost::mutex::scoped_lock server_lock(m_mutex);
+    std::unique_lock<std::mutex> server_lock(m_mutex);
     while (m_is_listening) {
         // sleep until server_has_stopped condition is signaled
         m_server_has_stopped.wait(server_lock);
@@ -173,7 +173,7 @@ void server::set_ssl_key_file(const std::string& pem_key_file)
 void server::listen(void)
 {
     // lock mutex for thread safety
-    boost::mutex::scoped_lock server_lock(m_mutex);
+    std::unique_lock<std::mutex> server_lock(m_mutex);
     
     if (m_is_listening) {
         // create a new TCP connection object
@@ -246,7 +246,7 @@ void server::handle_ssl_handshake(const tcp::connection_ptr& tcp_conn,
 
 void server::finish_connection(const tcp::connection_ptr& tcp_conn)
 {
-    boost::mutex::scoped_lock server_lock(m_mutex);
+    std::unique_lock<std::mutex> server_lock(m_mutex);
     if (m_is_listening && tcp_conn->get_keep_alive()) {
         
         // keep the connection alive
@@ -288,7 +288,7 @@ std::size_t server::prune_connections(void)
 
 std::size_t server::get_connections(void) const
 {
-    boost::mutex::scoped_lock server_lock(m_mutex);
+    std::unique_lock<std::mutex> server_lock(m_mutex);
     return (m_is_listening ? (m_conn_pool.size() - 1) : m_conn_pool.size());
 }
 

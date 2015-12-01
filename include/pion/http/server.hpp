@@ -143,7 +143,7 @@ public:
     /// clears the collection of resources recognized by the HTTP server
     virtual void clear(void) {
         if (is_listening()) stop();
-        boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+        std::unique_lock<std::mutex> resource_lock(m_resource_mutex);
         m_resources.clear();
     }
 
@@ -276,7 +276,7 @@ private:
     error_handler_t             m_server_error_handler;
 
     /// mutex used to protect access to the resources
-    mutable boost::mutex        m_resource_mutex;
+    mutable std::mutex        m_resource_mutex;
 
     /// pointer to authentication handler object
     http::auth_ptr              m_auth_ptr;

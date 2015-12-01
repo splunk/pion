@@ -14,9 +14,9 @@
 #include <string>
 #include <map>
 #include <list>
+#include <mutex>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/once.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/filesystem/path.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
@@ -210,7 +210,7 @@ private:
         map_type                    m_plugin_map;
         
         /// mutex to make class thread-safe
-        boost::mutex                m_plugin_mutex;
+        std::mutex                m_plugin_mutex;
     };
 
     

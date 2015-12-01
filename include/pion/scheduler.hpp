@@ -12,19 +12,18 @@
 
 #include <vector>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <asio.hpp>
 #include <boost/assert.hpp>
-#include <boost/bind.hpp>
-#include <boost/function/function0.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
+
 #include <boost/noncopyable.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
+#include <condition_variable>
 
 
 namespace pion {    // begin namespace pion
@@ -105,9 +104,9 @@ public:
      * @param sleep_sec number of entire seconds to sleep for
      * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
      */
-    inline static void sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec) {
-        boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
-        boost::thread::sleep(wakeup_time);
+    inline static void sleep(uint32_t sleep_sec, uint32_t sleep_nsec) {
+        std::chrono::system_clock::time_point wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
+        std::this_thread::sleep_until(wakeup_time);
     }
 
     /**
@@ -121,10 +120,10 @@ public:
      */
     template <typename ConditionType, typename LockType>
     inline static void sleep(ConditionType& wakeup_condition, LockType& wakeup_lock,
-                             boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
+                             uint32_t sleep_sec, uint32_t sleep_nsec)
     {
-        boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
-        wakeup_condition.timed_wait(wakeup_lock, wakeup_time);
+        std::chrono::system_clock::time_point wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
+        wakeup_condition.wait_until(wakeup_lock, wakeup_time);
     }
     
     
@@ -142,8 +141,8 @@ protected:
      *
      * @return boost::system_time time to wake up from sleep
      */
-    static boost::system_time get_wakeup_time(boost::uint32_t sleep_sec,
-        boost::uint32_t sleep_nsec);
+    static std::chrono::system_clock::time_point get_wakeup_time(uint32_t sleep_sec,
+        uint32_t sleep_nsec);
 
     /// stops all services used to schedule work
     virtual void stop_services(void) {}
@@ -172,16 +171,16 @@ protected:
 
 
     /// mutex to make class thread-safe
-    boost::mutex                    m_mutex;
+    std::mutex                    m_mutex;
     
     /// primary logging interface used by this class
     logger                          m_logger;
 
     /// condition triggered when there are no more active users
-    boost::condition                m_no_more_active_users;
+    std::condition_variable                m_no_more_active_users;
 
     /// condition triggered when the scheduler has stopped
-    boost::condition                m_scheduler_has_stopped;
+    std::condition_variable                m_scheduler_has_stopped;
 
     /// total number of worker threads in the pool
     boost::uint32_t                 m_num_threads;
@@ -299,7 +298,7 @@ public:
     
     /// returns an async I/O service used to schedule work
     virtual asio::io_service& get_io_service(void) {
-        boost::mutex::scoped_lock scheduler_lock(m_mutex);
+        std::unique_lock<std::mutex> scheduler_lock(m_mutex);
         while (m_service_pool.size() < m_num_threads) {
             std::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
             m_service_pool.push_back(service_ptr);

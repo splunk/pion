@@ -123,7 +123,7 @@
             virtual void close() {}
         protected:
             virtual void append(const log4cplus::spi::InternalLoggingEvent& event) {
-                boost::mutex::scoped_lock log_lock(m_log_mutex);
+                std::unique_lock<std::mutex> log_lock(m_log_mutex);
                 m_log_events.push_back(*event.clone());
             }
 
@@ -132,7 +132,7 @@
             LogEventBuffer  m_log_events;
 
             /// mutex to make class thread-safe
-            boost::mutex    m_log_mutex;
+            std::mutex    m_log_mutex;
         };
     }
 

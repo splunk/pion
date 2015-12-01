@@ -228,7 +228,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
         if (m_cache_setting > 0 || m_scan_setting > 0) {
 
             // search for a matching cache entry
-            boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+            std::unique_lock<std::mutex> cache_lock(m_cache_mutex);
             CacheMap::iterator cache_itr = m_cache_map.find(relative_path);
 
             if (cache_itr == m_cache_map.end()) {
@@ -365,7 +365,7 @@ void FileService::operator()(const http::request_ptr& http_request_ptr, const tc
                     // add new entry to the cache
                     PION_LOG_DEBUG(m_logger, "Adding cache entry for request ("
                                    << get_resource() << "): " << relative_path);
-                    boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+                    std::unique_lock<std::mutex> cache_lock(m_cache_mutex);
                     m_cache_map.insert( std::make_pair(relative_path, response_file) );
                 }
             }
@@ -598,7 +598,7 @@ void FileService::start(void)
         if (m_cache_setting == 0 && m_scan_setting > 1)
             m_cache_setting = 1;
 
-        boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+        std::unique_lock<std::mutex> cache_lock(m_cache_mutex);
 
         // add entry for file if one is defined
         if (! m_file.empty()) {
@@ -617,7 +617,7 @@ void FileService::stop(void)
 {
     PION_LOG_DEBUG(m_logger, "Shutting down resource (" << get_resource() << ')');
     // clear cached files (if started again, it will re-scan)
-    boost::mutex::scoped_lock cache_lock(m_cache_mutex);
+    std::unique_lock<std::mutex> cache_lock(m_cache_mutex);
     m_cache_map.clear();
 }
 

@@ -16,10 +16,10 @@ namespace pion {    // begin namespace pion
 
 // static members of scheduler
     
-const boost::uint32_t   scheduler::DEFAULT_NUM_THREADS = 8;
-const boost::uint32_t   scheduler::NSEC_IN_SECOND = 1000000000; // (10^9)
-const boost::uint32_t   scheduler::MICROSEC_IN_SECOND = 1000000;    // (10^6)
-const boost::uint32_t   scheduler::KEEP_RUNNING_TIMER_SECONDS = 5;
+const uint32_t   scheduler::DEFAULT_NUM_THREADS = 8;
+const uint32_t   scheduler::NSEC_IN_SECOND = 1000000000; // (10^9)
+const uint32_t   scheduler::MICROSEC_IN_SECOND = 1000000;    // (10^6)
+const uint32_t   scheduler::KEEP_RUNNING_TIMER_SECONDS = 5;
 
 
 // scheduler member functions
@@ -27,7 +27,7 @@ const boost::uint32_t   scheduler::KEEP_RUNNING_TIMER_SECONDS = 5;
 void scheduler::shutdown(void)
 {
     // lock mutex for thread safety
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    std::unique_lock<std::mutex> scheduler_lock(m_mutex);
     
     if (m_is_running) {
         
@@ -67,7 +67,7 @@ void scheduler::shutdown(void)
 
 void scheduler::join(void)
 {
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    std::unique_lock<std::mutex> scheduler_lock(m_mutex);
     while (m_is_running) {
         // sleep until scheduler_has_stopped condition is signaled
         m_scheduler_has_stopped.wait(scheduler_lock);
@@ -88,21 +88,21 @@ void scheduler::keep_running(asio::io_service& my_service,
 void scheduler::add_active_user(void)
 {
     if (!m_is_running) startup();
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    std::unique_lock<std::mutex> scheduler_lock(m_mutex);
     ++m_active_users;
 }
 
 void scheduler::remove_active_user(void)
 {
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    std::unique_lock<std::mutex> scheduler_lock(m_mutex);
     if (--m_active_users == 0)
         m_no_more_active_users.notify_all();
 }
 
-boost::system_time scheduler::get_wakeup_time(boost::uint32_t sleep_sec,
-    boost::uint32_t sleep_nsec)
+std::chrono::system_clock::time_point scheduler::get_wakeup_time(uint32_t sleep_sec,
+    uint32_t sleep_nsec)
 {
-    return boost::get_system_time() + boost::posix_time::seconds(sleep_sec) + boost::posix_time::microseconds(sleep_nsec / 1000);
+    return std::chrono::system_clock::now() + std::chrono::seconds(sleep_sec) + std::chrono::microseconds(sleep_nsec / 1000);
 }
                      
 void scheduler::process_service_work(asio::io_service& service) {
@@ -123,7 +123,7 @@ void scheduler::process_service_work(asio::io_service& service) {
 void single_service_scheduler::startup(void)
 {
     // lock mutex for thread safety
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    std::unique_lock<std::mutex> scheduler_lock(m_mutex);
     
     if (! m_is_running) {
         PION_LOG_INFO(m_logger, "Starting thread scheduler");
@@ -148,7 +148,7 @@ void single_service_scheduler::startup(void)
 void one_to_one_scheduler::startup(void)
 {
     // lock mutex for thread safety
-    boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    std::unique_lock<std::mutex> scheduler_lock(m_mutex);
     
     if (! m_is_running) {
         PION_LOG_INFO(m_logger, "Starting thread scheduler");

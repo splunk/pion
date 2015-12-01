@@ -11,9 +11,8 @@
 #define __PION_TCP_TIMER_HEADER__
 
 #include <memory>
+#include <mutex>
 #include <asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/connection.hpp>
 
@@ -64,7 +63,7 @@ private:
     asio::deadline_timer             m_timer;
     
     /// mutex used to synchronize the TCP connection timer
-    boost::mutex                            m_mutex;
+    std::mutex                            m_mutex;
 
     /// true if the deadline timer is active
     bool                                    m_timer_active; 

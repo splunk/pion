@@ -7,12 +7,11 @@
 // See http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/thread/mutex.hpp>
 #include <pion/http/types.hpp>
 #include <pion/algorithm.hpp>
 #include <cstdio>
 #include <ctime>
-
+#include <mutex>
 
 namespace pion {    // begin namespace pion
 namespace http {    // begin namespace http
@@ -97,12 +96,12 @@ const unsigned int  types::RESPONSE_CODE_CONTINUE = 100;
 std::string types::get_date_string(const time_t t)
 {
     // use mutex since time functions are normally not thread-safe
-    static boost::mutex time_mutex;
+    static std::mutex time_mutex;
     static const char *TIME_FORMAT = "%a, %d %b %Y %H:%M:%S GMT";
     static const unsigned int TIME_BUF_SIZE = 100;
     char time_buf[TIME_BUF_SIZE+1];
 
-    boost::mutex::scoped_lock time_lock(time_mutex);
+    std::unique_lock<std::mutex> time_lock(time_mutex);
     if (strftime(time_buf, TIME_BUF_SIZE, TIME_FORMAT, gmtime(&t)) == 0)
         time_buf[0] = '\0'; // failed; resulting buffer is indeterminate
     time_lock.unlock();

@@ -10,11 +10,9 @@
 #ifndef __PION_FILESERVICE_HEADER__
 #define __PION_FILESERVICE_HEADER__
 
-#include <boost/shared_ptr.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/thread/once.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/shared_array.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
@@ -25,7 +23,8 @@
 #include <pion/http/server.hpp>
 #include <string>
 #include <map>
-
+#include <mutex>
+#include <memory>
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
@@ -353,7 +352,7 @@ private:
     CacheMap                    m_cache_map;
 
     /// mutex used to make the file cache thread-safe
-    boost::mutex                m_cache_mutex;
+    std::mutex                m_cache_mutex;
 
     /**
      * cache configuration setting:

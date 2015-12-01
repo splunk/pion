@@ -131,7 +131,7 @@ bool server::find_request_handler(const std::string& resource,
                                     request_handler_t& request_handler) const
 {
     // first make sure that HTTP resources are registered
-    boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+    std::unique_lock<std::mutex> resource_lock(m_resource_mutex);
     if (m_resources.empty())
         return false;
     
@@ -156,7 +156,7 @@ bool server::find_request_handler(const std::string& resource,
 void server::add_resource(const std::string& resource,
                              request_handler_t request_handler)
 {
-    boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+    std::unique_lock<std::mutex> resource_lock(m_resource_mutex);
     const std::string clean_resource(strip_trailing_slash(resource));
     m_resources.insert(std::make_pair(clean_resource, request_handler));
     PION_LOG_INFO(m_logger, "Added request handler for HTTP resource: " << clean_resource);
@@ -164,7 +164,7 @@ void server::add_resource(const std::string& resource,
 
 void server::remove_resource(const std::string& resource)
 {
-    boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+    std::unique_lock<std::mutex> resource_lock(m_resource_mutex);
     const std::string clean_resource(strip_trailing_slash(resource));
     m_resources.erase(clean_resource);
     PION_LOG_INFO(m_logger, "Removed request handler for HTTP resource: " << clean_resource);
@@ -173,7 +173,7 @@ void server::remove_resource(const std::string& resource)
 void server::add_redirect(const std::string& requested_resource,
                              const std::string& new_resource)
 {
-    boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+    std::unique_lock<std::mutex> resource_lock(m_resource_mutex);
     const std::string clean_requested_resource(strip_trailing_slash(requested_resource));
     const std::string clean_new_resource(strip_trailing_slash(new_resource));
     m_redirects.insert(std::make_pair(clean_requested_resource, clean_new_resource));
