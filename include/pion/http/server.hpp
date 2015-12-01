@@ -14,7 +14,6 @@
 #include <string>
 #include <functional>
 #include <asio.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/server.hpp>
 #include <pion/tcp/connection.hpp>

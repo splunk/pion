@@ -12,7 +12,6 @@
 
 #include <memory>
 #include <asio.hpp>
-#include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 #include <pion/config.hpp>
 #include <pion/http/writer.hpp>

@@ -13,7 +13,6 @@
 #include <string>
 #include <memory>
 #include <asio.hpp>
-#include <boost/bind.hpp>
 #include <pion/config.hpp>
 #include <pion/plugin.hpp>
 #include <pion/plugin_manager.hpp>

@@ -14,16 +14,13 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <condition_variable>
 #include <asio.hpp>
 #include <boost/assert.hpp>
 
 #include <boost/noncopyable.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/xtime.hpp>
-#include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
-#include <condition_variable>
 
 
 namespace pion {    // begin namespace pion
@@ -66,10 +63,10 @@ public:
     inline bool is_running(void) const { return m_is_running; }
     
     /// sets the number of threads to be used (these are shared by all servers)
-    inline void set_num_threads(const boost::uint32_t n) { m_num_threads = n; }
+    inline void set_num_threads(const uint32_t n) { m_num_threads = n; }
     
     /// returns the number of threads currently in use
-    inline boost::uint32_t get_num_threads(void) const { return m_num_threads; }
+    inline uint32_t get_num_threads(void) const { return m_num_threads; }
 
     /// sets the logger to be used
     inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
@@ -216,13 +213,13 @@ protected:
             PION_LOG_DEBUG(m_logger, "Waiting for threads to shutdown");
             
             // wait until all threads in the pool have stopped
-            boost::thread current_thread;
+//            std::thread current_thread;
             for (ThreadPool::iterator i = m_thread_pool.begin();
                  i != m_thread_pool.end(); ++i)
             {
                 // make sure we do not call join() for the current thread,
                 // since this may yield "undefined behavior"
-                if (**i != current_thread) (*i)->join();
+                if ((*i)->get_id() != std::this_thread::get_id()) (*i)->join();
             }
         }
     }
@@ -232,7 +229,7 @@ protected:
 
     
     /// typedef for a pool of worker threads
-    typedef std::vector<std::shared_ptr<boost::thread> >  ThreadPool;
+    typedef std::vector<std::shared_ptr<std::thread> >  ThreadPool;
     
     
     /// pool of threads used to perform work

@@ -81,7 +81,7 @@ void scheduler::keep_running(asio::io_service& my_service,
         // schedule this again to make sure the service doesn't complete
         my_timer.expires_from_now(boost::posix_time::seconds(KEEP_RUNNING_TIMER_SECONDS));
         my_timer.async_wait(std::bind(&scheduler::keep_running, this,
-                                        boost::ref(my_service), boost::ref(my_timer)));
+                                        std::ref(my_service), std::ref(my_timer)));
     }
 }
 
@@ -135,8 +135,8 @@ void single_service_scheduler::startup(void)
         
         // start multiple threads to handle async tasks
         for (boost::uint32_t n = 0; n < m_num_threads; ++n) {
-            std::shared_ptr<boost::thread> new_thread(new boost::thread( std::bind(&scheduler::process_service_work,
-                                                                                       this, boost::ref(m_service)) ));
+            std::shared_ptr<std::thread> new_thread(new std::thread( std::bind(&scheduler::process_service_work,
+                                                                                       this, std::ref(m_service)) ));
             m_thread_pool.push_back(new_thread);
         }
     }
@@ -167,8 +167,8 @@ void one_to_one_scheduler::startup(void)
         
         // start multiple threads to handle async tasks
         for (boost::uint32_t n = 0; n < m_num_threads; ++n) {
-            std::shared_ptr<boost::thread> new_thread(new boost::thread( std::bind(&scheduler::process_service_work,
-                                                                                       this, boost::ref(m_service_pool[n]->first)) ));
+            std::shared_ptr<std::thread> new_thread(new std::thread( std::bind(&scheduler::process_service_work,
+                                                                                       this, std::ref(m_service_pool[n]->first)) ));
             m_thread_pool.push_back(new_thread);
         }
     }

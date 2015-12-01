@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(checkTCPConnectToAnotherStream) {
 
     // schedule another thread to listen for a TCP connection
     connection_handler conn_handler(std::bind(&tcp_stream_tests_F::sendHello, std::placeholders::_1));
-    boost::thread listener_thread(std::bind(&tcp_stream_tests_F::acceptConnection,
+    std::thread listener_thread(std::bind(&tcp_stream_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(checkSendAndReceiveBiggerThanBuffers) {
 
     // schedule another thread to listen for a TCP connection
     connection_handler conn_handler(std::bind(&tcp_stream_buffer_tests_F::sendBigBuffer, this, std::placeholders::_1));
-    boost::thread listener_thread(std::bind(&tcp_stream_buffer_tests_F::acceptConnection,
+    std::thread listener_thread(std::bind(&tcp_stream_buffer_tests_F::acceptConnection,
                                               this, conn_handler) );
     m_scheduler.add_active_user();
     m_accept_ready.wait(accept_lock);

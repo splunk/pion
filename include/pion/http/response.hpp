@@ -10,7 +10,6 @@
 #ifndef __PION_HTTP_RESPONSE_HEADER__
 #define __PION_HTTP_RESPONSE_HEADER__
 
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/http/message.hpp>
 #include <pion/http/request.hpp>

@@ -12,7 +12,6 @@
 
 #include <string>
 #include <boost/noncopyable.hpp>
-#include <boost/function/function2.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/thread/once.hpp>
