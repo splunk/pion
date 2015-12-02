@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(testParseHttpUri)
     std::string uri("http://127.0.0.1:80/folder/file.ext?q=uery");
     std::string proto;
     std::string host;
-    boost::uint16_t port = 0;
+    uint16_t port = 0;
     std::string path;
     std::string query;
 
@@ -549,7 +549,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
     http::response http_response;
     asio::error_code ec;
 
-    boost::uint64_t total_bytes = 0;
+    uint64_t total_bytes = 0;
     for (int i=0; i <  frame_cnt - 1; i++ ) {
         response_parser.set_read_buffer((const char*)frames[i], sizes[i]);
         BOOST_CHECK( boost::indeterminate(response_parser.parse(http_response, ec)) );

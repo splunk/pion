@@ -40,7 +40,7 @@ public:
     inline tcp::connection_ptr& get_connection(void) { return m_tcp_conn; }
     
     /// sets the maximum number of seconds for read operations
-    inline void set_timeout(boost::uint32_t seconds) { m_read_timeout = seconds; }
+    inline void set_timeout(uint32_t seconds) { m_read_timeout = seconds; }
 
     
 protected:

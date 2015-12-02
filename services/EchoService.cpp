@@ -8,7 +8,7 @@
 //
 
 #include "EchoService.hpp"
-#include <boost/bind.hpp>
+#include <functional>
 #include <pion/algorithm.hpp>
 #include <pion/http/response_writer.hpp>
 #include <pion/user.hpp>

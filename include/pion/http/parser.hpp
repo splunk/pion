@@ -311,7 +311,7 @@ public:
      * @return true if the URI was successfully parsed, false if there was an error
      */
     static bool parse_uri(const std::string& uri, std::string& proto, 
-                         std::string& host, boost::uint16_t& port, std::string& path,
+                         std::string& host, uint16_t& port, std::string& path,
                          std::string& query);
 
     /**
@@ -532,7 +532,7 @@ protected:
 
 
     /// maximum length for response status message
-    static const boost::uint32_t        STATUS_MESSAGE_MAX;
+    static const uint32_t        STATUS_MESSAGE_MAX;
 
     /// maximum length for the request method
     static const uint32_t        METHOD_MAX;

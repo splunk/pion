@@ -155,16 +155,16 @@ protected:
     
     
     /// default number of worker threads in the thread pool
-    static const boost::uint32_t    DEFAULT_NUM_THREADS;
+    static const uint32_t    DEFAULT_NUM_THREADS;
 
     /// number of nanoseconds in one full second (10 ^ 9)
-    static const boost::uint32_t    NSEC_IN_SECOND;
+    static const uint32_t    NSEC_IN_SECOND;
 
     /// number of microseconds in one full second (10 ^ 6)
-    static const boost::uint32_t    MICROSEC_IN_SECOND;
+    static const uint32_t    MICROSEC_IN_SECOND;
     
     /// number of seconds a timer should wait for to keep the IO services running
-    static const boost::uint32_t    KEEP_RUNNING_TIMER_SECONDS;
+    static const uint32_t    KEEP_RUNNING_TIMER_SECONDS;
 
 
     /// mutex to make class thread-safe
@@ -180,10 +180,10 @@ protected:
     std::condition_variable                m_scheduler_has_stopped;
 
     /// total number of worker threads in the pool
-    boost::uint32_t                 m_num_threads;
+    uint32_t                 m_num_threads;
 
     /// the scheduler will not shutdown until there are no more active users
-    boost::uint32_t                 m_active_users;
+    uint32_t                 m_active_users;
 
     /// true if the thread scheduler is running
     bool                            m_is_running;
@@ -312,7 +312,7 @@ public:
      *
      * @param n integer number representing the service object
      */
-    virtual asio::io_service& get_io_service(boost::uint32_t n) {
+    virtual asio::io_service& get_io_service(uint32_t n) {
         BOOST_ASSERT(n < m_num_threads);
         BOOST_ASSERT(n < m_service_pool.size());
         return m_service_pool[n]->first;
@@ -350,7 +350,7 @@ protected:
     service_pool_type   m_service_pool;
 
     /// the next service to use for scheduling work
-    boost::uint32_t     m_next_service;
+    uint32_t     m_next_service;
 };
     
     

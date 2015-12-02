@@ -53,7 +53,7 @@ private:
      * @param name descriptive name to lookup (user or group name, may be id)
      * @param file system credentials file to look within
      *
-     * @return boost::int32_t identifier found, or -1 if none found
+     * @return int32_t identifier found, or -1 if none found
      */
     static long find_system_id(const std::string& name, const std::string& file);
 

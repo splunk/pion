@@ -134,7 +134,7 @@ void single_service_scheduler::startup(void)
         keep_running(m_service, m_timer);
         
         // start multiple threads to handle async tasks
-        for (boost::uint32_t n = 0; n < m_num_threads; ++n) {
+        for (uint32_t n = 0; n < m_num_threads; ++n) {
             std::shared_ptr<std::thread> new_thread(new std::thread( std::bind(&scheduler::process_service_work,
                                                                                        this, std::ref(m_service)) ));
             m_thread_pool.push_back(new_thread);
@@ -166,7 +166,7 @@ void one_to_one_scheduler::startup(void)
         }
         
         // start multiple threads to handle async tasks
-        for (boost::uint32_t n = 0; n < m_num_threads; ++n) {
+        for (uint32_t n = 0; n < m_num_threads; ++n) {
             std::shared_ptr<std::thread> new_thread(new std::thread( std::bind(&scheduler::process_service_work,
                                                                                        this, std::ref(m_service_pool[n]->first)) ));
             m_thread_pool.push_back(new_thread);

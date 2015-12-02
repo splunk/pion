@@ -290,13 +290,13 @@ public:
     inline void set_remote_ip(const asio::ip::address& ip) { m_remote_ip = ip; }
 
     /// sets the major HTTP version number
-    inline void set_version_major(const boost::uint16_t n) {
+    inline void set_version_major(const uint16_t n) {
         m_version_major = n;
         clear_first_line();
     }
 
     /// sets the minor HTTP version number
-    inline void set_version_minor(const boost::uint16_t n) {
+    inline void set_version_minor(const uint16_t n) {
         m_version_minor = n;
         clear_first_line();
     }
