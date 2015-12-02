@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <asio.hpp>
 #include <boost/assert.hpp>
-#include <boost/regex.hpp>
 #include <boost/logic/tribool.hpp>
 #include <pion/http/message.hpp>
 #include <pion/http/request.hpp>
@@ -25,7 +24,7 @@ namespace http {    // begin namespace http
 
 // static members of message
 
-const boost::regex  message::REGEX_ICASE_CHUNKED(".*chunked.*", boost::regex::icase);
+const std::regex  message::REGEX_ICASE_CHUNKED("[^]*chunked[^]*", std::regex::icase);
 
 
 // message member functions

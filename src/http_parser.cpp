@@ -9,7 +9,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <boost/regex.hpp>
 #include <boost/assert.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/algorithm/string.hpp>
@@ -38,7 +37,7 @@ const boost::uint32_t   parser::COOKIE_NAME_MAX = 1024; // 1 KB
 const boost::uint32_t   parser::COOKIE_VALUE_MAX = 1024 * 1024; // 1 MB
 const std::size_t       parser::DEFAULT_CONTENT_MAX = 1024 * 1024;  // 1 MB
 parser::error_category_t * parser::m_error_category_ptr = NULL;
-boost::once_flag            parser::m_instance_flag = BOOST_ONCE_INIT;
+std::once_flag            parser::m_instance_flag;
 
 
 // parser member functions
@@ -1574,29 +1573,29 @@ void parser::create_error_category(void)
 bool parser::parse_forwarded_for(const std::string& header, std::string& public_ip)
 {
     // static regex's used to check for ipv4 address
-    static const boost::regex IPV4_ADDR_RX("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
+    static const std::regex IPV4_ADDR_RX("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
 
     /// static regex used to check for private/local networks:
     /// 10.*
     /// 127.*
     /// 192.168.*
     /// 172.16-31.*
-    static const boost::regex PRIVATE_NET_RX("(10\\.[0-9]{1,3}|127\\.[0-9]{1,3}|192\\.168|172\\.1[6-9]|172\\.2[0-9]|172\\.3[0-1])\\.[0-9]{1,3}\\.[0-9]{1,3}");
+    static const std::regex PRIVATE_NET_RX("(10\\.[0-9]{1,3}|127\\.[0-9]{1,3}|192\\.168|172\\.1[6-9]|172\\.2[0-9]|172\\.3[0-1])\\.[0-9]{1,3}\\.[0-9]{1,3}");
 
     // sanity check
     if (header.empty())
         return false;
 
     // local variables re-used by while loop
-    boost::match_results<std::string::const_iterator> m;
+    std::match_results<std::string::const_iterator> m;
     std::string::const_iterator start_it = header.begin();
 
     // search for next ip address within the header
-    while (boost::regex_search(start_it, header.end(), m, IPV4_ADDR_RX)) {
+    while (std::regex_search(start_it, header.end(), m, IPV4_ADDR_RX)) {
         // get ip that matched
         std::string ip_str(m[0].first, m[0].second);
         // check if public network ip address
-        if (! boost::regex_match(ip_str, PRIVATE_NET_RX) ) {
+        if (! std::regex_match(ip_str, PRIVATE_NET_RX) ) {
             // match found!
             public_ip = ip_str;
             return true;

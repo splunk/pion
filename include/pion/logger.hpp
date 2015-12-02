@@ -78,7 +78,7 @@
     #include <log4cplus/loggingmacros.h>
 
     #include <boost/circular_buffer.hpp>
-    #include <boost/thread/mutex.hpp>
+    #include <mutex>
 
     #if defined(_MSC_VER) && !defined(PION_CMAKE_BUILD)
         #if defined _DEBUG

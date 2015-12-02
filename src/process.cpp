@@ -25,7 +25,7 @@ namespace pion {    // begin namespace pion
     
 // static members of process
     
-boost::once_flag                process::m_instance_flag = BOOST_ONCE_INIT;
+std::once_flag                process::m_instance_flag;
 process::config_type *process::m_config_ptr = NULL;
 
     

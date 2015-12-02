@@ -34,7 +34,7 @@ const unsigned int          FileService::DEFAULT_CACHE_SETTING = 1;
 const unsigned int          FileService::DEFAULT_SCAN_SETTING = 0;
 const unsigned long         FileService::DEFAULT_MAX_CACHE_SIZE = 0;    /* 0=disabled */
 const unsigned long         FileService::DEFAULT_MAX_CHUNK_SIZE = 0;    /* 0=disabled */
-boost::once_flag            FileService::m_mime_types_init_flag = BOOST_ONCE_INIT;
+std::once_flag              FileService::m_mime_types_init_flag;
 FileService::MIMETypeMap    *FileService::m_mime_types_ptr = NULL;
 
 
@@ -714,7 +714,7 @@ FileService::addCacheEntry(const std::string& relative_path,
 
 std::string FileService::findMIMEType(const std::string& file_name) {
     // initialize m_mime_types if it hasn't been done already
-    boost::call_once(FileService::createMIMETypes, m_mime_types_init_flag);
+    std::call_once(m_mime_types_init_flag, FileService::createMIMETypes);
 
     // determine the file's extension
     std::string extension(file_name.substr(file_name.find_last_of('.') + 1));

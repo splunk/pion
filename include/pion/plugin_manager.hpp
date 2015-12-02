@@ -12,11 +12,9 @@
 
 #include <map>
 #include <string>
-
+#include <functional>
+#include <mutex>
 #include <boost/assert.hpp>
-#include <boost/function.hpp>
-#include <boost/function/function1.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
 #include <pion/plugin.hpp>
@@ -36,7 +34,7 @@ public:
     typedef std::function<void(PluginType*)>    PluginRunFunction;
 
     /// data type for a function that may be called by the getStat() method
-    typedef std::function<boost::uint64_t(const PluginType*)>   PluginStatFunction;
+    typedef std::function<uint64_t(const PluginType*)>   PluginStatFunction;
 
     
     /// default constructor
@@ -150,7 +148,7 @@ public:
      *
      * @param stat_func the statistic function to execute for each plug-in object
      */
-    inline boost::uint64_t get_statistic(PluginStatFunction stat_func) const;
+    inline uint64_t get_statistic(PluginStatFunction stat_func) const;
     
     /**
      * returns a statistic value for a particular plug-in
@@ -158,7 +156,7 @@ public:
      * @param plugin_id unique identifier associated with the plug-in
      * @param stat_func the statistic function to execute
      */
-    inline boost::uint64_t get_statistic(const std::string& plugin_id,
+    inline uint64_t get_statistic(const std::string& plugin_id,
                                         PluginStatFunction stat_func) const;
         
     
@@ -356,9 +354,9 @@ inline void plugin_manager<PluginType>::run(const std::string& plugin_id,
 }
 
 template <typename PluginType>
-inline boost::uint64_t plugin_manager<PluginType>::get_statistic(PluginStatFunction stat_func) const
+inline uint64_t plugin_manager<PluginType>::get_statistic(PluginStatFunction stat_func) const
 {
-    boost::uint64_t stat_value = 0;
+    uint64_t stat_value = 0;
     std::unique_lock<std::mutex> plugins_lock(m_plugin_mutex);
     for (typename pion::plugin_manager<PluginType>::map_type::const_iterator i = m_plugin_map.begin();
          i != m_plugin_map.end(); ++i)
@@ -369,7 +367,7 @@ inline boost::uint64_t plugin_manager<PluginType>::get_statistic(PluginStatFunct
 }
 
 template <typename PluginType>
-inline boost::uint64_t plugin_manager<PluginType>::get_statistic(const std::string& plugin_id,
+inline uint64_t plugin_manager<PluginType>::get_statistic(const std::string& plugin_id,
                                                                 PluginStatFunction stat_func) const
 {
     // no need to lock (handled by plugin_manager::get())

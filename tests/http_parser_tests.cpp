@@ -482,8 +482,8 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
     BOOST_CHECK_EQUAL(response_parser.get_total_bytes_read(), sizeof(response_data_1));
     BOOST_CHECK_EQUAL(response_parser.get_content_bytes_read(), 117UL);
 
-    boost::regex content_regex("^GIF89a.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), content_regex));
+    std::regex content_regex("^GIF89a[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), content_regex));
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParserBadRequest)
@@ -566,8 +566,8 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
     BOOST_CHECK_EQUAL(response_parser.get_total_bytes_read(), total_bytes);
     BOOST_CHECK_EQUAL(response_parser.get_content_bytes_read(), 4712UL);
 
-    boost::regex content_regex(".*<title>Atomic\\sLabs:.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), content_regex));
+    std::regex content_regex("[^]*<title>Atomic\\sLabs:[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), content_regex));
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParserWithSemicolons)

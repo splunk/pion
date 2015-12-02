@@ -14,10 +14,10 @@
 #include <vector>
 #include <cstring>
 #include <cstdint>
+#include <regex>
 #include <asio.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/regex.hpp>
 #include <pion/config.hpp>
 #include <pion/http/types.hpp>
 #include <boost/system/error_code.hpp>
@@ -331,7 +331,7 @@ public:
         ihash_multimap::const_iterator i = m_headers.find(HEADER_TRANSFER_ENCODING);
         if (i != m_headers.end()) {
             // From RFC 2616, sec 3.6: All transfer-coding values are case-insensitive.
-            m_is_chunked = boost::regex_match(i->second, REGEX_ICASE_CHUNKED);
+            m_is_chunked = std::regex_match(i->second, REGEX_ICASE_CHUNKED);
             // ignoring other possible values for now
         }
     }
@@ -684,7 +684,7 @@ protected:
 private:
 
     /// Regex used to check for the "chunked" transfer encoding header
-    static const boost::regex       REGEX_ICASE_CHUNKED;
+    static const std::regex       REGEX_ICASE_CHUNKED;
 
     /// True if the HTTP message is valid
     bool                            m_is_valid;

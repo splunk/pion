@@ -10,11 +10,10 @@
 #ifndef __PION_SPDYPARSER_HEADER__
 #define __PION_SPDYPARSER_HEADER__
 
-
-#include <boost/shared_ptr.hpp>
+#include <memory>
+#include <thread>
 #include <boost/logic/tribool.hpp>
 #include <boost/system/error_code.hpp>
-#include <boost/thread/once.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/spdy/types.hpp>
@@ -140,7 +139,7 @@ protected:
     
     /// returns an instance of parser::error_category_t
     static inline error_category_t& get_error_category(void) {
-        boost::call_once(parser::create_error_category, m_instance_flag);
+        std::call_once(m_instance_flag, parser::create_error_category);
         return *m_error_category_ptr;
     }
 
@@ -243,7 +242,7 @@ private:
     static error_category_t *           m_error_category_ptr;
     
     /// used to ensure thread safety of the HTTPParser ErrorCategory
-    static boost::once_flag             m_instance_flag;
+    static std::once_flag             m_instance_flag;
 };
 
 /// data type for a spdy reader pointer

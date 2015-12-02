@@ -9,10 +9,10 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
 #include <pion/plugin.hpp>
+#include <mutex>
 
 #ifdef PION_WIN32
     #include <windows.h>
@@ -33,7 +33,7 @@ const std::string           plugin::PION_PLUGIN_DESTROY("pion_destroy_");
     const std::string           plugin::PION_PLUGIN_EXTENSION(".so");
 #endif
 const std::string           plugin::PION_CONFIG_EXTENSION(".conf");
-boost::once_flag            plugin::m_instance_flag = BOOST_ONCE_INIT;
+std::once_flag            plugin::m_instance_flag;
 plugin::config_type    *plugin::m_config_ptr = NULL;
 
     

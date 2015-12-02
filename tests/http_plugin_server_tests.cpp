@@ -12,9 +12,9 @@
 #include <asio.hpp>
 #include <memory>
 #include <mutex>
+#include <regex>
 #include <condition_variable>
 #include <boost/scoped_array.hpp>
-#include <boost/regex.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
 #include <pion/plugin.hpp>
@@ -212,10 +212,10 @@ public:
                                     const std::string& resource,
                                     unsigned long& content_length)
     {
-        const boost::regex regex_get_response_code("^HTTP/1\\.1\\s(\\d+)\\s.*");
-        const boost::regex regex_response_header("^[A-Za-z0-9_-]+:\\s.*");
-        const boost::regex regex_content_length_header("^Content-Length:\\s(\\d+).*", boost::regex::icase);
-        const boost::regex regex_response_end("^\\s*$");
+        const std::regex regex_get_response_code("^HTTP/1\\.1\\s(\\d+)\\s[^]*");
+        const std::regex regex_response_header("^[A-Za-z0-9_-]+:\\s[^]*");
+        const std::regex regex_content_length_header("^Content-Length:\\s(\\d+)[^]*", std::regex::icase);
+        const std::regex regex_response_end("^\\s*$");
 
         // send HTTP request to the server
         http_stream << "GET " << resource << " HTTP/1.1" << http::types::STRING_CRLF << http::types::STRING_CRLF;
@@ -223,10 +223,10 @@ public:
                 
         // receive response from the server
         std::string rsp_line;
-        boost::smatch rx_matches;
+        std::smatch rx_matches;
         unsigned int response_code = 0;
         BOOST_REQUIRE(std::getline(http_stream, rsp_line));
-        BOOST_REQUIRE(boost::regex_match(rsp_line, rx_matches, regex_get_response_code));
+        BOOST_REQUIRE(std::regex_match(rsp_line, rx_matches, regex_get_response_code));
         BOOST_REQUIRE(rx_matches.size() == 2);
 
         // extract response status code
@@ -238,12 +238,12 @@ public:
         while (true) {
             BOOST_REQUIRE(std::getline(http_stream, rsp_line));
             // check for end of response headers (empty line)
-            if (boost::regex_match(rsp_line, rx_matches, regex_response_end))
+            if (std::regex_match(rsp_line, rx_matches, regex_response_end))
                 break;
             // check validity of response header
-            BOOST_REQUIRE(boost::regex_match(rsp_line, regex_response_header));
+            BOOST_REQUIRE(std::regex_match(rsp_line, regex_response_header));
             // check for content-length response header
-            if (boost::regex_match(rsp_line, rx_matches, regex_content_length_header)) {
+            if (std::regex_match(rsp_line, rx_matches, regex_content_length_header)) {
                 if (rx_matches.size() == 2)
                     content_length = std::stoul(rx_matches[1]);
             }
@@ -289,7 +289,7 @@ public:
      */
     inline void checkWebServerResponseContent(asio::ip::tcp::iostream& http_stream,
                                               const std::string& resource,
-                                              const boost::regex& content_regex,
+                                              const std::regex& content_regex,
                                               unsigned int expectedResponseCode = 200)
     {
         // send valid request to the server
@@ -305,7 +305,7 @@ public:
         content_buf[content_length] = '\0';
         
         // check the response content
-        BOOST_CHECK(boost::regex_match(content_buf.get(), content_regex));
+        BOOST_CHECK(std::regex_match(content_buf.get(), content_regex));
     }
 
     /**
@@ -317,7 +317,7 @@ public:
      */
     inline void checkWebServerResponseContent(const std::string& service,
                                               const std::string& resource,
-                                              const boost::regex& content_regex,
+                                              const std::regex& content_regex,
                                               unsigned int expectedResponseCode = 200)
     {
         // load specified service and start the server
@@ -350,10 +350,10 @@ public:
         BOOST_REQUIRE(! error_code);
         
         // check that the response is OK
-        boost::regex hello_regex(".*Hello\\sWorld.*");
+        std::regex hello_regex("[^]*Hello\\sWorld[^]*");
         BOOST_REQUIRE(http_response.get_status_code() == 200);
         BOOST_REQUIRE(http_response.get_content_length() > 0);
-        BOOST_REQUIRE(boost::regex_match(http_response.get_content(), hello_regex));
+        BOOST_REQUIRE(std::regex_match(http_response.get_content(), hello_regex));
                 
         // send invalid request to the server
         http_request.set_resource("/doesnotexist");
@@ -426,10 +426,10 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponseLeftoverConnection) {
     BOOST_CHECK_EQUAL(http_response.get_header(http::types::HEADER_CONNECTION), "Keep-Alive");
     
     // check that the response is OK
-    boost::regex hello_regex(".*Hello\\sWorld.*");
+    std::regex hello_regex("[^]*Hello\\sWorld[^]*");
     BOOST_REQUIRE(http_response.get_status_code() == 200);
     BOOST_REQUIRE(http_response.get_content_length() > 0);
-    BOOST_REQUIRE(boost::regex_match(http_response.get_content(), hello_regex));
+    BOOST_REQUIRE(std::regex_match(http_response.get_content(), hello_regex));
     
     // shut down the server while the connection is still alive and waiting for data
     m_server.stop();
@@ -463,8 +463,8 @@ BOOST_AUTO_TEST_CASE(checkSendRequestAndReceiveResponseFromEchoService) {
     BOOST_CHECK(http_response.get_content_length() > 0);
 
     // check the post content of the request, by parsing it out of the post content of the response
-    boost::regex post_content(".*\\[POST Content]\\s*junk.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), post_content));
+    std::regex post_content("[^]*\\[POST Content]\\s*junk[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), post_content));
 }
 
 BOOST_AUTO_TEST_CASE(checkRedirectHelloServiceToEchoService) {
@@ -477,12 +477,12 @@ BOOST_AUTO_TEST_CASE(checkRedirectHelloServiceToEchoService) {
     asio::ip::tcp::iostream http_stream(http_endpoint);
 
     // send a request to /hello and check that the response is from HelloService
-    checkWebServerResponseContent(http_stream, "/hello", boost::regex(".*Hello\\sWorld.*"));
+    checkWebServerResponseContent(http_stream, "/hello", std::regex("[^]*Hello\\sWorld[^]*"));
 
     m_server.add_redirect("/hello", "/echo");
 
     // send a request to /hello and check that the response is from EchoService
-    checkWebServerResponseContent(http_stream, "/hello", boost::regex(".*\\[Request\\sEcho\\].*"));
+    checkWebServerResponseContent(http_stream, "/hello", std::regex("[^]*\\[Request\\sEcho\\][^]*"));
 }
 
 BOOST_AUTO_TEST_CASE(checkOriginalResourceAvailableAfterRedirect) {
@@ -497,7 +497,7 @@ BOOST_AUTO_TEST_CASE(checkOriginalResourceAvailableAfterRedirect) {
     m_server.add_redirect("/hello", "/echo");
 
     // send a request to /hello and check the reported values of the original resource and the delivered resource
-    boost::regex regex_expected_content(".*Resource\\soriginally\\srequested:\\s/hello.*Resource\\sdelivered:\\s/echo.*");
+    std::regex regex_expected_content("[^]*Resource\\soriginally\\srequested:\\s/hello[^]*Resource\\sdelivered:\\s/echo[^]*");
     checkWebServerResponseContent(http_stream, "/hello", regex_expected_content);
 }
 
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE(checkRecursiveRedirect) {
     m_server.add_redirect("/echo", "/cookie");
 
     // send a request to /hello and check that the response is from CookieService
-    checkWebServerResponseContent(http_stream, "/hello", boost::regex(".*<html>.*Cookie\\sService.*</html>.*"));
+    checkWebServerResponseContent(http_stream, "/hello", std::regex("[^]*<html>[^]*Cookie\\sService[^]*</html>[^]*"));
 }
 
 BOOST_AUTO_TEST_CASE(checkCircularRedirect) {
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE(checkCircularRedirect) {
 
     // send request and check that server returns expected status code and error message
     checkWebServerResponseContent(http_stream, "/hello",
-                                  boost::regex(".*Maximum number of redirects.*exceeded.*"),
+                                  std::regex("[^]*Maximum number of redirects[^]*exceeded[^]*"),
                                   http::types::RESPONSE_CODE_SERVER_ERROR);
 }
 
@@ -566,12 +566,12 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestAndReceiveResponse) {
     BOOST_CHECK(http_response.get_content_length() > 0);
 
     // check the content length of the request, by parsing it out of the post content of the response
-    boost::regex content_length_of_request(".*Content length\\: 19.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), content_length_of_request));
+    std::regex content_length_of_request("[^]*Content length\\: 19[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), content_length_of_request));
 
     // check the post content of the request, by parsing it out of the post content of the response
-    boost::regex post_content_of_request(".*\\[POST Content]\\s*klmno1234abcdefghij.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), post_content_of_request));
+    std::regex post_content_of_request("[^]*\\[POST Content]\\s*klmno1234abcdefghij[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), post_content_of_request));
 }
 
 BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
@@ -599,8 +599,8 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithOneChunkAndReceiveResponse) {
     BOOST_CHECK(http_response.get_content_length() > 0);
 
     // check the post content of the request, by parsing it out of the post content of the response
-    boost::regex post_content(".*\\[POST Content]\\s*abcdefghij.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), post_content));
+    std::regex post_content("[^]*\\[POST Content]\\s*abcdefghij[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), post_content));
 }
 
 BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
@@ -627,8 +627,8 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
     BOOST_CHECK(http_response.get_content_length() > 0);
 
     // check the content length of the request, by parsing it out of the post content of the response
-    boost::regex content_length_of_request(".*Content length\\: 0.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), content_length_of_request));
+    std::regex content_length_of_request("[^]*Content length\\: 0[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), content_length_of_request));
 }
 
 #ifdef PION_HAVE_SSL
@@ -677,10 +677,10 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponseLeftoverConnectionUsingS
     BOOST_CHECK_EQUAL(http_response.get_header(http::types::HEADER_CONNECTION), "Keep-Alive");
     
     // check that the response is OK
-    boost::regex hello_regex(".*Hello\\sWorld.*");
+    std::regex hello_regex("[^]*Hello\\sWorld[^]*");
     BOOST_REQUIRE(http_response.get_status_code() == 200);
     BOOST_REQUIRE(http_response.get_content_length() > 0);
-    BOOST_REQUIRE(boost::regex_match(http_response.get_content(), hello_regex));
+    BOOST_REQUIRE(std::regex_match(http_response.get_content(), hello_regex));
     
     // shut down the server while the connection is still alive and waiting for data
     m_server.stop();
@@ -689,17 +689,17 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponseLeftoverConnectionUsingS
 
 BOOST_AUTO_TEST_CASE(checkHelloServiceResponseContent) {
     checkWebServerResponseContent("HelloService", "/hello",
-                                  boost::regex(".*Hello\\sWorld.*"));
+                                  std::regex("[^]*Hello\\sWorld[^]*"));
 }
 
 BOOST_AUTO_TEST_CASE(checkCookieServiceResponseContent) {
     checkWebServerResponseContent("CookieService", "/cookie",
-                                  boost::regex(".*<html>.*Cookie\\sService.*</html>.*"));
+                                  std::regex("[^]*<html>[^]*Cookie\\sService[^]*</html>[^]*"));
 }
 
 BOOST_AUTO_TEST_CASE(checkEchoServiceResponseContent) {
     checkWebServerResponseContent("EchoService", "/echo",
-                                  boost::regex(".*\\[Request\\sEcho\\].*\\[POST\\sContent\\].*"));
+                                  std::regex("[^]*\\[Request\\sEcho\\][^]*\\[POST\\sContent\\][^]*"));
 }
 
 BOOST_AUTO_TEST_CASE(checkLogServiceResponseContent) {
@@ -709,15 +709,15 @@ BOOST_AUTO_TEST_CASE(checkLogServiceResponseContent) {
     PION_LOG_SETLEVEL_INFO(log_ptr);
     // make sure that the log service includes an entry for loading itself
     checkWebServerResponseContent("LogService", "/log",
-                                  boost::regex(".*Loaded.*plug-in.*\\(/log\\):\\sLogService.*"));
+                                  std::regex("[^]*Loaded[^]*plug-in[^]*\\(/log\\):\\sLogService[^]*"));
     // bump the log level back down when we are done with the test
     PION_LOG_SETLEVEL_WARN(log_ptr);
 #elif defined(PION_DISABLE_LOGGING)
     checkWebServerResponseContent("LogService", "/log",
-                                  boost::regex(".*Logging\\sis\\sdisabled.*"));
+                                  std::regex("[^]*Logging\\sis\\sdisabled[^]*"));
 #else
     checkWebServerResponseContent("LogService", "/log",
-                                  boost::regex(".*Using\\sostream\\slogging.*"));
+                                  std::regex("[^]*Using\\sostream\\slogging[^]*"));
 #endif
 }
 
@@ -772,7 +772,7 @@ BOOST_AUTO_TEST_CASE(checkCircularBufferAppender) {
 #ifndef PION_STATIC_LINKING
 BOOST_AUTO_TEST_CASE(checkAllowNothingServiceResponseContent) {
     checkWebServerResponseContent("AllowNothingService", "/deny",
-                                  boost::regex(".*No, you can't.*"),
+                                  std::regex("[^]*No, you can't[^]*"),
                                   http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
 }
 #endif // PION_STATIC_LINKING
@@ -789,12 +789,12 @@ BOOST_AUTO_TEST_CASE(checkFileServiceResponseContent) {
     asio::ip::tcp::iostream http_stream(http_endpoint);
     
     // send request and check response (index page)
-    const boost::regex index_page_regex(".*<html>.*Test\\sWebsite.*</html>.*");
+    const std::regex index_page_regex("[^]*<html>[^]*Test\\sWebsite[^]*</html>[^]*");
     checkWebServerResponseContent(http_stream, "/" , index_page_regex);
     checkWebServerResponseContent(http_stream, "/index.html" , index_page_regex);
 
     // send request and check response (copy of docs index page generated by doxygen)
-    const boost::regex doc_index_regex(".*<html>.*pion-.*Documentation.*</html>.*");
+    const std::regex doc_index_regex("[^]*<html>[^]*pion-[^]*Documentation[^]*</html>[^]*");
     checkWebServerResponseContent(http_stream, "/doc/index.html" , doc_index_regex);
 }
 
@@ -904,8 +904,8 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceFailure) {
     BOOST_CHECK(http_response.get_content_length() > 0);
     
     // check the post content of the request, by parsing it out of the post content of the response
-    boost::regex post_content(".*\\[POST Content]\\s*junk.*");
-    BOOST_CHECK(!boost::regex_match(http_response.get_content(), post_content));
+    std::regex post_content("[^]*\\[POST Content]\\s*junk[^]*");
+    BOOST_CHECK(!std::regex_match(http_response.get_content(), post_content));
 }
 
 BOOST_AUTO_TEST_CASE(checkBasicAuthServiceLogin) {
@@ -943,8 +943,8 @@ BOOST_AUTO_TEST_CASE(checkBasicAuthServiceLogin) {
     BOOST_CHECK(http_response.get_content_length() > 0);
     
     // check the post content of the request, by parsing it out of the post content of the response
-    boost::regex post_content(".*\\[POST Content]\\s*junk.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), post_content));
+    std::regex post_content("[^]*\\[POST Content]\\s*junk[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), post_content));
 }
 
 BOOST_AUTO_TEST_CASE(checkCookieAuthServiceFailure) {
@@ -980,8 +980,8 @@ BOOST_AUTO_TEST_CASE(checkCookieAuthServiceFailure) {
     BOOST_CHECK(http_response.get_content_length() > 0);
 
     // check the post content of the request, by parsing it out of the post content of the response
-    boost::regex post_content(".*\\[POST Content]\\s*junk.*");
-    BOOST_CHECK(!boost::regex_match(http_response.get_content(), post_content));
+    std::regex post_content("[^]*\\[POST Content]\\s*junk[^]*");
+    BOOST_CHECK(!std::regex_match(http_response.get_content(), post_content));
 }
 
 BOOST_AUTO_TEST_CASE(checkCookieAuthServiceLogin) {
@@ -1041,8 +1041,8 @@ BOOST_AUTO_TEST_CASE(checkCookieAuthServiceLogin) {
     BOOST_CHECK(http_response2.get_content_length() > 0);
 
     // check the post content of the request, by parsing it out of the post content of the response
-    boost::regex post_content(".*\\[POST Content]\\s*junk.*");
-    BOOST_CHECK(boost::regex_match(http_response2.get_content(), post_content));
+    std::regex post_content("[^]*\\[POST Content]\\s*junk[^]*");
+    BOOST_CHECK(std::regex_match(http_response2.get_content(), post_content));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

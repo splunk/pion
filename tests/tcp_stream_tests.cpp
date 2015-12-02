@@ -9,14 +9,10 @@
 
 #include <asio.hpp>
 
-// #pragma diagnostic is only supported by GCC >= 4.2.1
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) || (__GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ >= 1)
-    #pragma GCC diagnostic ignored "-Wunused-parameter"
-    #include <boost/thread.hpp>
-    #pragma GCC diagnostic warning "-Wunused-parameter"
-#else
-    #include <boost/thread.hpp>
-#endif
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#include <thread>
+#pragma GCC diagnostic warning "-Wunused-parameter"
+
 
 #include <functional>
 #include <boost/test/unit_test.hpp>
@@ -62,7 +58,7 @@ public:
         // notify test thread that we are ready to accept a connection
         {
             // wait for test thread to be waiting on the signal
-            boost::unique_lock<std::mutex> accept_lock(m_accept_mutex);
+            std::unique_lock<std::mutex> accept_lock(m_accept_mutex);
             // trigger signal to wake test thread
             m_port = tcp_acceptor.local_endpoint().port();
             m_accept_ready.notify_one();

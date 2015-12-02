@@ -8,11 +8,11 @@
 //
 
 #include <functional>
+#include <thread>
 #include <pion/config.hpp>
 #include <pion/scheduler.hpp>
 #include <pion/tcp/server.hpp>
 #include <asio.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/test/unit_test.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/response.hpp>

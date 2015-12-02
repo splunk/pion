@@ -11,10 +11,11 @@
 #define __PION_HTTP_PARSER_HEADER__
 
 #include <string>
+#include <thread>
+#include <mutex>
 #include <boost/noncopyable.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/system/error_code.hpp>
-#include <boost/thread/once.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/http/message.hpp>
@@ -432,7 +433,7 @@ public:
     
     /// returns an instance of parser::error_category_t
     static inline error_category_t& get_error_category(void) {
-        boost::call_once(parser::create_error_category, m_instance_flag);
+        std::call_once(m_instance_flag, parser::create_error_category);
         return *m_error_category_ptr;
     }
 
@@ -534,31 +535,31 @@ protected:
     static const boost::uint32_t        STATUS_MESSAGE_MAX;
 
     /// maximum length for the request method
-    static const boost::uint32_t        METHOD_MAX;
+    static const uint32_t        METHOD_MAX;
 
     /// maximum length for the resource requested
-    static const boost::uint32_t        RESOURCE_MAX;
+    static const uint32_t        RESOURCE_MAX;
 
     /// maximum length for the query string
-    static const boost::uint32_t        QUERY_STRING_MAX;
+    static const uint32_t        QUERY_STRING_MAX;
 
     /// maximum length for an HTTP header name
-    static const boost::uint32_t        HEADER_NAME_MAX;
+    static const uint32_t        HEADER_NAME_MAX;
 
     /// maximum length for an HTTP header value
-    static const boost::uint32_t        HEADER_VALUE_MAX;
+    static const uint32_t        HEADER_VALUE_MAX;
 
     /// maximum length for the name of a query string variable
-    static const boost::uint32_t        QUERY_NAME_MAX;
+    static const uint32_t        QUERY_NAME_MAX;
 
     /// maximum length for the value of a query string variable
-    static const boost::uint32_t        QUERY_VALUE_MAX;
+    static const uint32_t        QUERY_VALUE_MAX;
 
     /// maximum length for the name of a cookie name
-    static const boost::uint32_t        COOKIE_NAME_MAX;
+    static const uint32_t        COOKIE_NAME_MAX;
 
     /// maximum length for the value of a cookie; also used for path and domain
-    static const boost::uint32_t        COOKIE_VALUE_MAX;
+    static const uint32_t        COOKIE_VALUE_MAX;
 
 
     /// primary logging interface used by this class
@@ -623,7 +624,7 @@ private:
     payload_handler_t                   m_payload_handler;
 
     /// Used for parsing the HTTP response status code
-    boost::uint16_t                     m_status_code;
+    uint16_t                     m_status_code;
 
     /// Used for parsing the HTTP response status message
     std::string                         m_status_message;
@@ -680,7 +681,7 @@ private:
     static error_category_t *           m_error_category_ptr;
         
     /// used to ensure thread safety of the parser error_category_t
-    static boost::once_flag             m_instance_flag;
+    static std::once_flag             m_instance_flag;
 };
 
 

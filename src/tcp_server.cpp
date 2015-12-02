@@ -8,10 +8,9 @@
 //
 
 #include <asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/thread/mutex.hpp>
 #include <pion/admin_rights.hpp>
 #include <pion/tcp/server.hpp>
+#include <mutex>
 
 
 namespace pion {    // begin namespace pion

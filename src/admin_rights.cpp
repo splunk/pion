@@ -13,7 +13,7 @@
     #include <sys/types.h>
     #include <unistd.h>
     #include <sys/types.h>
-    #include <boost/regex.hpp>
+    #include <regex>
     #include <boost/tokenizer.hpp>
     #include <fstream>
 #endif
@@ -24,7 +24,7 @@ namespace pion {    // begin namespace pion
 
 // static members of admin_rights
 
-const boost::int16_t    admin_rights::ADMIN_USER_ID = 0;
+const int16_t         admin_rights::ADMIN_USER_ID = 0;
 std::mutex            admin_rights::m_mutex;
 
 
@@ -118,8 +118,8 @@ long admin_rights::find_system_id(const std::string& name,
     const std::string& file)
 {
     // check if name is the system id
-    const boost::regex just_numbers("\\d+");
-    if (boost::regex_match(name, just_numbers)) {
+    const std::regex just_numbers("\\d+");
+    if (std::regex_match(name, just_numbers)) {
         return std::stol(name);
     }
 
@@ -133,7 +133,7 @@ long admin_rights::find_system_id(const std::string& name,
     typedef boost::tokenizer<boost::char_separator<char> > Tok;
     boost::char_separator<char> sep(":");
     std::string line;
-    boost::int32_t system_id = -1;
+    int32_t system_id = -1;
 
     while (std::getline(system_file, line, '\n')) {
         Tok tokens(line, sep);
@@ -141,7 +141,7 @@ long admin_rights::find_system_id(const std::string& name,
         if (token_it != tokens.end() && *token_it == name) {
             // found line matching name
             if (++token_it != tokens.end() && ++token_it != tokens.end()
-                && boost::regex_match(*token_it, just_numbers))
+                && std::regex_match(*token_it, just_numbers))
             {
                 // found id as third parameter
                 system_id = std::stoi(*token_it);

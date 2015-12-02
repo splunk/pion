@@ -12,7 +12,6 @@
 
 #include <boost/functional/hash.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/thread/once.hpp>
 #include <boost/shared_array.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
@@ -25,6 +24,7 @@
 #include <map>
 #include <mutex>
 #include <memory>
+#include <thread>
 
 namespace pion {        // begin namespace pion
 namespace plugins {     // begin namespace plugins
@@ -336,7 +336,7 @@ private:
     static const unsigned long  DEFAULT_MAX_CHUNK_SIZE;
 
     /// flag used to make sure that createMIMETypes() is called only once
-    static boost::once_flag     m_mime_types_init_flag;
+    static std::once_flag     m_mime_types_init_flag;
 
     /// map of file extensions to MIME types
     static MIMETypeMap *        m_mime_types_ptr;

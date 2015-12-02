@@ -10,13 +10,13 @@
 #ifndef __PION_LOGSERVICE_HEADER__
 #define __PION_LOGSERVICE_HEADER__
 
-#include <boost/thread/mutex.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <pion/logger.hpp>
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/response_writer.hpp>
 #include <string>
 #include <list>
+#include <mutex>
 
 #if defined(PION_USE_LOG4CXX)
     #include <log4cxx/appenderskeleton.h>
