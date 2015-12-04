@@ -20,10 +20,10 @@
 
 #include <memory>
 #include <functional>
+#include <array>
 #include <boost/noncopyable.hpp>
 #include <asio.hpp>
 #include <asio/ssl.hpp>
-#include <boost/array.hpp>
 #include <pion/config.hpp>
 #include <string>
 
@@ -53,7 +53,7 @@ public:
     typedef std::function<void(std::shared_ptr<connection>)>   connection_handler;
     
     /// data type for an I/O read buffer
-    typedef boost::array<char, READ_BUFFER_SIZE>    read_buffer_type;
+    typedef std::array<char, READ_BUFFER_SIZE>    read_buffer_type;
     
     /// data type for a socket connection
     typedef asio::ip::tcp::socket            socket_type;

@@ -15,10 +15,10 @@
 // #pragma diagnostic is only supported by GCC >= 4.2.1
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) || (__GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ >= 1)
     #pragma GCC diagnostic ignored "-Wunused-parameter"
-    #include <boost/random.hpp>
+    #include <random>
     #pragma GCC diagnostic warning "-Wunused-parameter"
 #else
-    #include <boost/random.hpp>
+    #include <random>
 #endif
 #include <pion/config.hpp>
 #include <pion/http/auth.hpp>
@@ -156,13 +156,13 @@ private:
     std::string                 m_redirect;
     
     /// random number generator used for cookie generation
-    boost::mt19937              m_random_gen;
+    std::mt19937                m_random_gen;
 
     /// random number range used for cookie generation
-    boost::uniform_int<>        m_random_range;
+    std::uniform_int_distribution<>        m_random_range;
 
     /// random dice that uses m_random_gen to produce ints within m_random_range
-    boost::variate_generator<boost::mt19937&, boost::uniform_int<> >    m_random_die;
+    std::function<std::uniform_int_distribution<>::result_type ()>    m_random_die;
 
     /// time of the last cache clean up
     boost::posix_time::ptime    m_cache_cleanup_time;
@@ -171,7 +171,7 @@ private:
     user_cache_type             m_user_cache;
     
     /// mutex used to protect access to the user cache
-    mutable std::mutex        m_cache_mutex;
+    mutable std::mutex          m_cache_mutex;
 };
 
     

@@ -10,13 +10,13 @@
 #ifndef __PION_LOGSERVICE_HEADER__
 #define __PION_LOGSERVICE_HEADER__
 
-#include <boost/scoped_ptr.hpp>
 #include <pion/logger.hpp>
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/response_writer.hpp>
 #include <string>
 #include <list>
 #include <mutex>
+#include <memory>
 
 #if defined(PION_USE_LOG4CXX)
     #include <log4cxx/appenderskeleton.h>
@@ -109,7 +109,7 @@ private:
         virtual void _append(const log4cpp::LoggingEvent& event);
     private:
         /// the logging layout used to format events
-        boost::scoped_ptr<log4cpp::Layout>      m_layout_ptr;
+        std::unique_ptr<log4cpp::Layout>      m_layout_ptr;
 #endif
 
 };

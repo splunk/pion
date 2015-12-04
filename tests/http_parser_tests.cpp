@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE(testParseMultipartFormData)
 BOOST_AUTO_TEST_CASE(testParseGarbageMultipartFormData)
 {
     static const size_t BUF_SIZE = 1024;
-    boost::scoped_array<char> buf_ptr(new char[BUF_SIZE]);
+    std::unique_ptr<char[]> buf_ptr(new char[BUF_SIZE]);
     memset(buf_ptr.get(), 'x', BUF_SIZE);
     ihash_multimap params;
     BOOST_CHECK(!http::parser::parse_multipart_form_data(params, "multipart/form-data; boundary=----WebKitFormBoundarynqrI4c1BfROrEpu7", buf_ptr.get(), BUF_SIZE));

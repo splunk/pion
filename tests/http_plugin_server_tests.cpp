@@ -14,7 +14,6 @@
 #include <mutex>
 #include <regex>
 #include <condition_variable>
-#include <boost/scoped_array.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
 #include <pion/plugin.hpp>
@@ -271,7 +270,7 @@ public:
         BOOST_CHECK(response_code == 200);
         BOOST_CHECK(content_length > 0);
         if (content_length > 0) {
-            boost::scoped_array<char> content_buf(new char[content_length+1]);
+            std::unique_ptr<char[]> content_buf(new char[content_length+1]);
             BOOST_CHECK(http_stream.read(content_buf.get(), content_length));
         }
         
@@ -300,7 +299,7 @@ public:
         BOOST_REQUIRE(content_length > 0);
         
         // read in the response content
-        boost::scoped_array<char> content_buf(new char[content_length+1]);
+        std::unique_ptr<char[]> content_buf(new char[content_length+1]);
         BOOST_CHECK(http_stream.read(content_buf.get(), content_length));
         content_buf[content_length] = '\0';
         

@@ -8,7 +8,6 @@
 //
 
 #include <asio.hpp>
-#include <boost/bind.hpp>
 #include <boost/assert.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -766,7 +765,7 @@ void DiskFile::update(void)
 void DiskFile::read(void)
 {
     // re-allocate storage buffer for the file's content
-    m_file_content.reset(new char[m_file_size]);
+    m_file_content.reset(new char[m_file_size], [](char* arr) { delete [] arr; });
 
     // open the file for reading
     boost::filesystem::ifstream file_stream;
@@ -881,7 +880,7 @@ void DiskFileSender::send(void)
         // check if the content buffer was initialized yet
         if (! m_content_buf) {
             // allocate memory for the new content buffer
-            m_content_buf.reset(new char[m_file_bytes_to_send]);
+            m_content_buf.reset(new char[m_file_bytes_to_send], [](char* arr) { delete [] arr; });
         }
         file_content_ptr = m_content_buf.get();
 

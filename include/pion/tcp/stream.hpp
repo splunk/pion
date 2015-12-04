@@ -54,7 +54,7 @@ public:
      * @param conn_ptr pointer to the TCP connection to use for reading & writing
      */
     explicit stream_buffer(const tcp::connection_ptr& conn_ptr)
-        : m_conn_ptr(conn_ptr), m_bytes_transferred(0), m_read_buf(m_conn_ptr->get_read_buffer().c_array())
+        : m_conn_ptr(conn_ptr), m_bytes_transferred(0), m_read_buf(m_conn_ptr->get_read_buffer().data())
     {
         setup_buffers();
     }
@@ -68,7 +68,7 @@ public:
     explicit stream_buffer(asio::io_service& io_service,
                              const bool ssl_flag = false)
         : m_conn_ptr(new connection(io_service, ssl_flag)),
-        m_read_buf(m_conn_ptr->get_read_buffer().c_array())
+        m_read_buf(m_conn_ptr->get_read_buffer().data())
     {
         setup_buffers();
     }
@@ -82,7 +82,7 @@ public:
     stream_buffer(asio::io_service& io_service,
                     connection::ssl_context_type& ssl_context)
         : m_conn_ptr(new connection(io_service, ssl_context)),
-        m_read_buf(m_conn_ptr->get_read_buffer().c_array())
+        m_read_buf(m_conn_ptr->get_read_buffer().data())
     {
         setup_buffers();
     }
@@ -298,13 +298,13 @@ private:
     tcp::connection_ptr         m_conn_ptr;
     
     /// condition signaled whenever an asynchronous operation has completed
-    std::mutex                m_async_mutex;
+    std::mutex                  m_async_mutex;
     
     /// condition signaled whenever an asynchronous operation has completed
-    std::condition_variable            m_async_done;
+    std::condition_variable     m_async_done;
     
     /// used to keep track of the result from the last asynchronous operation
-    asio::error_code   m_async_error;
+    asio::error_code            m_async_error;
     
     /// the number of bytes transferred by the last asynchronous operation
     std::size_t                 m_bytes_transferred;

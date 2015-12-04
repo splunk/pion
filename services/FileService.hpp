@@ -10,9 +10,7 @@
 #ifndef __PION_FILESERVICE_HEADER__
 #define __PION_FILESERVICE_HEADER__
 
-#include <boost/functional/hash.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/shared_array.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/hash_map.hpp>
@@ -110,7 +108,7 @@ protected:
     boost::filesystem::path     m_file_path;
 
     /// content of the cached file
-    boost::shared_array<char>   m_file_content;
+    std::shared_ptr<char>       m_file_content;
 
     /// size of the file's content
     std::streamsize             m_file_size;
@@ -208,7 +206,7 @@ private:
     boost::filesystem::ifstream             m_file_stream;
 
     /// buffer used to send file content
-    boost::shared_array<char>               m_content_buf;
+    std::shared_ptr<char>                   m_content_buf;
 
     /**
      * maximum chunk size (in bytes): files larger than this size will be

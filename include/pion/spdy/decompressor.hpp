@@ -12,7 +12,6 @@
 
 
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/spdy/types.hpp>
 #include <zlib.h>

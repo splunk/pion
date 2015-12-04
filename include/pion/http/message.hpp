@@ -16,7 +16,6 @@
 #include <cstdint>
 #include <regex>
 #include <asio.hpp>
-#include <boost/scoped_array.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <pion/config.hpp>
 #include <pion/http/types.hpp>
@@ -556,7 +555,7 @@ protected:
         inline void clear() { resize(0); }
         
     private:
-        boost::scoped_array<char>   m_buf;
+        std::unique_ptr<char[]>     m_buf;
         std::size_t                 m_len;
         char                        m_empty;
         char                        *m_ptr;

@@ -33,7 +33,7 @@ cookie_auth::cookie_auth(user_manager_ptr userManager,
                                const std::string& logout,
                                const std::string& redirect)
     : http::auth(userManager), m_login(login), m_logout(logout), m_redirect(redirect),
-    m_random_gen(), m_random_range(0, 255), m_random_die(m_random_gen, m_random_range),
+    m_random_gen(), m_random_range(0, 255), m_random_die(std::bind(m_random_range, m_random_gen)),
     m_cache_cleanup_time(boost::posix_time::second_clock::universal_time())
 {
     // set logger for this class
@@ -43,7 +43,7 @@ cookie_auth::cookie_auth(user_manager_ptr userManager,
     // (Note that boost::mt19937::result_type is uint32_t, and casting to an unsigned n-bit integer is
     // defined by the standard to keep the lower n bits.  Since ::time() returns seconds since Jan 1, 1970, 
     // it will be a long time before we lose any entropy here, even if time_t is a 64-bit int.)
-    m_random_gen.seed(static_cast<boost::mt19937::result_type>(::time(NULL)));
+    m_random_gen.seed(static_cast<std::mt19937::result_type>(::time(NULL)));
 
     // generate some random numbers to increase entropy of the rng
     for (unsigned int n = 0; n < 100; ++n)
