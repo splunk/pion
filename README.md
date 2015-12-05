@@ -9,7 +9,7 @@ C++ framework for building lightweight HTTP interfaces
 Retrieving the code
 -------------------
 
-    git clone git@github.com:splunk/pion.git
+    git clone https://github.com/splunk/pion.git
     cd pion
 
 
