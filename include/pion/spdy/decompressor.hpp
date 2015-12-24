@@ -47,9 +47,9 @@ public:
      * @return the uncompressed string, or null on failure
      */
     char* decompress(const char *compressed_data_ptr,
-                     uint32_t stream_id,
+                     std::uint32_t stream_id,
                      const spdy_control_frame_info& frame,
-                     uint32_t header_block_length);
+                     std::uint32_t header_block_length);
 
     
 protected:
@@ -61,8 +61,8 @@ protected:
      */
     bool spdy_decompress_header(const char *compressed_data_ptr,
                                 z_streamp decomp,
-                                uint32_t length,
-                                uint32_t& uncomp_length);
+                                std::uint32_t length,
+                                std::uint32_t& uncomp_length);
 
 
 private:
@@ -74,10 +74,10 @@ private:
     z_streamp                           m_response_zstream;
     
     /// dictionary identifier
-    uint32_t                     m_dictionary_id;
+    std::uint32_t                     m_dictionary_id;
     
     /// Used for decompressing spdy headers
-    uint8_t                      m_uncompressed_header[MAX_UNCOMPRESSED_DATA_BUF_SIZE];
+    std::uint8_t                      m_uncompressed_header[MAX_UNCOMPRESSED_DATA_BUF_SIZE];
 
     // SPDY Dictionary used for zlib decompression
     static const char                   SPDY_ZLIB_DICTIONARY[];

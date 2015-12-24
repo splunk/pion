@@ -63,10 +63,10 @@ public:
     inline bool is_running(void) const { return m_is_running; }
     
     /// sets the number of threads to be used (these are shared by all servers)
-    inline void set_num_threads(const uint32_t n) { m_num_threads = n; }
+    inline void set_num_threads(const std::uint32_t n) { m_num_threads = n; }
     
     /// returns the number of threads currently in use
-    inline uint32_t get_num_threads(void) const { return m_num_threads; }
+    inline std::uint32_t get_num_threads(void) const { return m_num_threads; }
 
     /// sets the logger to be used
     inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
@@ -101,7 +101,7 @@ public:
      * @param sleep_sec number of entire seconds to sleep for
      * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
      */
-    inline static void sleep(uint32_t sleep_sec, uint32_t sleep_nsec) {
+    inline static void sleep(std::uint32_t sleep_sec, std::uint32_t sleep_nsec) {
         std::chrono::system_clock::time_point wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
         std::this_thread::sleep_until(wakeup_time);
     }
@@ -117,7 +117,7 @@ public:
      */
     template <typename ConditionType, typename LockType>
     inline static void sleep(ConditionType& wakeup_condition, LockType& wakeup_lock,
-                             uint32_t sleep_sec, uint32_t sleep_nsec)
+                             std::uint32_t sleep_sec, std::uint32_t sleep_nsec)
     {
         std::chrono::system_clock::time_point wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
         wakeup_condition.wait_until(wakeup_lock, wakeup_time);
@@ -138,8 +138,8 @@ protected:
      *
      * @return boost::system_time time to wake up from sleep
      */
-    static std::chrono::system_clock::time_point get_wakeup_time(uint32_t sleep_sec,
-        uint32_t sleep_nsec);
+    static std::chrono::system_clock::time_point get_wakeup_time(std::uint32_t sleep_sec,
+        std::uint32_t sleep_nsec);
 
     /// stops all services used to schedule work
     virtual void stop_services(void) {}
@@ -155,16 +155,16 @@ protected:
     
     
     /// default number of worker threads in the thread pool
-    static const uint32_t    DEFAULT_NUM_THREADS;
+    static const std::uint32_t    DEFAULT_NUM_THREADS;
 
     /// number of nanoseconds in one full second (10 ^ 9)
-    static const uint32_t    NSEC_IN_SECOND;
+    static const std::uint32_t    NSEC_IN_SECOND;
 
     /// number of microseconds in one full second (10 ^ 6)
-    static const uint32_t    MICROSEC_IN_SECOND;
+    static const std::uint32_t    MICROSEC_IN_SECOND;
     
     /// number of seconds a timer should wait for to keep the IO services running
-    static const uint32_t    KEEP_RUNNING_TIMER_SECONDS;
+    static const std::uint32_t    KEEP_RUNNING_TIMER_SECONDS;
 
 
     /// mutex to make class thread-safe
@@ -180,10 +180,10 @@ protected:
     std::condition_variable                m_scheduler_has_stopped;
 
     /// total number of worker threads in the pool
-    uint32_t                 m_num_threads;
+    std::uint32_t                 m_num_threads;
 
     /// the scheduler will not shutdown until there are no more active users
-    uint32_t                 m_active_users;
+    std::uint32_t                 m_active_users;
 
     /// true if the thread scheduler is running
     bool                            m_is_running;
@@ -312,7 +312,7 @@ public:
      *
      * @param n integer number representing the service object
      */
-    virtual asio::io_service& get_io_service(uint32_t n) {
+    virtual asio::io_service& get_io_service(std::uint32_t n) {
         BOOST_ASSERT(n < m_num_threads);
         BOOST_ASSERT(n < m_service_pool.size());
         return m_service_pool[n]->first;
@@ -350,7 +350,7 @@ protected:
     service_pool_type   m_service_pool;
 
     /// the next service to use for scheduling work
-    uint32_t     m_next_service;
+    std::uint32_t     m_next_service;
 };
     
     

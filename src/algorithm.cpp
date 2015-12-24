@@ -316,7 +316,7 @@ void algorithm::float_from_bytes(long double& value, const unsigned char *ptr, s
     
     // build exponent value from bitstream
     unsigned char mask = 0x80;
-    int16_t exponent = 0;
+    std::int16_t exponent = 0;
     for (size_t n = 0; n < num_exp_bits; ++n) {
         SHIFT_BITMASK(ptr, mask);
         exponent *= 2;
@@ -336,7 +336,7 @@ void algorithm::float_from_bytes(long double& value, const unsigned char *ptr, s
     }
     
     // calculate final value
-    exponent -= (int16_t)(::pow((long double)2, (int)(num_exp_bits - 1)) - 1);
+    exponent -= (std::int16_t)(::pow((long double)2, (int)(num_exp_bits - 1)) - 1);
     value = value_sign * significand * ::pow((long double)2, exponent);
 }
 
@@ -353,7 +353,7 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
     }
     
     // break down numbers >= 1.0 by incrementing the exponent & dividing by 2
-    int16_t exponent = 0;
+    std::int16_t exponent = 0;
     while (value >= 1) {
         value /= 2;
         ++exponent;
@@ -372,7 +372,7 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
     
     // serialize fractional value < 1.0
     bool got_exponent = false;
-    uint16_t num_bits = 0;
+    ustd::int16_t num_bits = 0;
     while (value && num_bits < num_fraction_bits) {
         value *= 2;
         if (got_exponent) {
@@ -393,7 +393,7 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
     
     // normalize exponent.
     // note: we should have a zero exponent if value == 0
-    int32_t high_bit = (int32_t)(::pow((long double)2, (int)(num_exp_bits - 1)));
+    std::int32_t high_bit = (std::int32_t)(::pow((long double)2, (int)(num_exp_bits - 1)));
     if (got_exponent)
         exponent += (high_bit - 1);
     else

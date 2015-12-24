@@ -24,8 +24,8 @@ namespace pion {    // begin namespace pion
 
 // static members of admin_rights
 
-const int16_t         admin_rights::ADMIN_USER_ID = 0;
-std::mutex            admin_rights::m_mutex;
+const std::int16_t          admin_rights::ADMIN_USER_ID = 0;
+std::mutex                  admin_rights::m_mutex;
 
 
 // admin_rights member functions
@@ -133,7 +133,7 @@ long admin_rights::find_system_id(const std::string& name,
     typedef boost::tokenizer<boost::char_separator<char> > Tok;
     boost::char_separator<char> sep(":");
     std::string line;
-    int32_t system_id = -1;
+    std::int32_t system_id = -1;
 
     while (std::getline(system_file, line, '\n')) {
         Tok tokens(line, sep);

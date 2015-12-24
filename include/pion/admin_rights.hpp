@@ -53,31 +53,31 @@ private:
      * @param name descriptive name to lookup (user or group name, may be id)
      * @param file system credentials file to look within
      *
-     * @return int32_t identifier found, or -1 if none found
+     * @return std::int32_t identifier found, or -1 if none found
      */
     static long find_system_id(const std::string& name, const std::string& file);
 
 
     /// adminisitrator or root user identifier
-    static const int16_t         ADMIN_USER_ID;
+    static const std::int16_t         ADMIN_USER_ID;
 
     /// mutex used to prevent multiple threads from corrupting user id
     static std::mutex                 m_mutex;
 
     /// primary logging interface used by this class        
-    logger                              m_logger;
+    logger                            m_logger;
 
     /// lock used to prevent multiple threads from corrupting user id
-    std::unique_lock<std::mutex>    m_lock;
+    std::unique_lock<std::mutex>      m_lock;
 
     /// saved user identifier before upgrading to administrator
-    int16_t                      m_user_id;
+    std::int16_t                      m_user_id;
 
     /// true if the class currently holds administrative rights
-    bool                                m_has_rights;
+    bool                              m_has_rights;
 
     /// if false, then no logging will be performed
-    bool                                m_use_log;
+    bool                              m_use_log;
 };
 
 

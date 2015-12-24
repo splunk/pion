@@ -193,20 +193,20 @@ BOOST_AUTO_TEST_CASE(testCharFromToIntRoutines) {
     
     algorithm::from_uint8(buf, 129U);
     BOOST_CHECK_EQUAL(buf[0], (char)0x81);
-    BOOST_CHECK_EQUAL(algorithm::to_int8(buf), int8_t(0x81));
+    BOOST_CHECK_EQUAL(algorithm::to_int8(buf), std::int8_t(0x81));
     BOOST_CHECK_EQUAL(algorithm::to_uint8(buf), 129U);
 
     algorithm::from_uint16(buf, 32769U);
     BOOST_CHECK_EQUAL(buf[0], (char)0x80);
     BOOST_CHECK_EQUAL(buf[1], (char)0x01);
-    BOOST_CHECK_EQUAL(algorithm::to_int16(buf), int16_t(0x8001));
+    BOOST_CHECK_EQUAL(algorithm::to_int16(buf), std::int16_t(0x8001));
     BOOST_CHECK_EQUAL(algorithm::to_uint16(buf), 32769U);
 
     algorithm::from_uint24(buf, 9642497U);
     BOOST_CHECK_EQUAL(buf[0], (char)0x93);
     BOOST_CHECK_EQUAL(buf[1], (char)0x22);
     BOOST_CHECK_EQUAL(buf[2], (char)0x01);
-    BOOST_CHECK_EQUAL(algorithm::to_int24(buf), int32_t(0x932201));
+    BOOST_CHECK_EQUAL(algorithm::to_int24(buf), std::int32_t(0x932201));
     BOOST_CHECK_EQUAL(algorithm::to_uint24(buf), 9642497U);
 
     algorithm::from_uint32(buf, 2147680769UL);
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(testCharFromToIntRoutines) {
     BOOST_CHECK_EQUAL(buf[1], (char)0x03);
     BOOST_CHECK_EQUAL(buf[2], (char)0x02);
     BOOST_CHECK_EQUAL(buf[3], (char)0x01);
-    BOOST_CHECK_EQUAL(algorithm::to_int32(buf), int32_t(0x80030201));
+    BOOST_CHECK_EQUAL(algorithm::to_int32(buf), std::int32_t(0x80030201));
     BOOST_CHECK_EQUAL(algorithm::to_uint32(buf), 2147680769UL);
 
     algorithm::from_uint32(buf, 1427U);
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(testCharFromToIntRoutines) {
     BOOST_CHECK_EQUAL(buf[1], (char)0x00);
     BOOST_CHECK_EQUAL(buf[2], (char)0x05);
     BOOST_CHECK_EQUAL(buf[3], (char)0x93);
-    BOOST_CHECK_EQUAL(algorithm::to_int32(buf), int32_t(0x00000593));
+    BOOST_CHECK_EQUAL(algorithm::to_int32(buf), std::int32_t(0x00000593));
     BOOST_CHECK_EQUAL(algorithm::to_uint32(buf), 1427U);
 
     algorithm::from_uint64(buf, 9223378168241586176ULL);
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE(testCharFromToIntRoutines) {
     BOOST_CHECK_EQUAL(buf[5], (char)0x22);
     BOOST_CHECK_EQUAL(buf[6], (char)0x00);
     BOOST_CHECK_EQUAL(buf[7], (char)0x00);
-    BOOST_CHECK_EQUAL(algorithm::to_int64(buf), int64_t(0x8000059393220000ULL));
+    BOOST_CHECK_EQUAL(algorithm::to_int64(buf), std::int64_t(0x8000059393220000ULL));
     BOOST_CHECK_EQUAL(algorithm::to_uint64(buf), 9223378168241586176ULL);
 }
 

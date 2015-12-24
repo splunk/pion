@@ -40,7 +40,7 @@ cookie_auth::cookie_auth(user_manager_ptr userManager,
     set_logger(PION_GET_LOGGER("pion.http.cookie_auth"));
 
     // Seed random number generator with current time as time_t int value, cast to the required type.
-    // (Note that boost::mt19937::result_type is uint32_t, and casting to an unsigned n-bit integer is
+    // (Note that boost::mt19937::result_type is ustd::int32_t, and casting to an unsigned n-bit integer is
     // defined by the standard to keep the lower n bits.  Since ::time() returns seconds since Jan 1, 1970, 
     // it will be a long time before we lose any entropy here, even if time_t is a 64-bit int.)
     m_random_gen.seed(static_cast<std::mt19937::result_type>(::time(NULL)));

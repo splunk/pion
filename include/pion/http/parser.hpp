@@ -311,7 +311,7 @@ public:
      * @return true if the URI was successfully parsed, false if there was an error
      */
     static bool parse_uri(const std::string& uri, std::string& proto, 
-                         std::string& host, uint16_t& port, std::string& path,
+                         std::string& host, std::uint16_t& port, std::string& path,
                          std::string& query);
 
     /**
@@ -532,34 +532,34 @@ protected:
 
 
     /// maximum length for response status message
-    static const uint32_t        STATUS_MESSAGE_MAX;
+    static const std::uint32_t        STATUS_MESSAGE_MAX;
 
     /// maximum length for the request method
-    static const uint32_t        METHOD_MAX;
+    static const std::uint32_t        METHOD_MAX;
 
     /// maximum length for the resource requested
-    static const uint32_t        RESOURCE_MAX;
+    static const std::uint32_t        RESOURCE_MAX;
 
     /// maximum length for the query string
-    static const uint32_t        QUERY_STRING_MAX;
+    static const std::uint32_t        QUERY_STRING_MAX;
 
     /// maximum length for an HTTP header name
-    static const uint32_t        HEADER_NAME_MAX;
+    static const std::uint32_t        HEADER_NAME_MAX;
 
     /// maximum length for an HTTP header value
-    static const uint32_t        HEADER_VALUE_MAX;
+    static const std::uint32_t        HEADER_VALUE_MAX;
 
     /// maximum length for the name of a query string variable
-    static const uint32_t        QUERY_NAME_MAX;
+    static const std::uint32_t        QUERY_NAME_MAX;
 
     /// maximum length for the value of a query string variable
-    static const uint32_t        QUERY_VALUE_MAX;
+    static const std::uint32_t        QUERY_VALUE_MAX;
 
     /// maximum length for the name of a cookie name
-    static const uint32_t        COOKIE_NAME_MAX;
+    static const std::uint32_t        COOKIE_NAME_MAX;
 
     /// maximum length for the value of a cookie; also used for path and domain
-    static const uint32_t        COOKIE_VALUE_MAX;
+    static const std::uint32_t        COOKIE_VALUE_MAX;
 
 
     /// primary logging interface used by this class
@@ -624,7 +624,7 @@ private:
     payload_handler_t                   m_payload_handler;
 
     /// Used for parsing the HTTP response status code
-    uint16_t                     m_status_code;
+    std::uint16_t                     m_status_code;
 
     /// Used for parsing the HTTP response status message
     std::string                         m_status_message;

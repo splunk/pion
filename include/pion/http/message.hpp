@@ -176,10 +176,10 @@ public:
     }
 
     /// returns the major HTTP version number
-    inline uint16_t get_version_major(void) const { return m_version_major; }
+    inline std::uint16_t get_version_major(void) const { return m_version_major; }
 
     /// returns the minor HTTP version number
-    inline uint16_t get_version_minor(void) const { return m_version_minor; }
+    inline std::uint16_t get_version_minor(void) const { return m_version_minor; }
 
     /// returns a string representation of the HTTP version (i.e. "HTTP/1.1")
     inline std::string get_version_string(void) const {
@@ -289,13 +289,13 @@ public:
     inline void set_remote_ip(const asio::ip::address& ip) { m_remote_ip = ip; }
 
     /// sets the major HTTP version number
-    inline void set_version_major(const uint16_t n) {
+    inline void set_version_major(const std::uint16_t n) {
         m_version_major = n;
         clear_first_line();
     }
 
     /// sets the minor HTTP version number
-    inline void set_version_minor(const uint16_t n) {
+    inline void set_version_minor(const std::uint16_t n) {
         m_version_minor = n;
         clear_first_line();
     }
@@ -701,10 +701,10 @@ private:
     asio::ip::address        m_remote_ip;
 
     /// HTTP major version number
-    uint16_t                 m_version_major;
+    std::uint16_t                 m_version_major;
 
     /// HTTP major version number
-    uint16_t                 m_version_minor;
+    std::uint16_t                 m_version_minor;
 
     /// the length of the payload content (in bytes)
     size_t                          m_content_length;

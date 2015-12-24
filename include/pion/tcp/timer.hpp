@@ -41,7 +41,7 @@ public:
      *
      * @param seconds number of seconds before the timeout triggers
      */
-    void start(const uint32_t seconds);
+    void start(const std::uint32_t seconds);
 
     /// cancel the timer (operation completed)
     void cancel(void);

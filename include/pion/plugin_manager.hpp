@@ -34,7 +34,7 @@ public:
     typedef std::function<void(PluginType*)>    PluginRunFunction;
 
     /// data type for a function that may be called by the getStat() method
-    typedef std::function<uint64_t(const PluginType*)>   PluginStatFunction;
+    typedef std::function<std::uint64_t(const PluginType*)>   PluginStatFunction;
 
     
     /// default constructor
@@ -148,7 +148,7 @@ public:
      *
      * @param stat_func the statistic function to execute for each plug-in object
      */
-    inline uint64_t get_statistic(PluginStatFunction stat_func) const;
+    inline std::uint64_t get_statistic(PluginStatFunction stat_func) const;
     
     /**
      * returns a statistic value for a particular plug-in
@@ -156,7 +156,7 @@ public:
      * @param plugin_id unique identifier associated with the plug-in
      * @param stat_func the statistic function to execute
      */
-    inline uint64_t get_statistic(const std::string& plugin_id,
+    inline std::uint64_t get_statistic(const std::string& plugin_id,
                                         PluginStatFunction stat_func) const;
         
     
@@ -354,9 +354,9 @@ inline void plugin_manager<PluginType>::run(const std::string& plugin_id,
 }
 
 template <typename PluginType>
-inline uint64_t plugin_manager<PluginType>::get_statistic(PluginStatFunction stat_func) const
+inline std::uint64_t plugin_manager<PluginType>::get_statistic(PluginStatFunction stat_func) const
 {
-    uint64_t stat_value = 0;
+    std::uint64_t stat_value = 0;
     std::unique_lock<std::mutex> plugins_lock(m_plugin_mutex);
     for (typename pion::plugin_manager<PluginType>::map_type::const_iterator i = m_plugin_map.begin();
          i != m_plugin_map.end(); ++i)
@@ -367,7 +367,7 @@ inline uint64_t plugin_manager<PluginType>::get_statistic(PluginStatFunction sta
 }
 
 template <typename PluginType>
-inline uint64_t plugin_manager<PluginType>::get_statistic(const std::string& plugin_id,
+inline std::uint64_t plugin_manager<PluginType>::get_statistic(const std::string& plugin_id,
                                                                 PluginStatFunction stat_func) const
 {
     // no need to lock (handled by plugin_manager::get())
