@@ -13,6 +13,15 @@
 #include <boost/assert.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/algorithm/string.hpp>
+
+#include <boost/archive/iterators/base64_from_binary.hpp>
+#include <boost/archive/iterators/binary_from_base64.hpp>
+#include <boost/archive/iterators/insert_linebreaks.hpp>
+#include <boost/archive/iterators/transform_width.hpp>
+#include <boost/archive/iterators/ostream_iterator.hpp>
+#include <sstream>
+#include <string>
+
 #include <pion/algorithm.hpp>
 #include <pion/http/parser.hpp>
 #include <pion/http/request.hpp>
@@ -976,6 +985,81 @@ bool parser::parse_url_encoded(ihash_multimap& dict,
     return true;
 }
 
+bool parser::binary_2base64(std::string& out_val, const char *buf, const std::size_t buf_size, const std::string& stream_type)
+{
+	static const std::string padding[] = { "", "==", "=" };
+
+	if (buf == NULL)
+		return false;
+
+	using namespace boost::archive::iterators;
+	typedef
+		base64_from_binary<    // convert binary values to base64 characters
+			transform_width<   // retrieve 6 bit integers from a sequence of 8 bit bytes
+				const char *, 6, 8
+			>
+		>
+		binary_2base64; // compose all the above operations in to a new iterator
+
+	std::stringstream os;
+	std::copy(
+		binary_2base64(buf),
+		binary_2base64(buf + buf_size),
+		ostream_iterator<char>(os)
+		);
+	os << padding[buf_size % 3];
+
+	out_val.assign("data:");
+	out_val.append(stream_type);
+	out_val.append("; base64, ");
+	out_val.append(os.str());
+	return true;
+}
+
+bool parser::base64_2binary(char *out_buf, const std::size_t buf_size, std::size_t& out_size, std::string& out_stream_type, const std::string& base64)
+{
+	using namespace boost::archive::iterators;
+	typedef
+		transform_width<						// retrieve 8 bit integers from a sequence of 6 bit bytes
+			binary_from_base64<const char *>,	// convert binary values to base64 characters
+				8,
+				6
+		>
+		base64_2binary; // compose all the above operations in to a new iterator
+
+	std::size_t size = base64.size();
+	
+	out_size = 0;
+
+	if (false == boost::algorithm::equals(base64.substr(0, 5), "data:"))
+		return false;
+	std::size_t pos = base64.find("; base64, ");
+	if (pos == std::string::npos)
+		return false;
+	out_stream_type.assign(base64.substr(5, pos-5));
+	const std::size_t prefix_end_pos = pos + 10;
+
+	if (size && base64[size - 1] == '=') {
+		--size;
+		if (size && base64[size - 1] == '=')
+			--size;
+	}
+
+	out_size = size;
+	if (size == 0)
+		return true;
+	if (size > buf_size || out_buf == NULL)
+		return false;
+
+	std::copy(
+		base64_2binary(base64.data() + prefix_end_pos),
+		base64_2binary(base64.data() + size - prefix_end_pos),
+		out_buf
+		);
+
+	return true;
+}
+
 bool parser::parse_multipart_form_data(ihash_multimap& dict,
                                        const std::string& content_type,
                                        const char *ptr, const size_t len)
@@ -1002,9 +1086,10 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
     std::string header_name;
     std::string header_value;
     std::string field_name;
-    std::string field_value;
-    bool found_parameter = false;
-    bool save_current_field = true;
+	std::string field_value;
+	std::string content_type_header;
+	bool found_parameter = false;
+	bool do_mime64_convertion = true;
     const char * const end_ptr = ptr + len;
 
     ptr = std::search(ptr, end_ptr, boundary.begin(), boundary.end());
@@ -1017,7 +1102,8 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                 header_value.clear();
                 field_name.clear();
                 field_value.clear();
-                save_current_field = true;
+				content_type_header.clear();
+				do_mime64_convertion = true;
                 ptr += boundary.size() - 1;
                 parse_state = MP_PARSE_HEADER_CR;
                 break;
@@ -1079,8 +1165,9 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                 if (*ptr == '\r' || *ptr == '\n') {
                     // reached the end of the value -> check if it's important
                     if (boost::algorithm::iequals(header_name, types::HEADER_CONTENT_TYPE)) {
-                        // only keep fields that have a text type or no type
-                        save_current_field = boost::algorithm::iequals(header_value.substr(0, 5), "text/");
+						content_type_header.assign(header_value);
+                        // do not encode fields that have a text type or no type
+                        do_mime64_convertion = false == boost::algorithm::iequals(header_value.substr(0, 5), "text/");
                     } else if (boost::algorithm::iequals(header_name, types::HEADER_CONTENT_DISPOSITION)) {
                         // get current field from content-disposition header
                         std::size_t name_pos = header_value.find("name=\"");
@@ -1103,7 +1190,7 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                 // expecting final linefeed to terminate headers and begin field data
                 if (*ptr == '\n') {
                     // got it
-                    if (save_current_field && !field_name.empty()) {
+                    if (!field_name.empty()) {
                         // parse the field if we care & know enough about it
                         parse_state = MP_PARSE_FIELD_DATA;
                     } else {
@@ -1124,10 +1211,17 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                         field_end_ptr = temp_ptr;
                     else field_end_ptr = next_ptr;
                 }
-                field_value.assign(ptr, field_end_ptr - ptr);
-                // add the field to the query dictionary
-                dict.insert( std::make_pair(field_name, field_value) );
-                found_parameter = true;
+				do {
+					if (do_mime64_convertion) {
+						std::string stream_type;
+						if (false == binary_2base64(field_value, ptr, field_end_ptr - ptr, content_type_header))
+							break;
+					} else
+						field_value.assign(ptr, field_end_ptr - ptr);
+					// add the field to the query dictionary
+					dict.insert(std::make_pair(field_name, field_value));
+					found_parameter = true;
+				} while (false);
                 // skip ahead to next field
                 parse_state = MP_PARSE_START;
                 ptr = next_ptr;
