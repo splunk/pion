@@ -987,77 +987,78 @@ bool parser::parse_url_encoded(ihash_multimap& dict,
 
 bool parser::binary_2base64(std::string& out_val, const char *buf, const std::size_t buf_size, const std::string& stream_type)
 {
-	static const std::string padding[] = { "", "==", "=" };
+    static const std::string padding[] = { "", "==", "=" };
 
-	if (buf == NULL)
-		return false;
+    if (buf == NULL)
+        return false;
 
-	using namespace boost::archive::iterators;
-	typedef
-		base64_from_binary<    // convert binary values to base64 characters
-			transform_width<   // retrieve 6 bit integers from a sequence of 8 bit bytes
-				const char *, 6, 8
-			>
-		>
-		binary_2base64; // compose all the above operations in to a new iterator
+    using namespace boost::archive::iterators;
+    typedef
+        base64_from_binary<    // convert binary values to base64 characters
+            transform_width<   // retrieve 6 bit integers from a sequence of 8 bit bytes
+                const char *, 6, 8
+            >
+        >
+        binary_2base64; // compose all the above operations in to a new iterator
 
-	std::stringstream os;
-	std::copy(
-		binary_2base64(buf),
-		binary_2base64(buf + buf_size),
-		ostream_iterator<char>(os)
-		);
-	os << padding[buf_size % 3];
+    std::stringstream os;
+    std::copy(
+        binary_2base64(buf),
+        binary_2base64(buf + buf_size),
+        ostream_iterator<char>(os)
+        );
+    os << padding[buf_size % 3];
 
-	out_val.assign("data:");
-	out_val.append(stream_type);
-	out_val.append("; base64, ");
-	out_val.append(os.str());
-	return true;
+    out_val.assign("data:");
+    out_val.append(stream_type);
+    out_val.append("; base64, ");
+    out_val.append(os.str());
+    return true;
 }
 
 bool parser::base64_2binary(char *out_buf, const std::size_t buf_size, std::size_t& out_size, std::string& out_stream_type, const std::string& base64)
 {
-	using namespace boost::archive::iterators;
-	typedef
-		transform_width<						// retrieve 8 bit integers from a sequence of 6 bit bytes
-			binary_from_base64<const char *>,	// convert binary values to base64 characters
-				8,
-				6
-		>
-		base64_2binary; // compose all the above operations in to a new iterator
+    using namespace boost::archive::iterators;
+    typedef
+        transform_width<                        // retrieve 8 bit integers from a sequence of 6 bit bytes
+            binary_from_base64<const char *>,    // convert binary values to base64 characters
+                8,
+                6
+        >
+        base64_2binary; // compose all the above operations in to a new iterator
 
-	std::size_t size = base64.size();
-	
-	out_size = 0;
+    std::size_t size = base64.size();
+    
+    out_size = 0;
 
-	if (false == boost::algorithm::equals(base64.substr(0, 5), "data:"))
-		return false;
-	std::size_t pos = base64.find("; base64, ");
-	if (pos == std::string::npos)
-		return false;
-	out_stream_type.assign(base64.substr(5, pos-5));
-	const std::size_t prefix_end_pos = pos + 10;
+    if (false == boost::algorithm::equals(base64.substr(0, 5), "data:"))
+        return false;
+    std::size_t pos = base64.find("; base64, ");
+    if (pos == std::string::npos)
+        return false;
+    out_stream_type.assign(base64.substr(5, pos-5));
+    const std::size_t prefix_end_pos = pos + 10;
 
-	if (size && base64[size - 1] == '=') {
-		--size;
-		if (size && base64[size - 1] == '=')
-			--size;
-	}
+    if (size && base64[size - 1] == '=') {
+        --size;
+        if (size && base64[size - 1] == '=')
+            --size;
+    }
 
-	out_size = size;
-	if (size == 0)
-		return true;
-	if (size > buf_size || out_buf == NULL)
-		return false;
+    out_size = (size - prefix_end_pos)*6/8+1;
+    if (size == 0)
+        return true;
+    if (size > buf_size || out_buf == NULL)
+        return false;
 
-	std::copy(
-		base64_2binary(base64.data() + prefix_end_pos),
-		base64_2binary(base64.data() + size - prefix_end_pos),
-		out_buf
-		);
-
-	return true;
+    char *p = std::copy(
+        base64_2binary(base64.data() + prefix_end_pos),
+        base64_2binary(base64.data() + size - prefix_end_pos),
+        out_buf
+        );
+    *p = '\0';
+    
+    return true;
 }
 
 bool parser::parse_multipart_form_data(ihash_multimap& dict,
@@ -1086,10 +1087,10 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
     std::string header_name;
     std::string header_value;
     std::string field_name;
-	std::string field_value;
-	std::string content_type_header;
-	bool found_parameter = false;
-	bool do_mime64_convertion = true;
+    std::string field_value;
+    std::string content_type_header;
+    bool found_parameter = false;
+    bool do_mime64_convertion = false;
     const char * const end_ptr = ptr + len;
 
     ptr = std::search(ptr, end_ptr, boundary.begin(), boundary.end());
@@ -1102,8 +1103,8 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                 header_value.clear();
                 field_name.clear();
                 field_value.clear();
-				content_type_header.clear();
-				do_mime64_convertion = true;
+                content_type_header.clear();
+                do_mime64_convertion = false;
                 ptr += boundary.size() - 1;
                 parse_state = MP_PARSE_HEADER_CR;
                 break;
@@ -1165,7 +1166,7 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                 if (*ptr == '\r' || *ptr == '\n') {
                     // reached the end of the value -> check if it's important
                     if (boost::algorithm::iequals(header_name, types::HEADER_CONTENT_TYPE)) {
-						content_type_header.assign(header_value);
+                        content_type_header.assign(header_value);
                         // do not encode fields that have a text type or no type
                         do_mime64_convertion = false == boost::algorithm::iequals(header_value.substr(0, 5), "text/");
                     } else if (boost::algorithm::iequals(header_name, types::HEADER_CONTENT_DISPOSITION)) {
@@ -1211,17 +1212,17 @@ bool parser::parse_multipart_form_data(ihash_multimap& dict,
                         field_end_ptr = temp_ptr;
                     else field_end_ptr = next_ptr;
                 }
-				do {
-					if (do_mime64_convertion) {
-						std::string stream_type;
-						if (false == binary_2base64(field_value, ptr, field_end_ptr - ptr, content_type_header))
-							break;
-					} else
-						field_value.assign(ptr, field_end_ptr - ptr);
-					// add the field to the query dictionary
-					dict.insert(std::make_pair(field_name, field_value));
-					found_parameter = true;
-				} while (false);
+                do {
+                    if (do_mime64_convertion) {
+                        std::string stream_type;
+                        if (false == binary_2base64(field_value, ptr, field_end_ptr - ptr, content_type_header))
+                            break;
+                    } else
+                        field_value.assign(ptr, field_end_ptr - ptr);
+                    // add the field to the query dictionary
+                    dict.insert(std::make_pair(field_name, field_value));
+                    found_parameter = true;
+                } while (false);
                 // skip ahead to next field
                 parse_state = MP_PARSE_START;
                 ptr = next_ptr;

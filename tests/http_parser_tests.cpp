@@ -280,9 +280,8 @@ BOOST_AUTO_TEST_CASE(testParseMultipartFormData)
     std::size_t size;
     std::string content_type;
     http::parser::base64_2binary(buf, 256, size, content_type, i->second);
-    BOOST_REQUIRE(size == 15);
+    BOOST_REQUIRE(size == 16);
     BOOST_CHECK_EQUAL(content_type, "application/octet-stream");
-    buf[size] = '\0';
     BOOST_CHECK_EQUAL(buf, "DO NOT SKIP ME!");
     
 
