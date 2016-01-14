@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE(testParseMultipartFormData)
     http::parser::base64_2binary(buf, 256, size, content_type, i->second);
     BOOST_REQUIRE(size == 16);
     BOOST_CHECK_EQUAL(content_type, "application/octet-stream");
-    BOOST_CHECK_EQUAL(buf, "DO NOT SKIP ME!");
+    BOOST_CHECK_EQUAL(std::string(buf), "DO NOT SKIP ME!");
     
 
     i = params.find("field1");
