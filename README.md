@@ -3,8 +3,9 @@ Pion Network Library
 
 C++ framework for building lightweight HTTP interfaces
 
-**Project Home:** https://github.com/splunk/pion
+[![Build Status](https://travis-ci.org/splunk/pion.svg?branch=develop)](https://travis-ci.org/splunk/pion)
 
+**Project Home:** https://github.com/splunk/pion
 
 Retrieving the code
 -------------------
@@ -84,7 +85,7 @@ supported by Pion within the `doc` subdirectory (`README.platform`).
 License
 -------
 
-Copyright &copy; 2007-2014 Splunk Inc.
+Copyright &copy; 2007-2016 Splunk Inc.
 
 The Pion Network Library is published under the
 [Boost Software License](http://www.boost.org/users/license.html).
