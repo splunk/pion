@@ -1053,7 +1053,7 @@ bool parser::base64_2binary(char *out_buf, const std::size_t buf_size, std::size
 
     char *p = std::copy(
         base64_2binary(base64.data() + prefix_end_pos),
-        base64_2binary(base64.data() + size - prefix_end_pos),
+        base64_2binary(base64.data() + size),
         out_buf
         );
     *p = '\0';
