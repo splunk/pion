@@ -328,16 +328,38 @@ public:
                                 const char *ptr, const std::size_t len);
 
     /**
-     * parse key-value pairs out of a multipart/form-data payload content
-     * (http://www.ietf.org/rfc/rfc2388.txt)
-     *
-     * @param dict dictionary for key-values pairs
-     * @param content_type value of the content-type HTTP header
-     * @param ptr points to the start of the encoded data
-     * @param len length of the encoded data, in bytes
+     * convert binary buffer to base64-encoded string with prefix signaled original stream MIME type
+     * @param out_val string for MIME encoded data
+     * @param buf points to the start of the binary data
+     * @param buf_size size of the binary data
+     * @param stream_type original stream MIME type
      *
      * @return bool true if successful
      */
+    static bool binary_2base64(std::string& out_val, const char *buf, const std::size_t buf_size, const std::string& stream_type);
+    /**
+    * convert base64-encoded string to binary buffer to with prefix signaled original stream MIME type
+    * @param out_buf buffer for MIME encoded data
+    * @param buf_size size of the input buffer for decoded data
+    * @param out_size required buffer size (in case return false) or used size of the buffer for decoded data
+    * @param out_stream_type original stream MIME type
+    * @param base64 encoded data
+    *
+    * @return bool true if successful
+    */
+    static bool base64_2binary(char *out_buf, const std::size_t buf_size, std::size_t& out_size, std::string& out_stream_type, const std::string& base64);
+
+    /**
+    * parse key-value pairs out of a multipart/form-data payload content
+    * (http://www.ietf.org/rfc/rfc2388.txt)
+    *
+    * @param dict dictionary for key-values pairs
+    * @param content_type value of the content-type HTTP header
+    * @param ptr points to the start of the encoded data
+    * @param len length of the encoded data, in bytes
+    *
+    * @return bool true if successful
+    */
     static bool parse_multipart_form_data(ihash_multimap& dict,
                                           const std::string& content_type,
                                           const char *ptr, const std::size_t len);
