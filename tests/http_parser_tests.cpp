@@ -259,10 +259,10 @@ BOOST_AUTO_TEST_CASE(testParseMultipartFormData)
                                 "\r\n"
                                 "a\r\n"
                                 "------WebKitFormBoundarynqrI4c1BfROrEpu7\r\n"
-                                "Content-Disposition: form-data; name=\"skipme\"\r\n"
+                                "Content-Disposition: form-data; name=\"donotskipme\"\r\n"
                                 "content-type: application/octet-stream\r\n"
                                 "\r\n"
-                                "SKIP ME!\r\n"
+                                "DO NOT SKIP ME!\r\n"
                                 "------WebKitFormBoundarynqrI4c1BfROrEpu7\r\n"
                                 "Content-Disposition: form-data; name=\"funny$field2\"\r\n"
                                 "\r\n"
@@ -270,11 +270,20 @@ BOOST_AUTO_TEST_CASE(testParseMultipartFormData)
                                 "------WebKitFormBoundarynqrI4c1BfROrEpu7--");
     ihash_multimap params;
     BOOST_REQUIRE(http::parser::parse_multipart_form_data(params, "multipart/form-data; boundary=----WebKitFormBoundarynqrI4c1BfROrEpu7", FORM_DATA));
-    BOOST_CHECK_EQUAL(params.size(), 4UL);
+    BOOST_CHECK_EQUAL(params.size(), 5UL);
     ihash_multimap::const_iterator i;
 
-    i = params.find("skipme");
-    BOOST_REQUIRE(i == params.end());
+    i = params.find("donotskipme");
+    BOOST_REQUIRE(i != params.end());
+    BOOST_CHECK_EQUAL(i->second.substr(0, 39), "data:application/octet-stream; base64, ");
+    char buf[256];
+    std::size_t size;
+    std::string content_type;
+    http::parser::base64_2binary(buf, 256, size, content_type, i->second);
+    BOOST_REQUIRE(size == 16);
+    BOOST_CHECK_EQUAL(content_type, "application/octet-stream");
+    BOOST_CHECK_EQUAL(std::string(buf), "DO NOT SKIP ME!");
+    
 
     i = params.find("field1");
     BOOST_REQUIRE(i != params.end());
