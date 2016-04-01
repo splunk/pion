@@ -19,7 +19,7 @@ namespace http {    // begin namespace http
 
 // reader static members
     
-const ustd::int32_t       reader::DEFAULT_READ_TIMEOUT = 10;
+const std::uint32_t       reader::DEFAULT_READ_TIMEOUT = 10;
 
 
 // reader member functions

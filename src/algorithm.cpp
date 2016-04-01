@@ -372,7 +372,7 @@ void algorithm::float_to_bytes(long double value, unsigned char *buf, size_t num
     
     // serialize fractional value < 1.0
     bool got_exponent = false;
-    ustd::int16_t num_bits = 0;
+    std::uint16_t num_bits = 0;
     while (value && num_bits < num_fraction_bits) {
         value *= 2;
         if (got_exponent) {

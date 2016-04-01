@@ -24,7 +24,7 @@ server::server(scheduler& sched, const unsigned int tcp_port)
     m_active_scheduler(sched),
     m_tcp_acceptor(m_active_scheduler.get_io_service()),
 #ifdef PION_HAVE_SSL
-    m_ssl_context(m_active_scheduler.get_io_service(), asio::ssl::context::sslv23),
+    m_ssl_context(asio::ssl::context::sslv23),
 #else
     m_ssl_context(0),
 #endif
@@ -36,7 +36,7 @@ server::server(scheduler& sched, const asio::ip::tcp::endpoint& endpoint)
     m_active_scheduler(sched),
     m_tcp_acceptor(m_active_scheduler.get_io_service()),
 #ifdef PION_HAVE_SSL
-    m_ssl_context(m_active_scheduler.get_io_service(), asio::ssl::context::sslv23),
+    m_ssl_context(asio::ssl::context::sslv23),
 #else
     m_ssl_context(0),
 #endif
@@ -48,7 +48,7 @@ server::server(const unsigned int tcp_port)
     m_default_scheduler(), m_active_scheduler(m_default_scheduler),
     m_tcp_acceptor(m_active_scheduler.get_io_service()),
 #ifdef PION_HAVE_SSL
-    m_ssl_context(m_active_scheduler.get_io_service(), asio::ssl::context::sslv23),
+    m_ssl_context(asio::ssl::context::sslv23),
 #else
     m_ssl_context(0),
 #endif
@@ -60,7 +60,7 @@ server::server(const asio::ip::tcp::endpoint& endpoint)
     m_default_scheduler(), m_active_scheduler(m_default_scheduler),
     m_tcp_acceptor(m_active_scheduler.get_io_service()),
 #ifdef PION_HAVE_SSL
-    m_ssl_context(m_active_scheduler.get_io_service(), asio::ssl::context::sslv23),
+    m_ssl_context(asio::ssl::context::sslv23),
 #else
     m_ssl_context(0),
 #endif

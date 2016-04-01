@@ -16,10 +16,10 @@ namespace pion {    // begin namespace pion
 
 // static members of scheduler
     
-const ustd::int32_t   scheduler::DEFAULT_NUM_THREADS = 8;
-const ustd::int32_t   scheduler::NSEC_IN_SECOND = 1000000000; // (10^9)
-const ustd::int32_t   scheduler::MICROSEC_IN_SECOND = 1000000;    // (10^6)
-const ustd::int32_t   scheduler::KEEP_RUNNING_TIMER_SECONDS = 5;
+const std::uint32_t   scheduler::DEFAULT_NUM_THREADS = 8;
+const std::uint32_t   scheduler::NSEC_IN_SECOND = 1000000000; // (10^9)
+const std::uint32_t   scheduler::MICROSEC_IN_SECOND = 1000000;    // (10^6)
+const std::uint32_t   scheduler::KEEP_RUNNING_TIMER_SECONDS = 5;
 
 
 // scheduler member functions
@@ -99,8 +99,8 @@ void scheduler::remove_active_user(void)
         m_no_more_active_users.notify_all();
 }
 
-std::chrono::system_clock::time_point scheduler::get_wakeup_time(ustd::int32_t sleep_sec,
-    ustd::int32_t sleep_nsec)
+std::chrono::system_clock::time_point scheduler::get_wakeup_time(std::uint32_t sleep_sec,
+    std::uint32_t sleep_nsec)
 {
     return std::chrono::system_clock::now() + std::chrono::seconds(sleep_sec) + std::chrono::microseconds(sleep_nsec / 1000);
 }
@@ -134,7 +134,7 @@ void single_service_scheduler::startup(void)
         keep_running(m_service, m_timer);
         
         // start multiple threads to handle async tasks
-        for (ustd::int32_t n = 0; n < m_num_threads; ++n) {
+        for (std::uint32_t n = 0; n < m_num_threads; ++n) {
             std::shared_ptr<std::thread> new_thread(new std::thread( std::bind(&scheduler::process_service_work,
                                                                                        this, std::ref(m_service)) ));
             m_thread_pool.push_back(new_thread);
@@ -166,7 +166,7 @@ void one_to_one_scheduler::startup(void)
         }
         
         // start multiple threads to handle async tasks
-        for (ustd::int32_t n = 0; n < m_num_threads; ++n) {
+        for (std::uint32_t n = 0; n < m_num_threads; ++n) {
             std::shared_ptr<std::thread> new_thread(new std::thread( std::bind(&scheduler::process_service_work,
                                                                                        this, std::ref(m_service_pool[n]->first)) ));
             m_thread_pool.push_back(new_thread);

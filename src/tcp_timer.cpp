@@ -22,7 +22,7 @@ timer::timer(const tcp::connection_ptr& conn_ptr)
 {
 }
 
-void timer::start(const ustd::int32_t seconds)
+void timer::start(const std::uint32_t seconds)
 {
     std::unique_lock<std::mutex> timer_lock(m_mutex);
     m_timer_active = true;
