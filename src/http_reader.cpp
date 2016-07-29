@@ -59,7 +59,11 @@ void reader::consume_bytes(const boost::system::error_code& read_error,
     // set pointers for new HTTP header data to be consumed
     set_read_buffer(m_tcp_conn->get_read_buffer().data(), bytes_read);
 
-    consume_bytes();
+    if ( eof() ) {
+        finished_reading(make_error_code(boost::asio::error::eof));
+    } else {
+        consume_bytes();
+    }
 }
 
 
