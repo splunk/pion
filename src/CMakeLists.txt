@@ -141,7 +141,7 @@ install(TARGETS ${PROJECT_NAME}
     )
 
 include(CMakePackageConfigHelpers)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/modules/lib${PROJECT_NAME}-config.cmake.in
+configure_file(${PION_SRC_ROOT}/cmake/modules/lib${PROJECT_NAME}-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}-config.cmake
     @ONLY)
 
