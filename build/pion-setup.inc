@@ -100,6 +100,10 @@ case "$build_os" in
 	;;
 esac
 
+# Remove -lrt if building on android
+if test "${host#*android}" != "$host"; then
+    LIBS="-ldl"
+fi
 
 # Check for --with-cpu (gcc CPU architecture)
 AC_MSG_CHECKING([for specific CPU architecture])

@@ -16,6 +16,8 @@
     #include <fcntl.h>
     #include <unistd.h>
     #include <sys/stat.h>
+    #include <sys/time.h>
+    #include <sys/resource.h>
 #endif
 
 #include <boost/filesystem.hpp>
@@ -255,7 +257,9 @@ void process::daemonize(void)
     setsid();
     
     // close all descriptors
-    for (i=getdtablesize();i>=0;--i) close(i);
+    struct rlimit rlim;
+    getrlimit(RLIMIT_NOFILE, &rlim);
+    for (i=rlim.rlim_cur-1;i>=0;--i) close(i);
     
     // bind stdio to /dev/null (ignore errors)
     i=open("/dev/null",O_RDWR);
