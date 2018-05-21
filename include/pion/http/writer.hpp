@@ -305,17 +305,12 @@ private:
     
     
     /// used to cache binary data included within the payload content
-    class binary_cache_t : public std::vector<std::pair<const char *, size_t> > {
+    class binary_cache_t : public std::vector<std::pair<std::unique_ptr<const char>, size_t>> {
     public:
-        ~binary_cache_t() {
-            for (iterator i=begin(); i!=end(); ++i) {
-                delete[] i->first;
-            }
-        }
         inline boost::asio::const_buffer add(const void *ptr, const size_t size) {
             char *data_ptr = new char[size];
             memcpy(data_ptr, ptr, size);
-            push_back( std::make_pair(data_ptr, size) );
+            push_back(std::make_pair(std::unique_ptr<const char>{data_ptr}, size ) );
             return boost::asio::buffer(data_ptr, size);
         }
     };
