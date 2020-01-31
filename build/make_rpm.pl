@@ -187,7 +187,6 @@ $SPEC_OPTIONS
 \%config(noreplace) /etc/pion/protocols.xml
 \%config(noreplace) /etc/pion/reactors.xml
 \%config(noreplace) /etc/pion/services.xml
-\%config(noreplace) /etc/pion/sslkey.pem
 \%config(noreplace) /etc/pion/users.xml
 \%config(noreplace) /etc/pion/vocabularies.xml
 \%config(noreplace) /etc/pion/vocabularies
