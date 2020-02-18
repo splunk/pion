@@ -32,8 +32,17 @@ DX_INIT_DOXYGEN(pion, doc/Doxyfile, doc)
 
 # Define CXXFLAGS before AC_PROG_CXX to suppress the default autoconf
 # compiler options
-CFLAGS="$CFLAGS -DPION"
-CXXFLAGS="$CXXFLAGS -DPION"
+CFLAGS="$CFLAGS -DPION_NETWORK_LIBRARY"
+CXXFLAGS="$CXXFLAGS -DPION_NETWORK_LIBRARY"
+
+# Currently only the embedded common library can be used
+PION_COMMON_HOME=`pwd`/common
+PION_COMMON_LIB="$PION_COMMON_HOME/src/libpion-common.la"
+PION_COMMON_MAKEDIRS=common
+AC_SUBST(PION_COMMON_HOME)
+AC_SUBST(PION_COMMON_LIB)
+AC_SUBST(PION_COMMON_MAKEDIRS)
+AC_MSG_NOTICE([Using the embedded pion-common library])
 
 # Include pion-config.inc
 m4_include([build/pion-setup.inc])
