@@ -43,12 +43,14 @@ PION_DECLARE_PLUGIN(CookieService)
     #include "plugin_path.hpp"
 #elif defined(PION_XCODE)
     static const std::string PATH_TO_PLUGINS("../bin/Debug");
-    static const std::string SSL_PEM_FILE("../utils/sslkey.pem");
+///  SET THIS TO  A VALID PRIVATE KEY IN PEM FORMAT
+    static const std::string SSL_PEM_FILE("");
     static const std::string SERVICES_CONFIG_FILE("../tests/config/testservices.conf");
 #else
     // same for Unix and Windows
     static const std::string PATH_TO_PLUGINS("../services/.libs");
-    static const std::string SSL_PEM_FILE("../utils/sslkey.pem");
+///  SET THIS TO  A VALID PRIVATE KEY IN PEM FORMAT
+    static const std::string SSL_PEM_FILE("");
     static const std::string SERVICES_CONFIG_FILE("../tests/config/testservices.conf");
 #endif
 
@@ -632,6 +634,7 @@ BOOST_AUTO_TEST_CASE(checkSendChunkedRequestWithNoChunksAndReceiveResponse) {
 
 #ifdef PION_HAVE_SSL
 BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponsesUsingSSL) {
+    BOOST_REQUIRE(!SSL_PEM_FILE.empty());
     // load simple Hello service and start the server
     m_server.set_ssl_key_file(SSL_PEM_FILE);
     m_server.load_service("/hello", "HelloService");
@@ -650,6 +653,7 @@ BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponsesUsingSSL) {
 }
 
 BOOST_AUTO_TEST_CASE(checkSendRequestsAndReceiveResponseLeftoverConnectionUsingSSL) {
+    BOOST_REQUIRE(!SSL_PEM_FILE.empty());
     // load simple Hello service and start the server
     m_server.set_ssl_key_file(SSL_PEM_FILE);
     m_server.load_service("/hello", "HelloService");
