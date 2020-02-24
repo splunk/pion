@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(testParseHttpUri)
     std::string uri("http://127.0.0.1:80/folder/file.ext?q=uery");
     std::string proto;
     std::string host;
-    boost::uint16_t port = 0;
+    std::uint16_t port = 0;
     std::string path;
     std::string query;
 
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE(testParseMultipartFormData)
 BOOST_AUTO_TEST_CASE(testParseGarbageMultipartFormData)
 {
     static const size_t BUF_SIZE = 1024;
-    boost::scoped_array<char> buf_ptr(new char[BUF_SIZE]);
+    std::unique_ptr<char[]> buf_ptr(new char[BUF_SIZE]);
     memset(buf_ptr.get(), 'x', BUF_SIZE);
     ihash_multimap params;
     BOOST_CHECK(!http::parser::parse_multipart_form_data(params, "multipart/form-data; boundary=----WebKitFormBoundarynqrI4c1BfROrEpu7", buf_ptr.get(), BUF_SIZE));
@@ -468,7 +468,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleRequest)
     request_parser.set_read_buffer((const char*)request_data_1, sizeof(request_data_1));
 
     http::request http_request;
-    boost::system::error_code ec;
+    asio::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
     BOOST_CHECK(!ec);
 
@@ -483,7 +483,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
     response_parser.set_read_buffer((const char*)response_data_1, sizeof(response_data_1));
 
     http::response http_response;
-    boost::system::error_code ec;
+    asio::error_code ec;
     BOOST_CHECK(response_parser.parse(http_response, ec));
     BOOST_CHECK(!ec);
 
@@ -491,8 +491,8 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponse)
     BOOST_CHECK_EQUAL(response_parser.get_total_bytes_read(), sizeof(response_data_1));
     BOOST_CHECK_EQUAL(response_parser.get_content_bytes_read(), 117UL);
 
-    boost::regex content_regex("^GIF89a.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), content_regex));
+    std::regex content_regex("^GIF89a[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), content_regex));
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParserBadRequest)
@@ -501,7 +501,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserBadRequest)
     request_parser.set_read_buffer((const char*)request_data_bad, sizeof(request_data_bad));
 
     http::request http_request;
-    boost::system::error_code ec;
+    asio::error_code ec;
     BOOST_CHECK(!request_parser.parse(http_request, ec));
     BOOST_CHECK_EQUAL(ec.value(), http::parser::ERROR_VERSION_CHAR);
     BOOST_CHECK_EQUAL(ec.message(), "invalid version character");
@@ -514,7 +514,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithSmallerMaxSize)
     response_parser.set_max_content_length(4);
 
     http::response http_response;
-    boost::system::error_code ec;
+    asio::error_code ec;
     BOOST_CHECK(response_parser.parse(http_response, ec));
     BOOST_CHECK(!ec);
 
@@ -533,7 +533,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserSimpleResponseWithZeroMaxSize)
     response_parser.set_max_content_length(0);
 
     http::response http_response;
-    boost::system::error_code ec;
+    asio::error_code ec;
     BOOST_CHECK(response_parser.parse(http_response, ec));
     BOOST_CHECK(!ec);
 
@@ -556,9 +556,9 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
 
     http::parser response_parser(false);
     http::response http_response;
-    boost::system::error_code ec;
+    asio::error_code ec;
 
-    boost::uint64_t total_bytes = 0;
+    std::uint64_t total_bytes = 0;
     for (int i=0; i <  frame_cnt - 1; i++ ) {
         response_parser.set_read_buffer((const char*)frames[i], sizes[i]);
         BOOST_CHECK( boost::indeterminate(response_parser.parse(http_response, ec)) );
@@ -575,8 +575,8 @@ BOOST_AUTO_TEST_CASE(testHTTPParser_MultipleResponseFrames)
     BOOST_CHECK_EQUAL(response_parser.get_total_bytes_read(), total_bytes);
     BOOST_CHECK_EQUAL(response_parser.get_content_bytes_read(), 4712UL);
 
-    boost::regex content_regex(".*<title>Atomic\\sLabs:.*");
-    BOOST_CHECK(boost::regex_match(http_response.get_content(), content_regex));
+    std::regex content_regex("[^]*<title>Atomic\\sLabs:[^]*");
+    BOOST_CHECK(std::regex_match(http_response.get_content(), content_regex));
 }
 
 BOOST_AUTO_TEST_CASE(testHTTPParserWithSemicolons)
@@ -586,7 +586,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserWithSemicolons)
                                    sizeof(chunked_request_with_semicolon));
     
     http::request http_request;
-    boost::system::error_code ec;
+    asio::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
     BOOST_CHECK(!ec);
     
@@ -605,7 +605,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserWithFooters)
                                    sizeof(chunked_request_with_footers));
     
     http::request http_request;
-    boost::system::error_code ec;
+    asio::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
     BOOST_CHECK(!ec);
     
@@ -626,7 +626,7 @@ BOOST_AUTO_TEST_CASE(testHTTPParserWithErrorInFooters)
                                    sizeof(chunked_request_with_error_in_footers));
     
     http::request http_request;
-    boost::system::error_code ec;
+    asio::error_code ec;
     
     // The HTTP Packet does not contain any footer value associated with the footer key
     // This will lead to any error within the parse_headers() method
@@ -651,7 +651,7 @@ BOOST_AUTO_TEST_CASE(testHTTP_0_9_RequestParser)
     request_parser.set_read_buffer(request_str.c_str(), request_str.length());
     
     http::request http_request;
-    boost::system::error_code ec;
+    asio::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
 
     BOOST_CHECK(!ec);
@@ -668,7 +668,7 @@ BOOST_AUTO_TEST_CASE(testHTTP_0_9_ResponseParser)
     request_parser.set_read_buffer(request_str.c_str(), request_str.length());
     
     http::request http_request;
-    boost::system::error_code ec;
+    asio::error_code ec;
     BOOST_CHECK(request_parser.parse(http_request, ec));
     BOOST_CHECK(!ec);
 

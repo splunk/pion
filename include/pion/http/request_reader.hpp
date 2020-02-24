@@ -10,12 +10,9 @@
 #ifndef __PION_HTTP_REQUEST_READER_HEADER__
 #define __PION_HTTP_REQUEST_READER_HEADER__
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/function/function2.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <memory>
+#include <functional>
+#include <asio.hpp>
 #include <pion/config.hpp>
 #include <pion/http/request.hpp>
 #include <pion/http/reader.hpp>
@@ -30,14 +27,14 @@ namespace http {    // begin namespace http
 ///
 class request_reader :
     public http::reader,
-    public boost::enable_shared_from_this<request_reader>
+    public std::enable_shared_from_this<request_reader>
 {
 
 public:
 
     /// function called after the HTTP message has been parsed
-    typedef boost::function3<void, http::request_ptr, tcp::connection_ptr,
-        const boost::system::error_code&>   finished_handler_t;
+    typedef std::function<void(http::request_ptr, tcp::connection_ptr,
+        const asio::error_code&)>   finished_handler_t;
 
     
     // default destructor
@@ -49,10 +46,10 @@ public:
      * @param tcp_conn TCP connection containing a new message to parse
      * @param handler function called after the message has been parsed
      */
-    static inline boost::shared_ptr<request_reader>
+    static inline std::shared_ptr<request_reader>
         create(const tcp::connection_ptr& tcp_conn, finished_handler_t handler)
     {
-        return boost::shared_ptr<request_reader>
+        return std::shared_ptr<request_reader>
             (new request_reader(tcp_conn, handler));
     }
     
@@ -78,20 +75,20 @@ protected:
         
     /// Reads more bytes from the TCP connection
     virtual void read_bytes(void) {
-        get_connection()->async_read_some(boost::bind(&request_reader::consume_bytes,
+        get_connection()->async_read_some(std::bind(static_cast<void(request_reader::*)(const asio::error_code&, std::size_t)>(&request_reader::consume_bytes),
                                                         shared_from_this(),
-                                                        boost::asio::placeholders::error,
-                                                        boost::asio::placeholders::bytes_transferred));
+                                                        std::placeholders::_1,
+                                                        std::placeholders::_2));
     }
 
     /// Called after we have finished parsing the HTTP message headers
-    virtual void finished_parsing_headers(const boost::system::error_code& ec) {
+    virtual void finished_parsing_headers(const asio::error_code& ec) {
         // call the finished headers handler with the HTTP message
         if (m_parsed_headers) m_parsed_headers(m_http_msg, get_connection(), ec);
     }
     
     /// Called after we have finished reading/parsing the HTTP message
-    virtual void finished_reading(const boost::system::error_code& ec) {
+    virtual void finished_reading(const asio::error_code& ec) {
         // call the finished handler with the finished HTTP message
         if (m_finished) m_finished(m_http_msg, get_connection(), ec);
     }
@@ -111,7 +108,7 @@ protected:
 
 
 /// data type for a request_reader pointer
-typedef boost::shared_ptr<request_reader>    request_reader_ptr;
+typedef std::shared_ptr<request_reader>    request_reader_ptr;
 
 
 }   // end namespace http

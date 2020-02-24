@@ -12,8 +12,8 @@
 
 #include <set>
 #include <map>
+#include <memory>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
 #include <pion/logger.hpp>
@@ -162,11 +162,11 @@ protected:
     resource_set_type       m_white_list;
 
     /// mutex used to protect access to the resources
-    mutable boost::mutex    m_resource_mutex;
+    mutable std::mutex    m_resource_mutex;
 };
 
 /// data type for a auth pointer
-typedef boost::shared_ptr<auth> auth_ptr;
+typedef std::shared_ptr<auth> auth_ptr;
 
 
 }   // end namespace http

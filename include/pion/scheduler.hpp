@@ -11,17 +11,14 @@
 #define __PION_SCHEDULER_HEADER__
 
 #include <vector>
-#include <boost/asio.hpp>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <condition_variable>
+#include <asio.hpp>
 #include <boost/assert.hpp>
-#include <boost/bind.hpp>
-#include <boost/function/function0.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
+
 #include <boost/noncopyable.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/xtime.hpp>
-#include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 
@@ -66,10 +63,10 @@ public:
     inline bool is_running(void) const { return m_is_running; }
     
     /// sets the number of threads to be used (these are shared by all servers)
-    inline void set_num_threads(const boost::uint32_t n) { m_num_threads = n; }
+    inline void set_num_threads(const std::uint32_t n) { m_num_threads = n; }
     
     /// returns the number of threads currently in use
-    inline boost::uint32_t get_num_threads(void) const { return m_num_threads; }
+    inline std::uint32_t get_num_threads(void) const { return m_num_threads; }
 
     /// sets the logger to be used
     inline void set_logger(logger log_ptr) { m_logger = log_ptr; }
@@ -78,14 +75,14 @@ public:
     inline logger get_logger(void) { return m_logger; }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& get_io_service(void) = 0;
+    virtual asio::io_service& get_io_service(void) = 0;
     
     /**
      * schedules work to be performed by one of the pooled threads
      *
      * @param work_func work function to be executed
      */
-    virtual void post(boost::function0<void> work_func) {
+    virtual void post(std::function<void()> work_func) {
         get_io_service().post(work_func);
     }
     
@@ -95,8 +92,8 @@ public:
      * @param my_service IO service used to re-schedule keep_running()
      * @param my_timer deadline timer used to keep the IO service active while running
      */
-    void keep_running(boost::asio::io_service& my_service,
-                     boost::asio::deadline_timer& my_timer);
+    void keep_running(asio::io_service& my_service,
+                     asio::deadline_timer& my_timer);
     
     /**
      * puts the current thread to sleep for a specific period of time
@@ -104,9 +101,9 @@ public:
      * @param sleep_sec number of entire seconds to sleep for
      * @param sleep_nsec number of nanoseconds to sleep for (10^-9 in 1 second)
      */
-    inline static void sleep(boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec) {
-        boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
-        boost::thread::sleep(wakeup_time);
+    inline static void sleep(std::uint32_t sleep_sec, std::uint32_t sleep_nsec) {
+        std::chrono::system_clock::time_point wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
+        std::this_thread::sleep_until(wakeup_time);
     }
 
     /**
@@ -120,15 +117,15 @@ public:
      */
     template <typename ConditionType, typename LockType>
     inline static void sleep(ConditionType& wakeup_condition, LockType& wakeup_lock,
-                             boost::uint32_t sleep_sec, boost::uint32_t sleep_nsec)
+                             std::uint32_t sleep_sec, std::uint32_t sleep_nsec)
     {
-        boost::system_time wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
-        wakeup_condition.timed_wait(wakeup_lock, wakeup_time);
+        std::chrono::system_clock::time_point wakeup_time(get_wakeup_time(sleep_sec, sleep_nsec));
+        wakeup_condition.wait_until(wakeup_lock, wakeup_time);
     }
     
     
     /// processes work passed to the asio service & handles uncaught exceptions
-    void process_service_work(boost::asio::io_service& service);
+    void process_service_work(asio::io_service& service);
 
 
 protected:
@@ -141,8 +138,8 @@ protected:
      *
      * @return boost::system_time time to wake up from sleep
      */
-    static boost::system_time get_wakeup_time(boost::uint32_t sleep_sec,
-        boost::uint32_t sleep_nsec);
+    static std::chrono::system_clock::time_point get_wakeup_time(std::uint32_t sleep_sec,
+        std::uint32_t sleep_nsec);
 
     /// stops all services used to schedule work
     virtual void stop_services(void) {}
@@ -158,35 +155,35 @@ protected:
     
     
     /// default number of worker threads in the thread pool
-    static const boost::uint32_t    DEFAULT_NUM_THREADS;
+    static const std::uint32_t    DEFAULT_NUM_THREADS;
 
     /// number of nanoseconds in one full second (10 ^ 9)
-    static const boost::uint32_t    NSEC_IN_SECOND;
+    static const std::uint32_t    NSEC_IN_SECOND;
 
     /// number of microseconds in one full second (10 ^ 6)
-    static const boost::uint32_t    MICROSEC_IN_SECOND;
+    static const std::uint32_t    MICROSEC_IN_SECOND;
     
     /// number of seconds a timer should wait for to keep the IO services running
-    static const boost::uint32_t    KEEP_RUNNING_TIMER_SECONDS;
+    static const std::uint32_t    KEEP_RUNNING_TIMER_SECONDS;
 
 
     /// mutex to make class thread-safe
-    boost::mutex                    m_mutex;
+    std::mutex                    m_mutex;
     
     /// primary logging interface used by this class
     logger                          m_logger;
 
     /// condition triggered when there are no more active users
-    boost::condition                m_no_more_active_users;
+    std::condition_variable                m_no_more_active_users;
 
     /// condition triggered when the scheduler has stopped
-    boost::condition                m_scheduler_has_stopped;
+    std::condition_variable                m_scheduler_has_stopped;
 
     /// total number of worker threads in the pool
-    boost::uint32_t                 m_num_threads;
+    std::uint32_t                 m_num_threads;
 
     /// the scheduler will not shutdown until there are no more active users
-    boost::uint32_t                 m_active_users;
+    std::uint32_t                 m_active_users;
 
     /// true if the thread scheduler is running
     bool                            m_is_running;
@@ -216,13 +213,13 @@ protected:
             PION_LOG_DEBUG(m_logger, "Waiting for threads to shutdown");
             
             // wait until all threads in the pool have stopped
-            boost::thread current_thread;
+//            std::thread current_thread;
             for (ThreadPool::iterator i = m_thread_pool.begin();
                  i != m_thread_pool.end(); ++i)
             {
                 // make sure we do not call join() for the current thread,
                 // since this may yield "undefined behavior"
-                if (**i != current_thread) (*i)->join();
+                if ((*i)->get_id() != std::this_thread::get_id()) (*i)->join();
             }
         }
     }
@@ -232,7 +229,7 @@ protected:
 
     
     /// typedef for a pool of worker threads
-    typedef std::vector<boost::shared_ptr<boost::thread> >  ThreadPool;
+    typedef std::vector<std::shared_ptr<std::thread> >  ThreadPool;
     
     
     /// pool of threads used to perform work
@@ -257,7 +254,7 @@ public:
     virtual ~single_service_scheduler() { shutdown(); }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& get_io_service(void) { return m_service; }
+    virtual asio::io_service& get_io_service(void) { return m_service; }
     
     /// Starts the thread scheduler (this is called automatically when necessary)
     virtual void startup(void);
@@ -273,10 +270,10 @@ protected:
 
     
     /// service used to manage async I/O events
-    boost::asio::io_service         m_service;
+    asio::io_service         m_service;
     
     /// timer used to periodically check for shutdown
-    boost::asio::deadline_timer     m_timer;
+    asio::deadline_timer     m_timer;
 };
     
 
@@ -297,10 +294,10 @@ public:
     virtual ~one_to_one_scheduler() { shutdown(); }
     
     /// returns an async I/O service used to schedule work
-    virtual boost::asio::io_service& get_io_service(void) {
-        boost::mutex::scoped_lock scheduler_lock(m_mutex);
+    virtual asio::io_service& get_io_service(void) {
+        std::unique_lock<std::mutex> scheduler_lock(m_mutex);
         while (m_service_pool.size() < m_num_threads) {
-            boost::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
+            std::shared_ptr<service_pair_type>  service_ptr(new service_pair_type());
             m_service_pool.push_back(service_ptr);
         }
         if (++m_next_service >= m_num_threads)
@@ -315,7 +312,7 @@ public:
      *
      * @param n integer number representing the service object
      */
-    virtual boost::asio::io_service& get_io_service(boost::uint32_t n) {
+    virtual asio::io_service& get_io_service(std::uint32_t n) {
         BOOST_ASSERT(n < m_num_threads);
         BOOST_ASSERT(n < m_service_pool.size());
         return m_service_pool[n]->first;
@@ -341,19 +338,19 @@ protected:
     /// typedef for a pair object where first is an IO service and second is a deadline timer
     struct service_pair_type {
         service_pair_type(void) : first(), second(first) {}
-        boost::asio::io_service         first;
-        boost::asio::deadline_timer     second;
+        asio::io_service         first;
+        asio::deadline_timer     second;
     };
     
     /// typedef for a pool of IO services
-    typedef std::vector<boost::shared_ptr<service_pair_type> >        service_pool_type;
+    typedef std::vector<std::shared_ptr<service_pair_type> >        service_pool_type;
 
     
     /// pool of IO services used to schedule work
     service_pool_type   m_service_pool;
 
     /// the next service to use for scheduling work
-    boost::uint32_t     m_next_service;
+    std::uint32_t     m_next_service;
 };
     
     

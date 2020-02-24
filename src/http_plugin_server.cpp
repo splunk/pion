@@ -28,7 +28,7 @@ void plugin_server::add_service(const std::string& resource, http::plugin_servic
     const std::string clean_resource(strip_trailing_slash(resource));
     service_ptr->set_resource(clean_resource);
     m_services.add(clean_resource, service_ptr);
-    http::server::add_resource(clean_resource, boost::ref(*service_ptr));
+    http::server::add_resource(clean_resource, std::ref(*service_ptr));
     PION_LOG_INFO(m_logger, "Loaded static web service for resource (" << clean_resource << ")");
 }
 
@@ -37,7 +37,7 @@ void plugin_server::load_service(const std::string& resource, const std::string&
     const std::string clean_resource(strip_trailing_slash(resource));
     http::plugin_service *service_ptr;
     service_ptr = m_services.load(clean_resource, service_name);
-    http::server::add_resource(clean_resource, boost::ref(*service_ptr));
+    http::server::add_resource(clean_resource, std::ref(*service_ptr));
     service_ptr->set_resource(clean_resource);
     PION_LOG_INFO(m_logger, "Loaded web service plug-in for resource (" << clean_resource << "): " << service_name);
 }
@@ -46,7 +46,7 @@ void plugin_server::set_service_option(const std::string& resource,
                                  const std::string& name, const std::string& value)
 {
     const std::string clean_resource(strip_trailing_slash(resource));
-    m_services.run(clean_resource, boost::bind(&http::plugin_service::set_option, _1, name, value));
+    m_services.run(clean_resource, std::bind(&http::plugin_service::set_option, std::placeholders::_1, name, value));
     PION_LOG_INFO(m_logger, "Set web service option for resource ("
                   << resource << "): " << name << '=' << value);
 }

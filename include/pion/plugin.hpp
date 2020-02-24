@@ -14,9 +14,9 @@
 #include <string>
 #include <map>
 #include <list>
+#include <mutex>
+#include <thread>
 #include <boost/noncopyable.hpp>
-#include <boost/thread/once.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/filesystem/path.hpp>
 #include <pion/config.hpp>
 #include <pion/error.hpp>
@@ -210,13 +210,13 @@ private:
         map_type                    m_plugin_map;
         
         /// mutex to make class thread-safe
-        boost::mutex                m_plugin_mutex;
+        std::mutex                m_plugin_mutex;
     };
 
     
     /// returns a singleton instance of config_type
     static inline config_type& get_plugin_config(void) {
-        boost::call_once(plugin::create_plugin_config, m_instance_flag);
+        std::call_once(m_instance_flag, plugin::create_plugin_config);
         return *m_config_ptr;
     }
     
@@ -283,7 +283,7 @@ private:
     static const std::string            PION_CONFIG_EXTENSION;
     
     /// used to ensure thread safety of the plugin_config singleton
-    static boost::once_flag             m_instance_flag;
+    static std::once_flag             m_instance_flag;
 
     /// pointer to the plugin_config singleton
     static config_type *           m_config_ptr;

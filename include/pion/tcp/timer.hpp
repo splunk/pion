@@ -10,11 +10,9 @@
 #ifndef __PION_TCP_TIMER_HEADER__
 #define __PION_TCP_TIMER_HEADER__
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/thread/mutex.hpp>
+#include <memory>
+#include <mutex>
+#include <asio.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/connection.hpp>
 
@@ -27,7 +25,7 @@ namespace tcp {     // begin namespace tcp
 /// timer: helper class used to time-out TCP connections
 ///
 class PION_API timer
-    : public boost::enable_shared_from_this<timer>
+    : public std::enable_shared_from_this<timer>
 {
 public:
 
@@ -43,7 +41,7 @@ public:
      *
      * @param seconds number of seconds before the timeout triggers
      */
-    void start(const boost::uint32_t seconds);
+    void start(const std::uint32_t seconds);
 
     /// cancel the timer (operation completed)
     void cancel(void);
@@ -56,16 +54,16 @@ private:
      *
      * @param ec deadline timer error status code
      */
-    void timer_callback(const boost::system::error_code& ec);
+    void timer_callback(const asio::error_code& ec);
 
     /// pointer to the TCP connection that is being monitored
     tcp::connection_ptr                     m_conn_ptr;
 
     /// deadline timer used to timeout TCP operations
-    boost::asio::deadline_timer             m_timer;
+    asio::deadline_timer             m_timer;
     
     /// mutex used to synchronize the TCP connection timer
-    boost::mutex                            m_mutex;
+    std::mutex                            m_mutex;
 
     /// true if the deadline timer is active
     bool                                    m_timer_active; 
@@ -76,7 +74,7 @@ private:
 
 
 /// shared pointer to a timer object
-typedef boost::shared_ptr<timer>     timer_ptr;
+typedef std::shared_ptr<timer>     timer_ptr;
 
 
 }   // end namespace tcp

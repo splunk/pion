@@ -8,7 +8,7 @@
 //
 
 #include <iostream>
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <boost/bind.hpp>
 #include <pion/error.hpp>
 #include <pion/process.hpp>
@@ -27,8 +27,8 @@ public:
     {
         static const std::string HELLO_MESSAGE("Hello there!\x0D\x0A");
         tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE); // make sure it will get closed
-        tcp_conn->async_write(boost::asio::buffer(HELLO_MESSAGE),
-                              boost::bind(&pion::tcp::connection::finish, tcp_conn));
+        tcp_conn->async_write(asio::buffer(HELLO_MESSAGE),
+                              std::bind(&pion::tcp::connection::finish, tcp_conn));
     }
 };
 

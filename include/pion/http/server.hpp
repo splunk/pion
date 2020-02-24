@@ -12,12 +12,8 @@
 
 #include <map>
 #include <string>
-#include <boost/asio.hpp>
-#include <boost/function.hpp>
-#include <boost/function/function2.hpp>
-#include <boost/function/function3.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
+#include <functional>
+#include <asio.hpp>
 #include <pion/config.hpp>
 #include <pion/tcp/server.hpp>
 #include <pion/tcp/connection.hpp>
@@ -40,11 +36,10 @@ class PION_API server :
 public:
 
     /// type of function that is used to handle requests
-    typedef boost::function2<void, const http::request_ptr&, const tcp::connection_ptr&>  request_handler_t;
+    typedef std::function<void(const http::request_ptr&, const tcp::connection_ptr&)>  request_handler_t;
 
     /// handler for requests that result in "500 Server Error"
-    typedef boost::function3<void, const http::request_ptr&, const tcp::connection_ptr&,
-        const std::string&> error_handler_t;
+    typedef std::function<void(const http::request_ptr&, const tcp::connection_ptr&, const std::string&)> error_handler_t;
 
 
     /// default destructor
@@ -70,7 +65,7 @@ public:
      * 
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    explicit server(const boost::asio::ip::tcp::endpoint& endpoint)
+    explicit server(const asio::ip::tcp::endpoint& endpoint)
         : tcp::server(endpoint),
         m_bad_request_handler(server::handle_bad_request),
         m_not_found_handler(server::handle_not_found_request),
@@ -102,7 +97,7 @@ public:
      * @param sched the scheduler that will be used to manage worker threads
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint)
+    server(scheduler& sched, const asio::ip::tcp::endpoint& endpoint)
         : tcp::server(sched, endpoint),
         m_bad_request_handler(server::handle_bad_request),
         m_not_found_handler(server::handle_not_found_request),
@@ -147,7 +142,7 @@ public:
     /// clears the collection of resources recognized by the HTTP server
     virtual void clear(void) {
         if (is_listening()) stop();
-        boost::mutex::scoped_lock resource_lock(m_resource_mutex);
+        std::unique_lock<std::mutex> resource_lock(m_resource_mutex);
         m_resources.clear();
     }
 
@@ -240,7 +235,7 @@ protected:
      * @param ec error_code contains additional information for parsing errors
      */
     virtual void handle_request(const http::request_ptr& http_request_ptr,
-                                const tcp::connection_ptr& tcp_conn, const boost::system::error_code& ec);
+                                const tcp::connection_ptr& tcp_conn, const asio::error_code& ec);
 
     /**
      * searches for the appropriate request handler to use for a given resource
@@ -280,7 +275,7 @@ private:
     error_handler_t             m_server_error_handler;
 
     /// mutex used to protect access to the resources
-    mutable boost::mutex        m_resource_mutex;
+    mutable std::mutex        m_resource_mutex;
 
     /// pointer to authentication handler object
     http::auth_ptr              m_auth_ptr;
@@ -291,7 +286,7 @@ private:
 
 
 /// data type for a HTTP server pointer
-typedef boost::shared_ptr<server>	server_ptr;
+typedef std::shared_ptr<server>	server_ptr;
 
 
 }   // end namespace http

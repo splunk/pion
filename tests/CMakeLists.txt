@@ -10,6 +10,8 @@
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 
 set(PROJECT_NAME piontests)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
+
 project(${PROJECT_NAME} CXX)
 
 # add test plugins
@@ -23,6 +25,7 @@ else()
 endif()
 
 message("PLUGIN_PATH = ${PLUGIN_PATH}; EXECUTABLE_OUTPUT_PATH = ${EXECUTABLE_OUTPUT_PATH}")
+include_directories(${PLUGIN_PATH})
 
 add_custom_target(prepare_path
     COMMAND cmake -DPION_PLUGIN_PATH=${PLUGIN_PATH} -DPION_SRC_ROOT=${PION_SRC_ROOT} -P ${PION_SRC_ROOT}/cmake/GenTestInclude.cmake

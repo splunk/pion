@@ -9,7 +9,7 @@
 
 #include <vector>
 #include <iostream>
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <pion/error.hpp>
 #include <pion/plugin.hpp>
 #include <pion/process.hpp>
@@ -46,7 +46,7 @@ int main (int argc, char *argv[])
     ServiceOptionsType service_options;
     
     // parse command line: determine port number, RESOURCE and WEBSERVICE
-    boost::asio::ip::tcp::endpoint cfg_endpoint(boost::asio::ip::tcp::v4(), DEFAULT_PORT);
+    asio::ip::tcp::endpoint cfg_endpoint(asio::ip::tcp::v4(), DEFAULT_PORT);
     std::string service_config_file;
     std::string resource_name;
     std::string service_name;
@@ -63,7 +63,7 @@ int main (int argc, char *argv[])
                 if (cfg_endpoint.port() == 0) cfg_endpoint.port(DEFAULT_PORT);
             } else if (argv[argnum][1] == 'i' && argv[argnum][2] == '\0' && argnum+1 < argc) {
                 // set ip address
-                cfg_endpoint.address(boost::asio::ip::address::from_string(argv[++argnum]));
+                cfg_endpoint.address(asio::ip::address::from_string(argv[++argnum]));
             } else if (argv[argnum][1] == 'c' && argv[argnum][2] == '\0' && argnum+1 < argc) {
                 service_config_file = argv[++argnum];
             } else if (argv[argnum][1] == 'd' && argv[argnum][2] == '\0' && argnum+1 < argc) {

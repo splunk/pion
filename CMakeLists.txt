@@ -40,7 +40,7 @@ message(">>> EXECUTABLE_OUTPUT_PATH = ${EXECUTABLE_OUTPUT_PATH}")
 # general
 option(BUILD_SHARED_LIBS "Build Pion as shared library" ON)
 option(BUILD_SPDY "Enable SPDY" OFF)
-option(BUILD_UT "Enable Unit test" OFF)
+option(BUILD_UT "Enable Unit test" ON)
 
 # utils
 option(BUILD_PIOND "Enable piond" ON)
@@ -78,11 +78,11 @@ include_directories(${PROJECT_WIDE_INCLUDE})
 find_package(Threads REQUIRED)
 
 # TODO: need to handle this with option
-set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_MULTITHREADED OFF)
 #set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
-find_package(Boost COMPONENTS thread system filesystem regex unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
 if (Boost_FOUND)
     # disable autolinking feature
     add_definitions(-DBOOST_ALL_NO_LIB)

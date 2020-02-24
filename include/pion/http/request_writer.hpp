@@ -10,11 +10,9 @@
 #ifndef __PION_HTTP_REQUEST_WRITER_HEADER__
 #define __PION_HTTP_REQUEST_WRITER_HEADER__
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
+#include <memory>
+#include <asio.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <pion/config.hpp>
 #include <pion/http/writer.hpp>
 #include <pion/http/request.hpp>
@@ -29,7 +27,7 @@ namespace http {    // begin namespace http
 /// 
 class request_writer :
     public http::writer,
-    public boost::enable_shared_from_this<request_writer>
+    public std::enable_shared_from_this<request_writer>
 {
 public:
     
@@ -42,13 +40,13 @@ public:
      * @param tcp_conn TCP connection used to send the request
      * @param handler function called after the request has been sent
      * 
-     * @return boost::shared_ptr<request_writer> shared pointer to
+     * @return std::shared_ptr<request_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<request_writer> create(const tcp::connection_ptr& tcp_conn,
+    static inline std::shared_ptr<request_writer> create(const tcp::connection_ptr& tcp_conn,
                                                               finished_handler_t handler = finished_handler_t())
     {
-        return boost::shared_ptr<request_writer>(new request_writer(tcp_conn, handler));
+        return std::shared_ptr<request_writer>(new request_writer(tcp_conn, handler));
     }
     
     /**
@@ -58,14 +56,14 @@ public:
      * @param http_request_ptr pointer to the request that will be sent
      * @param handler function called after the request has been sent
      * 
-     * @return boost::shared_ptr<request_writer> shared pointer to
+     * @return std::shared_ptr<request_writer> shared pointer to
      *         the new writer object that was created
      */
-    static inline boost::shared_ptr<request_writer> create(const tcp::connection_ptr& tcp_conn,
+    static inline std::shared_ptr<request_writer> create(const tcp::connection_ptr& tcp_conn,
                                                               const http::request_ptr& http_request_ptr,
                                                               finished_handler_t handler = finished_handler_t())
     {
-        return boost::shared_ptr<request_writer>(new request_writer(tcp_conn, http_request_ptr, handler));
+        return std::shared_ptr<request_writer>(new request_writer(tcp_conn, http_request_ptr, handler));
     }
 
     /// returns a non-const reference to the request that will be sent
@@ -125,9 +123,9 @@ protected:
 
     /// returns a function bound to http::writer::handle_write()
     virtual write_handler_t bind_to_write_handler(void) {
-        return boost::bind(&request_writer::handle_write, shared_from_this(),
-                           boost::asio::placeholders::error,
-                           boost::asio::placeholders::bytes_transferred);
+        return std::bind(&request_writer::handle_write, shared_from_this(),
+                           std::placeholders::_1,
+                           std::placeholders::_2);
     }
 
     /**
@@ -136,7 +134,7 @@ protected:
      * @param write_error error status from the last write operation
      * @param bytes_written number of bytes sent by the last write operation
      */
-    virtual void handle_write(const boost::system::error_code& write_error,
+    virtual void handle_write(const asio::error_code& write_error,
                              std::size_t bytes_written)
     {
         (void)bytes_written;
@@ -166,7 +164,7 @@ private:
 
 
 /// data type for a request_writer pointer
-typedef boost::shared_ptr<request_writer>    request_writer_ptr;
+typedef std::shared_ptr<request_writer>    request_writer_ptr;
 
 
 /// override operator<< for convenience

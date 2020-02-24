@@ -11,7 +11,7 @@
 #define __PION_ALGORITHM_HEADER__
 
 #include <string>
-#include <boost/cstdint.hpp>
+
 #include <pion/config.hpp>
 
 namespace pion {    // begin namespace pion
@@ -58,90 +58,90 @@ struct PION_API algorithm {
     static void float_to_bytes(long double value, unsigned char *ptr, size_t num_exp_bits, size_t num_fraction_bits);
 
     /// convert sequence of one byte to 8-bit unsigned integer
-    static inline boost::uint8_t to_uint8(unsigned char byte) {
-        return boost::uint8_t(byte);
+    static inline std::uint8_t to_uint8(unsigned char byte) {
+        return std::uint8_t(byte);
     }
     
     /// convert sequence of one byte to 8-bit signed integer
-    static inline boost::int8_t to_int8(unsigned char byte) {
-        return boost::int8_t(byte);
+    static inline std::int8_t to_int8(unsigned char byte) {
+        return std::int8_t(byte);
     }
     
     /// convert sequence of one byte to 8-bit unsigned integer
-    static inline boost::uint8_t to_uint8(char byte) {
-        return boost::uint8_t(byte);
+    static inline std::uint8_t to_uint8(char byte) {
+        return std::uint8_t(byte);
     }
     
     /// convert sequence of one byte to 8-bit signed integer
-    static inline boost::int8_t to_int8(char byte) {
-        return boost::int8_t(byte);
+    static inline std::int8_t to_int8(char byte) {
+        return std::int8_t(byte);
     }
     
     /// convert sequence of two bytes to 16-bit unsigned integer
-    static inline boost::uint16_t to_uint16(unsigned char high, unsigned char low) {
-        return (((boost::uint16_t)high) << 8) | ((boost::uint16_t)low);
+    static inline std::uint16_t to_uint16(unsigned char high, unsigned char low) {
+        return (((std::uint16_t)high) << 8) | ((std::uint16_t)low);
     }
 
     /// convert sequence of two bytes to 16-bit signed integer
-    static inline boost::int16_t to_int16(unsigned char high, unsigned char low) {
-        return (((boost::int16_t)high) << 8) | ((boost::int16_t)low);
+    static inline std::int16_t to_int16(unsigned char high, unsigned char low) {
+        return (((std::int16_t)high) << 8) | ((std::int16_t)low);
     }
 
     /// convert sequence of three bytes to 24-bit unsigned integer
-    static inline boost::uint32_t to_uint24(unsigned char high, unsigned char mid, unsigned char low) {
-        return (((boost::uint32_t)high) << 16) | (((boost::uint32_t)mid) << 8) | ((boost::uint32_t)low);
+    static inline std::uint32_t to_uint24(unsigned char high, unsigned char mid, unsigned char low) {
+        return (((std::uint32_t)high) << 16) | (((std::uint32_t)mid) << 8) | ((std::uint32_t)low);
     }
     
     /// convert sequence of three bytes to 24-bit signed integer
-    static inline boost::int32_t to_int24(unsigned char high, unsigned char mid, unsigned char low) {
-        return (((boost::int32_t)high) << 16) | (((boost::int32_t)mid) << 8) | ((boost::int32_t)low);
+    static inline std::int32_t to_int24(unsigned char high, unsigned char mid, unsigned char low) {
+        return (((std::int32_t)high) << 16) | (((std::int32_t)mid) << 8) | ((std::int32_t)low);
     }
     
     /// convert sequence of four bytes to 32-bit unsigned integer
-    static inline boost::uint32_t to_uint32(unsigned char high, unsigned char mid1, unsigned char mid2, unsigned char low) {
-        return (((boost::uint32_t)high) << 24) | (((boost::uint32_t)mid1) << 16) | (((boost::uint32_t)mid2) << 8) | ((boost::uint32_t)low);
+    static inline std::uint32_t to_uint32(unsigned char high, unsigned char mid1, unsigned char mid2, unsigned char low) {
+        return (((std::uint32_t)high) << 24) | (((std::int32_t)mid1) << 16) | (((std::int32_t)mid2) << 8) | ((std::int32_t)low);
     }
     
     /// convert sequence of four bytes to 32-bit signed integer
-    static inline boost::int32_t to_int32(unsigned char high, unsigned char mid1, unsigned char mid2, unsigned char low) {
-        return (((boost::int32_t)high) << 24) | (((boost::int32_t)mid1) << 16) | (((boost::int32_t)mid2) << 8) | ((boost::int32_t)low);
+    static inline std::int32_t to_int32(unsigned char high, unsigned char mid1, unsigned char mid2, unsigned char low) {
+        return (((std::int32_t)high) << 24) | (((std::int32_t)mid1) << 16) | (((std::int32_t)mid2) << 8) | ((std::int32_t)low);
     }
     
     /// convert sequence of eight bytes to 64-bit unsigned integer
-    static inline boost::uint64_t to_uint64(unsigned char high, unsigned char mid1, unsigned char mid2, unsigned char mid3, unsigned char mid4, unsigned char mid5, unsigned char mid6, unsigned char low) {
-        return (((boost::uint64_t)high) << 56) | (((boost::uint64_t)mid1) << 48) | (((boost::uint64_t)mid2) << 40) | (((boost::uint64_t)mid3) << 32)
-            | (((boost::uint64_t)mid4) << 24) | (((boost::uint64_t)mid5) << 16) | (((boost::uint64_t)mid6) << 8) | ((boost::uint64_t)low);
+    static inline std::uint64_t to_uint64(unsigned char high, unsigned char mid1, unsigned char mid2, unsigned char mid3, unsigned char mid4, unsigned char mid5, unsigned char mid6, unsigned char low) {
+        return (((std::int64_t)high) << 56) | (((std::int64_t)mid1) << 48) | (((std::int64_t)mid2) << 40) | (((std::int64_t)mid3) << 32)
+            | (((std::int64_t)mid4) << 24) | (((std::int64_t)mid5) << 16) | (((std::int64_t)mid6) << 8) | ((std::int64_t)low);
     }
     
     /// convert sequence of eight bytes to 64-bit signed integer
-    static inline boost::int64_t to_int64(unsigned char high, unsigned char mid1, unsigned char mid2, unsigned char mid3, unsigned char mid4, unsigned char mid5, unsigned char mid6, unsigned char low) {
-        return (((boost::int64_t)high) << 56) | (((boost::int64_t)mid1) << 48) | (((boost::int64_t)mid2) << 40) | (((boost::int64_t)mid3) << 32)
-        | (((boost::int64_t)mid4) << 24) | (((boost::int64_t)mid5) << 16) | (((boost::int64_t)mid6) << 8) | ((boost::int64_t)low);
+    static inline std::int64_t to_int64(unsigned char high, unsigned char mid1, unsigned char mid2, unsigned char mid3, unsigned char mid4, unsigned char mid5, unsigned char mid6, unsigned char low) {
+        return (((std::int64_t)high) << 56) | (((std::int64_t)mid1) << 48) | (((std::int64_t)mid2) << 40) | (((std::int64_t)mid3) << 32)
+        | (((std::int64_t)mid4) << 24) | (((std::int64_t)mid5) << 16) | (((std::int64_t)mid6) << 8) | ((std::int64_t)low);
     }
 
     /// convert sequence of two bytes to 16-bit unsigned integer
     template <typename T1, typename T2>
-    static inline boost::uint16_t to_uint16(T1 high, T2 low) {
+    static inline std::uint16_t to_uint16(T1 high, T2 low) {
         return to_uint16(static_cast<unsigned char>(high), static_cast<unsigned char>(low));
     }
     
     /// convert sequence of two bytes to 16-bit signed integer
     template <typename T1, typename T2>
-    static inline boost::int16_t to_int16(T1 high, T2 low) {
+    static inline std::int16_t to_int16(T1 high, T2 low) {
         return to_int16(static_cast<unsigned char>(high), static_cast<unsigned char>(low));
     }
     
     /// convert sequence of three bytes to 24-bit unsigned integer
     template <typename T1, typename T2, typename T3>
-    static inline boost::uint32_t to_uint24(T1 high, T2 mid, T3 low) {
+    static inline std::uint32_t to_uint24(T1 high, T2 mid, T3 low) {
         return to_uint24(static_cast<unsigned char>(high),
                          static_cast<unsigned char>(mid),
                          static_cast<unsigned char>(low));
     }
-    
+
     /// convert sequence of three bytes to 24-bit signed integer
     template <typename T1, typename T2, typename T3>
-    static inline boost::int32_t to_int24(T1 high, T2 mid, T3 low) {
+    static inline std::int32_t to_int24(T1 high, T2 mid, T3 low) {
         return to_int24(static_cast<unsigned char>(high),
                         static_cast<unsigned char>(mid),
                         static_cast<unsigned char>(low));
@@ -149,7 +149,7 @@ struct PION_API algorithm {
     
     /// convert sequence of four bytes to 32-bit unsigned integer
     template <typename T1, typename T2, typename T3, typename T4>
-    static inline boost::uint32_t to_uint32(T1 high, T2 mid1, T3 mid2, T4 low) {
+    static inline std::uint32_t to_uint32(T1 high, T2 mid1, T3 mid2, T4 low) {
         return to_uint32(static_cast<unsigned char>(high),
                          static_cast<unsigned char>(mid1),
                          static_cast<unsigned char>(mid2),
@@ -158,7 +158,7 @@ struct PION_API algorithm {
     
     /// convert sequence of four bytes to 32-bit signed integer
     template <typename T1, typename T2, typename T3, typename T4>
-    static inline boost::int32_t to_int32(T1 high, T2 mid1, T3 mid2, T4 low) {
+    static inline std::int32_t to_int32(T1 high, T2 mid1, T3 mid2, T4 low) {
         return to_int32(static_cast<unsigned char>(high),
                         static_cast<unsigned char>(mid1),
                         static_cast<unsigned char>(mid2),
@@ -167,7 +167,7 @@ struct PION_API algorithm {
     
     /// convert sequence of eight bytes to 64-bit unsigned integer
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-    static inline boost::uint64_t to_uint64(T1 high, T2 mid1, T3 mid2, T4 mid3, T5 mid4, T6 mid5, T7 mid6, T8 low) {
+    static inline std::uint64_t to_uint64(T1 high, T2 mid1, T3 mid2, T4 mid3, T5 mid4, T6 mid5, T7 mid6, T8 low) {
         return to_uint64(static_cast<unsigned char>(high),
                          static_cast<unsigned char>(mid1),
                          static_cast<unsigned char>(mid2),
@@ -180,7 +180,7 @@ struct PION_API algorithm {
     
     /// convert sequence of eight bytes to 64-bit signed integer
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-    static inline boost::int64_t to_int64(T1 high, T2 mid1, T3 mid2, T4 mid3, T5 mid4, T6 mid5, T7 mid6, T8 low) {
+    static inline std::int64_t to_int64(T1 high, T2 mid1, T3 mid2, T4 mid3, T5 mid4, T6 mid5, T7 mid6, T8 low) {
         return to_int64(static_cast<unsigned char>(high),
                         static_cast<unsigned char>(mid1),
                         static_cast<unsigned char>(mid2),
@@ -194,93 +194,93 @@ struct PION_API algorithm {
     
     /// convert byte pointer into an 8-bit unsigned integer
     template <typename Byte>
-    static inline boost::uint8_t to_uint8(const Byte *buf) {
+    static inline std::uint8_t to_uint8(const Byte *buf) {
         return to_uint8(buf[0]);
     }
     
     /// convert byte pointer into an 8-bit signed integer
     template <typename Byte>
-    static inline boost::int8_t to_int8(const Byte *buf) {
+    static inline std::int8_t to_int8(const Byte *buf) {
         return to_int8(buf[0]);
     }
     
     /// convert sequence of two bytes to 16-bit unsigned integer
     template <typename Byte>
-    static inline boost::uint16_t to_uint16(const Byte *buf) {
+    static inline std::uint16_t to_uint16(const Byte *buf) {
         return to_uint16(buf[0], buf[1]);
     }
     
     /// convert sequence of two bytes to 16-bit signed integer
     template <typename Byte>
-    static inline boost::int16_t to_int16(const Byte *buf) {
+    static inline std::int16_t to_int16(const Byte *buf) {
         return to_int16(buf[0], buf[1]);
     }
     
     /// convert sequence of three bytes to 24-bit unsigned integer
     template <typename Byte>
-    static inline boost::uint32_t to_uint24(const Byte *buf) {
+    static inline std::int32_t to_uint24(const Byte *buf) {
         return to_uint24(buf[0], buf[1], buf[2]);
     }
     
     /// convert sequence of three bytes to 24-bit signed integer
     template <typename Byte>
-    static inline boost::int32_t to_int24(const Byte *buf) {
+    static inline std::int32_t to_int24(const Byte *buf) {
         return to_int24(buf[0], buf[1], buf[2]);
     }
     
     /// convert sequence of four bytes to 32-bit unsigned integer
     template <typename Byte>
-    static inline boost::uint32_t to_uint32(const Byte *buf) {
+    static inline std::uint32_t to_uint32(const Byte *buf) {
         return to_uint32(buf[0], buf[1], buf[2], buf[3]);
     }
     
     /// convert sequence of four bytes to 32-bit signed integer
     template <typename Byte>
-    static inline boost::int32_t to_int32(const Byte *buf) {
+    static inline std::int32_t to_int32(const Byte *buf) {
         return to_int32(buf[0], buf[1], buf[2], buf[3]);
     }
     
     /// convert sequence of eight bytes to 64-bit unsigned integer
     template <typename Byte>
-    static inline boost::uint64_t to_uint64(const Byte *buf) {
+    static inline std::uint64_t to_uint64(const Byte *buf) {
         return to_uint64(buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
     }
     
     /// convert sequence of eight bytes to 64-bit signed integer
     template <typename Byte>
-    static inline boost::int64_t to_int64(const Byte *buf) {
+    static inline std::int64_t to_int64(const Byte *buf) {
         return to_int64(buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
     }
 
     /// convert 8-bit unsigned integer into sequence of one byte
     template <typename Byte>
-    static inline void from_uint8(Byte *buf, const boost::uint8_t n) {
+    static inline void from_uint8(Byte *buf, const std::uint8_t n) {
         buf[0] = n & 0xFF;
     }
     
     /// convert 8-bit signed integer into sequence of one byte
     template <typename Byte>
-    static inline void from_int8(Byte *buf, const boost::int8_t n) {
+    static inline void from_int8(Byte *buf, const std::int8_t n) {
         buf[0] = n & 0xFF;
     }
     
     /// convert 16-bit unsigned integer into sequence of two bytes
     template <typename Byte>
-    static inline void from_uint16(Byte *buf, const boost::uint16_t n) {
+    static inline void from_uint16(Byte *buf, const std::uint16_t n) {
         buf[0] = (n >> 8) & 0xFF;
         buf[1] = n & 0xFF;
     }
 
     /// convert 16-bit signed integer into sequence of two bytes
     template <typename Byte>
-    static inline void from_int16(Byte *buf, const boost::int16_t n) {
+    static inline void from_int16(Byte *buf, const std::int16_t n) {
         buf[0] = (n >> 8) & 0xFF;
         buf[1] = n & 0xFF;
     }
     
     /// convert 24-bit unsigned integer into sequence of three bytes
     template <typename Byte>
-    static inline void from_uint24(Byte *buf, const boost::uint32_t n) {
+    static inline void from_uint24(Byte *buf, const std::int32_t n) {
         buf[0] = (n >> 16) & 0xFF;
         buf[1] = (n >> 8) & 0xFF;
         buf[2] = n & 0xFF;
@@ -288,7 +288,7 @@ struct PION_API algorithm {
     
     /// convert 24-bit signed integer into sequence of three bytes
     template <typename Byte>
-    static inline void from_int24(Byte *buf, const boost::int32_t n) {
+    static inline void from_int24(Byte *buf, const std::int32_t n) {
         buf[0] = (n >> 16) & 0xFF;
         buf[1] = (n >> 8) & 0xFF;
         buf[2] = n & 0xFF;
@@ -296,7 +296,7 @@ struct PION_API algorithm {
     
     /// convert 32-bit unsigned integer into sequence of four bytes
     template <typename Byte>
-    static inline void from_uint32(Byte *buf, const boost::uint32_t n) {
+    static inline void from_uint32(Byte *buf, const std::uint32_t n) {
         buf[0] = (n >> 24) & 0xFF;
         buf[1] = (n >> 16) & 0xFF;
         buf[2] = (n >> 8) & 0xFF;
@@ -305,7 +305,7 @@ struct PION_API algorithm {
     
     /// convert 32-bit signed integer into sequence of four bytes
     template <typename Byte>
-    static inline void from_int32(Byte *buf, const boost::int32_t n) {
+    static inline void from_int32(Byte *buf, const std::int32_t n) {
         buf[0] = (n >> 24) & 0xFF;
         buf[1] = (n >> 16) & 0xFF;
         buf[2] = (n >> 8) & 0xFF;
@@ -314,7 +314,7 @@ struct PION_API algorithm {
 
     /// convert 64-bit unsigned integer into sequence of eight bytes
     template <typename Byte>
-    static inline void from_uint64(Byte *buf, const boost::uint64_t n) {
+    static inline void from_uint64(Byte *buf, const std::uint64_t n) {
         buf[0] = (n >> 56) & 0xFF;
         buf[1] = (n >> 48) & 0xFF;
         buf[2] = (n >> 40) & 0xFF;
@@ -327,7 +327,7 @@ struct PION_API algorithm {
     
     /// convert 64-bit signed integer into sequence of eight bytes
     template <typename Byte>
-    static inline void from_int64(Byte *buf, const boost::int64_t n) {
+    static inline void from_int64(Byte *buf, const std::int64_t n) {
         buf[0] = (n >> 56) & 0xFF;
         buf[1] = (n >> 48) & 0xFF;
         buf[2] = (n >> 40) & 0xFF;

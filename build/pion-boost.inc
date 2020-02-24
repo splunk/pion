@@ -60,7 +60,7 @@ LIBS_SAVED="$LIBS"
 LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
 AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
 AC_TRY_LINK([#include <boost/system/error_code.hpp>],
-	[ boost::system::error_code error_code; std::string message(error_code.message()); return 0; ],
+	[ asio::error_code error_code; std::string message(error_code.message()); return 0; ],
 	[ AC_MSG_RESULT(ok)
 	  BOOST_SYSTEM_LIB="-l${BOOST_TRY_LINK}"
 	],
@@ -72,22 +72,22 @@ AC_SUBST(BOOST_SYSTEM_LIB)
 
 
 # Check for Boost Thread library
-BOOST_TRY_LIB=thread
-BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
-LIBS_SAVED="$LIBS"
-LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK} ${BOOST_SYSTEM_LIB} ${BOOST_DATE_TIME_LIB}"
-AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
-AC_TRY_LINK([#include <boost/thread/thread.hpp>
-	#include <boost/thread/condition.hpp>],
-	[ boost::thread current_thread; return 0; ],
-	[ AC_MSG_RESULT(ok)
-	  BOOST_THREAD_LIB="-l${BOOST_TRY_LINK}"
-	],
-	[ AC_MSG_RESULT(not found)
-	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
-	])
-LIBS="$LIBS_SAVED"
-AC_SUBST(BOOST_THREAD_LIB)
+#BOOST_TRY_LIB=thread
+#BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
+#LIBS_SAVED="$LIBS"
+#LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK} ${BOOST_SYSTEM_LIB} ${BOOST_DATE_TIME_LIB}"
+#AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
+#AC_TRY_LINK([#include <boost/thread/thread.hpp>
+#	#include <boost/thread/condition.hpp>],
+#	[ boost::thread current_thread; return 0; ],
+#	[ AC_MSG_RESULT(ok)
+#	  BOOST_THREAD_LIB="-l${BOOST_TRY_LINK}"
+#	],
+#	[ AC_MSG_RESULT(not found)
+#	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+#	])
+#LIBS="$LIBS_SAVED"
+#AC_SUBST(BOOST_THREAD_LIB)
 
 
 # Check for Boost Filesystem library
@@ -109,21 +109,21 @@ AC_SUBST(BOOST_FILESYSTEM_LIB)
 
 
 # Check for Boost Regex library
-BOOST_TRY_LIB=regex
-BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
-LIBS_SAVED="$LIBS"
-LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
-AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
-AC_TRY_LINK([#include <boost/regex.hpp>],
-	[ boost::regex exp(".*"); return 0; ],
-	[ AC_MSG_RESULT(ok)
-	  BOOST_REGEX_LIB="-l${BOOST_TRY_LINK}"
-	],
-	[ AC_MSG_RESULT(not found)
-	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
-	])
-LIBS="$LIBS_SAVED"
-AC_SUBST(BOOST_REGEX_LIB)
+#BOOST_TRY_LIB=regex
+#BOOST_TRY_LINK="boost_${BOOST_TRY_LIB}${BOOST_LIB_EXTENSION}"
+#LIBS_SAVED="$LIBS"
+#LIBS="$LIBS_SAVED -l${BOOST_TRY_LINK}"
+#AC_MSG_CHECKING([for boost::${BOOST_TRY_LIB} library])
+#AC_TRY_LINK([#include <boost/regex.hpp>],
+#	[ std::regex exp(".*"); return 0; ],
+#	[ AC_MSG_RESULT(ok)
+#	  BOOST_REGEX_LIB="-l${BOOST_TRY_LINK}"
+#	],
+#	[ AC_MSG_RESULT(not found)
+#	  AC_MSG_ERROR(Unable to link with the boost::${BOOST_TRY_LIB} library)
+#	])
+#LIBS="$LIBS_SAVED"
+#AC_SUBST(BOOST_REGEX_LIB)
 
 
 # Check for Boost Unit Test Framework

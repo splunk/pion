@@ -9,7 +9,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <boost/regex.hpp>
 #include <boost/assert.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/algorithm/string.hpp>
@@ -35,25 +34,25 @@ namespace http {    // begin namespace http
 
 // static members of parser
 
-const boost::uint32_t   parser::STATUS_MESSAGE_MAX = 1024;  // 1 KB
-const boost::uint32_t   parser::METHOD_MAX = 1024;  // 1 KB
-const boost::uint32_t   parser::RESOURCE_MAX = 256 * 1024;  // 256 KB
-const boost::uint32_t   parser::QUERY_STRING_MAX = 1024 * 1024; // 1 MB
-const boost::uint32_t   parser::HEADER_NAME_MAX = 1024; // 1 KB
-const boost::uint32_t   parser::HEADER_VALUE_MAX = 1024 * 1024; // 1 MB
-const boost::uint32_t   parser::QUERY_NAME_MAX = 1024;  // 1 KB
-const boost::uint32_t   parser::QUERY_VALUE_MAX = 1024 * 1024;  // 1 MB
-const boost::uint32_t   parser::COOKIE_NAME_MAX = 1024; // 1 KB
-const boost::uint32_t   parser::COOKIE_VALUE_MAX = 1024 * 1024; // 1 MB
+const std::uint32_t   parser::STATUS_MESSAGE_MAX = 1024;  // 1 KB
+const std::uint32_t   parser::METHOD_MAX = 1024;  // 1 KB
+const std::uint32_t   parser::RESOURCE_MAX = 256 * 1024;  // 256 KB
+const std::uint32_t   parser::QUERY_STRING_MAX = 1024 * 1024; // 1 MB
+const std::uint32_t   parser::HEADER_NAME_MAX = 1024; // 1 KB
+const std::uint32_t   parser::HEADER_VALUE_MAX = 1024 * 1024; // 1 MB
+const std::uint32_t   parser::QUERY_NAME_MAX = 1024;  // 1 KB
+const std::uint32_t   parser::QUERY_VALUE_MAX = 1024 * 1024;  // 1 MB
+const std::uint32_t   parser::COOKIE_NAME_MAX = 1024; // 1 KB
+const std::uint32_t   parser::COOKIE_VALUE_MAX = 1024 * 1024; // 1 MB
 const std::size_t       parser::DEFAULT_CONTENT_MAX = 1024 * 1024;  // 1 MB
 parser::error_category_t * parser::m_error_category_ptr = NULL;
-boost::once_flag            parser::m_instance_flag = BOOST_ONCE_INIT;
+std::once_flag            parser::m_instance_flag;
 
 
 // parser member functions
 
 boost::tribool parser::parse(http::message& http_msg,
-    boost::system::error_code& ec)
+    asio::error_code& ec)
 {
     BOOST_ASSERT(! eof() );
 
@@ -132,7 +131,7 @@ boost::tribool parser::parse(http::message& http_msg,
 }
 
 boost::tribool parser::parse_missing_data(http::message& http_msg,
-    std::size_t len, boost::system::error_code& ec)
+    std::size_t len, asio::error_code& ec)
 {
     static const char MISSING_DATA_CHAR = 'X';
     boost::tribool rc = boost::indeterminate;
@@ -246,7 +245,7 @@ boost::tribool parser::parse_missing_data(http::message& http_msg,
 }
 
 boost::tribool parser::parse_headers(http::message& http_msg,
-    boost::system::error_code& ec)
+    asio::error_code& ec)
 {
     //
     // note that boost::tribool may have one of THREE states:
@@ -750,7 +749,7 @@ void parser::update_message_with_header_data(http::message& http_msg) const
 }
 
 boost::tribool parser::finish_header_parsing(http::message& http_msg,
-    boost::system::error_code& ec)
+    asio::error_code& ec)
 {
     boost::tribool rc = boost::indeterminate;
 
@@ -837,7 +836,7 @@ boost::tribool parser::finish_header_parsing(http::message& http_msg,
 }
     
 bool parser::parse_uri(const std::string& uri, std::string& proto, 
-                      std::string& host, boost::uint16_t& port,
+                      std::string& host, std::uint16_t& port,
                       std::string& path, std::string& query)
 {
     size_t proto_end = uri.find("://");
@@ -874,8 +873,8 @@ bool parser::parse_uri(const std::string& uri, std::string& proto,
     // parse the port, if it's not empty
     if(port_pos != std::string::npos) {
         try {
-            port = boost::lexical_cast<int>(t.substr(port_pos+1));
-        } catch (boost::bad_lexical_cast &) {
+            port = std::stoi(t.substr(port_pos+1));
+        } catch (std::invalid_argument &) {
             return false;
         }
     } else if (proto == "http" || proto == "HTTP") {
@@ -1351,7 +1350,7 @@ bool parser::parse_cookie_header(ihash_multimap& dict,
 }
 
 boost::tribool parser::parse_chunks(http::message::chunk_cache_t& chunks,
-    boost::system::error_code& ec)
+    asio::error_code& ec)
 {
     //
     // note that boost::tribool may have one of THREE states:
@@ -1517,7 +1516,7 @@ boost::tribool parser::parse_chunks(http::message::chunk_cache_t& chunks,
 }
 
 boost::tribool parser::consume_content(http::message& http_msg,
-    boost::system::error_code& /* ec */)
+    asio::error_code& /* ec */)
 {
     size_t content_bytes_to_read;
     size_t content_bytes_available = bytes_available();
@@ -1669,29 +1668,29 @@ void parser::create_error_category(void)
 bool parser::parse_forwarded_for(const std::string& header, std::string& public_ip)
 {
     // static regex's used to check for ipv4 address
-    static const boost::regex IPV4_ADDR_RX("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
+    static const std::regex IPV4_ADDR_RX("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
 
     /// static regex used to check for private/local networks:
     /// 10.*
     /// 127.*
     /// 192.168.*
     /// 172.16-31.*
-    static const boost::regex PRIVATE_NET_RX("(10\\.[0-9]{1,3}|127\\.[0-9]{1,3}|192\\.168|172\\.1[6-9]|172\\.2[0-9]|172\\.3[0-1])\\.[0-9]{1,3}\\.[0-9]{1,3}");
+    static const std::regex PRIVATE_NET_RX("(10\\.[0-9]{1,3}|127\\.[0-9]{1,3}|192\\.168|172\\.1[6-9]|172\\.2[0-9]|172\\.3[0-1])\\.[0-9]{1,3}\\.[0-9]{1,3}");
 
     // sanity check
     if (header.empty())
         return false;
 
     // local variables re-used by while loop
-    boost::match_results<std::string::const_iterator> m;
+    std::match_results<std::string::const_iterator> m;
     std::string::const_iterator start_it = header.begin();
 
     // search for next ip address within the header
-    while (boost::regex_search(start_it, header.end(), m, IPV4_ADDR_RX)) {
+    while (std::regex_search(start_it, header.end(), m, IPV4_ADDR_RX)) {
         // get ip that matched
         std::string ip_str(m[0].first, m[0].second);
         // check if public network ip address
-        if (! boost::regex_match(ip_str, PRIVATE_NET_RX) ) {
+        if (! std::regex_match(ip_str, PRIVATE_NET_RX) ) {
             // match found!
             public_ip = ip_str;
             return true;

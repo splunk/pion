@@ -11,11 +11,10 @@
 #define __PION_TCP_SERVER_HEADER__
 
 #include <set>
-#include <boost/asio.hpp>
+#include <mutex>
+#include <condition_variable>
+#include <asio.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
 #include <pion/config.hpp>
 #include <pion/logger.hpp>
 #include <pion/scheduler.hpp>
@@ -67,16 +66,16 @@ public:
     inline void set_port(unsigned int p) { m_endpoint.port(p); }
     
     /// returns IP address that the server listens for connections on
-    inline boost::asio::ip::address get_address(void) const { return m_endpoint.address(); }
+    inline asio::ip::address get_address(void) const { return m_endpoint.address(); }
     
     /// sets IP address that the server listens for connections on
-    inline void set_address(const boost::asio::ip::address& addr) { m_endpoint.address(addr); }
+    inline void set_address(const asio::ip::address& addr) { m_endpoint.address(addr); }
     
     /// returns tcp endpoint that the server listens for connections on
-    inline const boost::asio::ip::tcp::endpoint& get_endpoint(void) const { return m_endpoint; }
+    inline const asio::ip::tcp::endpoint& get_endpoint(void) const { return m_endpoint; }
     
     /// sets tcp endpoint that the server listens for connections on
-    inline void set_endpoint(const boost::asio::ip::tcp::endpoint& ep) { m_endpoint = ep; }
+    inline void set_endpoint(const asio::ip::tcp::endpoint& ep) { m_endpoint = ep; }
 
     /// returns true if the server uses SSL to encrypt connections
     inline bool get_ssl_flag(void) const { return m_ssl_flag; }
@@ -97,10 +96,10 @@ public:
     inline logger get_logger(void) { return m_logger; }
     
     /// returns mutable reference to the TCP connection acceptor
-    inline boost::asio::ip::tcp::acceptor& get_acceptor(void) { return m_tcp_acceptor; }
+    inline asio::ip::tcp::acceptor& get_acceptor(void) { return m_tcp_acceptor; }
 
     /// returns const reference to the TCP connection acceptor
-    inline const boost::asio::ip::tcp::acceptor& get_acceptor(void) const { return m_tcp_acceptor; }
+    inline const asio::ip::tcp::acceptor& get_acceptor(void) const { return m_tcp_acceptor; }
 
     
 protected:
@@ -117,7 +116,7 @@ protected:
      * 
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    explicit server(const boost::asio::ip::tcp::endpoint& endpoint);
+    explicit server(const asio::ip::tcp::endpoint& endpoint);
 
     /**
      * protected constructor so that only derived objects may be created
@@ -133,7 +132,7 @@ protected:
      * @param sched the scheduler that will be used to manage worker threads
      * @param endpoint TCP endpoint used to listen for new connections (see ASIO docs)
      */
-    server(scheduler& sched, const boost::asio::ip::tcp::endpoint& endpoint);
+    server(scheduler& sched, const asio::ip::tcp::endpoint& endpoint);
     
     /**
      * handles a new TCP connection; derived classes SHOULD override this
@@ -153,7 +152,7 @@ protected:
     virtual void after_stopping(void) {}
     
     /// returns an async I/O service used to schedule work
-    inline boost::asio::io_service& get_io_service(void) { return m_active_scheduler.get_io_service(); }
+    inline asio::io_service& get_io_service(void) { return m_active_scheduler.get_io_service(); }
     
     
     /// primary logging interface used by this class
@@ -175,7 +174,7 @@ private:
      * @param accept_error true if an error occurred while accepting connections
      */
     void handle_accept(const tcp::connection_ptr& tcp_conn,
-                      const boost::system::error_code& accept_error);
+                      const asio::error_code& accept_error);
 
     /**
      * handles new connections following an SSL handshake (checks for errors)
@@ -184,7 +183,7 @@ private:
      * @param handshake_error true if an error occurred during the SSL handshake
      */
     void handle_ssl_handshake(const tcp::connection_ptr& tcp_conn,
-                            const boost::system::error_code& handshake_error);
+                            const asio::error_code& handshake_error);
     
     /// This will be called by connection::finish() after a server has
     /// finished handling a connection.  If the keep_alive flag is true,
@@ -208,22 +207,22 @@ private:
     scheduler &                             m_active_scheduler;
     
     /// manages async TCP connections
-    boost::asio::ip::tcp::acceptor          m_tcp_acceptor;
+    asio::ip::tcp::acceptor          m_tcp_acceptor;
 
     /// context used for SSL configuration
     connection::ssl_context_type            m_ssl_context;
         
     /// condition triggered when the server has stopped listening for connections
-    boost::condition                        m_server_has_stopped;
+    std::condition_variable                        m_server_has_stopped;
 
     /// condition triggered when the connection pool is empty
-    boost::condition                        m_no_more_connections;
+    std::condition_variable                        m_no_more_connections;
 
     /// pool of active connections associated with this server 
     ConnectionPool                          m_conn_pool;
 
     /// tcp endpoint used to listen for new connections
-    boost::asio::ip::tcp::endpoint          m_endpoint;
+    asio::ip::tcp::endpoint          m_endpoint;
 
     /// true if the server uses SSL to encrypt connections
     bool                                    m_ssl_flag;
@@ -232,12 +231,12 @@ private:
     bool                                    m_is_listening;
 
     /// mutex to make class thread-safe
-    mutable boost::mutex                    m_mutex;
+    mutable std::mutex                    m_mutex;
 };
 
 
 /// data type for a server pointer
-typedef boost::shared_ptr<server>    server_ptr;
+typedef std::shared_ptr<server>    server_ptr;
 
 
 }   // end namespace tcp

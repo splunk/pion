@@ -25,7 +25,7 @@ namespace pion {    // begin namespace pion
     
 // static members of process
     
-boost::once_flag                process::m_instance_flag = BOOST_ONCE_INIT;
+std::once_flag                process::m_instance_flag;
 process::config_type *process::m_config_ptr = NULL;
 
     
@@ -34,7 +34,7 @@ process::config_type *process::m_config_ptr = NULL;
 void process::shutdown(void)
 {
     config_type& cfg = get_config();
-    boost::mutex::scoped_lock shutdown_lock(cfg.shutdown_mutex);
+    std::unique_lock<std::mutex> shutdown_lock(cfg.shutdown_mutex);
     if (! cfg.shutdown_now) {
         cfg.shutdown_now = true;
         cfg.shutdown_cond.notify_all();
@@ -44,7 +44,7 @@ void process::shutdown(void)
 void process::wait_for_shutdown(void)
 {
     config_type& cfg = get_config();
-    boost::mutex::scoped_lock shutdown_lock(cfg.shutdown_mutex);
+    std::unique_lock<std::mutex> shutdown_lock(cfg.shutdown_mutex);
     while (! cfg.shutdown_now)
         cfg.shutdown_cond.wait(shutdown_lock);
 }
