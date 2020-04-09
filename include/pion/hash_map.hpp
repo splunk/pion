@@ -74,7 +74,6 @@ namespace pion {    // begin namespace pion
     /// copied from boost.unordered hash_equality documentation
     /// http://www.boost.org/doc/libs/1_50_0/doc/html/unordered/hash_equality.html
     struct iequal_to
-        : std::binary_function<std::string, std::string, bool>
     {
         bool operator()(std::string const& x,
                         std::string const& y) const
@@ -87,7 +86,6 @@ namespace pion {    // begin namespace pion
     /// copied from boost.unordered hash_equality documentation
     /// http://www.boost.org/doc/libs/1_50_0/doc/html/unordered/hash_equality.html
     struct ihash
-        : std::unary_function<std::string, std::size_t>
     {
         std::size_t operator()(std::string const& x) const
         {
